@@ -23,7 +23,7 @@ export class ProductsComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    this.subs.dispose()
+    this.subs?.dispose()
   }
 
 }
