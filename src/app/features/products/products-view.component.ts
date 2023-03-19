@@ -5,11 +5,11 @@ import { ProductsService } from './products.service';
 import { SubscriptionContainer } from './SubscriptionContainer';
 
 @Component({
-  selector: 'app-products',
-  templateUrl: './products.component.html',
-  styleUrls: ['./products.component.scss']
+  selector: 'app-products-view',
+  templateUrl: './products-view.component.html',
+  styleUrls: ['./products-view.component.scss']
 })
-export class ProductsComponent implements OnInit, OnDestroy {
+export class ProductsView implements OnInit, OnDestroy {
   products$: Subscription | undefined;
   subs = new SubscriptionContainer();
 
