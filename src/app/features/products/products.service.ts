@@ -18,4 +18,8 @@ export class ProductsService {
     return of(this.products);
   }
 
+  getByCategory(category: string): Observable<Product[]> {
+    return of(this.products.filter((product) => product.category === category));
+  }
+
 }
