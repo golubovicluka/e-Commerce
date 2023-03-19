@@ -9,7 +9,7 @@ import { SubscriptionContainer } from './SubscriptionContainer';
   templateUrl: './products-view.component.html',
   styleUrls: ['./products-view.component.scss']
 })
-export class ProductsView implements OnInit, OnDestroy {
+export class ProductsViewComponent implements OnInit, OnDestroy {
   products$: Subscription | undefined;
   subs = new SubscriptionContainer();
 
