@@ -10,6 +10,7 @@ import { SubscriptionContainer } from './SubscriptionContainer';
   styleUrls: ['./products-view.component.scss']
 })
 export class ProductsViewComponent implements OnInit, OnDestroy {
+  products: any[] = [];
   products$: Subscription | undefined;
   subs = new SubscriptionContainer();
 
@@ -17,7 +18,9 @@ export class ProductsViewComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.products$ = this._productService.getProducts().subscribe((products) => {
-      console.log(products);
+      this.products = products;
+      console.log(this.products);
+
     })
     this.subs.add(this.products$);
   }

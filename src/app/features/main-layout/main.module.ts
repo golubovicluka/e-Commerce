@@ -4,18 +4,16 @@ import { CommonModule } from '@angular/common';
 import { MainRoutingRoutingModule } from './main-routing.module';
 import { MainLayoutComponent } from './main-layout.component';
 
-
-
 @NgModule({
   declarations: [
-    MainLayoutComponent
+    MainLayoutComponent,
   ],
   imports: [
     CommonModule,
-    MainRoutingRoutingModule
+    MainRoutingRoutingModule,
   ],
   exports: [
-    MainLayoutComponent
+    MainLayoutComponent,
   ]
 })
 export class MainModule { }
