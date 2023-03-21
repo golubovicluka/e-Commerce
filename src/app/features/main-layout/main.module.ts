@@ -1,8 +1,8 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
-import { MainRoutingRoutingModule } from './main-routing.module';
 import { MainLayoutComponent } from './main-layout.component';
+import { RouterModule } from '@angular/router';
 
 @NgModule({
   declarations: [
@@ -10,7 +10,7 @@ import { MainLayoutComponent } from './main-layout.component';
   ],
   imports: [
     CommonModule,
-    MainRoutingRoutingModule,
+    RouterModule
   ],
   exports: [
     MainLayoutComponent,

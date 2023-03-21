@@ -1,8 +1,9 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
+import { ProductsViewComponent } from './features/products/products-view.component';
 
 const routes: Routes = [
-  { path: "", loadChildren: () => import('./features/main-layout/main.module').then(m => m.MainModule) },
+  { path: "", component: ProductsViewComponent },
 ];
 
 @NgModule({

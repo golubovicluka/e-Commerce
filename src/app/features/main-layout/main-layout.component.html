@@ -1,11 +1,10 @@
-<!-- Convert to presentational view component -->
 <div class="header">
   <span>webshop 2.0</span>
   <ul>
-    <li>Home</li>
-    <li>Products</li>
-    <li>Contact</li>
+    <li [routerLink]="['/home']">Home</li>
+    <li [routerLink]="['/products']">Products</li>
+    <li [routerLink]="['/home']">Contact</li>
   </ul>
 </div>
-<router-outlet></router-outlet>
+<ng-content></ng-content>
 <div class="footer">footer</div>
