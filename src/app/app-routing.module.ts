@@ -3,7 +3,12 @@ import { RouterModule, Routes } from '@angular/router';
 import { ProductsViewComponent } from './features/products/products-view.component';
 
 const routes: Routes = [
-  { path: "", component: ProductsViewComponent },
+  { path: '', redirectTo: '/home', pathMatch: 'full' },
+  // { path: 'home', component: HomeComponent },
+  {
+    path: 'products',
+    loadChildren: () => import('./features/products/products.module').then(m => m.ProductsModule)
+  }
 ];
 
 @NgModule({

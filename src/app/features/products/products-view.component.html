@@ -1,6 +1,6 @@
 <div class="products-container">
-  <div *ngFor="let product$ of products$ | async; trackBy:product.id">
+  <div *ngFor="let product$ of products$; trackBy:id">
     product$.name
   </div>
 </div>
-product view
+product view works
