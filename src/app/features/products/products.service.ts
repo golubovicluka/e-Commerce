@@ -14,6 +14,10 @@ export class ProductsService {
 
   constructor() { }
 
+  addProduct(product: Product) {
+    this.products.push(product);
+  }
+
   getProducts(): Observable<Product[]> {
     return of(this.products);
   }

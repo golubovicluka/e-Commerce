@@ -21,8 +21,8 @@ export class ProductsViewComponent implements OnInit, OnDestroy {
     // this.subs.add(this.products$);
   }
 
-  trackBy(product: Product, index: number) {
-    return index
+  trackByProductId(index: number, product: Product): number {
+    return index;
   }
 
   ngOnDestroy() {
