@@ -1,0 +1,19 @@
+.product-card {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  background-color: #8cd1ff;
+  width: 300px;
+  height: 300px;
+  border-radius: 15px;
+  -webkit-border-radius: 15px;
+  -moz-border-radius: 15px;
+  -ms-border-radius: 15px;
+  -o-border-radius: 15px;
+  transition: 0.5s ease-out;
+  &:hover {
+    background-color: #36a9f6;
+    color: rgb(64, 64, 64);
+  }
+}

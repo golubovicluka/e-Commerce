@@ -17,7 +17,9 @@ export class ProductsViewComponent implements OnInit, OnDestroy {
   constructor(private _productService: ProductsService) { }
 
   ngOnInit() {
-    this.products$ = this._productService.getProducts()
+    setTimeout(() => {
+      this.products$ = this._productService.getProducts()
+    }, 3000);
     // this.subs.add(this.products$);
   }
 

@@ -1,6 +1,9 @@
-<div class="products-container">
+<div *ngIf="products$; else loading" class="products-container">
   <div *ngFor="let product of products$ | async; trackBy:trackByProductId">
-    {{product.name}}
+    <app-product [name]="product.name" [description]="product.description" [createdAt]="product.createdAt"
+      [category]="product.category" [rating]="product.rating.toString()"></app-product>
   </div>
 </div>
-product view works
+<ng-template #loading>
+  loading content... demo spinner here
+</ng-template>
