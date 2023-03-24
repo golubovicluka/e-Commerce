@@ -1,3 +1,4 @@
+
 <div *ngIf="products$; else loading" class="products-container">
   <div *ngFor="let product of products$ | async; trackBy:trackByProductId">
     <app-product [name]="product.name" [category]="product.category"></app-product>
@@ -5,6 +6,7 @@
       [category]="product.category" [rating]="product.rating.toString()"></app-product> -->
   </div>
 </div>
+
 <ng-template #loading>
-  loading content... demo spinner here
+  <i class="pi pi-spin pi-spinner" style="font-size: 2rem"></i>
 </ng-template>
