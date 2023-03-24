@@ -9,6 +9,12 @@ import { ProductsService } from './features/products/products.service';
 import { RouterModule } from '@angular/router';
 import { MainLayoutComponent } from './features/main-layout/main-layout.component';
 
+// Apollo
+import { APOLLO_OPTIONS, ApolloModule } from 'apollo-angular';
+import { HttpLink } from 'apollo-angular/http';
+import { HttpClientModule, HttpHeaders } from '@angular/common/http';
+import { InMemoryCache } from '@apollo/client/core';
+
 // Feature modules
 import { ProductsModule } from './features/products/products.module';
 import { HeaderComponent } from './features/main-layout/header/header.component';
@@ -16,7 +22,7 @@ import { HeaderComponent } from './features/main-layout/header/header.component'
   declarations: [
     AppComponent,
     MainLayoutComponent,
-    HeaderComponent
+    HeaderComponent,
   ],
   imports: [
     BrowserModule,
@@ -24,9 +30,28 @@ import { HeaderComponent } from './features/main-layout/header/header.component'
     CoreModule,
     RouterModule,
     CommonModule,
-    ProductsModule
+    ProductsModule,
+    HttpClientModule
   ],
-  providers: [ProductsService],
+  exports: [
+  ],
+  providers: [
+    {
+      provide: APOLLO_OPTIONS,
+      useFactory(httpLink: HttpLink) {
+        return {
+          cache: new InMemoryCache(),
+          headers: new HttpHeaders({
+            "x-hasura-admin-secret": "6sftAV4UtDQ6V26v1p4U4mDAS8eXiDDnBo62JFsQbdTjksQQjcF54reBmrA2p7Jl"
+          }),
+          link: httpLink.create({
+            uri: 'https://webshop.hasura.app/v1/graphql',
+          }),
+        };
+      },
+      deps: [HttpLink],
+    },
+  ],
   bootstrap: [AppComponent],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
