@@ -1,7 +1,8 @@
 <div *ngIf="products$; else loading" class="products-container">
   <div *ngFor="let product of products$ | async; trackBy:trackByProductId">
-    <app-product [name]="product.name" [description]="product.description" [createdAt]="product.createdAt"
-      [category]="product.category" [rating]="product.rating.toString()"></app-product>
+    <app-product [name]="product.name" [category]="product.category"></app-product>
+    <!-- <app-product [name]="product.name" [description]="product.description" [createdAt]="product.createdAt"
+      [category]="product.category" [rating]="product.rating.toString()"></app-product> -->
   </div>
 </div>
 <ng-template #loading>

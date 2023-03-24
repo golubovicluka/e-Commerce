@@ -10,7 +10,8 @@ import { RouterModule } from '@angular/router';
 import { MainLayoutComponent } from './features/main-layout/main-layout.component';
 
 // Apollo
-import { APOLLO_OPTIONS, ApolloModule } from 'apollo-angular';
+// import { APOLLO_OPTIONS, ApolloModule } from 'apollo-angular';
+import { ApolloModule, APOLLO_OPTIONS } from 'apollo-angular'
 import { HttpLink } from 'apollo-angular/http';
 import { HttpClientModule, HttpHeaders } from '@angular/common/http';
 import { InMemoryCache } from '@apollo/client/core';
@@ -31,7 +32,8 @@ import { HeaderComponent } from './features/main-layout/header/header.component'
     RouterModule,
     CommonModule,
     ProductsModule,
-    HttpClientModule
+    HttpClientModule,
+    ApolloModule
   ],
   exports: [
   ],
@@ -41,11 +43,11 @@ import { HeaderComponent } from './features/main-layout/header/header.component'
       useFactory(httpLink: HttpLink) {
         return {
           cache: new InMemoryCache(),
-          headers: new HttpHeaders({
-            "x-hasura-admin-secret": "6sftAV4UtDQ6V26v1p4U4mDAS8eXiDDnBo62JFsQbdTjksQQjcF54reBmrA2p7Jl"
-          }),
           link: httpLink.create({
             uri: 'https://webshop.hasura.app/v1/graphql',
+            headers: new HttpHeaders({
+              "x-hasura-admin-secret": "6sftAV4UtDQ6V26v1p4U4mDAS8eXiDDnBo62JFsQbdTjksQQjcF54reBmrA2p7Jl"
+            }),
           }),
         };
       },

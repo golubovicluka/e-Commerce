@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { Subscription, Observable } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import { Product } from './Product';
 import { ProductsService } from './products.service';
 import { SubscriptionContainer } from './SubscriptionContainer';
@@ -10,17 +10,16 @@ import { SubscriptionContainer } from './SubscriptionContainer';
   styleUrls: ['./products-view.component.scss'],
 })
 export class ProductsViewComponent implements OnInit, OnDestroy {
-  products$!: Observable<Product[]>
-  // products$: Subscription | undefined;
+  products$!: Observable<any>
   subs = new SubscriptionContainer();
 
   constructor(private _productService: ProductsService) { }
 
   ngOnInit() {
-    setTimeout(() => {
-      this.products$ = this._productService.getProducts()
-    }, 3000);
-    // this.subs.add(this.products$);
+    this._productService.getProducts().subscribe((result: any) => {
+      console.log(result.data.product);
+      this.products$ = of(result.data.product);
+    });
   }
 
   trackByProductId(index: number, product: Product): number {
