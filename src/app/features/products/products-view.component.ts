@@ -3,6 +3,8 @@ import { Observable, of } from 'rxjs';
 import { Product } from './Product';
 import { ProductsService } from './products.service';
 import { SubscriptionContainer } from './SubscriptionContainer';
+import { ConfirmationService, MessageService } from 'primeng/api';
+import { StoreService } from '../../shared/store.service';
 
 @Component({
   selector: 'app-products-view',
@@ -14,7 +16,11 @@ export class ProductsViewComponent implements OnInit, OnDestroy {
   subs = new SubscriptionContainer();
   selectedCategory: string = "Phone";
 
-  constructor(private _productService: ProductsService) { }
+  constructor(
+    private _productService: ProductsService,
+    private _messageServoce: MessageService,
+    private _storeService: StoreService
+  ) { }
 
   ngOnInit() {
     this._productService.getProducts().subscribe((products: any) => {
@@ -42,6 +48,14 @@ export class ProductsViewComponent implements OnInit, OnDestroy {
     this._productService.getProductsFromCategories(categories).subscribe((products: any) => {
       this.products$ = of(products.data.product)
     })
+  }
+
+  addToWishList(wishListItem: any[]) {
+    this._storeService.addWishListItem(wishListItem);
+  }
+
+  removedFromWishList(wishListItem: any[]) {
+    this._storeService.removeWishListItem(wishListItem);
   }
 
 }

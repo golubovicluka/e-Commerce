@@ -1,13 +1,18 @@
-<app-filters></app-filters>
-<div *ngIf="products$; else loading" class="products-container">
-  <div *ngFor="let product of products$ | async; trackBy:trackByProductId">
-    <app-product [name]="product.name" [subCategory]="product.subCategory" [id]="product.id" [image]="product.images[0]"
-      [inStock]="product.inStock" [price]="product.price" [description]="product.description"
-      [productId]="product.productId"></app-product>
+<div class="flex align-items-start justify-content-center h-12 w-12">
+  <app-filters></app-filters>
+  <div class="w-12 mx-5">
+    <div *ngIf="products$; else loading" class="products-container">
+      <div *ngFor="let product of products$ | async; trackBy:trackByProductId">
+        <app-product (addedToWishList)="addToWishList($event)" (removedFromWishList)="removedFromWishList($event)"
+          [name]="product.name" [subCategory]="product.subCategory" [id]="product.id" [image]="product.images[0]"
+          [inStock]="product.inStock" [price]="product.price" [description]="product.description"
+          [productId]="product.productId"></app-product>
+      </div>
+    </div>
+    <ng-template #loading>
+      <div class="center" style="padding-top: 30px">
+        <i class="pi pi-spin pi-spinner" style="font-size: 2rem"></i>
+      </div>
+    </ng-template>
   </div>
 </div>
-<ng-template #loading>
-  <div class="center" style="padding-top: 30px">
-    <i class="pi pi-spin pi-spinner" style="font-size: 2rem"></i>
-  </div>
-</ng-template>

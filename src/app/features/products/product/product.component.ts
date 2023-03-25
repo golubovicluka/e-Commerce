@@ -1,4 +1,5 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { MessageService } from 'primeng/api';
 
 @Component({
   selector: 'app-product',
@@ -14,13 +15,24 @@ export class ProductComponent implements OnInit {
   @Input() inStock!: number;
   @Input() price!: number;
   @Input() productId!: number;
+  @Output() addedToWishList = new EventEmitter();
+  @Output() removedFromWishList = new EventEmitter();
 
   public isAddedToWishList: boolean = false;
   ngOnInit() { }
 
-  // Todo: use event emitter to notify products-view
+  constructor(private _messageService: MessageService) { }
+
   addToWishList() {
     this.isAddedToWishList = !this.isAddedToWishList;
-    console.log("Added to wishlist");
+
+    if (this.isAddedToWishList) {
+      this.addedToWishList.emit(this);
+      this._messageService.add({ severity: 'success', summary: 'Added', detail: 'Added to wishlist' })
+    } else {
+      this.removedFromWishList.emit(this);
+      this._messageService.add({ severity: 'info', summary: 'Removed', detail: 'Removed from wishlist' })
+    }
+
   }
 }
