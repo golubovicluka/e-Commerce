@@ -7,7 +7,7 @@ import { AppComponent } from './app.component';
 import { CoreModule } from './core/core.module';
 import { ProductsService } from './features/products/products.service';
 import { RouterModule } from '@angular/router';
-import { MainLayoutComponent } from './features/main-layout/main-layout.component';
+
 
 // Apollo
 // import { APOLLO_OPTIONS, ApolloModule } from 'apollo-angular';
@@ -22,7 +22,6 @@ import { HeaderComponent } from './features/main-layout/header/header.component'
 @NgModule({
   declarations: [
     AppComponent,
-    MainLayoutComponent,
     HeaderComponent,
   ],
   imports: [

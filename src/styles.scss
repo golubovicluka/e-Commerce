@@ -1,5 +1,10 @@
 /* You can add global styles to this file, and also import other style files */
 @import "primeicons/primeicons.css";
+@import url("https://fonts.googleapis.com/css2?family=Inter&family=Poppins&family=Rubik:wght@400;500;700&display=swap");
+
+* {
+  font-family: "Inter", sans-serif;
+}
 
 html,
 body {
