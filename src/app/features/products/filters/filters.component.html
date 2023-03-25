@@ -1,0 +1,13 @@
+<div class="filter-container">
+  <p-accordion [multiple]="true">
+    <p-accordionTab header="Laptops">
+      <div class="field-checkbox">
+        <label for="laptop">Laptop</label>
+        <p-checkbox name="groupname" value="Laptop" inputId="laptop" [(ngModel)]="selectedFilters"></p-checkbox>
+      </div>
+    </p-accordionTab>
+    <p-accordionTab header="Phones">
+      <p-checkbox name="groupname" value="Phone" [(ngModel)]="selectedFilters"></p-checkbox>
+    </p-accordionTab>
+  </p-accordion>
+</div>

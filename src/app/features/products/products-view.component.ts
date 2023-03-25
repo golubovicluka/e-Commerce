@@ -21,17 +21,27 @@ export class ProductsViewComponent implements OnInit, OnDestroy {
       console.log(products.data.product);
       this.products$ = of(products.data.product);
     });
-    this._productService.getProductByCategory(this.selectedCategory).subscribe((products) => {
-      console.log(`Products in category ${this.selectedCategory}: `, products);
-    })
   }
 
   trackByProductId(index: number, product: Product): number {
     return index;
   }
 
+  getByCategory(selectedCategory: string) {
+    this._productService.getProductByCategory(selectedCategory).subscribe((products: any) => {
+      console.log(`Products in category ${selectedCategory}: `, products);
+      this.products$ = of(products.data.product);
+    })
+  }
+
   ngOnDestroy() {
     this.subs?.dispose()
+  }
+
+  filterCategories(categories: string[]) {
+    this._productService.getProductsFromCategories(categories).subscribe((products: any) => {
+      this.products$ = of(products.data.product)
+    })
   }
 
 }

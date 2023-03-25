@@ -1,3 +1,4 @@
+<app-filters></app-filters>
 <div *ngIf="products$; else loading" class="products-container">
   <div *ngFor="let product of products$ | async; trackBy:trackByProductId">
     <app-product [name]="product.name" [subCategory]="product.subCategory" [id]="product.id" [image]="product.images[0]"

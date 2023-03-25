@@ -38,7 +38,7 @@ export class ProductsService {
       .watchQuery({
         query: gql`
         {
-        product(where: {subCategory: {_like: "${category}%"}}) {
+          product(where: {subCategory: {_like: "${category}%"}}) {
           id
           category
           description
@@ -58,18 +58,38 @@ export class ProductsService {
       .watchQuery({
         query: gql`
         {
-        product_by_pk(id: ${id}) {
-        category
-        description
-        id
-        images
-        name
-        inStock
-        price
-        productId
-        subCategory
+          product_by_pk(id: ${id}) {
+          category
+          description
+          id
+          images
+          name
+          inStock
+          price
+          productId
+          subCategory
       }}`
-      })
+      }).valueChanges
+  }
+
+  getProductsFromCategories(categories: string[]) {
+    return this.apollo
+      .watchQuery({
+        query: gql`
+        {
+          product(where: { subCategory: { _in: ${categories} } }) {
+          subCategory
+          productId
+          price
+          name
+          inStock
+          images
+          id
+          description
+          category
+      }}`
+      }).valueChanges
   }
 
 }
+

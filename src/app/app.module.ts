@@ -19,8 +19,11 @@ import { InMemoryCache } from '@apollo/client/core';
 import { ProductsModule } from './features/products/products.module';
 import { HeaderComponent } from './features/main-layout/header/header.component';
 
+// PrimeNG modules
 import { BadgeModule } from 'primeng/badge';
 import { ButtonModule } from 'primeng/button';
+import { CheckboxModule } from 'primeng/checkbox';
+
 @NgModule({
   declarations: [
     AppComponent,
