@@ -1,10 +1,10 @@
 <div *ngIf="products$; else loading" class="products-container">
   <div *ngFor="let product of products$ | async; trackBy:trackByProductId">
     <app-product [name]="product.name" [subCategory]="product.subCategory" [id]="product.id" [image]="product.images[0]"
-      [inStock]="product.inStock" [price]="product.price" [productId]="product.productId"></app-product>
+      [inStock]="product.inStock" [price]="product.price" [description]="product.description"
+      [productId]="product.productId"></app-product>
   </div>
 </div>
-
 <ng-template #loading>
   <i class="pi pi-spin pi-spinner" style="font-size: 2rem"></i>
 </ng-template>

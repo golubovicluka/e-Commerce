@@ -22,6 +22,15 @@ export class ProductComponent implements OnInit {
   addToWishList() {
     this.isAddedToWishList = !this.isAddedToWishList;
     console.log("Added to wishlist");
+  }
 
+  mouseOver(event: any) {
+    console.log('Mouse over event:');
+    console.log(event);
+  }
+
+  mouseEnter(event: any) {
+    console.log('Mouse enter event');
+    console.log(event);
   }
 }

@@ -1,15 +1,23 @@
 <div class="wrapper">
-  <div class="product-card">
+  <div (mouseEnter)="mouseEnter($event)" class="product-card">
     <i (click)="addToWishList()" class="favorite"
       [class]="isAddedToWishList ? 'pi pi-heart-fill wishlist' : 'pi pi-heart'"></i>
     <div class="image" [ngStyle]="{ 'background-image': 'url(' + image + ')'}">
     </div>
     <div class="title-section">
       <span style="font-size: 1.2rem;">{{name}}</span>
+      <span>{{description}}</span>
     </div>
 
-    <span>{{description}}</span>
-    <span>{{subCategory}}</span>
-    <i class="pi pi-cart-plus cart" style="font-size: 1rem"></i>
+    <div class="item-bottom">
+      <div class="bottom-left">
+        <span>{{subCategory}}</span>
+        <span>{{price}} RSD</span>
+        <span>{{inStock}} items available</span>
+      </div>
+      <div class="bottom-right">
+        <i class="pi pi-cart-plus cart" style="font-size: 1.5rem"></i>
+      </div>
+    </div>
   </div>
 </div>
