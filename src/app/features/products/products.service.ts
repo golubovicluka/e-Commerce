@@ -30,7 +30,46 @@ export class ProductsService {
             }
           }
         `,
-      })
-      .valueChanges
+      }).valueChanges
   }
+
+  getProductByCategory(category: string) {
+    return this.apollo
+      .watchQuery({
+        query: gql`
+        {
+        product(where: {subCategory: {_like: "${category}%"}}) {
+          id
+          category
+          description
+          images
+          inStock
+          name
+          price
+          productId
+          subCategory
+        }}
+      `
+      }).valueChanges
+  }
+
+  getProductById(id: number) {
+    return this.apollo
+      .watchQuery({
+        query: gql`
+        {
+        product_by_pk(id: ${id}) {
+        category
+        description
+        id
+        images
+        name
+        inStock
+        price
+        productId
+        subCategory
+      }}`
+      })
+  }
+
 }

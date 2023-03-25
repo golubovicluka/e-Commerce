@@ -7,10 +7,9 @@ import { AppComponent } from './app.component';
 import { CoreModule } from './core/core.module';
 import { ProductsService } from './features/products/products.service';
 import { RouterModule } from '@angular/router';
-
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 // Apollo
-// import { APOLLO_OPTIONS, ApolloModule } from 'apollo-angular';
 import { ApolloModule, APOLLO_OPTIONS } from 'apollo-angular'
 import { HttpLink } from 'apollo-angular/http';
 import { HttpClientModule, HttpHeaders } from '@angular/common/http';
@@ -19,6 +18,9 @@ import { InMemoryCache } from '@apollo/client/core';
 // Feature modules
 import { ProductsModule } from './features/products/products.module';
 import { HeaderComponent } from './features/main-layout/header/header.component';
+
+import { BadgeModule } from 'primeng/badge';
+import { ButtonModule } from 'primeng/button';
 @NgModule({
   declarations: [
     AppComponent,
@@ -32,11 +34,15 @@ import { HeaderComponent } from './features/main-layout/header/header.component'
     CommonModule,
     ProductsModule,
     HttpClientModule,
-    ApolloModule
+    ApolloModule,
+    BadgeModule,
+    BrowserAnimationsModule,
+    ButtonModule
   ],
   exports: [
   ],
   providers: [
+    ProductsService,
     {
       provide: APOLLO_OPTIONS,
       useFactory(httpLink: HttpLink) {
