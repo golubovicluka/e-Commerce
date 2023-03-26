@@ -1,25 +1,19 @@
 <div class="filter-container border-round-md mr-5">
   <p-accordion [multiple]="true">
-    <p-accordionTab [header]="category" *ngFor="let category of categories">
-      <div class="flex justify-content-start align-items-center">
-        <p-checkbox class="px-2" name="filters" [value]="category" inputId="laptop"
-          [(ngModel)]="selectedFilters"></p-checkbox>
-        <label for="laptop">Laptop</label>
-      </div>
-    </p-accordionTab>
-    <!-- <p-accordionTab header="Phones">
-      <div class="flex justify-content-start align-items-center">
-        <p-checkbox class="px-2" name="groupname" value="Phone" inputId="phone"
-          [(ngModel)]="selectedFilters"></p-checkbox>
-        <label for="phone">Iphone 14 Pro</label>
-      </div>
-    </p-accordionTab>
-    <p-accordionTab header="Watches">
-      <div class="flex justify-content-start align-items-center">
-        <p-checkbox class="px-2" name="groupname" value="Phone" inputId="phone"
-          [(ngModel)]="selectedFilters"></p-checkbox>
-        <label for="phone">Iphone 14 Pro</label>
-      </div>
-    </p-accordionTab> -->
+    <!-- TODO: fix object object problem -->
+    <ng-container *ngFor="let category of categories">
+      <p-accordionTab header="{{category.name}}">
+
+        <div *ngFor="let subcategory of category.subcategories"
+          class="flex justify-content-start align-items-center my-2">
+
+          <p-checkbox class="px-2" name="filters" value="{{subcategory.name}}" [inputId]="category"
+            [(ngModel)]="selectedFilters"></p-checkbox>
+          <label for="subcategory">{{subcategory.name}}</label>
+
+        </div>
+      </p-accordionTab>
+      <!-- </div> -->
+    </ng-container>
   </p-accordion>
 </div>

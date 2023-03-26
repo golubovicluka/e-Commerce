@@ -9,7 +9,7 @@ import { MessageService } from 'primeng/api';
 export class ProductComponent implements OnInit {
   @Input() name!: string;
   @Input() description!: string;
-  @Input() subCategory!: string;
+  @Input() subcategory!: string;
   @Input() image!: string;
   @Input() id!: number;
   @Input() inStock!: number;
@@ -23,6 +23,7 @@ export class ProductComponent implements OnInit {
 
   constructor(private _messageService: MessageService) { }
 
+  // TODO: convert to event emitter and call from products-view
   addToWishList() {
     this.isAddedToWishList = !this.isAddedToWishList;
 

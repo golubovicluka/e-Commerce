@@ -1,19 +1,25 @@
 <p-toast></p-toast>
+
+<!-- Submenu with search and sorting -->
 <div class="flex justify-content-between align-items-center w-100 bg-primary h-5 my-4 p-1 border-round-xl">
   <span class="center mx-5 my-4 px-7">Filters</span>
   <span class="p-input-icon-left mx-5">
     <i class="pi pi-search"></i>
-    <input type="text" pInputText [(ngModel)]="searchInput" placeholder="Search">
+    <input type="text" pInputText (ngModelChange)="onChanges($event)" [(ngModel)]="searchInput" placeholder="Search">
   </span>
 </div>
-<div class="flex align-items-start justify-content-center h-12 w-12">
-  <app-filters></app-filters>
 
-  <div class="w-12 mx-5">
+<div class="flex align-items-start justify-content-center h-12 w-12">
+
+  <!-- Filters section -->
+  <app-filters [categories]="categories"></app-filters>
+
+  <!-- Products section -->
+  <div class="w-12 mr-5">
     <div *ngIf="products$; else loading" class="products-container">
       <div *ngFor="let product of products$ | async; trackBy:trackByProductId">
         <app-product (addedToWishList)="addToWishList($event)" (removedFromWishList)="removedFromWishList($event)"
-          [name]="product.name" [subCategory]="product.subCategory" [id]="product.id" [image]="product.images[0]"
+          [name]="product.name" [subcategory]="product.subcategory.name" [id]="product.id" [image]="product.images[0]"
           [inStock]="product.inStock" [price]="product.price" [description]="product.description"
           [productId]="product.productId"></app-product>
       </div>

@@ -8,8 +8,7 @@ import { Apollo, ApolloBase, gql } from 'apollo-angular';
 })
 export class ProductsService {
 
-  constructor(private apollo: Apollo) {
-  }
+  constructor(private apollo: Apollo) { }
 
   // Get all products
   getProducts() {
@@ -18,17 +17,51 @@ export class ProductsService {
         query: gql`
           {
             product {
-            id
-            category
-            description
-            images
-            inStock
-            name
-            price
-            productId
-            subCategory
-            }
+                  EAN
+                  categoryId
+                  description
+                  id
+                  images
+                  inStock
+                  name
+                  price
+                  category {
+                    id
+                    name
+                  }
+                  subcategory {
+                    id
+                    name
+                  }
+                }
           }
+        `,
+      }).valueChanges
+  }
+
+  searchProducts(searchInput: string) {
+    return this.apollo
+      .watchQuery({
+        query: gql`
+          {
+            product(where: { name: { _ilike: "%${searchInput}%" } }) {
+              EAN
+              categoryId
+              description
+              id
+              inStock
+              images
+              name
+              price
+              subcategory {
+                name
+                id
+              }
+              category {
+                name
+                id
+              }
+        }}
         `,
       }).valueChanges
   }
@@ -91,17 +124,24 @@ export class ProductsService {
       }).valueChanges
   }
 
+  // Get categories and subcategories for filter component
   getProductCategories() {
     return this.apollo
       .watchQuery({
         query: gql`
-        {
-        product {
-          subCategory
-          category
-        }}`
+          {
+            category {
+          id
+          name
+          subcategories {
+            name
+            id
+            categoryId
+          }
+        }}
+        `,
       }).valueChanges
   }
-
 }
+
 

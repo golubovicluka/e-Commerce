@@ -10,7 +10,7 @@
 
   <div class="item-bottom">
     <div class="bottom-left">
-      <span>{{subCategory}}</span>
+      <span>{{subcategory}}</span>
       <span>{{price}} RSD</span>
       <span *ngIf="inStock !== 0;else notInStock">{{inStock}} items available</span>
       <ng-template #notInStock>

@@ -7,13 +7,14 @@ import { ProductsService } from '../products.service';
   styleUrls: ['./filters.component.scss']
 })
 export class FiltersComponent implements OnInit {
-  @Input() categories: string[] = [];
+  @Input() categories: any[] = [];
 
-  selectedFilters: string[] = [];
+  // TODO: event emmiter with selected filters
+  selectedFilters: any[] = [];
 
   constructor(private _productService: ProductsService) { }
 
   ngOnInit() {
-
   }
+
 }

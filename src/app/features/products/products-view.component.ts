@@ -14,27 +14,39 @@ import { StoreService } from '../../shared/store.service';
 export class ProductsViewComponent implements OnInit, OnDestroy {
   products$!: Observable<any>
   subs = new SubscriptionContainer();
-  selectedCategory: string = "Phone";
   categories!: any;
 
   searchInput = '';
 
   constructor(
     private _productService: ProductsService,
-    private _messageServoce: MessageService,
+    private _messageService: MessageService,
     private _storeService: StoreService
   ) { }
 
   ngOnInit() {
     this._productService.getProducts().subscribe((products: any) => {
-      console.log(products.data.product);
+      console.log(products);
       this.products$ = of(products.data.product);
     });
-    this.categories = this._productService.getProductCategories().subscribe((categories) => {
-      console.log(categories);
+
+    this._productService.getProductCategories().subscribe((categories: any) => {
+      console.log(categories.data.category);
+      // const categoriesList = categories.data.category.map((c: { name: any; }) => c.name)
+      // const subcategoriesList = categories.data.category
+      // console.log(categories.data.category);
+      // console.log(categoriesList);
+      // console.log(subcategoriesList);
+      this.categories = categories.data.category;
     })
   }
 
+  onChanges(changes: any) {
+    this.searchInput = changes;
+    this._productService.searchProducts(changes).subscribe((product: any) => {
+      this.products$ = of(product.data.product);
+    })
+  }
 
   trackByProductId(index: number, product: Product): number {
     return index;
