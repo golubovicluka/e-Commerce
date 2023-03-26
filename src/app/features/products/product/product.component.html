@@ -12,7 +12,10 @@
     <div class="bottom-left">
       <span>{{subCategory}}</span>
       <span>{{price}} RSD</span>
-      <span>{{inStock}} items available</span>
+      <span *ngIf="inStock !== 0;else notInStock">{{inStock}} items available</span>
+      <ng-template #notInStock>
+        <span class="text-500">Not available</span>
+      </ng-template>
     </div>
     <div class="bottom-right">
       <i class="pi pi-cart-plus cart" style="font-size: 1.5rem"></i>

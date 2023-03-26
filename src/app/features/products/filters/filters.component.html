@@ -1,18 +1,25 @@
-<div class="filter-container">
+<div class="filter-container border-round-md mr-5">
   <p-accordion [multiple]="true">
-    <p-accordionTab header="Laptops">
+    <p-accordionTab [header]="category" *ngFor="let category of categories">
       <div class="flex justify-content-start align-items-center">
-        <p-checkbox class="px-2" name="groupname" value="Laptop" inputId="laptop"
+        <p-checkbox class="px-2" name="filters" [value]="category" inputId="laptop"
           [(ngModel)]="selectedFilters"></p-checkbox>
         <label for="laptop">Laptop</label>
       </div>
     </p-accordionTab>
-    <p-accordionTab header="Phones">
+    <!-- <p-accordionTab header="Phones">
       <div class="flex justify-content-start align-items-center">
         <p-checkbox class="px-2" name="groupname" value="Phone" inputId="phone"
           [(ngModel)]="selectedFilters"></p-checkbox>
         <label for="phone">Iphone 14 Pro</label>
       </div>
     </p-accordionTab>
+    <p-accordionTab header="Watches">
+      <div class="flex justify-content-start align-items-center">
+        <p-checkbox class="px-2" name="groupname" value="Phone" inputId="phone"
+          [(ngModel)]="selectedFilters"></p-checkbox>
+        <label for="phone">Iphone 14 Pro</label>
+      </div>
+    </p-accordionTab> -->
   </p-accordion>
 </div>

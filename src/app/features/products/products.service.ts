@@ -91,5 +91,17 @@ export class ProductsService {
       }).valueChanges
   }
 
+  getProductCategories() {
+    return this.apollo
+      .watchQuery({
+        query: gql`
+        {
+        product {
+          subCategory
+          category
+        }}`
+      }).valueChanges
+  }
+
 }
 

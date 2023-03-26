@@ -24,7 +24,6 @@ import { BadgeModule } from 'primeng/badge';
 import { ButtonModule } from 'primeng/button';
 import { CheckboxModule } from 'primeng/checkbox';
 import { StoreService } from './shared/store.service';
-
 @NgModule({
   declarations: [
     AppComponent,

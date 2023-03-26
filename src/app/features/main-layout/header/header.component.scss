@@ -1,9 +1,10 @@
 .header {
   display: flex;
-  justify-content: space-around;
+  justify-content: space-between;
   align-items: center;
   width: 100%;
   height: 4rem;
+  padding: 0px 40px;
   background-color: rgba(#f3f3f3, 0.25);
   backdrop-filter: blur(3px);
   filter: drop-shadow(0 0.2rem 0.25rem rgba(0, 0, 0, 0.5));

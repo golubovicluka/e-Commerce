@@ -15,6 +15,9 @@ export class ProductsViewComponent implements OnInit, OnDestroy {
   products$!: Observable<any>
   subs = new SubscriptionContainer();
   selectedCategory: string = "Phone";
+  categories!: any;
+
+  searchInput = '';
 
   constructor(
     private _productService: ProductsService,
@@ -27,7 +30,11 @@ export class ProductsViewComponent implements OnInit, OnDestroy {
       console.log(products.data.product);
       this.products$ = of(products.data.product);
     });
+    this.categories = this._productService.getProductCategories().subscribe((categories) => {
+      console.log(categories);
+    })
   }
+
 
   trackByProductId(index: number, product: Product): number {
     return index;

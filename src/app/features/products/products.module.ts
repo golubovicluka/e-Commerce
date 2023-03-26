@@ -11,6 +11,7 @@ import { CheckboxModule } from 'primeng/checkbox';
 import { MessagesModule } from 'primeng/messages';
 import { MessageModule } from 'primeng/message';
 import { ToastModule } from 'primeng/toast';
+import { InputTextModule } from 'primeng/inputtext';
 @NgModule({
   declarations: [
     ProductsViewComponent,
@@ -23,7 +24,8 @@ import { ToastModule } from 'primeng/toast';
     SharedModule,
     AccordionModule,
     CheckboxModule,
-    ToastModule
+    ToastModule,
+    InputTextModule
   ],
   exports: [
     ProductsViewComponent
