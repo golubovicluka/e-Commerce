@@ -5,6 +5,7 @@ import { ProductsService } from './products.service';
 import { SubscriptionContainer } from './SubscriptionContainer';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { StoreService } from '../../shared/store.service';
+import { MenuItem } from 'primeng/api';
 
 @Component({
   selector: 'app-products-view',
@@ -17,6 +18,9 @@ export class ProductsViewComponent implements OnInit, OnDestroy {
   categories!: any;
 
   searchInput = '';
+
+  public items!: MenuItem[];
+  home!: MenuItem;
 
   constructor(
     private _productService: ProductsService,
@@ -32,6 +36,11 @@ export class ProductsViewComponent implements OnInit, OnDestroy {
     this._productService.getProductCategories().subscribe((categories: any) => {
       this.categories = categories.data.category;
     })
+
+    this.items = [
+      { label: 'Products', routerLink: '/products' },
+    ];
+    this.home = { icon: 'pi pi-home', routerLink: '/home' };
   }
 
   onChanges(changes: any) {
