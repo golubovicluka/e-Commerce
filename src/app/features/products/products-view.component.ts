@@ -26,17 +26,10 @@ export class ProductsViewComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this._productService.getProducts().subscribe((products: any) => {
-      console.log(products);
       this.products$ = of(products.data.product);
     });
 
     this._productService.getProductCategories().subscribe((categories: any) => {
-      console.log(categories.data.category);
-      // const categoriesList = categories.data.category.map((c: { name: any; }) => c.name)
-      // const subcategoriesList = categories.data.category
-      // console.log(categories.data.category);
-      // console.log(categoriesList);
-      // console.log(subcategoriesList);
       this.categories = categories.data.category;
     })
   }
@@ -54,7 +47,6 @@ export class ProductsViewComponent implements OnInit, OnDestroy {
 
   getByCategory(selectedCategory: string) {
     this._productService.getProductByCategory(selectedCategory).subscribe((products: any) => {
-      console.log(`Products in category ${selectedCategory}: `, products);
       this.products$ = of(products.data.product);
     })
   }

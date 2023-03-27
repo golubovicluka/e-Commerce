@@ -13,7 +13,6 @@ export class StoreService {
   // TODO: Fix this - smelly code
   getWishListItems(): Observable<any[]> {
     let localStorageWishlist = localStorage.getItem('wishlist');
-    // console.log(localStorageWishlist);
     return this.wishListItems$;
   }
 
