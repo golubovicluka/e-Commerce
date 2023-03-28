@@ -1,7 +1,7 @@
 <div class="product-card">
   <i (click)="addToWishList()" class="favorite"
     [class]="isAddedToWishList ? 'pi pi-heart-fill wishlist' : 'pi pi-heart'"></i>
-  <div class="image" (click)="openEventDetails(id)" [ngStyle]="{ 'background-image': 'url(' + image + ')'}">
+  <div class="image" (click)="openEventDetails(id)" [ngStyle]="{ 'background-image': 'url(' + images + ')'}">
   </div>
   <div class="title-section">
     <span style="font-size: 1.2rem;">{{name}}</span>

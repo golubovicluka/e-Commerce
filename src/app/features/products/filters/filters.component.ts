@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, Output, EventEmitter } from '@angular/core';
 import { ProductsService } from '../products.service';
 
 @Component({
@@ -11,10 +11,15 @@ export class FiltersComponent implements OnInit {
 
   // TODO: event emmiter with selected filters
   selectedFilters: any[] = [];
+  @Output() filtersObject = new EventEmitter()
 
   constructor(private _productService: ProductsService) { }
 
   ngOnInit() {
+  }
+
+  changeFilter(filterObject: any) {
+    this.filtersObject.emit(filterObject);
   }
 
 }

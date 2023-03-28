@@ -4,7 +4,7 @@ import { ProductDetailsComponent } from './features/products/product/product-det
 import { ProductsViewComponent } from './features/products/products-view.component';
 
 const routes: Routes = [
-  { path: '', redirectTo: '/products', pathMatch: 'full' },
+  // { path: '', redirectTo: '/products', pathMatch: 'full' },
   { path: 'products', component: ProductsViewComponent },
   { path: 'products/:id', component: ProductDetailsComponent },
   { path: 'home', loadChildren: () => import('./features/home/home.module').then(m => m.HomeModule) },

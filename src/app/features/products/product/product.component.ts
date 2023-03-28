@@ -12,7 +12,7 @@ export class ProductComponent implements OnInit {
   @Input() name!: string;
   @Input() description!: string;
   @Input() subcategory!: string;
-  @Input() image!: string;
+  @Input() images!: string;
   @Input() EAN!: string;
   @Input() id!: number;
   @Input() inStock!: number;
@@ -42,13 +42,12 @@ export class ProductComponent implements OnInit {
   }
 
   openEventDetails(id: number) {
-    console.log(id);
 
     const product = {
       name: this.name,
       description: this.description,
       subcategory: this.subcategory,
-      image: this.image,
+      images: this.images,
       EAN: this.EAN,
       id: this.id,
       inStock: this.inStock,

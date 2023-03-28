@@ -13,14 +13,14 @@
 <div class="flex align-items-start justify-content-center h-12 w-12">
 
   <!-- Filters section -->
-  <app-filters [categories]="categories"></app-filters>
+  <app-filters (filtersObject)="applyFilters($event)" [categories]="categories"></app-filters>
 
   <!-- Products section -->
   <div class="w-12 mr-5">
     <div *ngIf="products$; else loading" class="products-container">
       <div *ngFor="let product of products$ | async; trackBy:trackByProductId">
         <app-product (addedToWishList)="addToWishList($event)" (removedFromWishList)="removedFromWishList($event)"
-          [name]="product.name" [subcategory]="product.subcategory.name" [id]="product.id" [image]="product.images[0]"
+          [name]="product.name" [subcategory]="product.subcategory.name" [id]="product.id" [images]="product.images[0]"
           [inStock]="product.inStock" [price]="product.price" [description]="product.description"
           [EAN]="product.EAN"></app-product>
       </div>

@@ -91,17 +91,24 @@ export class ProductsService {
       .watchQuery({
         query: gql`
         {
-          product_by_pk(id: ${id}) {
-          category
-          description
-          id
-          images
-          name
-          inStock
-          price
-          productId
-          subCategory
-      }}`
+          product(where: { id: { _eq: ${id} } }) {
+            EAN
+            categoryId
+            description
+            id
+            inStock
+            images
+            name
+            price
+            subcategory {
+              name
+              id
+            }
+            category {
+              name
+              id
+            }
+          }}`
       }).valueChanges
   }
 
@@ -121,6 +128,35 @@ export class ProductsService {
           description
           category
       }}`
+      }).valueChanges
+  }
+
+  getFilteredProducts(filter: string[]) {
+    if (filter.length < 1) {
+      return this.getProducts();
+    }
+    return this.apollo
+      .watchQuery({
+        query: gql`
+      {
+        product(where: {subcategory: {name: {_in: [${filter.map(f => `"${f}"`)}]}}}) {
+          EAN
+          categoryId
+          description
+          id
+          inStock
+          images
+          name
+          price
+          subcategory {
+            name
+            id
+          }
+          category {
+            name
+            id
+          }
+        }}`
       }).valueChanges
   }
 
