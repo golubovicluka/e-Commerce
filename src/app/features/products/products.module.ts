@@ -14,13 +14,17 @@ import { ToastModule } from 'primeng/toast';
 import { InputTextModule } from 'primeng/inputtext';
 import { ProductDetailsComponent } from './product/product-details/product-details.component';
 import { BreadcrumbModule } from 'primeng/breadcrumb';
+import { ButtonModule } from 'primeng/button';
+import { GalleriaModule } from 'primeng/galleria';
+import { DataViewModule } from 'primeng/dataview';
+import { DropdownModule } from 'primeng/dropdown';
 
 @NgModule({
   declarations: [
     ProductsViewComponent,
     ProductComponent,
     FiltersComponent,
-    ProductDetailsComponent,
+    ProductDetailsComponent
   ],
   imports: [
     CommonModule,
@@ -30,7 +34,11 @@ import { BreadcrumbModule } from 'primeng/breadcrumb';
     CheckboxModule,
     ToastModule,
     InputTextModule,
-    BreadcrumbModule
+    BreadcrumbModule,
+    ButtonModule,
+    GalleriaModule,
+    DataViewModule,
+    DropdownModule,
   ],
   exports: [
     ProductsViewComponent

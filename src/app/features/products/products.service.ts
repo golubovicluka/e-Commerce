@@ -11,7 +11,34 @@ export class ProductsService {
   constructor(private apollo: Apollo) { }
 
   // Get all products
-  getProducts() {
+  getProducts(sortBy?: string) {
+    if (sortBy) {
+      return this.apollo
+        .watchQuery({
+          query: gql`
+          {
+            product(order_by: {price: ${sortBy}}) {
+                  EAN
+                  categoryId
+                  description
+                  id
+                  images
+                  inStock
+                  name
+                  price
+                  category {
+                    id
+                    name
+                  }
+                  subcategory {
+                    id
+                    name
+                  }
+                }
+          }
+        `,
+        }).valueChanges
+    }
     return this.apollo
       .watchQuery({
         query: gql`
@@ -71,7 +98,7 @@ export class ProductsService {
       .watchQuery({
         query: gql`
         {
-          product(where: {subCategory: {_like: "${category}%"}}) {
+          product(where: {subCategory: {_like: "%${category}%"}}) {
           id
           category
           description

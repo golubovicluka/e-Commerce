@@ -1,11 +1,46 @@
-<div *ngIf="product">
-  {{product.name}}
-  {{product.description}}
-  {{product.EAN}}
-  {{product.price}}
-  <img src="{{product.images}}" height="400px" width="400px" alt="product image">
-  {{product.inStock}}
-  {{product.subcategory}}
-  <button (click)="navigateBack()">Go back</button>
+<p-breadcrumb [home]="home" [model]="items"></p-breadcrumb>
+<div *ngIf="product; else loading">
+
+
+  <div class="flex justify-content-around align-items-center">
+    <p-galleria [value]="images" [(activeIndex)]="activeIndex" [(visible)]="displayCustom"
+      [responsiveOptions]="responsiveOptions" [containerStyle]="{'max-width': '850px'}" [numVisible]="7"
+      [circular]="true" [fullScreen]="false" [showItemNavigators]="false" [showThumbnails]="false"
+      [baseZIndex]="100000">
+      <ng-template pTemplate="item" let-item>
+
+        <!-- TODO: Show only 4-5 images, the rest of the images can be seen from withing full screen carousel -->
+        <div *ngIf="images" class="flex flex-column m-5" style="max-width: 150px;max-height: 100%;">
+          <div *ngFor="let image of images; let index = index;" class="col-3" key="index">
+            <img [src]="image" width="120px" height="120px" [alt]="image" style="cursor: pointer"
+              (click)="imageClick(index)" />
+          </div>
+        </div>
+        <img [src]="item" style="max-width: 500px;" />
+      </ng-template>
+    </p-galleria>
+    <div
+      class="border-500 hover:border-700 border-3 border-round surface-overlay m-2 flex align-items-center justify-content-center"
+      style="min-width: 200px; min-height: 600px">
+      {{product.name}}
+      {{product.description}}
+      {{product.EAN}}
+      {{product.price}}
+      {{product.inStock}}
+      {{product.subcategory}}
+    </div>
+  </div>
+
+  <!-- TODO: Clicking on item opens it in full screen with thumbnails and item navigator -->
+  <!-- <ng-template pTemplate="thumbnail" let-item>
+      <div class="grid grid-nogutter justify-content-center">
+        <img [src]="item" width="120px" height="120px" style="display: block;padding: 5px;" />
+      </div>
+    </ng-template> -->
+
 </div>
-Product not found...
+<ng-template #loading>
+  <div class="center" style="padding-top: 30px">
+    <i class="pi pi-spin pi-spinner" style="font-size: 2rem"></i>
+  </div>
+</ng-template>

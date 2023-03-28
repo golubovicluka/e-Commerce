@@ -6,6 +6,7 @@ import { SubscriptionContainer } from './SubscriptionContainer';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { StoreService } from '../../shared/store.service';
 import { MenuItem } from 'primeng/api';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-products-view',
@@ -17,6 +18,14 @@ export class ProductsViewComponent implements OnInit, OnDestroy {
   subs = new SubscriptionContainer();
   categories!: any;
 
+  // Sorting
+  sortOptions!: any[];
+  sortKey!: string;
+  sortField!: string;
+  sortOrder!: number;
+
+  isLoading = true;
+
   searchInput = '';
 
   public items!: MenuItem[];
@@ -25,22 +34,31 @@ export class ProductsViewComponent implements OnInit, OnDestroy {
   constructor(
     private _productService: ProductsService,
     private _messageService: MessageService,
-    private _storeService: StoreService
+    private _storeService: StoreService,
+    private router: Router
   ) { }
 
   ngOnInit() {
     this._productService.getProducts().subscribe((products: any) => {
       this.products$ = of(products.data.product);
+      console.log(products.data.product);
+      this.isLoading = false;
     });
 
     this._productService.getProductCategories().subscribe((categories: any) => {
       this.categories = categories.data.category;
     })
 
+    // Breadcrumbs
     this.items = [
       { label: 'Products', routerLink: '/products' },
     ];
     this.home = { icon: 'pi pi-home', routerLink: '/home' };
+
+    this.sortOptions = [
+      { label: 'Price: Low to High', value: 'asc' },
+      { label: 'Price: High to Low', value: 'desc' },
+    ];
   }
 
   onChanges(changes: any) {
@@ -82,6 +100,35 @@ export class ProductsViewComponent implements OnInit, OnDestroy {
 
   removedFromWishList(wishListItem: any[]) {
     this._storeService.removeWishListItem(wishListItem);
+  }
+
+  // For pagination
+  loadData(event: any) {
+    event.first = 3
+    event.rows = 3;
+  }
+
+  // TODO: move this to separate component - product-list or product component - different template
+  openProductDetails(id: number) {
+    this.router.navigate(['/products', id]);
+  }
+
+  onSortChange(event: any) {
+    this._productService.getProducts(event.value).subscribe((product: any) => {
+      this.products$ = of(product.data.product);
+      this.isLoading = false;
+    })
+
+    // let value = event.value;
+
+    // if (value.indexOf('!') === 0) {
+    //   this.sortOrder = -1;
+    //   this.sortField = value.substring(1, value.length);
+    // }
+    // else {
+    //   this.sortOrder = 1;
+    //   this.sortField = value;
+    // }
   }
 
 }

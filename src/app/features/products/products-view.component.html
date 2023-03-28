@@ -11,20 +11,69 @@
 </div>
 
 <div class="flex align-items-start justify-content-center h-12 w-12">
-
-  <!-- Filters section -->
   <app-filters (filtersObject)="applyFilters($event)" [categories]="categories"></app-filters>
+
+  <!-- TODO: refactor to DataView - PrimeNG -->
+  <!-- <div *ngIf="products$; else loading" class="products-container">
+    <div *ngFor="let product of products$ | async; trackBy:trackByProductId">
+      <app-product (addedToWishList)="addToWishList($event)" (removedFromWishList)="removedFromWishList($event)"
+      [name]="product.name" [subcategory]="product.subcategory.name" [id]="product.id" [images]="product.images"
+      [inStock]="product.inStock" [price]="product.price" [description]="product.description"
+      [EAN]="product.EAN"></app-product>
+    </div>
+  </div> -->
 
   <!-- Products section -->
   <div class="w-12 mr-5">
-    <div *ngIf="products$; else loading" class="products-container">
-      <div *ngFor="let product of products$ | async; trackBy:trackByProductId">
-        <app-product (addedToWishList)="addToWishList($event)" (removedFromWishList)="removedFromWishList($event)"
-          [name]="product.name" [subcategory]="product.subcategory.name" [id]="product.id" [images]="product.images[0]"
-          [inStock]="product.inStock" [price]="product.price" [description]="product.description"
-          [EAN]="product.EAN"></app-product>
-      </div>
-    </div>
+    <p-dataView [value]="products$ | async" [paginator]="true" [rows]="10" (onLazyLoad)="loadData($event)"
+      [loading]="isLoading">
+      <ng-template pTemplate="header">
+        <div class="flex align-items-center justify-content-between">
+          <p-dropdown [options]="sortOptions" [(ngModel)]="sortKey" placeholder="Sort By"
+            (onChange)="onSortChange($event)" [style]="{'min-width':'15em'}"></p-dropdown>
+          <p-dataViewLayoutOptions></p-dataViewLayoutOptions>
+        </div>
+      </ng-template>
+      <ng-template let-product pTemplate="listItem">
+        <!-- TODO: Convert to separate component (product-list) to avoid duplicated code -->
+        <div class="col-12">
+          <div class="product-list-item">
+            <img (click)="openProductDetails(product.id)" [src]="product.images[0]" [alt]="product.name"
+              style="cursor: pointer;" />
+            <div class="product-list-detail">
+              <div class="product-name">{{product.name}}</div>
+              <div class="product-description">{{product.description}}</div>
+              <i class="pi pi-tag product-category-icon"></i><span
+                class="product-category">{{product.category.name}}</span>
+            </div>
+            <div class="product-list-action">
+              <span class="product-price">{{product.price}} RSD</span>
+              <p-button icon="pi pi-shopping-cart" label="Add to Cart" [disabled]="product.inStock === 0"></p-button>
+              <span>{{product.inStock}} items available</span>
+            </div>
+          </div>
+        </div>
+      </ng-template>
+      <ng-template let-product pTemplate="gridItem">
+        <div class="products-container">
+          <app-product class="m-2" (addedToWishList)="addToWishList($event)"
+            (removedFromWishList)="removedFromWishList($event)" [name]="product.name"
+            [subcategory]="product.subcategory.name" [id]="product.id" [images]="product.images"
+            [inStock]="product.inStock" [price]="product.price" [description]="product.description"
+            [EAN]="product.EAN"></app-product>
+        </div>
+      </ng-template>
+      <ng-template pTemplate="paginatorleft" let-state>
+        <!-- {{state.first}} -->
+        <!-- <button type="button" pButton icon="pi pi-refresh"></button> -->
+      </ng-template>
+      <ng-template pTemplate="paginatorright">
+        <!-- <button type="button" pButton icon="pi pi-cloud-upload"></button> -->
+      </ng-template>
+      <ng-template let-item pTemplate="paginatordropdownitem">
+        <!-- {{item.value}} - per page -->
+      </ng-template>
+    </p-dataView>
     <ng-template #loading>
       <div class="center" style="padding-top: 30px">
         <i class="pi pi-spin pi-spinner" style="font-size: 2rem"></i>

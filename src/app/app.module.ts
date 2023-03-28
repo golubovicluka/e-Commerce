@@ -23,11 +23,15 @@ import { HeaderComponent } from './features/main-layout/header/header.component'
 import { BadgeModule } from 'primeng/badge';
 import { ButtonModule } from 'primeng/button';
 import { CheckboxModule } from 'primeng/checkbox';
+import { InputTextModule } from 'primeng/inputtext';
+
 import { StoreService } from './shared/store.service';
+import { LoginComponent } from './features/login/login.component';
 @NgModule({
   declarations: [
     AppComponent,
     HeaderComponent,
+    LoginComponent,
   ],
   imports: [
     BrowserModule,
@@ -40,7 +44,8 @@ import { StoreService } from './shared/store.service';
     ApolloModule,
     BadgeModule,
     BrowserAnimationsModule,
-    ButtonModule
+    ButtonModule,
+    InputTextModule
   ],
   exports: [
   ],

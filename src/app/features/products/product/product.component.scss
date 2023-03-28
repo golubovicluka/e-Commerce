@@ -22,31 +22,6 @@
   }
 }
 
-// Todo: Finish the side hover effect
-// .product-card:after {
-//   content: "";
-//   height: 70px;
-//   width: 1px;
-//   position: absolute;
-//   left: -1px;
-//   top: 65%;
-//   transition: top, opacity;
-//   transition-duration: 600ms;
-//   transition-timing-function: ease;
-//   background: linear-gradient(transparent, var(--primary-color), transparent);
-//   opacity: 0;
-// }
-
-// .product-card:after {
-//   top: 65%;
-//   opacity: 0;
-// }
-
-// .product-card:hover:after {
-//   top: 25%;
-//   opacity: 1;
-// }
-
 .title-section {
   display: flex;
   flex-direction: column;
