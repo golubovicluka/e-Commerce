@@ -93,7 +93,7 @@ export class ProductsService {
       }).valueChanges
   }
 
-  getProductByCategory(category: string) {
+  getProductBySubcategory(category: string) {
     return this.apollo
       .watchQuery({
         query: gql`
@@ -139,7 +139,7 @@ export class ProductsService {
       }).valueChanges
   }
 
-  getProductsFromCategories(categories: string[]) {
+  getProductsFromSubcategories(categories: string[]) {
     return this.apollo
       .watchQuery({
         query: gql`
@@ -155,6 +155,32 @@ export class ProductsService {
           description
           category
       }}`
+      }).valueChanges
+  }
+
+  getProductsByCategory(category: string) {
+    return this.apollo
+      .watchQuery({
+        query: gql`
+      {
+        product(where: {category: {name: {_eq: "${category}"}}}) {
+          EAN
+          categoryId
+          description
+          id
+          inStock
+          images
+          name
+          price
+          subcategory {
+            name
+            id
+          }
+          category {
+            name
+            id
+          }
+        }}`
       }).valueChanges
   }
 

@@ -1,41 +1,30 @@
 <p-toast position="bottom-center"></p-toast>
-
-<!-- Submenu with search and sorting -->
-<p-breadcrumb [home]="home" [model]="items"></p-breadcrumb>
-<div class=" flex justify-content-between align-items-center w-100 bg-primary h-5 my-4 p-1 border-round-xl">
-  <span class="center mx-5 my-4 px-7">Filters</span>
-  <span class="p-input-icon-left mx-5">
-    <i class="pi pi-search"></i>
-    <input type="text" pInputText (ngModelChange)="onChanges($event)" [(ngModel)]="searchInput" placeholder="Search">
-  </span>
-</div>
+<p-breadcrumb class="mx-1" [home]="home" [model]="items"></p-breadcrumb>
 
 <div class="flex align-items-start justify-content-center h-12 w-12">
   <app-filters (filtersObject)="applyFilters($event)" [categories]="categories"></app-filters>
 
-  <!-- TODO: refactor to DataView - PrimeNG -->
-  <!-- <div *ngIf="products$; else loading" class="products-container">
-    <div *ngFor="let product of products$ | async; trackBy:trackByProductId">
-      <app-product (addedToWishList)="addToWishList($event)" (removedFromWishList)="removedFromWishList($event)"
-      [name]="product.name" [subcategory]="product.subcategory.name" [id]="product.id" [images]="product.images"
-      [inStock]="product.inStock" [price]="product.price" [description]="product.description"
-      [EAN]="product.EAN"></app-product>
-    </div>
-  </div> -->
-
   <!-- Products section -->
   <div class="w-12 mr-5">
     <p-dataView [value]="products$ | async" [paginator]="true" [rows]="10" (onLazyLoad)="loadData($event)"
-      [loading]="isLoading">
+      [loading]="isLoading" [rowsPerPageOptions]="[10,20,30]" paginatorPosition="bottom">
       <ng-template pTemplate="header">
         <div class="flex align-items-center justify-content-between">
-          <p-dropdown [options]="sortOptions" [(ngModel)]="sortKey" placeholder="Sort By"
-            (onChange)="onSortChange($event)" [style]="{'min-width':'15em'}"></p-dropdown>
-          <p-dataViewLayoutOptions></p-dataViewLayoutOptions>
+          <span class="align-self-start p-input-icon-left mx-5">
+            <i class="pi pi-search"></i>
+            <input class="align-self-start" type="text" pInputText (ngModelChange)="onChanges($event)"
+              [(ngModel)]="searchInput" placeholder="Search">
+          </span>
+          <div class="flex">
+            <p-dropdown class="mx-2" [options]="sortOptions" [(ngModel)]="sortKey" placeholder="Sort By"
+              (onChange)="onSortChange($event)" [style]="{'min-width':'15em'}"></p-dropdown>
+            <p-dataViewLayoutOptions></p-dataViewLayoutOptions>
+          </div>
         </div>
       </ng-template>
       <ng-template let-product pTemplate="listItem">
-        <!-- TODO: Convert to separate component (product-list) to avoid duplicated code -->
+
+        <!-- TODO: Convert to separate component (product-list) or product component to avoid duplicated code -->
         <div class="col-12">
           <div class="product-list-item">
             <img (click)="openProductDetails(product.id)" [src]="product.images[0]" [alt]="product.name"
@@ -44,12 +33,13 @@
               <div class="product-name">{{product.name}}</div>
               <div class="product-description">{{product.description}}</div>
               <i class="pi pi-tag product-category-icon"></i><span
-                class="product-category">{{product.category.name}}</span>
+                class="product-category">{{product.category?.name}}</span>
             </div>
             <div class="product-list-action">
               <span class="product-price">{{product.price}} RSD</span>
               <p-button icon="pi pi-shopping-cart" label="Add to Cart" [disabled]="product.inStock === 0"></p-button>
-              <span>{{product.inStock}} items available</span>
+              <span *ngIf="product.inStock > 1">{{product.inStock}} items available</span>
+              <span *ngIf="product.inStock === 1">{{product.inStock}} item available</span>
             </div>
           </div>
         </div>
@@ -62,16 +52,6 @@
             [inStock]="product.inStock" [price]="product.price" [description]="product.description"
             [EAN]="product.EAN"></app-product>
         </div>
-      </ng-template>
-      <ng-template pTemplate="paginatorleft" let-state>
-        <!-- {{state.first}} -->
-        <!-- <button type="button" pButton icon="pi pi-refresh"></button> -->
-      </ng-template>
-      <ng-template pTemplate="paginatorright">
-        <!-- <button type="button" pButton icon="pi pi-cloud-upload"></button> -->
-      </ng-template>
-      <ng-template let-item pTemplate="paginatordropdownitem">
-        <!-- {{item.value}} - per page -->
       </ng-template>
     </p-dataView>
     <ng-template #loading>

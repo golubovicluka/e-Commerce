@@ -24,6 +24,8 @@ export class ProductsViewComponent implements OnInit, OnDestroy {
   sortField!: string;
   sortOrder!: number;
 
+
+  numberOfProducts!: number;
   isLoading = true;
 
   searchInput = '';
@@ -42,6 +44,7 @@ export class ProductsViewComponent implements OnInit, OnDestroy {
     this._productService.getProducts().subscribe((products: any) => {
       this.products$ = of(products.data.product);
       console.log(products.data.product);
+      this.numberOfProducts = products.data.product.length;
       this.isLoading = false;
     });
 
@@ -65,6 +68,8 @@ export class ProductsViewComponent implements OnInit, OnDestroy {
     this.searchInput = changes;
     this._productService.searchProducts(changes).subscribe((product: any) => {
       this.products$ = of(product.data.product);
+      // this.numberOfProducts = this.products$
+
     })
   }
 
@@ -78,8 +83,8 @@ export class ProductsViewComponent implements OnInit, OnDestroy {
     })
   }
 
-  getByCategory(selectedCategory: string) {
-    this._productService.getProductByCategory(selectedCategory).subscribe((products: any) => {
+  getBySubcategory(selectedCategory: string) {
+    this._productService.getProductBySubcategory(selectedCategory).subscribe((products: any) => {
       this.products$ = of(products.data.product);
     })
   }
@@ -88,8 +93,8 @@ export class ProductsViewComponent implements OnInit, OnDestroy {
     this.subs?.dispose()
   }
 
-  filterCategories(categories: string[]) {
-    this._productService.getProductsFromCategories(categories).subscribe((products: any) => {
+  filterSubcategories(categories: string[]) {
+    this._productService.getProductsFromSubcategories(categories).subscribe((products: any) => {
       this.products$ = of(products.data.product)
     })
   }

@@ -13,6 +13,10 @@
   align-items: center;
 }
 
+::ng-deep .p-dataview .p-dataview-header {
+  border-radius: 15px !important;
+}
+
 .product-list-item {
   display: flex;
   align-items: center;
@@ -27,10 +31,6 @@
 
   .product-list-detail {
     flex: 1 1 0;
-  }
-
-  .p-rating {
-    margin: 0 0 0.5rem 0;
   }
 
   .product-price {

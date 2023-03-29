@@ -18,6 +18,11 @@ import { ButtonModule } from 'primeng/button';
 import { GalleriaModule } from 'primeng/galleria';
 import { DataViewModule } from 'primeng/dataview';
 import { DropdownModule } from 'primeng/dropdown';
+import { TooltipModule } from 'primeng/tooltip';
+import { ImageModule } from 'primeng/image';
+import { CarouselModule } from 'primeng/carousel';
+import { PaginatorModule } from 'primeng/paginator';
+import { TagModule } from 'primeng/tag';
 
 @NgModule({
   declarations: [
@@ -39,6 +44,11 @@ import { DropdownModule } from 'primeng/dropdown';
     GalleriaModule,
     DataViewModule,
     DropdownModule,
+    TooltipModule,
+    ImageModule,
+    CarouselModule,
+    PaginatorModule,
+    TagModule
   ],
   exports: [
     ProductsViewComponent

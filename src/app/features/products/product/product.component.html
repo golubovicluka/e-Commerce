@@ -14,7 +14,7 @@
       <p class="text-lg font-bold">{{price}} RSD</p>
       <span *ngIf="inStock !== 0;else notInStock">{{inStock}} items available</span>
       <ng-template #notInStock>
-        <span class="text-500">Not available</span>
+        <span class="text-red-500">Not available</span>
       </ng-template>
     </div>
     <div class="bottom-right">

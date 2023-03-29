@@ -54,6 +54,8 @@ export class ProductComponent implements OnInit {
       price: this.price
     }
     console.log(product);
+    console.log(id);
+
 
     const navigationExtras: NavigationExtras = {
       state: {
