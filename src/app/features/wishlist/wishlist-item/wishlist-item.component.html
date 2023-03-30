@@ -1,0 +1,14 @@
+<div
+  class="flex align-items-center justify-content-between w-full border-1 border-primary wishlist-container border-round-md m-3 px-5">
+  <img [src]="images[0]" [alt]="name" style="max-width: 300px;max-height: 250px;">
+  <div class="flex flex-column justify-content-center align-items-start">
+    <h2 class="font-bold text-blue-400">{{name}}</h2>
+    <span class="font-light">EAN: {{EAN}}</span>
+    <span>{{description}}</span>
+    <span>{{category?.name}}>{{subcategory?.name}}</span>
+  </div>
+  <div>
+    <span class="font-bold text-green-400">{{inStock}} items available</span>
+    <h2 class="font-medium">{{price}} RSD</h2>
+  </div>
+</div>

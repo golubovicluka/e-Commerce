@@ -1,0 +1,12 @@
+<ng-container *ngIf="wishlistItems;else loading">
+  <div *ngFor="let product of wishlistItems">
+    <app-wishlist-item [name]="product.name" [category]="product.category" [subcategory]="product.subcategory"
+      [price]="product.price" [inStock]="product.inStock" [EAN]="product.EAN" [id]="product.id"
+      [images]="product.images" [description]="product.description"></app-wishlist-item>
+  </div>
+</ng-container>
+<ng-template #loading>
+  <div class="center" style="padding-top: 30px">
+    <i class="pi pi-spin pi-spinner" style="font-size: 2rem"></i>
+  </div>
+</ng-template>

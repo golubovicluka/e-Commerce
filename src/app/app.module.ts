@@ -25,13 +25,17 @@ import { ButtonModule } from 'primeng/button';
 import { CheckboxModule } from 'primeng/checkbox';
 import { InputTextModule } from 'primeng/inputtext';
 
-import { StoreService } from './shared/store.service';
+import { WishlistService } from './shared/wishlist.service';
 import { LoginComponent } from './features/login/login.component';
+import { WishlistViewComponent } from './features/wishlist/wishlist-view.component';
+import { WishlistItemComponent } from './features/wishlist/wishlist-item/wishlist-item.component';
 @NgModule({
   declarations: [
     AppComponent,
     HeaderComponent,
     LoginComponent,
+    WishlistViewComponent,
+    WishlistItemComponent,
   ],
   imports: [
     BrowserModule,
@@ -50,7 +54,7 @@ import { LoginComponent } from './features/login/login.component';
   exports: [
   ],
   providers: [
-    StoreService,
+    WishlistService,
     ProductsService,
     {
       provide: APOLLO_OPTIONS,

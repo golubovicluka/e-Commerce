@@ -4,7 +4,7 @@ import { Product } from './Product';
 import { ProductsService } from './products.service';
 import { SubscriptionContainer } from './SubscriptionContainer';
 import { ConfirmationService, MessageService } from 'primeng/api';
-import { StoreService } from '../../shared/store.service';
+import { WishlistService } from '../../shared/wishlist.service';
 import { MenuItem } from 'primeng/api';
 import { Router } from '@angular/router';
 
@@ -15,6 +15,7 @@ import { Router } from '@angular/router';
 })
 export class ProductsViewComponent implements OnInit, OnDestroy {
   products$!: Observable<any>
+  // Find a way to unsubscribe from all subscrptions via SubscriptionContainer
   subs = new SubscriptionContainer();
   categories!: any;
 
@@ -36,7 +37,7 @@ export class ProductsViewComponent implements OnInit, OnDestroy {
   constructor(
     private _productService: ProductsService,
     private _messageService: MessageService,
-    private _storeService: StoreService,
+    private _wishlistService: WishlistService,
     private router: Router
   ) { }
 
@@ -99,12 +100,14 @@ export class ProductsViewComponent implements OnInit, OnDestroy {
     })
   }
 
-  addToWishList(wishListItem: any[]) {
-    this._storeService.addWishListItem(wishListItem);
+  addToWishList(product: Product) {
+    this._wishlistService.addWishListItem(product);
+    console.log('Added to wishlist: ', product);
   }
 
-  removedFromWishList(wishListItem: any[]) {
-    this._storeService.removeWishListItem(wishListItem);
+  removedFromWishList(product: Product) {
+    this._wishlistService.removeWishListItem(product);
+    console.log('Removed from wishlist: ', product);
   }
 
   // For pagination

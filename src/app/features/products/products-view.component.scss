@@ -33,6 +33,16 @@
     flex: 1 1 0;
   }
 
+  .favorite {
+    font-size: 1.5rem;
+    position: absolute;
+    top: 0;
+    right: 0;
+    padding: 10px;
+    cursor: pointer;
+    filter: drop-shadow(0 0.2rem 0.25rem rgba(0, 0, 0, 0.1));
+  }
+
   .product-price {
     font-size: 1.5rem;
     font-weight: 600;

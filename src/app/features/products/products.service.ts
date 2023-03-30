@@ -20,6 +20,7 @@ export class ProductsService {
             product(order_by: {price: ${sortBy}}) {
                   EAN
                   categoryId
+                  subcategoryId
                   description
                   id
                   images
@@ -46,6 +47,7 @@ export class ProductsService {
             product {
                   EAN
                   categoryId
+                  subcategoryId
                   description
                   id
                   images
@@ -66,6 +68,9 @@ export class ProductsService {
       }).valueChanges
   }
 
+  // TODO: This will be slider -> make sure to use .pipe(debounce(() => interval(500)))
+  getProductsByPrice() { }
+
   searchProducts(searchInput: string) {
     return this.apollo
       .watchQuery({
@@ -74,6 +79,7 @@ export class ProductsService {
             product(where: { name: { _ilike: "%${searchInput}%" } }) {
               EAN
               categoryId
+              subcategoryId
               description
               id
               inStock
@@ -121,6 +127,7 @@ export class ProductsService {
           product(where: { id: { _eq: ${id} } }) {
             EAN
             categoryId
+            subcategoryId
             description
             id
             inStock
@@ -166,6 +173,7 @@ export class ProductsService {
         product(where: {category: {name: {_eq: "${category}"}}}) {
           EAN
           categoryId
+          subcategoryId
           description
           id
           inStock
@@ -195,6 +203,7 @@ export class ProductsService {
         product(where: {subcategory: {name: {_in: [${filter.map(f => `"${f}"`)}]}}}) {
           EAN
           categoryId
+          subcategoryId
           description
           id
           inStock

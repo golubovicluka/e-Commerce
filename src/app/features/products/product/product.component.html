@@ -1,5 +1,5 @@
-<div class="product-card">
-  <i (click)="addToWishList()" class="favorite"
+<div *ngIf="!isListView; else listView" class="product-card">
+  <i (click)="addToWishList(product)" class="favorite"
     [class]="isAddedToWishList ? 'pi pi-heart-fill wishlist' : 'pi pi-heart'"></i>
   <div class="image" (click)="openProductDetails(id)" [ngStyle]="{ 'background-image': 'url(' + images[0] + ')'}">
   </div>
@@ -22,3 +22,31 @@
     </div>
   </div>
 </div>
+
+<ng-template #listView>
+  list view
+  <!-- <div class="product-card">
+    <i (click)="addToWishList(product)" class="favorite"
+      [class]="isAddedToWishList ? 'pi pi-heart-fill wishlist' : 'pi pi-heart'"></i>
+    <div class="image" (click)="openProductDetails(id)" [ngStyle]="{ 'background-image': 'url(' + images[0] + ')'}">
+    </div>
+    <div class="title-section">
+      <span style="font-size: 1.2rem;font-weight: bold;">{{name}}</span>
+      <span>{{description}}</span>
+    </div>
+
+    <div class="item-bottom">
+      <div class="bottom-left">
+        <span>{{subcategory}}</span>
+        <p class="text-lg font-bold">{{price}} RSD</p>
+        <span *ngIf="inStock !== 0;else notInStock">{{inStock}} items available</span>
+        <ng-template #notInStock>
+          <span class="text-red-500">Not available</span>
+        </ng-template>
+      </div>
+      <div class="bottom-right">
+        <i class="pi pi-cart-plus cart" style="font-size: 1.5rem"></i>
+      </div>
+    </div>
+  </div> -->
+</ng-template>
