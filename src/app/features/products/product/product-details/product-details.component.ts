@@ -52,6 +52,9 @@ export class ProductDetailsComponent implements OnInit {
 
       // Suggested products
       const productCategory = state?.product.category?.name;
+      // TODO: Fix missing category, categoryId and subcategoryId
+      console.log(state.product);
+
       this._productService.getProductsByCategory(productCategory).subscribe((suggestedProducts: any) => {
         this.suggestedProducts = suggestedProducts.data.product;
         // Undefined when user reload the page or goes directly to this route
@@ -80,14 +83,15 @@ export class ProductDetailsComponent implements OnInit {
         })
 
       })
-    } else {
-      const productCategory = this.product.data?.product[0].category?.name;
-      this._productService.getProductsByCategory(productCategory).subscribe((suggestedProducts: any) => {
-        this.suggestedProducts = suggestedProducts.data.product;
-        // Undefined when user reload the page or goes directly to this route
-        console.log(this.suggestedProducts);
-      })
     }
+    //  else {
+    //   const productCategory = this.product.data?.product[0].category?.name;
+    //   this._productService.getProductsByCategory(productCategory).subscribe((suggestedProducts: any) => {
+    //     this.suggestedProducts = suggestedProducts.data.product;
+    //     // Undefined when user reload the page or goes directly to this route
+    //     console.log(this.suggestedProducts);
+    //   })
+    // }
 
     // Breadcrumbs setup
     this.setBreadcrumbItems();

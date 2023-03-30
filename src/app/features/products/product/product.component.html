@@ -1,6 +1,7 @@
+<!-- Grid view -->
 <div *ngIf="!isListView; else listView" class="product-card">
   <i (click)="addToWishList(product)" class="favorite"
-    [class]="isAddedToWishList ? 'pi pi-heart-fill wishlist' : 'pi pi-heart'"></i>
+    [class]="inWishlist ? 'pi pi-heart-fill wishlist' : 'pi pi-heart'"></i>
   <div class="image" (click)="openProductDetails(id)" [ngStyle]="{ 'background-image': 'url(' + images[0] + ')'}">
   </div>
   <div class="title-section">
@@ -10,7 +11,7 @@
 
   <div class="item-bottom">
     <div class="bottom-left">
-      <span>{{subcategory}}</span>
+      <span>{{subcategory.name}}</span>
       <p class="text-lg font-bold">{{price}} RSD</p>
       <span *ngIf="inStock !== 0;else notInStock">{{inStock}} items available</span>
       <ng-template #notInStock>
@@ -23,30 +24,28 @@
   </div>
 </div>
 
+<!-- List view -->
 <ng-template #listView>
-  list view
-  <!-- <div class="product-card">
-    <i (click)="addToWishList(product)" class="favorite"
-      [class]="isAddedToWishList ? 'pi pi-heart-fill wishlist' : 'pi pi-heart'"></i>
-    <div class="image" (click)="openProductDetails(id)" [ngStyle]="{ 'background-image': 'url(' + images[0] + ')'}">
+  <div
+    class="flex align-items-center justify-content-between w-full border-1 border-primary wishlist-container border-round-md m-3 px-5">
+    <div class="flex align-items-center justify-content-center">
+      <img [src]="images[0]" [alt]="name" style="height: 200px;max-width: 240px;">
+      <div class="flex flex-column justify-content-center align-items-start">
+        <h2 class="font-bold text-blue-400 m-0 p-0">{{name}}</h2>
+        <span class="font-light">EAN: {{EAN}}</span>
+        <span>{{description}}</span>
+        <span>{{category.name}}>{{subcategory.name}}</span>
+      </div>
     </div>
-    <div class="title-section">
-      <span style="font-size: 1.2rem;font-weight: bold;">{{name}}</span>
-      <span>{{description}}</span>
+    <div>
+      <span class="text-green-500" *ngIf="inStock !== 0;else notInStock">{{inStock}} items available</span>
+      <ng-template #notInStock>
+        <span class="text-red-500">Not available</span>
+      </ng-template>
+      <h2 class="font-medium">{{price}} RSD</h2>
     </div>
+  </div>
 
-    <div class="item-bottom">
-      <div class="bottom-left">
-        <span>{{subcategory}}</span>
-        <p class="text-lg font-bold">{{price}} RSD</p>
-        <span *ngIf="inStock !== 0;else notInStock">{{inStock}} items available</span>
-        <ng-template #notInStock>
-          <span class="text-red-500">Not available</span>
-        </ng-template>
-      </div>
-      <div class="bottom-right">
-        <i class="pi pi-cart-plus cart" style="font-size: 1.5rem"></i>
-      </div>
-    </div>
-  </div> -->
 </ng-template>
+
+<!-- Card view - regular small card with image, name and price -->

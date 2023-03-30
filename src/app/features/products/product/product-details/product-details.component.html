@@ -71,27 +71,8 @@
   <ng-template let-product pTemplate="item">
     <div class="flex align-items-center justify-content-center">
       <app-product class="m-2" [name]="product.name" [subcategory]="product.subcategory.name" [id]="product.id"
-        [images]="product.images" [inStock]="product.inStock" [price]="product.price"
-        [description]="product.description" [EAN]="product.EAN"></app-product>
+        [images]="product.images" [inStock]="product.inStock" [price]="product.price" [category]="product.category"
+        [subcategory]="product.subcategory" [description]="product.description" [EAN]="product.EAN"></app-product>
     </div>
-    <!-- <div class="product-item">
-      <div class="product-item-content">
-        <div class="mb-3" style="min-height: 210px;">
-          <img src="{{product.images[0]}}" [alt]="product.name" class="product-image" />
-        </div>
-        <div>
-          <h4 class="mb-1">{{product.name}}</h4>
-          <h5 class="mt-0 mb-3">${{product.price}}</h5>
-          <span *ngIf="product.inStock > 1">{{product.inStock}} items left</span>
-          <span *ngIf="product.inStock === 1">{{product.inStock}} item left</span>
-          <div class="car-buttons mt-5">
-            <p-button type="button" styleClass="p-button p-button-rounded mr-2" icon="pi pi-search"></p-button>
-            <p-button type="button" styleClass="p-button-success p-button-rounded mr-2"
-              icon="pi pi-star-fill"></p-button>
-            <p-button type="button" styleClass="p-button-help p-button-rounded" icon="pi pi-cog"></p-button>
-          </div>
-        </div>
-      </div>
-    </div> -->
   </ng-template>
 </p-carousel>

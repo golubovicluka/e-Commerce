@@ -31,6 +31,11 @@ export class WishlistService {
     localStorage.setItem("wishlist", JSON.stringify(wishListItems, this.getCircularReplacer()))
   }
 
+  removeWishListItem(item: any) {
+    this.wishListItems$.pipe(filter(wishListItem => wishListItem !== item))
+    this.wishListItems$.next(this.wishListItems$.getValue().filter((wishListItem) => wishListItem !== item));
+  }
+
   getCircularReplacer() {
     const seen = new WeakSet();
     return (key: any, value: any) => {
@@ -44,9 +49,6 @@ export class WishlistService {
     };
   };
 
-  removeWishListItem(item: any) {
-    this.wishListItems$.pipe(filter(wishListItem => wishListItem !== item))
-    this.wishListItems$.next(this.wishListItems$.getValue().filter((wishListItem) => wishListItem !== item));
-  }
+
 
 }

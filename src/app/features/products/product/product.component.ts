@@ -21,6 +21,8 @@ export class ProductComponent implements OnInit {
   @Input() id!: number;
   @Input() inStock!: number;
   @Input() price!: number;
+
+  @Input() inWishlist!: boolean;
   @Input() isListView!: boolean;
 
 
@@ -34,6 +36,7 @@ export class ProductComponent implements OnInit {
     this.product = {
       name: this.name,
       description: this.description,
+      category: this.category,
       subcategory: this.subcategory,
       categoryId: this.categoryId,
       subcategoryId: this.subcategoryId,
@@ -51,6 +54,7 @@ export class ProductComponent implements OnInit {
   ) { }
 
   addToWishList(product: Product) {
+    this.inWishlist = !this.inWishlist;
     this.isAddedToWishList = !this.isAddedToWishList;
 
     if (this.isAddedToWishList) {
@@ -68,6 +72,8 @@ export class ProductComponent implements OnInit {
         product: this.product
       }
     }
+    console.log('this.product from product', this.product);
+
     this.router.navigate(['/products', id], navigationExtras);
   }
 

@@ -116,6 +116,14 @@ export class ProductsViewComponent implements OnInit, OnDestroy {
     event.rows = 3;
   }
 
+  existInLocalStorage(id: number) {
+    if (localStorage.getItem('wishlist') && JSON.parse(localStorage.getItem('wishlist')!).includes(id)) {
+      return true
+    } else {
+      return false;
+    }
+  }
+
   // TODO: move this to separate component - product-list or product component - different template
   openProductDetails(id: number) {
     this.router.navigate(['/products', id]);

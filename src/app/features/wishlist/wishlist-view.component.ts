@@ -20,4 +20,8 @@ export class WishlistViewComponent implements OnInit {
     })
   }
 
+  clearLocalStorage(): void {
+    localStorage.clear();
+  }
+
 }

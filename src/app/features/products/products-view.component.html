@@ -1,5 +1,5 @@
 <p-toast position="bottom-center"></p-toast>
-<p-breadcrumb class="mx-1" [home]="home" [model]="items"></p-breadcrumb>
+<p-breadcrumb [home]="home" [model]="items"></p-breadcrumb>
 
 <div class="flex align-items-start justify-content-center h-12 w-12">
   <app-filters (filtersObject)="applyFilters($event)" [categories]="categories"></app-filters>
@@ -22,30 +22,26 @@
           </div>
         </div>
       </ng-template>
-      <ng-template let-product pTemplate="listItem">
-        <div class="products-container">
 
-        </div>
-        <!-- TODO: Convert to separate component (product-list) or product component to avoid duplicated code -->
-        <div class="col-12">
-          <div class="product-list-item" style="position: relative;">
-            <app-product class="m-2" (addedToWishList)="addToWishList($event)" [isListView]="true"
-              [categoryId]="product.categoryId" [subcategoryId]="product.subcategoryId"
-              (removedFromWishList)="removedFromWishList($event)" [name]="product.name"
-              [category]="product.category.name" [subcategory]="product.subcategory.name" [id]="product.id"
-              [images]="product.images" [inStock]="product.inStock" [price]="product.price"
-              [description]="product.description" [EAN]="product.EAN"></app-product>
-          </div>
+      <!-- List view -->
+      <ng-template let-product pTemplate="listItem">
+        <div class="w-full" style="position: relative;">
+          <app-product (addedToWishList)="addToWishList($event)" [isListView]="true" [categoryId]="product.categoryId"
+            [subcategoryId]="product.subcategoryId" [inWishlist]="existInLocalStorage(product.id)"
+            (removedFromWishList)="removedFromWishList($event)" [name]="product.name" [category]="product.category"
+            [subcategory]="product.subcategory" [id]="product.id" [images]="product.images" [inStock]="product.inStock"
+            [price]="product.price" [description]="product.description" [EAN]="product.EAN"></app-product>
         </div>
       </ng-template>
+
+      <!-- Grid view -->
       <ng-template let-product pTemplate="gridItem">
         <div class="products-container">
           <app-product class="m-2" (addedToWishList)="addToWishList($event)" [isListView]="false"
             [categoryId]="product.categoryId" [subcategoryId]="product.subcategoryId"
-            (removedFromWishList)="removedFromWishList($event)" [name]="product.name" [category]="product.category.name"
-            [subcategory]="product.subcategory.name" [id]="product.id" [images]="product.images"
-            [inStock]="product.inStock" [price]="product.price" [description]="product.description"
-            [EAN]="product.EAN"></app-product>
+            (removedFromWishList)="removedFromWishList($event)" [name]="product.name" [category]="product.category"
+            [subcategory]="product.subcategory" [id]="product.id" [images]="product.images" [inStock]="product.inStock"
+            [price]="product.price" [description]="product.description" [EAN]="product.EAN"></app-product>
         </div>
       </ng-template>
     </p-dataView>
