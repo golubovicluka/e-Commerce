@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { Observable, of } from 'rxjs';
+import { Observable, of, filter } from 'rxjs';
 import { Product } from './Product';
 import { ProductsService } from './products.service';
 import { SubscriptionContainer } from './SubscriptionContainer';
@@ -28,7 +28,10 @@ export class ProductsViewComponent implements OnInit, OnDestroy {
   // Ordering by price
   priceFrom!: number;
   priceTo!: number;
-  rangeValues: number[] = [0, 200000];
+  rangeValues: number[] = [];
+
+  highestPrice: number = 0;
+  lowestPrice: number = 0;
 
   numberOfProducts!: number;
   isLoading = true;
@@ -48,9 +51,25 @@ export class ProductsViewComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this._productService.getProducts().subscribe((products: any) => {
       this.products$ = of(products.data.product);
-      console.log(products.data.product);
       this.numberOfProducts = products.data.product.length;
       this.isLoading = false;
+
+      const sortedPrices = [...products.data.product].sort((productA: any, productB: any) => (productA.price - productB.price))
+      console.log(sortedPrices);
+
+      this.highestPrice = sortedPrices[0].price
+      this.lowestPrice = sortedPrices.at(-1).price;
+      this.rangeValues = [this.highestPrice, this.lowestPrice];
+
+      products.data.product.forEach((product: Product) => {
+        if (product.price > this.highestPrice) {
+          this.highestPrice = product.price;
+        };
+
+        if (product.price < this.lowestPrice) {
+          this.lowestPrice = product.price;
+        };
+      });
     });
 
     this._productService.getProductCategories().subscribe((categories: any) => {
@@ -73,7 +92,6 @@ export class ProductsViewComponent implements OnInit, OnDestroy {
     this.searchInput = changes;
     this._productService.searchProducts(changes).subscribe((product: any) => {
       this.products$ = of(product.data.product);
-      // this.numberOfProducts = this.products$
     })
   }
 
@@ -123,15 +141,18 @@ export class ProductsViewComponent implements OnInit, OnDestroy {
     this.router.navigate(['/products', id]);
   }
 
-  handleFilterChange(event: any) {
-    // console.log(event);
-  }
-
   handlePriceFilter(event: any) {
     console.log(event.values);
     this.priceFrom = event.values[0]
     this.priceTo = event.values[1]
     this._productService.getProductsByPrice(this.priceFrom, this.priceTo).subscribe((products: any) => {
+      this.products$ = of(products.data.product);
+    })
+  }
+
+  onPriceChange(event: any) {
+    console.log(this.rangeValues);
+    this._productService.getProductsByPrice(this.rangeValues[0], this.rangeValues[1]).subscribe((products: any) => {
       this.products$ = of(products.data.product);
     })
   }

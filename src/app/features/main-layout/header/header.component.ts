@@ -9,7 +9,6 @@ import { Product } from '../../products/Product';
 })
 export class HeaderComponent implements OnInit {
   wishListItems!: string;
-
   constructor(private _wishlistService: WishlistService) { }
 
   ngOnInit() {

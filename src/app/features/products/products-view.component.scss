@@ -83,6 +83,15 @@
   max-width: 100px;
 }
 
-::ng-deep body > app-root > div > app-products-view > div > div:nth-child(1) > p-slider > div {
+::ng-deep
+  body
+  > app-root
+  > div
+  > app-products-view
+  > div
+  > div.surface-overlay.px-2.py-3
+  > p-slider
+  > div
+  > span.p-slider-range.ng-star-inserted {
   width: 250px;
 }

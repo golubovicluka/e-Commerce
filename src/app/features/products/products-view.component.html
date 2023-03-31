@@ -1,15 +1,25 @@
 <p-toast position="bottom-center"></p-toast>
 <p-breadcrumb [home]="home" [model]="items"></p-breadcrumb>
 
-<div class="flex align-items-start justify-content-center h-12 w-12">
-  <div>
+<div class="flex align-items-start justify-content-center mt-3 h-12 w-12">
+  <div class="bg-gray-50 border-round-md px-2 py-3 mx-3 w-2">
     <app-filters (filtersObject)="applyFilters($event)" [categories]="categories"></app-filters>
-    <h5 class="font-medium m-2 p-3">
-      Price from: {{rangeValues[0] + ' - ' + rangeValues[1]}} RSD
-    </h5>
-    <p-slider [(ngModel)]="rangeValues" [range]="true" [min]="0" [max]="200000" [animate]="true"
-      (onChange)="handleFilterChange($event)" (onSlideEnd)="handlePriceFilter($event)"></p-slider>
+    <div class="flex flex-column align-items-center my-1 py-3">
+      <!-- <input class="mb-1" type="text" pInputText [(ngModel)]="rangeValues[0]" /> -->
+      <p-inputNumber class="mb-2" [(ngModel)]="rangeValues[0]" (ngModelChange)="onPriceChange($event)" mode="currency"
+        inputId="currency" currency="RSD" locale="en-US">
+      </p-inputNumber>
+      <p-inputNumber class="mb-2" [(ngModel)]="rangeValues[1]" (ngModelChange)="onPriceChange($event)" mode="currency"
+        inputId="currency" currency="RSD" locale="en-US">
+      </p-inputNumber>
+      <h5 class="font-medium mt-3 py-1">
+        Price range: {{rangeValues[0] + ' - ' + rangeValues[1]}} RSD
+      </h5>
+    </div>
+    <p-slider [(ngModel)]="rangeValues" [range]="true" [min]="lowestPrice" [max]="highestPrice" [animate]="true"
+      (onSlideEnd)="handlePriceFilter($event)"></p-slider>
   </div>
+
   <!-- Products section -->
   <div class="w-12 mr-5">
     <p-dataView [value]="products$ | async" [paginator]="true" [rows]="10" (onLazyLoad)="loadData($event)"

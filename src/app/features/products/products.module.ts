@@ -24,6 +24,7 @@ import { CarouselModule } from 'primeng/carousel';
 import { PaginatorModule } from 'primeng/paginator';
 import { TagModule } from 'primeng/tag';
 import { SliderModule } from 'primeng/slider';
+import { InputNumberModule } from 'primeng/inputnumber';
 
 @NgModule({
   declarations: [
@@ -50,7 +51,8 @@ import { SliderModule } from 'primeng/slider';
     CarouselModule,
     PaginatorModule,
     TagModule,
-    SliderModule
+    SliderModule,
+    InputNumberModule
   ],
   exports: [
     ProductsViewComponent,

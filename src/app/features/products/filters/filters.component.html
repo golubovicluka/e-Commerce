@@ -1,20 +1,20 @@
-<div class="filter-container border-round-md mr-5">
-  <p-accordion [multiple]="true">
-    <!-- Rendering Categories -->
-    <ng-container *ngFor="let category of categories">
-      <p-accordionTab header="{{category.name}}">
+<!-- <div class="filter-container border-round-md mr-5"> -->
+<p-accordion [multiple]="true">
+  <!-- Rendering Categories -->
+  <ng-container *ngFor="let category of categories">
+    <p-accordionTab header="{{category.name}}">
 
-        <!-- Rendering subcategories filter checkboxes -->
-        <div *ngFor="let subcategory of category.subcategories"
-          class="flex justify-content-start align-items-center my-2">
+      <!-- Rendering subcategories filter checkboxes -->
+      <div *ngFor="let subcategory of category.subcategories"
+        class="flex justify-content-start align-items-center my-2">
 
-          <p-checkbox class="px-2" name="filters" value="{{subcategory.name}}" [inputId]="category"
-            [(ngModel)]="selectedFilters" (ngModelChange)="changeFilter($event)"></p-checkbox>
-          <label for="subcategory">{{subcategory.name}}</label>
+        <p-checkbox class="px-2" name="filters" value="{{subcategory.name}}" [inputId]="category"
+          [(ngModel)]="selectedFilters" (ngModelChange)="changeFilter($event)"></p-checkbox>
+        <label for="subcategory">{{subcategory.name}}</label>
 
-        </div>
-      </p-accordionTab>
-      <!-- </div> -->
-    </ng-container>
-  </p-accordion>
-</div>
+      </div>
+    </p-accordionTab>
+    <!-- </div> -->
+  </ng-container>
+</p-accordion>
+<!-- </div> -->

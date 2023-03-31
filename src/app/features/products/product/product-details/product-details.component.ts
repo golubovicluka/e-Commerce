@@ -14,6 +14,14 @@ export class ProductDetailsComponent implements OnInit {
   images!: any[];
   product: any | null = null;
 
+  // Monthly payment options
+  selectedMonthlyPayment: any = { name: 12 }
+  monthlyPaymentOptions: any[] = [
+    { name: 12 },
+    { name: 24 },
+    { name: 36 },
+  ];
+
   suggestedProducts!: any[];
 
   public items!: MenuItem[];
@@ -117,8 +125,11 @@ export class ProductDetailsComponent implements OnInit {
     this.router.navigate(['/products', id], navigationExtras);
   }
 
-  getInstallmentPayAmount(price: number) {
-    return Math.floor(price / 12);
+  getInstallmentPayAmount(price: number, months: any) {
+    console.log(months);
+    console.log(Math.floor(price / months));
+
+    return Math.floor(price / months);
   }
 
   setBreadcrumbItems() {
