@@ -28,14 +28,12 @@ import { InputTextModule } from 'primeng/inputtext';
 import { WishlistService } from './shared/wishlist.service';
 import { LoginComponent } from './features/login/login.component';
 import { WishlistViewComponent } from './features/wishlist/wishlist-view.component';
-import { WishlistItemComponent } from './features/wishlist/wishlist-item/wishlist-item.component';
 @NgModule({
   declarations: [
     AppComponent,
     HeaderComponent,
     LoginComponent,
     WishlistViewComponent,
-    WishlistItemComponent,
   ],
   imports: [
     BrowserModule,
@@ -49,7 +47,7 @@ import { WishlistItemComponent } from './features/wishlist/wishlist-item/wishlis
     BadgeModule,
     BrowserAnimationsModule,
     ButtonModule,
-    InputTextModule
+    InputTextModule,
   ],
   exports: [
   ],

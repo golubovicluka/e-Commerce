@@ -69,7 +69,33 @@ export class ProductsService {
   }
 
   // TODO: This will be slider -> make sure to use .pipe(debounce(() => interval(500)))
-  getProductsByPrice() { }
+  getProductsByPrice(priceFrom: number, priceTo: number) {
+    return this.apollo
+      .watchQuery({
+        query: gql`
+          {
+            product(where: {price: {_gte: "${priceFrom}", _lte: "${priceTo}"}}) {
+                  EAN
+                  categoryId
+                  description
+                  id
+                  images
+                  inStock
+                  name
+                  price
+                  subcategoryId
+                  subcategory {
+                    id
+                    name
+                  }
+                  category {
+                    name
+                    id
+                  }
+                }
+          }`,
+      }).valueChanges
+  }
 
   searchProducts(searchInput: string) {
     return this.apollo

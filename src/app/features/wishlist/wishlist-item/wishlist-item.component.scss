@@ -1,9 +1,0 @@
-.wishlist-container {
-  background-color: #f3f3f3;
-  filter: drop-shadow(0 0.2rem 0.25rem rgba(0, 0, 0, 0.2));
-  transition: 0.5s ease-out;
-  &:hover {
-    filter: drop-shadow(0 0.2rem 0.25rem rgba(0, 0, 0, 0.5));
-    background-color: #f8f8f8;
-  }
-}

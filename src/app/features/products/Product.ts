@@ -4,8 +4,8 @@ export interface Product {
   description: string
   categoryId: number
   subcategoryId: number
-  category?: Category
-  subcategory?: Subcategory
+  category?: Category | undefined
+  subcategory?: Subcategory | undefined
   price: number
   EAN: number
   inStock: number

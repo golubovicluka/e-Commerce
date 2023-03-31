@@ -20,6 +20,14 @@ export class WishlistViewComponent implements OnInit {
     })
   }
 
+  existInLocalStorage(id: number) {
+    if (localStorage.getItem('wishlist') && JSON.parse(localStorage.getItem('wishlist')!).includes(id)) {
+      return true
+    } else {
+      return false;
+    }
+  }
+
   clearLocalStorage(): void {
     localStorage.clear();
   }

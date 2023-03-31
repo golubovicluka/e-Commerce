@@ -11,7 +11,7 @@
 
   <div class="item-bottom">
     <div class="bottom-left">
-      <span>{{subcategory.name}}</span>
+      <span>{{subcategory?.name}}</span>
       <p class="text-lg font-bold">{{price}} RSD</p>
       <span *ngIf="inStock !== 0;else notInStock">{{inStock}} items available</span>
       <ng-template #notInStock>
@@ -26,23 +26,31 @@
 
 <!-- List view -->
 <ng-template #listView>
-  <div
-    class="flex align-items-center justify-content-between w-full border-1 border-primary wishlist-container border-round-md m-3 px-5">
+  <div style="min-height: 202px;position: relative;"
+    class="flex align-items-end justify-content-between w-full border-1 border-primary wishlist-container border-round-md m-3 px-5">
+    <i *ngIf="!wishlistView" (click)="addToWishList(product)" class="favorite"
+      [class]="inWishlist ? 'pi pi-heart-fill wishlist' : 'pi pi-heart'"></i>
     <div class="flex align-items-center justify-content-center">
-      <img [src]="images[0]" [alt]="name" style="height: 200px;max-width: 240px;">
+      <img (click)="openProductDetails(id)" [src]="images[0]" [alt]="name" class="mx-5 cursor-pointer"
+        style="aspect-ratio: auto;max-width: 200px;max-height: 200px;">
       <div class="flex flex-column justify-content-center align-items-start">
         <h2 class="font-bold text-blue-400 m-0 p-0">{{name}}</h2>
         <span class="font-light">EAN: {{EAN}}</span>
         <span>{{description}}</span>
-        <span>{{category.name}}>{{subcategory.name}}</span>
+        <span>{{category?.name}} > {{subcategory?.name}}</span>
       </div>
     </div>
-    <div>
-      <span class="text-green-500" *ngIf="inStock !== 0;else notInStock">{{inStock}} items available</span>
-      <ng-template #notInStock>
-        <span class="text-red-500">Not available</span>
-      </ng-template>
-      <h2 class="font-medium">{{price}} RSD</h2>
+    <div class="flex flex-column align-items-end justify-content-between">
+      <span class="text-green-500" *ngIf="inStock > 1">{{inStock}} items available</span>
+      <span class="text-green-500" *ngIf="inStock === 1">{{inStock}} item available</span>
+      <span *ngIf="inStock === 0" class="text-red-500">Not available</span>
+      <div class="flex align-items-end justify-content-around my-3 mb-3">
+        <div class="flex align-self-start align-items-start flex-column mr-4">
+          <h2 class="font-medium my-2">{{price}} RSD</h2>
+          <span>or 12 x {{getInstallmentPayAmount(price)}} RSD / month</span>
+        </div>
+        <i class="pi pi-cart-plus cart" style="font-size: 1.5rem"></i>
+      </div>
     </div>
   </div>
 

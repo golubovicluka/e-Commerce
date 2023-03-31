@@ -12,8 +12,8 @@ import { Product, Subcategory, Category } from '../Product';
 export class ProductComponent implements OnInit {
   @Input() name!: string;
   @Input() description!: string;
-  @Input() subcategory!: Subcategory;
-  @Input() category!: Category;
+  @Input() subcategory!: Subcategory | undefined;
+  @Input() category!: Category | undefined;
   @Input() categoryId!: number;
   @Input() subcategoryId!: number;
   @Input() images!: string[];
@@ -24,6 +24,7 @@ export class ProductComponent implements OnInit {
 
   @Input() inWishlist!: boolean;
   @Input() isListView!: boolean;
+  @Input() wishlistView?: boolean;
 
 
   @Output() addedToWishList = new EventEmitter();
@@ -75,6 +76,10 @@ export class ProductComponent implements OnInit {
     console.log('this.product from product', this.product);
 
     this.router.navigate(['/products', id], navigationExtras);
+  }
+
+  getInstallmentPayAmount(price: number) {
+    return Math.floor(price / 12);
   }
 
 }

@@ -1,9 +1,12 @@
 <ng-container *ngIf="wishlistItems;else loading">
   <div *ngFor="let product of wishlistItems">
-    <!-- TODO: Refactor to use product (list variant) component -->
-    <app-wishlist-item [name]="product.name" [category]="product.category" [subcategory]="product.subcategory"
-      [price]="product.price" [inStock]="product.inStock" [EAN]="product.EAN" [id]="product.id"
-      [images]="product.images" [description]="product.description"></app-wishlist-item>
+    <div class="w-full" style="position: relative;">
+      <app-product [isListView]="true" [categoryId]="product.categoryId" [subcategoryId]="product.subcategoryId"
+        [wishlistView]="true" [inWishlist]="existInLocalStorage(product.id)" [name]="product.name"
+        [category]="product.category" [subcategory]="product.subcategory" [id]="product.id" [images]="product.images"
+        [inStock]="product.inStock" [price]="product.price" [description]="product.description"
+        [EAN]="product.EAN"></app-product>
+    </div>
   </div>
 </ng-container>
 <ng-template #loading>

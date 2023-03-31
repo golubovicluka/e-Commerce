@@ -51,7 +51,8 @@ import { TagModule } from 'primeng/tag';
     TagModule
   ],
   exports: [
-    ProductsViewComponent
+    ProductsViewComponent,
+    ProductComponent
   ],
   providers: [MessageService]
 })
