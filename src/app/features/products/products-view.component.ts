@@ -25,6 +25,10 @@ export class ProductsViewComponent implements OnInit, OnDestroy {
   sortField!: string;
   sortOrder!: number;
 
+  // Ordering by price
+  priceFrom!: number;
+  priceTo!: number;
+  rangeValues: number[] = [0, 200000];
 
   numberOfProducts!: number;
   isLoading = true;
@@ -70,7 +74,6 @@ export class ProductsViewComponent implements OnInit, OnDestroy {
     this._productService.searchProducts(changes).subscribe((product: any) => {
       this.products$ = of(product.data.product);
       // this.numberOfProducts = this.products$
-
     })
   }
 
@@ -116,17 +119,21 @@ export class ProductsViewComponent implements OnInit, OnDestroy {
     event.rows = 3;
   }
 
-  existInLocalStorage(id: number) {
-    if (localStorage.getItem('wishlist') && JSON.parse(localStorage.getItem('wishlist')!).includes(id)) {
-      return true
-    } else {
-      return false;
-    }
-  }
-
-  // TODO: move this to separate component - product-list or product component - different template
   openProductDetails(id: number) {
     this.router.navigate(['/products', id]);
+  }
+
+  handleFilterChange(event: any) {
+    // console.log(event);
+  }
+
+  handlePriceFilter(event: any) {
+    console.log(event.values);
+    this.priceFrom = event.values[0]
+    this.priceTo = event.values[1]
+    this._productService.getProductsByPrice(this.priceFrom, this.priceTo).subscribe((products: any) => {
+      this.products$ = of(products.data.product);
+    })
   }
 
   onSortChange(event: any) {

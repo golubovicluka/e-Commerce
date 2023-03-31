@@ -8,47 +8,38 @@ import { ProductComponent } from '../features/products/product/product.component
 })
 export class WishlistService {
   private wishListItems$ = new BehaviorSubject<Product[]>([]);
-  private wishListItems = this.wishListItems$.asObservable();
+  wishListItemsObservable = this.wishListItems$.asObservable();
+
+  wishListItems: Product[] = [];
 
   constructor() {
-    this.getWishListItems();
+    const wishList = localStorage.getItem('wishlist');
+    if (wishList) {
+      this.wishListItems$.next(JSON.parse(wishList));
+    }
   }
 
   getWishListItems(): Observable<Product[]> {
-    const wishList = localStorage.getItem('wishlist')
-    const wishListItems = wishList ? JSON.parse(wishList) : []
-    // Convert this to the same type as the type storing items into local storage
-    console.log(wishListItems);
-    return of(wishListItems);
+    return this.wishListItemsObservable;
   }
 
-  // TODO: fix the way that wishlist items are mapped into local storage and retrieve them via getWishListItems()
-  addWishListItem(product: Product) {
-    this.wishListItems$.next([...this.wishListItems$.getValue(), product]);
-    const products = this.wishListItems$.getValue();
-    const wishListItems = products.map((product) => ({ ...product }))
-    console.log('wishListItems ', wishListItems);
-    localStorage.setItem("wishlist", JSON.stringify(wishListItems, this.getCircularReplacer()))
+  inWishlist(id: number) {
+    return this.wishListItems$.value.some(product => product.id === id);
   }
 
-  removeWishListItem(item: any) {
-    this.wishListItems$.pipe(filter(wishListItem => wishListItem !== item))
-    this.wishListItems$.next(this.wishListItems$.getValue().filter((wishListItem) => wishListItem !== item));
+  addWishListItem(item: Product) {
+    const currentItems = [...this.wishListItems$.value, item];
+
+    localStorage.setItem('wishlist', JSON.stringify(currentItems));
+    this.wishListItems$.next(currentItems);
   }
 
-  getCircularReplacer() {
-    const seen = new WeakSet();
-    return (key: any, value: any) => {
-      if (typeof value === "object" && value !== null) {
-        if (seen.has(value)) {
-          return;
-        }
-        seen.add(value);
-      }
-      return value;
-    };
-  };
+  removeWishListItem(item: Product) {
+    let currentItems = this.wishListItems$.value;
+    currentItems = currentItems.filter(product => product.id !== item.id);
+    localStorage.setItem('wishlist', JSON.stringify(currentItems));
 
-
-
+    this.wishListItems$.next(currentItems);
+  }
 }
+

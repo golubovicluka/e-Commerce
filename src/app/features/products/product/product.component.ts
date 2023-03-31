@@ -2,6 +2,7 @@ import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { Router, NavigationExtras } from '@angular/router';
 import { MessageService } from 'primeng/api';
 import { Product, Subcategory, Category } from '../Product';
+import { WishlistService } from 'src/app/shared/wishlist.service';
 
 
 @Component({
@@ -22,7 +23,6 @@ export class ProductComponent implements OnInit {
   @Input() inStock!: number;
   @Input() price!: number;
 
-  @Input() inWishlist!: boolean;
   @Input() isListView!: boolean;
   @Input() wishlistView?: boolean;
 
@@ -30,8 +30,8 @@ export class ProductComponent implements OnInit {
   @Output() addedToWishList = new EventEmitter();
   @Output() removedFromWishList = new EventEmitter();
 
+  inWishlist!: boolean;
   public product!: Product;
-  public isAddedToWishList: boolean = false;
 
   ngOnInit() {
     this.product = {
@@ -47,18 +47,22 @@ export class ProductComponent implements OnInit {
       inStock: this.inStock,
       price: this.price
     }
+
+    this.inWishlist = this.checkInWishlist(this.id);
   }
 
   constructor(
     private _messageService: MessageService,
-    private router: Router
-  ) { }
+    private router: Router,
+    private _wishlistService: WishlistService
+  ) {
+    this.inWishlist = this.checkInWishlist(this.id);
+  }
 
-  addToWishList(product: Product) {
+  addRemoveItemWishlist(product: Product) {
     this.inWishlist = !this.inWishlist;
-    this.isAddedToWishList = !this.isAddedToWishList;
 
-    if (this.isAddedToWishList) {
+    if (this.inWishlist) {
       this.addedToWishList.emit(product);
       this._messageService.add({ severity: 'success', summary: 'Added', detail: 'Added to wishlist' })
     } else {
@@ -67,14 +71,17 @@ export class ProductComponent implements OnInit {
     }
   }
 
+  // Check to see if item is in wishlist
+  checkInWishlist(id: number) {
+    return this._wishlistService.inWishlist(id)
+  }
+
   openProductDetails(id: number) {
     const navigationExtras: NavigationExtras = {
       state: {
         product: this.product
       }
     }
-    console.log('this.product from product', this.product);
-
     this.router.navigate(['/products', id], navigationExtras);
   }
 

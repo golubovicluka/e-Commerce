@@ -15,12 +15,11 @@ export class WishlistViewComponent implements OnInit {
   ngOnInit(): void {
     this._wishlistService.getWishListItems().subscribe((data) => {
       console.log('Data: ', data);
-
       this.wishlistItems = data;
     })
   }
 
-  existInLocalStorage(id: number) {
+  existsInLocalStorage(id: number) {
     if (localStorage.getItem('wishlist') && JSON.parse(localStorage.getItem('wishlist')!).includes(id)) {
       return true
     } else {
@@ -28,6 +27,7 @@ export class WishlistViewComponent implements OnInit {
     }
   }
 
+  // Remove all wishlist items
   clearLocalStorage(): void {
     localStorage.clear();
   }

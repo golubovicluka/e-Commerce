@@ -23,6 +23,7 @@ import { ImageModule } from 'primeng/image';
 import { CarouselModule } from 'primeng/carousel';
 import { PaginatorModule } from 'primeng/paginator';
 import { TagModule } from 'primeng/tag';
+import { SliderModule } from 'primeng/slider';
 
 @NgModule({
   declarations: [
@@ -48,7 +49,8 @@ import { TagModule } from 'primeng/tag';
     ImageModule,
     CarouselModule,
     PaginatorModule,
-    TagModule
+    TagModule,
+    SliderModule
   ],
   exports: [
     ProductsViewComponent,

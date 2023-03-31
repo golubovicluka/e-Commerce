@@ -78,3 +78,11 @@
   font-weight: 600;
   vertical-align: middle;
 }
+
+.class {
+  max-width: 100px;
+}
+
+::ng-deep body > app-root > div > app-products-view > div > div:nth-child(1) > p-slider > div {
+  width: 250px;
+}

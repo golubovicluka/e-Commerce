@@ -2,11 +2,17 @@
 <p-breadcrumb [home]="home" [model]="items"></p-breadcrumb>
 
 <div class="flex align-items-start justify-content-center h-12 w-12">
-  <app-filters (filtersObject)="applyFilters($event)" [categories]="categories"></app-filters>
-
+  <div>
+    <app-filters (filtersObject)="applyFilters($event)" [categories]="categories"></app-filters>
+    <h5 class="font-medium m-2 p-3">
+      Price from: {{rangeValues[0] + ' - ' + rangeValues[1]}} RSD
+    </h5>
+    <p-slider [(ngModel)]="rangeValues" [range]="true" [min]="0" [max]="200000" [animate]="true"
+      (onChange)="handleFilterChange($event)" (onSlideEnd)="handlePriceFilter($event)"></p-slider>
+  </div>
   <!-- Products section -->
   <div class="w-12 mr-5">
-    <p-dataView [value]="products$ | async" [paginator]="true" layout="grid" [rows]="10" (onLazyLoad)="loadData($event)"
+    <p-dataView [value]="products$ | async" [paginator]="true" [rows]="10" (onLazyLoad)="loadData($event)"
       [loading]="isLoading" [rowsPerPageOptions]="[10,20,30]" paginatorPosition="bottom">
       <ng-template pTemplate="header">
         <div class="flex align-items-center justify-content-between">
@@ -27,10 +33,10 @@
       <ng-template let-product pTemplate="listItem">
         <div class="w-full" style="position: relative;">
           <app-product (addedToWishList)="addToWishList($event)" [isListView]="true" [categoryId]="product.categoryId"
-            [subcategoryId]="product.subcategoryId" [inWishlist]="existInLocalStorage(product.id)"
-            (removedFromWishList)="removedFromWishList($event)" [name]="product.name" [category]="product.category"
-            [subcategory]="product.subcategory" [id]="product.id" [images]="product.images" [inStock]="product.inStock"
-            [price]="product.price" [description]="product.description" [EAN]="product.EAN"></app-product>
+            [subcategoryId]="product.subcategoryId" (removedFromWishList)="removedFromWishList($event)"
+            [name]="product.name" [category]="product.category" [subcategory]="product.subcategory" [id]="product.id"
+            [images]="product.images" [inStock]="product.inStock" [price]="product.price"
+            [description]="product.description" [EAN]="product.EAN"></app-product>
         </div>
       </ng-template>
 
