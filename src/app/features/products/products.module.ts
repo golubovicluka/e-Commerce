@@ -25,6 +25,7 @@ import { PaginatorModule } from 'primeng/paginator';
 import { TagModule } from 'primeng/tag';
 import { SliderModule } from 'primeng/slider';
 import { InputNumberModule } from 'primeng/inputnumber';
+import { SkeletonModule } from 'primeng/skeleton';
 
 @NgModule({
   declarations: [
@@ -52,7 +53,8 @@ import { InputNumberModule } from 'primeng/inputnumber';
     PaginatorModule,
     TagModule,
     SliderModule,
-    InputNumberModule
+    InputNumberModule,
+    SkeletonModule
   ],
   exports: [
     ProductsViewComponent,

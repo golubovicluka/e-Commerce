@@ -24,10 +24,12 @@ import { BadgeModule } from 'primeng/badge';
 import { ButtonModule } from 'primeng/button';
 import { CheckboxModule } from 'primeng/checkbox';
 import { InputTextModule } from 'primeng/inputtext';
+import { BreadcrumbModule } from 'primeng/breadcrumb';
 
 import { WishlistService } from './shared/wishlist.service';
 import { LoginComponent } from './features/login/login.component';
 import { WishlistViewComponent } from './features/wishlist/wishlist-view.component';
+import { ToastModule } from 'primeng/toast';
 @NgModule({
   declarations: [
     AppComponent,
@@ -48,6 +50,8 @@ import { WishlistViewComponent } from './features/wishlist/wishlist-view.compone
     BrowserAnimationsModule,
     ButtonModule,
     InputTextModule,
+    BreadcrumbModule,
+    ToastModule
   ],
   exports: [
   ],

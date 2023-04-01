@@ -27,9 +27,9 @@
           {{product?.name}}
         </h2>
         <span *ngIf="product.inStock > 0; else notAvailable"
-          class="align-self-start font-medium text-green-400">Available</span>
+          class="align-self-start font-light text-green-400 text-sm">Available</span>
         <ng-template #notAvailable>
-          <span class="align-self-start font-medium text-red-400">Unavailable at the
+          <span class="align-self-start font-light text-red-400 text-sm">Unavailable at the
             moment</span>
         </ng-template>
         <span class="font-light">

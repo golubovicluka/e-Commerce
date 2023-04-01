@@ -74,6 +74,7 @@ export class ProductsViewComponent implements OnInit, OnDestroy {
 
     this._productService.getProductCategories().subscribe((categories: any) => {
       this.categories = categories.data.category;
+      this.isLoading = false;
     })
 
     // Breadcrumbs
@@ -160,7 +161,6 @@ export class ProductsViewComponent implements OnInit, OnDestroy {
   onSortChange(event: any) {
     this._productService.getProducts(event.value).subscribe((product: any) => {
       this.products$ = of(product.data.product);
-      this.isLoading = false;
     })
 
     // let value = event.value;

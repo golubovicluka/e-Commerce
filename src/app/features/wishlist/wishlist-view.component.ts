@@ -1,6 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { WishlistService } from '../../shared/wishlist.service';
 import { Product } from '../products/Product';
+import { MenuItem, MessageService } from 'primeng/api';
+import { ProductComponent } from '../products/product/product.component';
 
 @Component({
   selector: 'app-wishlist-view',
@@ -10,13 +12,25 @@ import { Product } from '../products/Product';
 export class WishlistViewComponent implements OnInit {
   wishlistItems: Product[] = [];
 
-  constructor(private _wishlistService: WishlistService) { }
+  public items!: MenuItem[];
+  home!: MenuItem;
+
+  @ViewChild('productComponent') productComponent!: ProductComponent;
+
+
+  constructor(private _wishlistService: WishlistService, private _messageService: MessageService) { }
 
   ngOnInit(): void {
     this._wishlistService.getWishListItems().subscribe((data) => {
       console.log('Data: ', data);
       this.wishlistItems = data;
     })
+
+    this.items = [
+      { label: 'Products', routerLink: '/products' },
+      { label: 'Wishlist', routerLink: '/wishlist' },
+    ];
+    this.home = { icon: 'pi pi-home', routerLink: '/home' };
   }
 
   existsInLocalStorage(id: number) {
@@ -27,7 +41,14 @@ export class WishlistViewComponent implements OnInit {
     }
   }
 
-  // Remove all wishlist items
+  removeFromWishlist(product: Product) {
+    console.log(product);
+
+    const removeProduct = this.productComponent.product;
+    this._messageService.add({ severity: 'info', summary: 'Removed', detail: 'Removed from wishlist' })
+    this._wishlistService.removeWishListItem(removeProduct);
+  }
+
   clearLocalStorage(): void {
     localStorage.clear();
   }

@@ -2,10 +2,9 @@
 <p-breadcrumb [home]="home" [model]="items"></p-breadcrumb>
 
 <div class="flex align-items-start justify-content-center mt-3 h-12 w-12">
-  <div class="bg-gray-50 border-round-md px-2 py-3 mx-3 w-2">
+  <div *ngIf="!isLoading;else loadingFilters" class="bg-gray-50 border-round-md px-2 py-3 mx-3 w-2">
     <app-filters (filtersObject)="applyFilters($event)" [categories]="categories"></app-filters>
     <div class="flex flex-column align-items-center my-1 py-3">
-      <!-- <input class="mb-1" type="text" pInputText [(ngModel)]="rangeValues[0]" /> -->
       <p-inputNumber class="mb-2" [(ngModel)]="rangeValues[0]" (ngModelChange)="onPriceChange($event)" mode="currency"
         inputId="currency" currency="RSD" locale="en-US">
       </p-inputNumber>
@@ -19,6 +18,18 @@
     <p-slider [(ngModel)]="rangeValues" [range]="true" [min]="lowestPrice" [max]="highestPrice" [animate]="true"
       (onSlideEnd)="handlePriceFilter($event)"></p-slider>
   </div>
+  <ng-template #loadingFilters>
+    <div class="bg-gray-50 border-round-md px-2 py-3 mx-3 w-2">
+      <p-skeleton height="3rem" width="14rem" styleClass="mb-2"></p-skeleton>
+      <p-skeleton height="4rem" width="14rem" styleClass="mb-2"></p-skeleton>
+      <p-skeleton height="3.5rem" width="14rem" styleClass="mb-2"></p-skeleton>
+      <p-skeleton height="3.5rem" width="14rem" styleClass="mb-4"></p-skeleton>
+      <p-skeleton height="2.5rem" width="13.4rem" styleClass="mb-2"></p-skeleton>
+      <p-skeleton height="2.5rem" width="13.4rem" styleClass="mb-3"></p-skeleton>
+      <p-skeleton width="14rem" styleClass="mb-5"></p-skeleton>
+      <p-skeleton width="15rem" styleClass="mb-2"></p-skeleton>
+    </div>
+  </ng-template>
 
   <!-- Products section -->
   <div class="w-12 mr-5">
