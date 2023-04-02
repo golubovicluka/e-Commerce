@@ -26,13 +26,17 @@ import { TagModule } from 'primeng/tag';
 import { SliderModule } from 'primeng/slider';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { SkeletonModule } from 'primeng/skeleton';
+import { CategoriesViewComponent } from './categories-view/categories-view.component';
+import { CategoryComponent } from './categories-view/category/category.component';
 
 @NgModule({
   declarations: [
     ProductsViewComponent,
     ProductComponent,
     FiltersComponent,
-    ProductDetailsComponent
+    ProductDetailsComponent,
+    CategoriesViewComponent,
+    CategoryComponent
   ],
   imports: [
     CommonModule,
@@ -54,7 +58,7 @@ import { SkeletonModule } from 'primeng/skeleton';
     TagModule,
     SliderModule,
     InputNumberModule,
-    SkeletonModule
+    SkeletonModule,
   ],
   exports: [
     ProductsViewComponent,

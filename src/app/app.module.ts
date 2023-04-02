@@ -30,6 +30,7 @@ import { WishlistService } from './shared/wishlist.service';
 import { LoginComponent } from './features/login/login.component';
 import { WishlistViewComponent } from './features/wishlist/wishlist-view.component';
 import { ToastModule } from 'primeng/toast';
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -51,7 +52,7 @@ import { ToastModule } from 'primeng/toast';
     ButtonModule,
     InputTextModule,
     BreadcrumbModule,
-    ToastModule
+    ToastModule,
   ],
   exports: [
   ],

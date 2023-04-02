@@ -9,7 +9,9 @@
   backdrop-filter: blur(3px);
   filter: drop-shadow(0 0.2rem 0.25rem rgba(0, 0, 0, 0.5));
 
-  position: sticky;
+  position: sticky !important;
+  top: 0;
+  z-index: 9999;
   span {
     color: rgb(52, 52, 52);
     cursor: pointer;

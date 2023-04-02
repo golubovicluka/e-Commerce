@@ -1,5 +1,5 @@
 <!-- Grid view -->
-<div *ngIf="!isListView; else listView" class="product-card">
+<div *ngIf="!isListView; else listView" class="product-card transition-duration-500">
   <i (click)="addRemoveItemWishlist(product)" class="favorite"
     [class]="inWishlist ? 'pi pi-heart-fill wishlist' : 'pi pi-heart'"></i>
   <div class="image" (click)="openProductDetails(id)" [ngStyle]="{ 'background-image': 'url(' + images[0] + ')'}">
@@ -28,7 +28,7 @@
 <!-- List view -->
 <ng-template #listView>
   <div style="min-height: 202px;position: relative;"
-    class="flex transition-duration-300 hover:shadow-4 align-items-end justify-content-between w-full border-1 border-primary wishlist-container border-round-md my-3 px-5">
+    class="flex transition-duration-500 hover:shadow-4 align-items-end justify-content-between w-full border-1 border-primary wishlist-container border-round-md my-3 px-5">
     <i *ngIf="!wishlistView" (click)="addRemoveItemWishlist(product)" class="favorite z-5"
       [class]="inWishlist ? 'pi pi-heart-fill wishlist' : 'pi pi-heart'"></i>
     <div class="flex align-items-center justify-content-center">

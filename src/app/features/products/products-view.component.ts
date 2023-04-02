@@ -3,7 +3,7 @@ import { Observable, of, filter } from 'rxjs';
 import { Product } from './Product';
 import { ProductsService } from './products.service';
 import { SubscriptionContainer } from './SubscriptionContainer';
-import { ConfirmationService, MessageService } from 'primeng/api';
+import { MessageService } from 'primeng/api';
 import { WishlistService } from '../../shared/wishlist.service';
 import { MenuItem } from 'primeng/api';
 import { Router } from '@angular/router';

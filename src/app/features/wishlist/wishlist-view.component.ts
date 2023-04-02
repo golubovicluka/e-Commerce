@@ -18,7 +18,10 @@ export class WishlistViewComponent implements OnInit {
   @ViewChild('productComponent') productComponent!: ProductComponent;
 
 
-  constructor(private _wishlistService: WishlistService, private _messageService: MessageService) { }
+  constructor(
+    private _wishlistService: WishlistService,
+    private _messageService: MessageService
+  ) { }
 
   ngOnInit(): void {
     this._wishlistService.getWishListItems().subscribe((data) => {
