@@ -1,3 +1,4 @@
+<p-toast position="bottom-center"></p-toast>
 <p-breadcrumb [home]="home" [model]="items"></p-breadcrumb>
 <div *ngIf="product; else loading">
   <div class="flex justify-content-around align-items-center">
@@ -8,7 +9,8 @@
       <ng-template pTemplate="item" let-item>
 
         <!-- TODO: Show only 4-5 images, the rest of the images can be seen from withing full screen carousel -->
-        <div *ngIf="images" class="flex flex-column mx-5" style="max-width: 150px;max-height: 100%;">
+        <div *ngIf="images" class="fadein animation-duration-500 flex flex-column mx-5"
+          style="max-width: 150px;max-height: 100%;">
           <div *ngFor="let image of images; let index = index;" class="col-3" key="index">
             <img [src]="image" width="120px" height="120px" [alt]="image" style="cursor: pointer"
               (click)="imageClick(index)" />
@@ -18,10 +20,11 @@
       </ng-template>
     </p-galleria>
     <div *ngIf="product"
-      class="relative border-300 border-1 border-round-xl surface-overlay m-5 flex flex-column align-items-center justify-content-around"
+      class="fadein animation-duration-500 relative border-300 border-1 border-round-xl surface-overlay m-5 flex flex-column align-items-center justify-content-around"
       style="min-width: 500px; min-height: 500px">
       <p-tag class="m-1 tag" severity="danger" value="Excellent price" [rounded]="true"></p-tag>
-      <i class="pi pi-heart favorite"></i>
+      <i (click)="addRemoveItemWishlist(product)" class="favorite"
+        [class]="inWishlist ? 'pi pi-heart-fill wishlist' : 'pi pi-heart'"></i>
       <div class="align-self-start m-2 mt-5 px-2 flex flex-column">
         <h2 class="font-bold">
           {{product?.name}}

@@ -2,7 +2,7 @@
 <p-breadcrumb [home]="home" [model]="items"></p-breadcrumb>
 <ng-container *ngIf="wishlistItems;else loading">
   <div *ngFor="let product of wishlistItems">
-    <div class="w-full" style="position: relative;">
+    <div class="w-full fadein animation-duration-500" auto-animate style="position: relative;">
       <p-button icon="pi pi-times" (click)="removeFromWishlist(product)" class="p-3 remove-btn"
         styleClass="p-button-rounded p-button-danger"></p-button>
       <app-product #productComponent [isListView]="true" [categoryId]="product.categoryId"
@@ -12,7 +12,8 @@
         [description]="product.description" [EAN]="product.EAN"></app-product>
     </div>
   </div>
-  <div class="flex align-items-center flex-column justify-content-center" *ngIf="wishlistItems.length === 0">
+  <div class="fadein animation-duration-500 flex align-items-center flex-column justify-content-center"
+    *ngIf="wishlistItems.length === 0">
     <h3 class="font-light">No wishlist items to display...</h3>
     <button pButton pRipple type="button" [routerLink]="['/products']" label="Find a product"
       class="p-button-outlined p-button-rounded w-2 mt-2 p-2"></button>

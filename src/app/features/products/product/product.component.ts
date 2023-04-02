@@ -47,7 +47,6 @@ export class ProductComponent implements OnInit {
       inStock: this.inStock,
       price: this.price
     }
-
     this.inWishlist = this.checkInWishlist(this.id);
   }
 

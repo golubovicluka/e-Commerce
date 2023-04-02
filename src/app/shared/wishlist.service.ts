@@ -10,8 +10,6 @@ export class WishlistService {
   private wishListItems$ = new BehaviorSubject<Product[]>([]);
   wishListItemsObservable = this.wishListItems$.asObservable();
 
-  wishListItems: Product[] = [];
-
   constructor() {
     const wishList = localStorage.getItem('wishlist');
     if (wishList) {

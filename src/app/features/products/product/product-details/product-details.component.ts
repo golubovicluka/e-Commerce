@@ -2,7 +2,9 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, NavigationExtras, Router } from '@angular/router';
 import { Location } from '@angular/common';
 import { ProductsService } from '../../products.service';
-import { MenuItem } from 'primeng/api';
+import { MenuItem, MessageService } from 'primeng/api';
+import { WishlistService } from 'src/app/shared/wishlist.service';
+import { Product } from '../../Product';
 
 @Component({
   selector: 'app-product-details',
@@ -13,6 +15,7 @@ export class ProductDetailsComponent implements OnInit {
 
   images!: any[];
   product: any | null = null;
+  id!: number;
 
   // Monthly payment options
   selectedMonthlyPayment: any = { name: 12 }
@@ -42,19 +45,25 @@ export class ProductDetailsComponent implements OnInit {
     }
   ];
 
+  inWishlist!: boolean;
   displayCustom!: boolean;
 
   activeIndex: number = 0;
+
 
   constructor(
     private activatedRoute: ActivatedRoute,
     private _location: Location,
     private router: Router,
-    private _productService: ProductsService
+    private _productService: ProductsService,
+    private _wishlistService: WishlistService,
+    private _messageService: MessageService
   ) {
     const navigation = this.router.getCurrentNavigation();
     const state = navigation?.extras.state as { product: any };
     if (state?.product) {
+      this.id = state?.product.id;
+      this.inWishlist = this.checkInWishlist(this.id)
       this.product = state?.product;
       this.images = state?.product.images
 
@@ -71,14 +80,15 @@ export class ProductDetailsComponent implements OnInit {
   }
 
   ngOnInit() {
-    const id = this.activatedRoute.snapshot.params['id'];
+    this.id = this.activatedRoute.snapshot.params['id'];
 
     // If used navigated manually to the route
     if (!this.product) {
-      this._productService.getProductById(id).subscribe((product: any) => {
+      this._productService.getProductById(this.id).subscribe((product: any) => {
         this.product = product.data.product[0];
         this.images = product.data.product[0].images;
         this.setBreadcrumbItems();
+        this.inWishlist = this.checkInWishlist(this.id);
 
         // Suggested products
         const productCategory = product.data.product[0].category?.name;
@@ -88,8 +98,8 @@ export class ProductDetailsComponent implements OnInit {
 
           console.log(this.suggestedProducts);
         })
-
       })
+      this.inWishlist = this.checkInWishlist(this.id);
     }
 
     // Breadcrumbs setup
@@ -99,6 +109,32 @@ export class ProductDetailsComponent implements OnInit {
 
   navigateBack() {
     this._location.back();
+  }
+
+  checkInWishlist(id: number) {
+    return this._wishlistService.inWishlist(id)
+  }
+
+  addRemoveItemWishlist(product: Product) {
+    this.inWishlist = !this.inWishlist;
+
+    if (this.inWishlist) {
+      this.addToWishList(product);
+      this._messageService.add({ severity: 'success', summary: 'Added', detail: 'Added to wishlist' })
+    } else {
+      this.removedFromWishList(product);
+      this._messageService.add({ severity: 'info', summary: 'Removed', detail: 'Removed from wishlist' })
+    }
+  }
+
+  addToWishList(product: Product) {
+    this._wishlistService.addWishListItem(product);
+    console.log('Added to wishlist: ', product);
+  }
+
+  removedFromWishList(product: Product) {
+    this._wishlistService.removeWishListItem(product);
+    console.log('Removed from wishlist: ', product);
   }
 
   // Move to service
@@ -126,9 +162,6 @@ export class ProductDetailsComponent implements OnInit {
   }
 
   getInstallmentPayAmount(price: number, months: any) {
-    console.log(months);
-    console.log(Math.floor(price / months));
-
     return Math.floor(price / months);
   }
 

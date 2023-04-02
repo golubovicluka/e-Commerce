@@ -55,7 +55,6 @@ export class ProductsViewComponent implements OnInit, OnDestroy {
       this.isLoading = false;
 
       const sortedPrices = [...products.data.product].sort((productA: any, productB: any) => (productA.price - productB.price))
-      console.log(sortedPrices);
 
       this.highestPrice = sortedPrices[0].price
       this.lowestPrice = sortedPrices.at(-1).price;
@@ -124,12 +123,10 @@ export class ProductsViewComponent implements OnInit, OnDestroy {
 
   addToWishList(product: Product) {
     this._wishlistService.addWishListItem(product);
-    console.log('Added to wishlist: ', product);
   }
 
   removedFromWishList(product: Product) {
     this._wishlistService.removeWishListItem(product);
-    console.log('Removed from wishlist: ', product);
   }
 
   // For pagination
@@ -143,7 +140,6 @@ export class ProductsViewComponent implements OnInit, OnDestroy {
   }
 
   handlePriceFilter(event: any) {
-    console.log(event.values);
     this.priceFrom = event.values[0]
     this.priceTo = event.values[1]
     this._productService.getProductsByPrice(this.priceFrom, this.priceTo).subscribe((products: any) => {
@@ -152,7 +148,6 @@ export class ProductsViewComponent implements OnInit, OnDestroy {
   }
 
   onPriceChange(event: any) {
-    console.log(this.rangeValues);
     this._productService.getProductsByPrice(this.rangeValues[0], this.rangeValues[1]).subscribe((products: any) => {
       this.products$ = of(products.data.product);
     })
