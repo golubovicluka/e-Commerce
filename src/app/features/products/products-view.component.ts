@@ -50,7 +50,7 @@ export class ProductsViewComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit() {
-    this._productService.getProducts().subscribe((products: any) => {
+    this.subs.add(this._productService.getProducts().subscribe((products: any) => {
       this.products$ = of(products.data.product);
       this.numberOfProducts = products.data.product.length;
       this.isLoading = false;
@@ -70,14 +70,12 @@ export class ProductsViewComponent implements OnInit, OnDestroy {
           this.lowestPrice = product.price;
         };
       });
-    });
+    }));
 
-
-
-    this._productService.getProductCategories().subscribe((categories: any) => {
+    this.subs.add(this._productService.getProductCategories().subscribe((categories: any) => {
       this.categories = categories.data.category;
       this.isLoading = false;
-    })
+    }))
 
     // Breadcrumbs
     this.items = [
@@ -93,9 +91,9 @@ export class ProductsViewComponent implements OnInit, OnDestroy {
 
   onChanges(changes: any) {
     this.searchInput = changes;
-    this._productService.searchProducts(changes).subscribe((product: any) => {
+    this.subs.add(this._productService.searchProducts(changes).subscribe((product: any) => {
       this.products$ = of(product.data.product);
-    })
+    }))
   }
 
   trackByProductId(index: number, product: Product): number {
@@ -103,15 +101,15 @@ export class ProductsViewComponent implements OnInit, OnDestroy {
   }
 
   applyFilters(filtersObject: any) {
-    this._productService.getFilteredProducts(filtersObject).subscribe((product: any) => {
+    this.subs.add(this._productService.getFilteredProducts(filtersObject).subscribe((product: any) => {
       this.products$ = of(product.data.product);
-    })
+    }))
   }
 
   getBySubcategory(selectedCategory: string) {
-    this._productService.getProductBySubcategory(selectedCategory).subscribe((products: any) => {
+    this.subs.add(this._productService.getProductBySubcategory(selectedCategory).subscribe((products: any) => {
       this.products$ = of(products.data.product);
-    })
+    }))
   }
 
   ngOnDestroy() {
@@ -119,9 +117,9 @@ export class ProductsViewComponent implements OnInit, OnDestroy {
   }
 
   filterSubcategories(categories: string[]) {
-    this._productService.getProductsFromSubcategories(categories).subscribe((products: any) => {
+    this.subs.add(this._productService.getProductsFromSubcategories(categories).subscribe((products: any) => {
       this.products$ = of(products.data.product)
-    })
+    }))
   }
 
   addToWishList(product: Product) {
@@ -145,21 +143,21 @@ export class ProductsViewComponent implements OnInit, OnDestroy {
   handlePriceFilter(event: any) {
     this.priceFrom = event.values[0]
     this.priceTo = event.values[1]
-    this._productService.getProductsByPrice(this.priceFrom, this.priceTo).subscribe((products: any) => {
+    this.subs.add(this._productService.getProductsByPrice(this.priceFrom, this.priceTo).subscribe((products: any) => {
       this.products$ = of(products.data.product);
-    })
+    }))
   }
 
   onPriceChange(event: any) {
-    this._productService.getProductsByPrice(this.rangeValues[0], this.rangeValues[1]).subscribe((products: any) => {
+    this.subs.add(this._productService.getProductsByPrice(this.rangeValues[0], this.rangeValues[1]).subscribe((products: any) => {
       this.products$ = of(products.data.product);
-    })
+    }))
   }
 
   onSortChange(event: any) {
-    this._productService.getProducts(event.value).subscribe((product: any) => {
+    this.subs.add(this._productService.getProducts(event.value).subscribe((product: any) => {
       this.products$ = of(product.data.product);
-    })
+    }))
 
     // let value = event.value;
 
