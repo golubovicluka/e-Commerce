@@ -1,2 +1,13 @@
-Categories view component
-<app-category [categories]="categories"></app-category>
+<p-breadcrumb [home]="home" [model]="items"></p-breadcrumb>
+<div *ngIf="categories; else loading" class="flex align-items-center justify-content-center gap-3 mt-5">
+  <div *ngFor="let category of categories; let index = index">
+    <app-category (applyCategoryFilter)="openProductsPage($event)" [name]="category.name"
+      [id]="category.id"></app-category>
+  </div>
+</div>
+
+<ng-template #loading>
+  <div class="center" style="padding-top: 30px">
+    <i class="pi pi-spin pi-spinner" style="font-size: 2rem"></i>
+  </div>
+</ng-template>

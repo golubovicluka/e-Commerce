@@ -8,8 +8,6 @@ import { FormsModule } from '@angular/forms';
 import { SharedModule, MessageService } from 'primeng/api';
 import { AccordionModule } from 'primeng/accordion';
 import { CheckboxModule } from 'primeng/checkbox';
-import { MessagesModule } from 'primeng/messages';
-import { MessageModule } from 'primeng/message';
 import { ToastModule } from 'primeng/toast';
 import { InputTextModule } from 'primeng/inputtext';
 import { ProductDetailsComponent } from './product/product-details/product-details.component';

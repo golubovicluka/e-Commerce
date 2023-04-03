@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Observable, of } from 'rxjs';
+import { Observable, Subject, of } from 'rxjs';
 import { Product } from './Product';
 import { Apollo, ApolloBase, gql } from 'apollo-angular';
 
@@ -7,8 +7,14 @@ import { Apollo, ApolloBase, gql } from 'apollo-angular';
   providedIn: 'root'
 })
 export class ProductsService {
+  categoryFilter$ = new Subject<string>();
+  categoryFilter = this.categoryFilter$.asObservable();
 
   constructor(private apollo: Apollo) { }
+
+  setCategoryFilter(category: string) {
+    this.categoryFilter$.next(category);
+  }
 
   // Get all products
   getProducts(sortBy?: string) {

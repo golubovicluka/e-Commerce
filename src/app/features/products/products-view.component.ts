@@ -6,7 +6,7 @@ import { SubscriptionContainer } from './SubscriptionContainer';
 import { MessageService } from 'primeng/api';
 import { WishlistService } from '../../shared/wishlist.service';
 import { MenuItem } from 'primeng/api';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
   selector: 'app-products-view',
@@ -37,6 +37,7 @@ export class ProductsViewComponent implements OnInit, OnDestroy {
   isLoading = true;
 
   searchInput = '';
+  categoriesFilter!: string;
 
   public items!: MenuItem[];
   home!: MenuItem;
@@ -70,6 +71,8 @@ export class ProductsViewComponent implements OnInit, OnDestroy {
         };
       });
     });
+
+
 
     this._productService.getProductCategories().subscribe((categories: any) => {
       this.categories = categories.data.category;
