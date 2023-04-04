@@ -1,0 +1,57 @@
+<p-toast position="bottom-center"></p-toast>
+<p-breadcrumb [home]="home" [model]="items"></p-breadcrumb>
+<h2 class="center mb-0 pb-0">Cart preview</h2>
+<span class="center font-light">
+
+</span>
+<div class="center font-light">
+  <span *ngIf="numberOfItems > 1">Total: {{numberOfItems}} items</span>
+  <span *ngIf="numberOfItems === 1">Total: {{numberOfItems}} item</span>
+</div>
+
+<div class="flex justify-content-around m-7 px-8">
+  <div class="flex align-items-center justify-content-start mx-5 flex-column w-full gap-5 mb-6">
+    <ng-container *ngFor="let product of products$ | async;let index = index">
+      <div *ngIf="products$"
+        class="flex relative align-items-center justify-content-between border-1 border-gray-50 border-round p-3 mx-5 h-8rem w-full shadow-2 transition-all animation-duration-500 transition-ease-out transition-duration-500 hover:shadow-3 hover:border-primary-400">
+        <p-button icon="pi pi-times" (click)="removeFromCart(product)" class="p-3 remove-btn"
+          styleClass="p-button-rounded p-button-danger p-button-text"></p-button>
+        <div class="flex align-items-center">
+          <img [src]="product.images[0]" height="120px" width="120px" [alt]="product.name">
+          <div>
+            <h2 class="p-0 m-0 max-w-18rem">{{product.name}}</h2>
+            <span>{{product.price}} RSD</span>
+          </div>
+        </div>
+        <div class="mr-5 pr-5">
+          <i (click)="decrementProductCount()" class="pi pi-minus cursor-pointer" style="color: red"></i>
+          <p-inputNumber class="m-1" [min]="1" [max]="product.inStock" [placeholder]="pieces" inputId="integeronly"
+            [(ngModel)]="pieces">
+          </p-inputNumber>
+          <i (click)="incrementProductCount()" class="pi pi-plus cursor-pointer" style="color: green"></i>
+        </div>
+      </div>
+    </ng-container>
+  </div>
+  <div
+    class="flex align-items-start justify-content-between flex-column border-1 surface-100 border-primary border-round shadow-2 hover:shadow-3 p-3 h-29rem w-7">
+    <div>
+      <h3 class="m-2 font-bold">
+        Subtotal ({{numberOfItems}}
+        <span *ngIf="numberOfItems > 1">items</span>
+        <span *ngIf="numberOfItems === 1">item</span>
+        ): {{totalPrice$ | async}} RSD
+      </h3>
+      <h3 class="m-2 font-bold">
+        Order amount:
+      </h3>
+      <h3 class="m-2 font-bold">
+        Shipping cost:
+      </h3>
+    </div>
+    <div>
+      <button pButton pRipple type="button" label="Proceed to checkout"
+        class="p-button-outlined p-button-rounded w-full mt-2 p-2"></button>
+    </div>
+  </div>
+</div>

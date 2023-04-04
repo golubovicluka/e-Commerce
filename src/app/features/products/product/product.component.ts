@@ -45,7 +45,6 @@ export class ProductComponent implements OnInit {
     private _wishlistService: WishlistService,
     private _cartService: CartService
   ) {
-    console.log('constructor check');
     this.inWishlist = this.checkInWishlist(this.id);
     this.inCart = this.checkInCart(this.id);
   }
@@ -64,8 +63,6 @@ export class ProductComponent implements OnInit {
       inStock: this.inStock,
       price: this.price
     }
-    console.log('on init check');
-
     this.inWishlist = this.checkInWishlist(this.id);
     this.inCart = this.checkInCart(this.id);
   }
