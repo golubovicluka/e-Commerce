@@ -5,11 +5,12 @@
     <div class="w-full fadein animation-duration-500" auto-animate style="position: relative;">
       <p-button icon="pi pi-times" (click)="removeFromWishlist(product)" class="p-3 remove-btn"
         styleClass="p-button-rounded p-button-danger"></p-button>
-      <app-product #productComponent [isListView]="true" [categoryId]="product.categoryId"
-        [subcategoryId]="product.subcategoryId" [wishlistView]="true" [inWishlist]="existsInLocalStorage(product.id)"
-        [name]="product.name" [category]="product.category" [subcategory]="product.subcategory" [id]="product.id"
-        [images]="product.images" [inStock]="product.inStock" [price]="product.price"
-        [description]="product.description" [EAN]="product.EAN"></app-product>
+      <app-product #productComponent (addedToCart)="addToCart($event)" (removedFromCart)="removeFromCart($event)"
+        [isListView]="true" [categoryId]="product.categoryId" [subcategoryId]="product.subcategoryId"
+        [wishlistView]="true" [inWishlist]="existsInLocalStorage(product.id)" [name]="product.name"
+        [category]="product.category" [subcategory]="product.subcategory" [id]="product.id" [images]="product.images"
+        [inStock]="product.inStock" [price]="product.price" [description]="product.description"
+        [EAN]="product.EAN"></app-product>
     </div>
   </div>
   <div class="fadein animation-duration-500 flex align-items-center flex-column justify-content-center"

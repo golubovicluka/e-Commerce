@@ -21,7 +21,7 @@ export class WishlistService {
     return this.wishListItemsObservable;
   }
 
-  inWishlist(id: number) {
+  inWishlist(id: number): boolean {
     return this.wishListItems$.value.some(product => product.id === id);
   }
 

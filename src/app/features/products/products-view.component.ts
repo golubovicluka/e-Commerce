@@ -7,6 +7,7 @@ import { MessageService } from 'primeng/api';
 import { WishlistService } from '../../shared/wishlist.service';
 import { MenuItem } from 'primeng/api';
 import { ActivatedRoute, Router } from '@angular/router';
+import { CartService } from 'src/app/shared/cart.service';
 
 @Component({
   selector: 'app-products-view',
@@ -46,6 +47,7 @@ export class ProductsViewComponent implements OnInit, OnDestroy {
     private _productService: ProductsService,
     private _messageService: MessageService,
     private _wishlistService: WishlistService,
+    private _cartService: CartService,
     private router: Router
   ) { }
 
@@ -146,6 +148,14 @@ export class ProductsViewComponent implements OnInit, OnDestroy {
     this.subs.add(this._productService.getProductsByPrice(this.priceFrom, this.priceTo).subscribe((products: any) => {
       this.products$ = of(products.data.product);
     }))
+  }
+
+  addToCart(product: Product) {
+    this._cartService.addToCart(product);
+  }
+
+  removeFromCart(product: Product) {
+    this._cartService.removeFromCart(product);
   }
 
   onPriceChange(event: any) {

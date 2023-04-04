@@ -53,7 +53,8 @@
       <!-- List view -->
       <ng-template let-product pTemplate="listItem">
         <div class="w-full" style="position: relative;">
-          <app-product (addedToWishList)="addToWishList($event)" [isListView]="true" [categoryId]="product.categoryId"
+          <app-product (addedToCart)="addToCart($event)" (removedFromCart)="removeFromCart($event)"
+            (addedToWishList)="addToWishList($event)" [isListView]="true" [categoryId]="product.categoryId"
             [subcategoryId]="product.subcategoryId" (removedFromWishList)="removedFromWishList($event)"
             [name]="product.name" [category]="product.category" [subcategory]="product.subcategory" [id]="product.id"
             [images]="product.images" [inStock]="product.inStock" [price]="product.price"

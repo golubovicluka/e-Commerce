@@ -3,6 +3,7 @@ import { Router, NavigationExtras } from '@angular/router';
 import { MessageService } from 'primeng/api';
 import { Product, Subcategory, Category } from '../Product';
 import { WishlistService } from 'src/app/shared/wishlist.service';
+import { CartService } from 'src/app/shared/cart.service';
 
 
 @Component({
@@ -29,9 +30,25 @@ export class ProductComponent implements OnInit {
 
   @Output() addedToWishList = new EventEmitter();
   @Output() removedFromWishList = new EventEmitter();
+  @Output() addedToCart = new EventEmitter();
+  @Output() removedFromCart = new EventEmitter();
 
   inWishlist!: boolean;
+  inCart!: boolean;
   public product!: Product;
+
+
+
+  constructor(
+    private _messageService: MessageService,
+    private router: Router,
+    private _wishlistService: WishlistService,
+    private _cartService: CartService
+  ) {
+    console.log('constructor check');
+    this.inWishlist = this.checkInWishlist(this.id);
+    this.inCart = this.checkInCart(this.id);
+  }
 
   ngOnInit() {
     this.product = {
@@ -47,15 +64,10 @@ export class ProductComponent implements OnInit {
       inStock: this.inStock,
       price: this.price
     }
-    this.inWishlist = this.checkInWishlist(this.id);
-  }
+    console.log('on init check');
 
-  constructor(
-    private _messageService: MessageService,
-    private router: Router,
-    private _wishlistService: WishlistService
-  ) {
     this.inWishlist = this.checkInWishlist(this.id);
+    this.inCart = this.checkInCart(this.id);
   }
 
   addRemoveItemWishlist(product: Product) {
@@ -73,6 +85,22 @@ export class ProductComponent implements OnInit {
   // Check to see if item is in wishlist
   checkInWishlist(id: number) {
     return this._wishlistService.inWishlist(id)
+  }
+
+  checkInCart(id: number) {
+    return this._cartService.inCart(id);
+  }
+
+  addRemoveCartItem(product: Product) {
+    this.inCart = !this.inCart;
+
+    if (this.inCart) {
+      this.addedToCart.emit(product);
+      this._messageService.add({ severity: 'success', summary: 'Added', detail: 'Added to cart' })
+    } else {
+      this.removedFromCart.emit(product);
+      this._messageService.add({ severity: 'info', summary: 'Removed', detail: 'Removed from cart' })
+    }
   }
 
   openProductDetails(id: number) {

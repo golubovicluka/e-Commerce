@@ -3,6 +3,7 @@ import { WishlistService } from '../../shared/wishlist.service';
 import { Product } from '../products/Product';
 import { MenuItem, MessageService } from 'primeng/api';
 import { ProductComponent } from '../products/product/product.component';
+import { CartService } from 'src/app/shared/cart.service';
 
 @Component({
   selector: 'app-wishlist-view',
@@ -20,7 +21,8 @@ export class WishlistViewComponent implements OnInit {
 
   constructor(
     private _wishlistService: WishlistService,
-    private _messageService: MessageService
+    private _messageService: MessageService,
+    private _cartService: CartService
   ) { }
 
   ngOnInit(): void {
@@ -42,6 +44,14 @@ export class WishlistViewComponent implements OnInit {
     } else {
       return false;
     }
+  }
+
+  addToCart(product: Product) {
+    this._cartService.addToCart(product);
+  }
+
+  removeFromCart(product: Product) {
+    this._cartService.removeFromCart(product);
   }
 
   removeFromWishlist(product: Product) {
