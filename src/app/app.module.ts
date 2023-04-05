@@ -32,6 +32,8 @@ import { WishlistViewComponent } from './features/wishlist/wishlist-view.compone
 import { ToastModule } from 'primeng/toast';
 import { CartViewComponent } from './features/cart-view/cart-view.component';
 import { InputNumberModule } from 'primeng/inputnumber';
+import { DividerModule } from 'primeng/divider';
+import { DropdownModule } from 'primeng/dropdown';
 
 @NgModule({
   declarations: [
@@ -56,7 +58,9 @@ import { InputNumberModule } from 'primeng/inputnumber';
     InputTextModule,
     BreadcrumbModule,
     ToastModule,
-    InputNumberModule
+    InputNumberModule,
+    DividerModule,
+    DropdownModule
   ],
   exports: [
   ],

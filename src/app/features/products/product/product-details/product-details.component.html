@@ -1,37 +1,28 @@
-<p-toast position="bottom-center"></p-toast>
+<p-toast position="bottom-left"></p-toast>
 <p-breadcrumb [home]="home" [model]="items"></p-breadcrumb>
 <div *ngIf="product; else loading">
   <div class="flex justify-content-around align-items-center">
-    <p-galleria [value]="images" [(activeIndex)]="activeIndex" [(visible)]="displayCustom"
-      [responsiveOptions]="responsiveOptions" [containerStyle]="{'max-width': '850px'}" [numVisible]="7"
-      [circular]="true" [fullScreen]="false" [showItemNavigators]="false" [showThumbnails]="false"
-      [baseZIndex]="100000">
+    <p-galleria [value]="images" [(activeIndex)]="activeIndex" [(visible)]="displayCustom" [responsiveOptions]="responsiveOptions" [containerStyle]="{'max-width': '850px'}" [numVisible]="7" [circular]="true" [fullScreen]="false" [showItemNavigators]="false" [showThumbnails]="false" [baseZIndex]="100000">
       <ng-template pTemplate="item" let-item>
 
         <!-- TODO: Show only 4-5 images, the rest of the images can be seen from withing full screen carousel -->
-        <div *ngIf="images" class="fadein animation-duration-500 flex flex-column mx-5"
-          style="max-width: 150px;max-height: 100%;">
-          <div *ngFor="let image of images; let index = index;" class="col-3" key="index">
-            <img [src]="image" width="120px" height="120px" [alt]="image" style="cursor: pointer"
-              (click)="imageClick(index)" />
+        <div class="fadein animation-duration-500 flex flex-column mx-5" *ngIf="images" style="max-width: 150px;max-height: 100%;">
+          <div class="col-3" *ngFor="let image of images; let index = index;" key="index">
+            <img [src]="image" width="120px" height="120px" [alt]="image" style="cursor: pointer" (click)="imageClick(index)">
           </div>
         </div>
-        <p-image [src]="item" [preview]="true" width="400px" height="400px" />
-      </ng-template>
+        <p-image [src]="item" [preview]="true" width="400px" height="400px">
+      </p-image></ng-template>
     </p-galleria>
-    <div *ngIf="product"
-      class="fadein animation-duration-500 relative border-300 border-1 border-round-xl surface-overlay m-5 flex flex-column align-items-center justify-content-around"
-      style="min-width: 500px; min-height: 500px">
+    <div class="fadein animation-duration-500 relative border-300 border-1 border-round-xl surface-overlay m-5 flex flex-column align-items-center justify-content-around" *ngIf="product" style="min-width: 500px; min-height: 500px">
       <p-tag class="m-1 tag" severity="danger" value="Excellent price" [rounded]="true"></p-tag>
-      <i (click)="addRemoveItemWishlist(product)" class="favorite"
-        [class]="inWishlist ? 'pi pi-heart-fill wishlist' : 'pi pi-heart'"></i>
+      <i class="favorite" (click)="addRemoveItemWishlist(product)" [class]="inWishlist ? 'pi pi-heart-fill wishlist' : 'pi pi-heart'"></i>
       <div class="align-self-start m-2 mt-5 px-2 flex flex-column">
         <h2 class="font-bold">
           {{product?.name}}
         </h2>
-        <span *ngIf="product.inStock > 0; else notAvailable"
-          class="align-self-start font-light text-green-400 text-sm">Available</span>
-        <ng-template #notAvailable>
+        <span class="align-self-start font-light text-green-400 text-sm" *ngIf="product.inStock > 0; else notAvailable">Available</span>
+        <ng-template #notAvailable="">
           <span class="align-self-start font-light text-red-400 text-sm">Unavailable at the
             moment</span>
         </ng-template>
@@ -48,43 +39,36 @@
       <div class="flex align-content-center justify-content-between">
         <div class="flex align-content-center justify-content-between flex-column w-full">
           <span class="product-price px-2 mx-2">
-            {{product.price}} RSD
+            {{product.price | number}} RSD
           </span>
           <span class="font-medium align-self-start px-2 mx-2">
             or monthly payment {{selectedMonthlyPayment.name}} x {{getInstallmentPayAmount(product.price,
-            selectedMonthlyPayment.name)}}
+            selectedMonthlyPayment.name) | number}}
             RSD
           </span>
         </div>
-        <p-dropdown pTooltip="Select monhtly payment" placeholder="Right" tooltipEvent="focus"
-          [options]="monthlyPaymentOptions" placeholder="Months" [(ngModel)]="selectedMonthlyPayment"
-          optionLabel="name"></p-dropdown>
+        <p-dropdown pTooltip="Select monhtly payment" placeholder="12" tooltipEvent="focus" [options]="monthlyPaymentOptions" [(ngModel)]="selectedMonthlyPayment" optionLabel="name"></p-dropdown>
       </div>
-      <button pButton pRipple type="button" label="Buy now" class="p-button-outlined p-button-rounded w-10 mt-2 p-2"
-        [disabled]="product.inStock === 0"></button>
-      <span *ngIf="product.inStock === 0" class="text-blue-400 underline cursor-pointer">Notify when available</span>
+      <button class="p-button-outlined p-button-rounded w-10 mt-2 p-2" type="button" pButton pRipple label="Buy now" [disabled]="product.inStock === 0"></button>
+      <span class="text-blue-400 underline cursor-pointer" *ngIf="product.inStock === 0">Notify when available</span>
     </div>
   </div>
 </div>
 
-<ng-template #loading>
+<ng-template #loading="">
   <div class="center" style="padding-top: 30px">
     <i class="pi pi-spin pi-spinner" style="font-size: 2rem"></i>
   </div>
 </ng-template>
 
 <!-- Suggested products -->
-<p-carousel *ngIf="suggestedProducts" [value]="suggestedProducts" [numVisible]="3" [numScroll]="3" [circular]="false"
-  [responsiveOptions]="responsiveOptions">
+<p-carousel *ngIf="suggestedProducts" [value]="suggestedProducts" [numVisible]="3" [numScroll]="3" [circular]="false" [responsiveOptions]="responsiveOptions">
   <ng-template pTemplate="header">
     <h2>Suggested products from category {{product.category?.name}}</h2>
   </ng-template>
   <ng-template let-product pTemplate="item">
     <div class="flex align-items-center justify-content-center">
-      <app-product class="m-2" (addedToWishList)="addRemoveItemWishlist($event)" [name]="product.name"
-        [subcategory]="product.subcategory.name" [id]="product.id" [images]="product.images" [inStock]="product.inStock"
-        [price]="product.price" [category]="product.category" [subcategory]="product.subcategory"
-        [description]="product.description" [EAN]="product.EAN"></app-product>
+      <app-product class="m-2" (addedToWishList)="addRemoveItemWishlist($event)" [name]="product.name" [subcategory]="product.subcategory.name" [id]="product.id" [images]="product.images" [inStock]="product.inStock" [price]="product.price" [category]="product.category" [description]="product.description" [EAN]="product.EAN"></app-product>
     </div>
   </ng-template>
 </p-carousel>

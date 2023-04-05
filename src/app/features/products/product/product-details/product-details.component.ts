@@ -82,7 +82,7 @@ export class ProductDetailsComponent implements OnInit {
   ngOnInit() {
     this.id = this.activatedRoute.snapshot.params['id'];
 
-    // If used navigated manually to the route
+    // If user navigated manually to the route
     if (!this.product) {
       this._productService.getProductById(this.id).subscribe((product: any) => {
         this.product = product.data.product[0];

@@ -169,6 +169,7 @@ export class ProductsViewComponent implements OnInit, OnDestroy {
       this.products$ = of(product.data.product);
     }))
 
+    // For pagination
     // let value = event.value;
 
     // if (value.indexOf('!') === 0) {

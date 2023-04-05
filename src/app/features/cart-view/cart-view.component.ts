@@ -12,9 +12,18 @@ import { Observable, Subscription, map, of } from 'rxjs';
 export class CartViewComponent implements OnInit {
   products$!: Observable<Product[]>;
   totalPrice$!: Observable<number>;
+  totalPrice!: number;
 
   pieces: any = 1;
   numberOfItems!: number;
+
+  // Monthly payment options
+  selectedMonthlyPayment: any = { name: 12 }
+  monthlyPaymentOptions: any[] = [
+    { name: 12 },
+    { name: 24 },
+    { name: 36 },
+  ];
 
   // TODO: refactor to use SubscriptionContainer
   priceObservable!: Subscription;
@@ -33,7 +42,10 @@ export class CartViewComponent implements OnInit {
       this.products$ = of(products)
     })
     // Calculate total amount in cart
-    this.priceObservable = this.getTotalPrice().subscribe(price => this.totalPrice$ = of(price));
+    this.priceObservable = this.getTotalPrice().subscribe(price => {
+      this.totalPrice$ = of(price)
+      this.totalPrice = price;
+    });
 
     this.items = [
       { label: 'Products', routerLink: '/products' },
@@ -47,12 +59,16 @@ export class CartViewComponent implements OnInit {
     this.productsSubscription.unsubscribe();
   }
 
-  incrementProductCount() {
-    this.pieces++;
+  incrementProductCount(itemsInStock: number) {
+    if (this.pieces < itemsInStock) this.pieces++;
   }
 
   decrementProductCount() {
-    this.pieces--;
+    if (this.pieces > 1) this.pieces--;
+  }
+
+  getInstallmentPayAmount(price: number | null, months: any) {
+    return Math.floor(price! / months);
   }
 
   removeFromCart(product: Product) {

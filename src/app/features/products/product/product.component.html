@@ -12,7 +12,7 @@
   <div class="item-bottom">
     <div class="bottom-left">
       <span>{{subcategory?.name}}</span>
-      <p class="text-lg font-bold">{{price}} RSD</p>
+      <p class="text-lg font-bold">{{price | number}} RSD</p>
       <span *ngIf="inStock !== 0;else notInStock">{{inStock}} items available</span>
       <ng-template #notInStock>
         <span class="text-red-500">Not available</span>
@@ -47,8 +47,8 @@
       <span *ngIf="inStock === 0" class="text-red-500">Not available</span>
       <div class="flex align-items-end justify-content-around my-3 mb-3">
         <div class="flex align-self-start align-items-start flex-column mr-4">
-          <h2 class="font-medium my-2">{{price}} RSD</h2>
-          <span>or 12 x {{getInstallmentPayAmount(price)}} RSD / month</span>
+          <h2 class="font-medium my-2">{{price | number}} RSD</h2>
+          <span>or 12 x {{getInstallmentPayAmount(price) | number}} RSD / month</span>
         </div>
         <p-button (click)="addRemoveCartItem(product)" [disabled]="product.inStock === 0" icon="pi pi-cart-plus"
           [styleClass]="inCart ? 'p-button-rounded p-button-primary' : 'p-button-rounded p-button-outlined'"></p-button>
