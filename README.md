@@ -1,4 +1,4 @@
-# Ecommerce website built with Angular and Angular material
+# Ecommerce website built with Angular, PrimeNG + Primeflex and Hasura GraphQL
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 15.2.2.
 
