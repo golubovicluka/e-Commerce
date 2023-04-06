@@ -34,6 +34,8 @@ import { CartViewComponent } from './features/cart-view/cart-view.component';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { DividerModule } from 'primeng/divider';
 import { DropdownModule } from 'primeng/dropdown';
+import { FormsModule } from '@angular/forms';
+import { SharedModule } from 'primeng/api';
 
 @NgModule({
   declarations: [
@@ -49,6 +51,8 @@ import { DropdownModule } from 'primeng/dropdown';
     CoreModule,
     RouterModule,
     CommonModule,
+    FormsModule,
+    SharedModule,
     ProductsModule,
     HttpClientModule,
     ApolloModule,

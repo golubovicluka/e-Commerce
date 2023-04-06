@@ -32,7 +32,13 @@ export class CategoriesViewComponent implements OnInit {
 
   openProductsPage(categoryName: string) {
     this._productsService.setCategoryFilter(categoryName);
-    this.router.navigate(['/products']);
+    const navigationExtras: NavigationExtras = {
+      state: {
+        filters: categoryName
+      }
+    }
+
+    this.router.navigate(['/products'], navigationExtras);
   }
 
 }

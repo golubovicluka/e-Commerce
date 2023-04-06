@@ -16,41 +16,16 @@ export class ProductsService {
     this.categoryFilter$.next(category);
   }
 
-  // Get all products
-  getProducts(sortBy?: string) {
-    if (sortBy) {
-      return this.apollo
-        .watchQuery({
-          query: gql`
-          {
-            product(order_by: {price: ${sortBy}}) {
-                  EAN
-                  categoryId
-                  subcategoryId
-                  description
-                  id
-                  images
-                  inStock
-                  name
-                  price
-                  category {
-                    id
-                    name
-                  }
-                  subcategory {
-                    id
-                    name
-                  }
-                }
-          }
-        `,
-        }).valueChanges
-    }
+  // Get all products (including sortBy and category)
+  getProducts(sortBy?: string, category?: string) {
+    const categoryQuery = category ? `where: {category: {name: {_eq: "${category}"}}},` : '';
+    const sortByQuery = sortBy ? `order_by: {price: ${sortBy}},` : '';
+
     return this.apollo
       .watchQuery({
         query: gql`
           {
-            product {
+            product(${categoryQuery}${sortByQuery}) {
                   EAN
                   categoryId
                   subcategoryId
@@ -74,7 +49,7 @@ export class ProductsService {
       }).valueChanges
   }
 
-  // TODO: This will be slider -> make sure to use .pipe(debounce(() => interval(500)))
+  // TODO: Add after valueChanges if requests are happening too quickly .pipe(debounce(() => interval(500)))
   getProductsByPrice(priceFrom: number, priceTo: number) {
     return this.apollo
       .watchQuery({

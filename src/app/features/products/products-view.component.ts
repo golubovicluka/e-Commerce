@@ -48,11 +48,21 @@ export class ProductsViewComponent implements OnInit, OnDestroy {
     private _messageService: MessageService,
     private _wishlistService: WishlistService,
     private _cartService: CartService,
-    private router: Router
-  ) { }
+    private router: Router,
+    private route: ActivatedRoute
+  ) {
+    const navigation = this.router.getCurrentNavigation();
+    const state = navigation?.extras.state as { filters: any};
+    const filters = state?.filters;
+    if(filters){
+      this.categoriesFilter = filters;
+    }
+  }
 
   ngOnInit() {
-    this.subs.add(this._productService.getProducts().subscribe((products: any) => {
+   console.log(this.categoriesFilter);
+
+    this.subs.add(this._productService.getProducts('asc', this.categoriesFilter).subscribe((products: any) => {
       this.products$ = of(products.data.product);
       this.numberOfProducts = products.data.product.length;
       this.isLoading = false;

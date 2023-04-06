@@ -6,24 +6,22 @@
     <li [routerLink]="['/categories']">Categories</li>
     <li [routerLink]="['/login']"><i class="pi pi-user mx-2" style="font-size: 1.2rem"></i>Login</li>
     <li [routerLink]="['/wishlist']">
-      <i *ngIf="wishListItems !== '0'; else noWishList" class="pi pi-heart mx-2" pBadge [value]="wishListItems"
-        style="font-size: 1.2rem"></i>
+      <i class="pi pi-heart mx-2" *ngIf="wishListItems !== '0'; else noWishList" pBadge [value]="wishListItems" style="font-size: 1.2rem"></i>
       <span *ngIf="wishListItems !== '0'">
         Wishlist
       </span>
-      <ng-template #noWishList>
+      <ng-template #noWishList="">
         <i class="pi pi-pi-heart" style="font-size: 1.2rem"></i>
         Wishlist
       </ng-template>
-    <li [routerLink]="['/cart']">
-      <i *ngIf="cartItems !== '0'; else noCartItems" class="pi pi-shopping-cart" pBadge [value]="cartItems"
-        style="font-size: 1.2rem"></i>
+    </li><li [routerLink]="['/cart']">
+      <i class="pi pi-shopping-cart" *ngIf="cartItems !== '0'; else noCartItems" pBadge [value]="cartItems" style="font-size: 1.2rem"></i>
       <span *ngIf="cartItems !== '0'">
         Cart
       </span>
-      <ng-template #noCartItems>
+      <ng-template #noCartItems="">
         <i class="pi pi-shopping-cart" style="font-size: 1.2rem"></i>
         Cart
       </ng-template>
-  </ul>
+  </li></ul>
 </div>

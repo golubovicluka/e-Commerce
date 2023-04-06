@@ -12,7 +12,6 @@ import { Observable, Subscription, map, of } from 'rxjs';
 export class CartViewComponent implements OnInit {
   products$!: Observable<Product[]>;
   totalPrice$!: Observable<number>;
-  totalPrice!: number;
 
   pieces: any = 1;
   numberOfItems!: number;
@@ -44,7 +43,6 @@ export class CartViewComponent implements OnInit {
     // Calculate total amount in cart
     this.priceObservable = this.getTotalPrice().subscribe(price => {
       this.totalPrice$ = of(price)
-      this.totalPrice = price;
     });
 
     this.items = [
@@ -67,7 +65,8 @@ export class CartViewComponent implements OnInit {
     if (this.pieces > 1) this.pieces--;
   }
 
-  getInstallmentPayAmount(price: number | null, months: any) {
+  getInstallmentPayAmount(price: number | null | undefined, months: any) {
+    console.log(price, months);
     return Math.floor(price! / months);
   }
 
