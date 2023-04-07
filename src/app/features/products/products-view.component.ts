@@ -60,9 +60,7 @@ export class ProductsViewComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-   console.log(this.categoriesFilter);
-
-    this.subs.add(this._productService.getProducts('asc', this.categoriesFilter).subscribe((products: any) => {
+    this.subs.add(this._productService.getProducts("asc", this.categoriesFilter).subscribe((products: any) => {
       this.products$ = of(products.data.product);
       this.numberOfProducts = products.data.product.length;
       this.isLoading = false;
@@ -101,6 +99,7 @@ export class ProductsViewComponent implements OnInit, OnDestroy {
     ];
   }
 
+  // Search filtering
   onChanges(changes: any) {
     this.searchInput = changes;
     this.subs.add(this._productService.searchProducts(changes).subscribe((product: any) => {
@@ -122,10 +121,6 @@ export class ProductsViewComponent implements OnInit, OnDestroy {
     this.subs.add(this._productService.getProductBySubcategory(selectedCategory).subscribe((products: any) => {
       this.products$ = of(products.data.product);
     }))
-  }
-
-  ngOnDestroy() {
-    this.subs?.dispose()
   }
 
   filterSubcategories(categories: string[]) {
@@ -190,6 +185,10 @@ export class ProductsViewComponent implements OnInit, OnDestroy {
     //   this.sortOrder = 1;
     //   this.sortField = value;
     // }
+  }
+
+  ngOnDestroy() {
+    this.subs?.dispose()
   }
 
 }

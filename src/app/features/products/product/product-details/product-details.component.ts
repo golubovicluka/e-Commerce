@@ -5,6 +5,7 @@ import { ProductsService } from '../../products.service';
 import { MenuItem, MessageService } from 'primeng/api';
 import { WishlistService } from 'src/app/shared/wishlist.service';
 import { Product } from '../../Product';
+import { CartService } from 'src/app/shared/cart.service';
 
 @Component({
   selector: 'app-product-details',
@@ -57,6 +58,7 @@ export class ProductDetailsComponent implements OnInit {
     private router: Router,
     private _productService: ProductsService,
     private _wishlistService: WishlistService,
+    private _cartService: CartService,
     private _messageService: MessageService
   ) {
     const navigation = this.router.getCurrentNavigation();
@@ -115,16 +117,32 @@ export class ProductDetailsComponent implements OnInit {
     return this._wishlistService.inWishlist(id)
   }
 
-  addRemoveItemWishlist(product: Product) {
-    this.inWishlist = !this.inWishlist;
+  addRemoveItemWishlist(product: Product, fromCarousel?: boolean) {
+    console.log(product);
 
-    if (this.inWishlist) {
-      this.addToWishList(product);
-      this._messageService.add({ severity: 'success', summary: 'Added', detail: 'Added to wishlist' })
+    if (!fromCarousel) {
+      this.inWishlist = !this.inWishlist;
+      if (this.inWishlist) {
+        this.addToWishList(product);
+        this._messageService.add({ severity: 'success', summary: 'Added', detail: 'Added to wishlist' })
+      } else {
+        this.removedFromWishList(product);
+        this._messageService.add({ severity: 'info', summary: 'Removed', detail: 'Removed from wishlist' })
+      }
     } else {
-      this.removedFromWishList(product);
-      this._messageService.add({ severity: 'info', summary: 'Removed', detail: 'Removed from wishlist' })
+      const itemInWishList = this._wishlistService.inWishlist(product.id);
+      console.log("Item in wishlist: ", itemInWishList);
+
+      if (!itemInWishList) {
+        this.addToWishList(product);
+        this._messageService.add({ severity: 'success', summary: 'Added', detail: 'Added to wishlist' })
+      } else {
+        this.removedFromWishList(product);
+        this._messageService.add({ severity: 'info', summary: 'Removed', detail: 'Removed from wishlist' })
+      }
     }
+
+
   }
 
   addToWishList(product: Product) {
@@ -170,6 +188,11 @@ export class ProductDetailsComponent implements OnInit {
       { label: 'Products', routerLink: '/products' },
       { label: `${this.product?.name}`, routerLink: `/products/${this.product?.id}` }
     ];
+  }
+
+  buyProduct(product: Product) {
+    this._cartService.addToCart(product);
+    this.router.navigate(['/cart'])
   }
 
   imageClick(index: number) {

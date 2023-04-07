@@ -49,7 +49,7 @@
         </div>
         <p-dropdown pTooltip="Select monhtly payment" placeholder="12" tooltipEvent="focus" [options]="monthlyPaymentOptions" [(ngModel)]="selectedMonthlyPayment" optionLabel="name"></p-dropdown>
       </div>
-      <button class="p-button-outlined p-button-rounded w-10 mt-2 p-2" type="button" pButton pRipple label="Buy now" [disabled]="product.inStock === 0"></button>
+      <button (click)="buyProduct(product)" class="p-button-outlined p-button-rounded w-10 mt-2 p-2" type="button" pButton pRipple label="Buy now" [disabled]="product.inStock === 0"></button>
       <span class="text-blue-400 underline cursor-pointer" *ngIf="product.inStock === 0">Notify when available</span>
     </div>
   </div>
@@ -69,7 +69,7 @@
   </ng-template>
   <ng-template let-product pTemplate="item">
     <div class="flex align-items-center justify-content-center">
-      <app-product class="m-2" (addedToWishList)="addRemoveItemWishlist($event)" [name]="product.name" [subcategory]="product.subcategory.name" [id]="product.id" [images]="product.images" [inStock]="product.inStock" [price]="product.price" [category]="product.category" [description]="product.description" [EAN]="product.EAN"></app-product>
+      <app-product class="m-2" (addedToWishList)="addRemoveItemWishlist($event, true)" [name]="product.name" [subcategory]="product.subcategory.name" [id]="product.id" [images]="product.images" [inStock]="product.inStock" [price]="product.price" [category]="product.category" [description]="product.description" [EAN]="product.EAN"></app-product>
     </div>
   </ng-template>
 </p-carousel>
