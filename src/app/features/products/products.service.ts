@@ -18,6 +18,8 @@ export class ProductsService {
 
   // Get all products (including sortBy and category)
   getProducts(sortBy?: string, category?: string) {
+    console.log('getProducts called');
+    
     const categoryQuery = category ? `where: {category: {name: {_eq: "${category}"}}},` : '';
     const sortByQuery = sortBy ? `order_by: {price: ${sortBy}},` : '';
 
@@ -26,6 +28,35 @@ export class ProductsService {
         query: gql`
           {
             product(${categoryQuery}${sortByQuery}) {
+                  EAN
+                  categoryId
+                  subcategoryId
+                  description
+                  id
+                  images
+                  inStock
+                  name
+                  price
+                  category {
+                    id
+                    name
+                  }
+                  subcategory {
+                    id
+                    name
+                  }
+                }
+          }
+        `,
+      }).valueChanges
+  }
+
+  getProductsDefault() {
+    return this.apollo
+      .watchQuery({
+        query: gql`
+          {
+            product {
                   EAN
                   categoryId
                   subcategoryId
@@ -200,8 +231,8 @@ export class ProductsService {
   }
 
   getFilteredProducts(filter: string[]) {
-    if (filter.length < 1) {
-      return this.getProducts();
+    if (filter.length === 0) {
+      return this.getProductsDefault();
     }
     return this.apollo
       .watchQuery({

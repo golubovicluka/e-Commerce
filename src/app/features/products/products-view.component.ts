@@ -112,9 +112,11 @@ export class ProductsViewComponent implements OnInit, OnDestroy {
   }
 
   applyFilters(filtersObject: any) {
-    this.subs.add(this._productService.getFilteredProducts(filtersObject).subscribe((product: any) => {
+    if(filtersObject){
+      this.subs.add(this._productService.getFilteredProducts(filtersObject).subscribe((product: any) => {
       this.products$ = of(product.data.product);
     }))
+    }
   }
 
   getBySubcategory(selectedCategory: string) {
