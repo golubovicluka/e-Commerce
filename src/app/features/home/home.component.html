@@ -1,16 +1,48 @@
-<div class="flex align-items-center justify-content-center gap-3 container w-full h-full mt-7">
+<div
+  class="flex fadein animation-duration-300 align-items-center justify-content-center gap-3 container w-full h-full mt-4">
   <!-- Left section -->
-  <div class="flex border-1 h-full w-full">
-   Left 
+  <div (click)="redirect(macbookId)"
+    class="flex align-items-center justify-content-center cursor-pointer border-round-2xl border-1 surface-border h-full w-full transition-duration-300 hover:shadow-2 hover:border-primary"
+    style="height: 420px!important;">
+    <img [src]="macbookImg" height="300px" width="300px" alt="macbook image">
+    <div class="flex flex-column">
+      <h2 class="p-0 m-0 mb-2">Macbook Air M1</h2>
+      <span class="font-light">
+        MacBook Air with M1 is an incredibly portable laptop, it’s nimble and quick, with a silent, fanless design and
+        a beautiful Retina display. Thanks to its slim profile and all‑day battery life, this Air moves at the speed of
+        lightness.
+      </span>
+      <p-button styleClass="p-button-link m-0 p-0 mt-2" label="Buy now" iconPos="right"
+        icon="pi pi-angle-right"></p-button>
+    </div>
   </div>
 
   <!-- Right section -->
-  <div class="w-full">
-    <div>
-   Right top 
+  <div class="flex flex-column align-items-center gap-3 justify-content-center h-full w-full">
+    <div (click)="redirect(ipadId)"
+      class="flex cursor-pointer align-items-center justify-content-start border-1 surface-border h-full w-full border-round-2xl transition-duration-300 hover:shadow-2 hover:border-primary">
+      <img [src]="ipadImg" height="200px" class="border-round-2xl" width="200px" alt="ipad image">
+      <div class="flex flex-column">
+        <h2 class="p-0 m-0 mb-2">iPad Pro M2</h2>
+        <span class="font-light">
+          The new iPad Pro features a next-level Apple Pencil hover experience, ProRes video capture, superfast Wi-Fi
+          6E, and powerful features in iPadOS 16 </span>
+        <p-button styleClass="p-button-link m-0 p-0 mt-2" label="Buy now" iconPos="right"
+          icon="pi pi-angle-right"></p-button>
+      </div>
     </div>
-    <div>
-      Right bottom
+    <div (click)="redirect(iphoneId)"
+      class="flex cursor-pointer align-items-center justify-content-start border-1 surface-border h-full w-full border-round-2xl transition-duration-300 hover:shadow-2 hover:border-primary">
+      <img [src]="iphoneImg" class="border-round-2xl" height="200px" width="200px" alt="macbook image">
+      <div class="flex flex-column">
+        <h2 class="p-0 m-0 mb-2">iPhone 14 Pro Max</h2>
+        <span class="font-light">
+          The iPhone 14 Plus comes with 6.7-inch OLED display with 120Hz refresh rate and Apple's improved Bionic A16
+          processor. On the back there is a Triple camera setup with 48MP main camera.
+        </span>
+        <p-button styleClass="p-button-link m-0 p-0 mt-2" label="Buy now" iconPos="right"
+          icon="pi pi-angle-right"></p-button>
+      </div>
     </div>
   </div>
 </div>
