@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
-import { Observable, Subject, of } from 'rxjs';
-import { Product } from './Product';
-import { Apollo, ApolloBase, gql } from 'apollo-angular';
+import { Subject } from 'rxjs';
+import { Apollo, gql } from 'apollo-angular';
 
 @Injectable({
   providedIn: 'root'
@@ -19,7 +18,7 @@ export class ProductsService {
   // Get all products (including sortBy and category)
   getProducts(sortBy?: string, category?: string) {
     console.log('getProducts called');
-    
+
     const categoryQuery = category ? `where: {category: {name: {_eq: "${category}"}}},` : '';
     const sortByQuery = sortBy ? `order_by: {price: ${sortBy}},` : '';
 
@@ -278,6 +277,29 @@ export class ProductsService {
         `,
       }).valueChanges
   }
+
+  getSuggestedProducts() {
+    return this.apollo
+      .watchQuery({
+        query: gql`
+        {
+        product(limit: 10) {
+          EAN
+          categoryId
+          description
+          id
+          inStock
+          images
+          name
+          price
+          subcategory {
+            name
+            id
+          }
+          category {
+            name
+            id
+          }}}`,
+      }).valueChanges
+  }
 }
-
-
