@@ -54,21 +54,15 @@
 </div>
 
 <!-- Carousel section -->
-<div class="flex fadein animation-duration-300 align-items-center justify-content-center gap-3 mt-2 w-full">
-  <p-carousel *ngIf="suggestedProducts" [value]="suggestedProducts" [numVisible]="3" [numScroll]="1" [circular]="true">
-    <ng-template pTemplate="header">
-      <h2 class="center m-4 pb-3">Our newest products</h2>
-    </ng-template>
-    <ng-template let-product pTemplate="item">
-      <div class="flex align-items-center justify-content-center">
-        <!-- TODO: turn into separate component SuggestedProduct -->
-        <!-- <div class="flex flex-column align-items-center justify-content-center product">
-          <img [src]="product.images[0]" width="200px" height="200px" [alt]="product.name" />
-          <span>
-            {{ product.name }}
-          </span>
-        </div> -->
-      </div>
-    </ng-template>
-  </p-carousel>
-</div>
+<p-carousel *ngIf="suggestedProducts" [value]="suggestedProducts" [numVisible]="3" [numScroll]="1" [circular]="true">
+  <ng-template pTemplate="header">
+    <h2 class="center font-light m-4 pb-3 w-full h-full">Our newest products</h2>
+  </ng-template>
+  <ng-template let-product pTemplate="item">
+    <div class="flex align-items-center justify-content-center">
+      <!-- TODO: turn into separate component SuggestedProduct -->
+      <app-suggested-product (openProductDetails)="redirect($event)" [id]="product.id" [name]="product.name"
+        [description]="product.description" [price]="product.price" [image]="product.images[0]"></app-suggested-product>
+    </div>
+  </ng-template>
+</p-carousel>

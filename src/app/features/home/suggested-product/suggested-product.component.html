@@ -1,1 +1,16 @@
-<p>suggested-product works!</p>
+<div (click)="openDetails(id)"
+  class="flex cursor-pointer flex-column relative align-items-center justify-content-center product border-1 border-round-xl border-surface p-3 h-23rem w-15rem transition-duration-300 hover:border-primary">
+  <div class="absolute m-1 px-2 py-1 border-1 bg-primary border-round-2xl" style="top: 0;left: 0;">
+    <span class="text-white font-light">New</span>
+  </div>
+  <img [src]="image" height="200px" width="200px" alt="name">
+  <span class="font-bold text-center">
+    {{name}}
+  </span>
+  <span class="text-center">
+    {{description}}
+  </span>
+  <span>
+    {{price | number}} RSD
+  </span>
+</div>

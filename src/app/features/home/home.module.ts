@@ -6,6 +6,7 @@ import { HomeComponent } from './home.component';
 import { ButtonModule } from 'primeng/button';
 import { CarouselModule } from 'primeng/carousel';
 import { SuggestedProductComponent } from './suggested-product/suggested-product.component';
+import { ChipModule } from 'primeng/chip';
 
 @NgModule({
   declarations: [
@@ -16,7 +17,8 @@ import { SuggestedProductComponent } from './suggested-product/suggested-product
     CommonModule,
     HomeRoutingModule,
     ButtonModule,
-    CarouselModule
+    CarouselModule,
+    ChipModule
   ]
 })
 export class HomeModule { }
