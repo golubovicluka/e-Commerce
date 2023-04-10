@@ -5,27 +5,27 @@
   width: 100%;
   height: 4rem;
   padding: 0px 40px;
-  background-color: rgba(#f3f3f3, 0.25);
+  background-color: rgba(#1c1c1c, 0.75);
   backdrop-filter: blur(3px);
   filter: drop-shadow(0 0.2rem 0.25rem rgba(0, 0, 0, 0.5));
 
   position: sticky !important;
   top: 0;
-  z-index: 9999;
+  z-index: 1000;
   span {
-    color: rgb(52, 52, 52);
+    color: rgb(255, 255, 255);
     cursor: pointer;
     &:hover {
-      color: rgb(17, 81, 184);
+      color: rgb(178, 178, 178);
     }
   }
   li {
     display: inline;
     padding: 10px;
-    color: rgb(52, 52, 52);
+    color: rgb(255, 255, 255);
     cursor: pointer;
     &:hover {
-      color: rgb(17, 81, 184);
+      color: rgb(202, 202, 202);
     }
   }
 }

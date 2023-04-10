@@ -54,15 +54,23 @@
 </div>
 
 <!-- Carousel section -->
-<p-carousel *ngIf="suggestedProducts" [value]="suggestedProducts" [numVisible]="3" [numScroll]="1" [circular]="true">
+<p-carousel *ngIf="suggestedProducts;else loading" [value]="suggestedProducts" [numVisible]="3" [numScroll]="1"
+  [circular]="true">
   <ng-template pTemplate="header">
     <h2 class="center font-light m-4 pb-3 w-full h-full">Our newest products</h2>
   </ng-template>
   <ng-template let-product pTemplate="item">
     <div class="flex align-items-center justify-content-center">
       <!-- TODO: turn into separate component SuggestedProduct -->
-      <app-suggested-product (openProductDetails)="redirect($event)" [id]="product.id" [name]="product.name"
-        [description]="product.description" [price]="product.price" [image]="product.images[0]"></app-suggested-product>
+      <app-suggested-product (openProductDetails)="redirect($event)" [inStock]="product.inStock" [id]="product.id"
+        [name]="product.name" [description]="product.description" [price]="product.price"
+        [image]="product.images[0]"></app-suggested-product>
     </div>
   </ng-template>
 </p-carousel>
+
+<ng-template #loading="">
+  <div class="center" style="padding-top: 30px">
+    <i class="pi pi-spin pi-spinner" style="font-size: 2rem"></i>
+  </div>
+</ng-template>

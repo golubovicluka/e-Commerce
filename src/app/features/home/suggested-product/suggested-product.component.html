@@ -13,4 +13,12 @@
   <span>
     {{price | number}} RSD
   </span>
+  <span *ngIf="inStock > 0;else notAvailable" class="font-light text-green-400 pt-1">
+    Available
+  </span>
+  <ng-template #notAvailable>
+    <span class="font-light text-red-400 pt-1">
+      Not available
+    </span>
+  </ng-template>
 </div>

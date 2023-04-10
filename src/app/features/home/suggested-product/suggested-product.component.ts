@@ -9,6 +9,7 @@ export class SuggestedProductComponent {
   @Input() name!: string;
   @Input() description!: string;
   @Input() price!: number;
+  @Input() inStock!: number;
   @Input() id!: number;
   @Input() image!: string;
   @Output() openProductDetails = new EventEmitter();

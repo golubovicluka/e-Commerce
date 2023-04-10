@@ -1,12 +1,13 @@
-<div class="header mb-3 sticky">
-  <span class="font-bold">Shoply</span>
+<div class="header mb-3">
+  <span [routerLink]="['/home']" class="font-bold">Shoply</span>
   <ul>
     <li [routerLink]="['/home']">Home</li>
     <li [routerLink]="['/products']">Products</li>
     <li [routerLink]="['/categories']">Categories</li>
     <li [routerLink]="['/login']"><i class="pi pi-user mx-2" style="font-size: 1.2rem"></i>Login</li>
     <li [routerLink]="['/wishlist']">
-      <i class="pi pi-heart mx-2" *ngIf="wishListItems !== '0'; else noWishList" pBadge [value]="wishListItems" style="font-size: 1.2rem"></i>
+      <i class="pi pi-heart mx-2" *ngIf="wishListItems !== '0'; else noWishList" pBadge [value]="wishListItems"
+        style="font-size: 1.2rem"></i>
       <span *ngIf="wishListItems !== '0'">
         Wishlist
       </span>
@@ -14,8 +15,10 @@
         <i class="pi pi-pi-heart" style="font-size: 1.2rem"></i>
         Wishlist
       </ng-template>
-    </li><li [routerLink]="['/cart']">
-      <i class="pi pi-shopping-cart" *ngIf="cartItems !== '0'; else noCartItems" pBadge [value]="cartItems" style="font-size: 1.2rem"></i>
+    </li>
+    <li [routerLink]="['/cart']">
+      <i class="pi pi-shopping-cart" *ngIf="cartItems !== '0'; else noCartItems" pBadge [value]="cartItems"
+        style="font-size: 1.2rem"></i>
       <span *ngIf="cartItems !== '0'">
         Cart
       </span>
@@ -23,5 +26,6 @@
         <i class="pi pi-shopping-cart" style="font-size: 1.2rem"></i>
         Cart
       </ng-template>
-  </li></ul>
+    </li>
+  </ul>
 </div>

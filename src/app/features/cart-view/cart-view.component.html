@@ -4,32 +4,37 @@
   <h3 class="center font-light mb-0 pb-0 fadein animation-duration-300">
     Cart preview
   </h3>
-    <span class="center font-medium text-gray-800 mt-2 fadein animation-duration-300">
+  <span class="center font-medium text-gray-800 mt-2 fadein animation-duration-300">
     <i class="pi pi-check-circle mr-2" style="color: green"></i>Free shipping</span>
   <div class="center font-light"></div>
 </ng-container>
 
-<div class="flex justify-content-around m-2 mt-4 px-2 fadein animation-duration-300" *ngIf="numberOfItems; else emptyCart">
+<div class="flex justify-content-around m-2 mt-4 px-2 fadein animation-duration-300"
+  *ngIf="numberOfItems; else emptyCart">
   <div class="flex align-items-center justify-content-start mx-5 flex-column w-full gap-1 mb-1">
     <ng-container *ngFor="let product of products$ | async; let index = index">
-      <div class="flex relative align-items-center justify-content-between border-1 border-gray-50 border-round p-3 mx-5 h-8rem w-full shadow-2 transition-all animation-duration-500 transition-ease-out transition-duration-500 hover:shadow-3 hover:border-primary-400">
-        <p-button class="remove-btn" icon="pi pi-times" (click)="removeFromCart(product)" styleClass="p-button-rounded p-button-danger p-button-text"></p-button>
+      <div
+        class="flex relative align-items-center justify-content-between border-1 border-gray-50 border-round p-3 mx-5 h-8rem w-full shadow-2 transition-all animation-duration-500 transition-ease-out transition-duration-500 hover:shadow-3 hover:border-primary-400">
+        <p-button class="remove-btn" icon="pi pi-times" (click)="removeFromCart(product)"
+          styleClass="p-button-rounded p-button-danger p-button-text"></p-button>
         <div class="flex align-items-center">
           <img [src]="product.images[0]" height="120px" width="120px" [alt]="product.name">
           <div class="flex flex-column">
             <h2 class="p-0 m-0 max-w-18rem">{{ product.name }}</h2>
             <span>{{ product.price | number }} RSD</span>
             <span *ngIf="product.inStock > 1" class="mt-1 text-green-400">{{product.inStock}} items available</span>
-            <span *ngIf="product.inStock === 1" class="mt-1 text-red-400">
-              <i class="pi pi-info-circle" style="color: red"></i>
+            <span *ngIf="product.inStock === 1" class="mt-1 text-green-400">
+              <i class="pi pi-info-circle" style="color: #3A82F6"></i>
               Only {{product.inStock}} item available</span>
           </div>
         </div>
         <div class="mr-5 pr-5">
           <i class="pi pi-minus cursor-pointer" (click)="decrementProductCount()" style="color: red"></i>
-          <p-inputNumber class="m-1" [min]="1" [max]="product.inStock" [placeholder]="pieces" inputId="integeronly" [(ngModel)]="pieces">
+          <p-inputNumber class="m-1" [min]="1" [max]="product.inStock" [placeholder]="pieces" inputId="integeronly"
+            [(ngModel)]="pieces">
           </p-inputNumber>
-          <i class="pi pi-plus cursor-pointer" (click)="incrementProductCount(product.inStock)" style="color: green"></i>
+          <i class="pi pi-plus cursor-pointer" (click)="incrementProductCount(product.inStock)"
+            style="color: green"></i>
         </div>
       </div>
       <ng-container *ngIf="numberOfItems > 1">
@@ -40,7 +45,8 @@
       Total amount to pay: {{ totalPrice$ | async | number }} RSD
     </span>
   </div>
-  <div class="flex align-items-start justify-content-between flex-column border-1 border-primary border-round shadow-2 hover:shadow-3 p-3 h-20rem w-6">
+  <div
+    class="flex align-items-start justify-content-between flex-column border-1 border-primary border-round shadow-2 hover:shadow-3 p-3 h-20rem w-6">
     <div>
       <h3 class="m-2 font-medium">
         Subtotal ({{ numberOfItems }}
@@ -51,24 +57,26 @@
       <h3 class="m-2 font-medium">Shipping cost: 0 RSD</h3>
     </div>
     <!-- <div> -->
-      <div class="flex align-content-center justify-content-between w-10">
-        <div class="flex align-content-center justify-content-between flex-column w-full">
-          <span class="product-price px-2 mx-2">
-            {{ totalPrice$ | async | number }} RSD
-          </span>
-          <span class="font-light align-self-start px-2 mx-2">
-            or monthly payment {{selectedMonthlyPayment.name}} x
-            {{
-              (totalPrice$ | async) &&
-              getInstallmentPayAmount((totalPrice$ | async), selectedMonthlyPayment.name) | number
-            }}
-            RSD
-          </span>
-        </div>
-        <p-dropdown tooltipEvent="focus" [options]="monthlyPaymentOptions" [(ngModel)]="selectedMonthlyPayment" optionLabel="name"></p-dropdown>
+    <div class="flex align-content-center justify-content-between w-10">
+      <div class="flex align-content-center justify-content-between flex-column w-full">
+        <span class="product-price px-2 mx-2">
+          {{ totalPrice$ | async | number }} RSD
+        </span>
+        <span class="font-light align-self-start px-2 mx-2">
+          or monthly payment {{selectedMonthlyPayment.name}} x
+          {{
+          (totalPrice$ | async) &&
+          getInstallmentPayAmount((totalPrice$ | async), selectedMonthlyPayment.name) | number
+          }}
+          RSD
+        </span>
       </div>
+      <p-dropdown tooltipEvent="focus" [options]="monthlyPaymentOptions" [(ngModel)]="selectedMonthlyPayment"
+        optionLabel="name"></p-dropdown>
+    </div>
     <!-- </div> -->
-    <button class="align-self-center p-button-outlined p-button-rounded p-button-primary w-8 mt-2 p-2" type="button" pButton pRipple label="Choose payment option"></button>
+    <button class="align-self-center p-button-outlined p-button-rounded p-button-primary w-8 mt-2 p-2" type="button"
+      pButton pRipple label="Choose payment option"></button>
   </div>
 </div>
 <ng-template #loading="">
@@ -80,6 +88,7 @@
 <ng-template #emptyCart="">
   <div class="fadein animation-duration-300 flex mt-2 align-items-center justify-content-center flex-column">
     <h3 class="font-light">Your cart is empty...</h3>
-    <button class="p-button-outlined p-button-rounded w-2 mt-2 p-2" type="button" pButton pRipple [routerLink]="['/products']" label="Find a product"></button>
+    <button class="p-button-outlined p-button-rounded w-2 mt-2 p-2" type="button" pButton pRipple
+      [routerLink]="['/products']" label="Find a product"></button>
   </div>
 </ng-template>
