@@ -22,6 +22,8 @@ export class HomeComponent implements OnInit {
   suggestedProducts!: any;
   suggestedProductsSubscription!: Subscription;
 
+  name!: any;
+
   constructor(
     private router: Router,
     private _productService: ProductsService

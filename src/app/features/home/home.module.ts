@@ -7,6 +7,7 @@ import { ButtonModule } from 'primeng/button';
 import { CarouselModule } from 'primeng/carousel';
 import { SuggestedProductComponent } from './suggested-product/suggested-product.component';
 import { ChipModule } from 'primeng/chip';
+import { InputTextModule } from 'primeng/inputtext';
 
 @NgModule({
   declarations: [
@@ -18,7 +19,8 @@ import { ChipModule } from 'primeng/chip';
     HomeRoutingModule,
     ButtonModule,
     CarouselModule,
-    ChipModule
+    ChipModule,
+    InputTextModule
   ]
 })
 export class HomeModule { }

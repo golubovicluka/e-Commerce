@@ -74,3 +74,26 @@
     <i class="pi pi-spin pi-spinner" style="font-size: 2rem"></i>
   </div>
 </ng-template>
+
+<!-- Newsletter section -->
+<div class="flex align-items-center justify-content-around m-4 p-4">
+  <div class="w-full p-7">
+    <h2 class="center font-bold m-4 pb-3 w-full h-full">Subscribe to our newsletter</h2>
+    <span class="text-center font-light text-xl">All the latest, discounted and current products are already on the site
+      and we
+      have selected them for you! All
+      you have
+      to do is sign up for our Newsletter!</span>
+  </div>
+  <div
+    class="flex flex-column align-items-center justify-content-center w-full h-10 mx-5 my-3 px-5 py-5 border-2 border-primary border-round-2xl hover:bg-blue-50">
+    <div class="mb-4">
+      <div>
+        <input class="mr-1" type="text" pInputText placeholder="Name" formControlName="name" />
+        <input class="ml-1" type="text" pInputText placeholder="Last name" formControlName="lastName" />
+      </div>
+      <input class="w-full mt-1" type="email" pInputText placeholder="Email" formControlName="email" />
+      <p-button label="Sign up" styleClass="p-button-rounded mt-2 w-full"></p-button>
+    </div>
+  </div>
+</div>
