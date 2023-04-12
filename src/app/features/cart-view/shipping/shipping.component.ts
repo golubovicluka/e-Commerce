@@ -5,5 +5,16 @@ import { Component } from '@angular/core';
   styleUrls: ['./shipping.component.scss']
 })
 export class ShippingComponent {
+  name!: string;
+  lastName!: string;
+  address!: string;
+  postalCode!: number;
+  city!: string;
+  areaCode!: string;
+  phoneNumber!: string;
+  additionalInformation!: string;
+  saveFormDetails!: string;
+  phonePrefix!: string;
+  apartmentNumber!: number;
 
 }

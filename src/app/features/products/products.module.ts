@@ -30,6 +30,7 @@ import { StepsModule } from 'primeng/steps';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AppRoutingModule } from 'src/app/app-routing.module';
+import { InputTextareaModule } from 'primeng/inputtextarea';
 
 @NgModule({
   declarations: [
@@ -61,6 +62,7 @@ import { AppRoutingModule } from 'src/app/app-routing.module';
     PaginatorModule,
     TagModule,
     SliderModule,
+    InputTextareaModule,
     InputNumberModule,
     SkeletonModule,
     StepsModule,

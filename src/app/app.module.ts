@@ -37,8 +37,8 @@ import { DropdownModule } from 'primeng/dropdown';
 import { FormsModule } from '@angular/forms';
 import { SharedModule } from 'primeng/api';
 import { StepsModule } from 'primeng/steps';
+import { InputTextareaModule } from 'primeng/inputtextarea';
 import { ShippingComponent } from './features/cart-view/shipping/shipping.component';
-
 @NgModule({
   declarations: [
     AppComponent,
@@ -46,7 +46,7 @@ import { ShippingComponent } from './features/cart-view/shipping/shipping.compon
     LoginComponent,
     WishlistViewComponent,
     CartViewComponent,
-    ShippingComponent,
+    ShippingComponent
   ],
   imports: [
     BrowserModule,
@@ -60,6 +60,8 @@ import { ShippingComponent } from './features/cart-view/shipping/shipping.compon
     HttpClientModule,
     ApolloModule,
     BadgeModule,
+    InputTextareaModule,
+    CheckboxModule,
     BrowserAnimationsModule,
     ButtonModule,
     InputTextModule,

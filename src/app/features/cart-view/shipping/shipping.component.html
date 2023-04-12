@@ -1,1 +1,21 @@
-<p>shipping works!</p>
+<!-- save form details for future shopping -->
+<div class="flex flex-column align-items-center justify-content-center gap-4">
+  <div class="mt-6">
+    <input class="mr-5" type="text" pInputText placeholder="Name" [(ngModel)]="name" />
+    <input type="text" pInputText placeholder="Last name" [(ngModel)]="lastName" />
+  </div>
+  <div>
+    <input class="mr-5" type="text" pInputText placeholder="Address" [(ngModel)]="address" />
+    <input type="text" pInputText placeholder="Apartment number" [(ngModel)]="apartmentNumber" />
+  </div>
+  <div>
+    <input class="mr-5" type="text" pInputText placeholder="Postal code" [(ngModel)]="postalCode" />
+    <input type="text" pInputText placeholder="City" [(ngModel)]="city" />
+  </div>
+  <div>
+    <input type="text" pInputText placeholder="Phone number" [(ngModel)]="phoneNumber" />
+  </div>
+  <textarea rows="5" cols="30" pInputTextarea [(ngModel)]="additionalInformation"></textarea>
+  <label for="saveDetails">Save form details</label>
+  <p-checkbox class="px-2" name="saveDetails" value="formDetails" [inputId]="saveFormDetails"></p-checkbox>
+</div>

@@ -3,6 +3,7 @@ import { MenuItem, MessageService } from 'primeng/api';
 import { CartService } from 'src/app/shared/cart.service';
 import { Product } from '../products/Product';
 import { Observable, Subscription, map, of } from 'rxjs';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-cart-view',
@@ -36,7 +37,8 @@ export class CartViewComponent implements OnInit {
 
   constructor(
     private _cartService: CartService,
-    public messageService: MessageService
+    public messageService: MessageService,
+    private router: Router,
   ) { }
 
   ngOnInit() {
@@ -45,12 +47,12 @@ export class CartViewComponent implements OnInit {
       routerLink: 'shipping'
     },
     {
-      label: 'Payment',
-      routerLink: 'payment'
+      label: 'Overview',
+      routerLink: 'overview'
     },
     {
-      label: 'Confirmation',
-      routerLink: 'confirmation',
+      label: 'Payment',
+      routerLink: 'payment'
     },
     ];
 
@@ -94,6 +96,7 @@ export class CartViewComponent implements OnInit {
   // TODO: create Shipping - Overview - Payment stepper && guard to check if user is logged in
   openShippingView() {
     this.shippingView = !this.shippingView;
+    this.router.navigate(['cart/shipping']);
   }
 
   getInstallmentPayAmount(price: number | null | undefined, months: any) {

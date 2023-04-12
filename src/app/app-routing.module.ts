@@ -16,8 +16,8 @@ const routes: Routes = [
   {
     path: 'cart', component: CartViewComponent, children: [
       { path: 'shipping', component: ShippingComponent },
+      // { path: 'overview', component: OverviewComponent },
       // { path: 'payment', component: PaymentComponent },
-      // { path: 'confirmation', component: ConfirmationComponent },
     ]
   },
   { path: 'login', component: LoginComponent },
