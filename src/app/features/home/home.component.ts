@@ -1,8 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { Observable, Subscription, of } from "rxjs";
+import { Subscription } from "rxjs";
 import { ProductsService } from '../products/products.service';
-import { Product } from '../products/Product';
 
 @Component({
   selector: 'app-home',
@@ -34,6 +33,10 @@ export class HomeComponent implements OnInit {
       console.log(products);
       this.suggestedProducts = products.data.product;
     })
+  }
+
+  submitForm() {
+    console.log("Email sent");
   }
 
   redirect(id: number) {

@@ -1,5 +1,7 @@
 <div class="header mb-3">
-  <span [routerLink]="['/home']" class="font-bold">Shoply</span>
+  <span [routerLink]="['/home']" class="font-bold">Shoply
+    <i class="pi pi-shopping-bag ml-2" style="font-size: 1.5rem"></i>
+  </span>
   <ul>
     <li [routerLink]="['/home']">Home</li>
     <li [routerLink]="['/products']">Products</li>
@@ -17,13 +19,13 @@
       </ng-template>
     </li>
     <li [routerLink]="['/cart']">
-      <i class="pi pi-shopping-cart" *ngIf="cartItems !== '0'; else noCartItems" pBadge [value]="cartItems"
+      <i class="pi pi-shopping-cart mr-2" *ngIf="cartItems !== '0'; else noCartItems" pBadge [value]="cartItems"
         style="font-size: 1.2rem"></i>
       <span *ngIf="cartItems !== '0'">
         Cart
       </span>
       <ng-template #noCartItems="">
-        <i class="pi pi-shopping-cart" style="font-size: 1.2rem"></i>
+        <i class="pi pi-shopping-cart mr-2" style="font-size: 1.2rem"></i>
         Cart
       </ng-template>
     </li>

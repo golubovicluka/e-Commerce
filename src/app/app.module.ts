@@ -36,6 +36,8 @@ import { DividerModule } from 'primeng/divider';
 import { DropdownModule } from 'primeng/dropdown';
 import { FormsModule } from '@angular/forms';
 import { SharedModule } from 'primeng/api';
+import { StepsModule } from 'primeng/steps';
+import { ShippingComponent } from './features/cart-view/shipping/shipping.component';
 
 @NgModule({
   declarations: [
@@ -44,6 +46,7 @@ import { SharedModule } from 'primeng/api';
     LoginComponent,
     WishlistViewComponent,
     CartViewComponent,
+    ShippingComponent,
   ],
   imports: [
     BrowserModule,
@@ -64,7 +67,8 @@ import { SharedModule } from 'primeng/api';
     ToastModule,
     InputNumberModule,
     DividerModule,
-    DropdownModule
+    DropdownModule,
+    StepsModule
   ],
   exports: [
   ],

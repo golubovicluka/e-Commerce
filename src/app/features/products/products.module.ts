@@ -26,6 +26,10 @@ import { InputNumberModule } from 'primeng/inputnumber';
 import { SkeletonModule } from 'primeng/skeleton';
 import { CategoriesViewComponent } from './categories-view/categories-view.component';
 import { CategoryComponent } from './categories-view/category/category.component';
+import { StepsModule } from 'primeng/steps';
+import { BrowserModule } from '@angular/platform-browser';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { AppRoutingModule } from 'src/app/app-routing.module';
 
 @NgModule({
   declarations: [
@@ -38,11 +42,13 @@ import { CategoryComponent } from './categories-view/category/category.component
   ],
   imports: [
     CommonModule,
+    BrowserModule,
+    AppRoutingModule,
+    BrowserAnimationsModule,
     FormsModule,
     SharedModule,
     AccordionModule,
     CheckboxModule,
-    ToastModule,
     InputTextModule,
     BreadcrumbModule,
     ButtonModule,
@@ -57,6 +63,8 @@ import { CategoryComponent } from './categories-view/category/category.component
     SliderModule,
     InputNumberModule,
     SkeletonModule,
+    StepsModule,
+    ToastModule
   ],
   exports: [
     ProductsViewComponent,

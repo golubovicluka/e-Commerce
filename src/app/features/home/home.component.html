@@ -57,7 +57,7 @@
 <p-carousel *ngIf="suggestedProducts;else loading" [value]="suggestedProducts" [numVisible]="3" [numScroll]="1"
   [circular]="true">
   <ng-template pTemplate="header">
-    <h2 class="center font-light m-4 pb-3 w-full h-full">Our newest products</h2>
+    <h2 class="center font-light m-4 mt-8 pb-3 w-full h-full">Our newest products</h2>
   </ng-template>
   <ng-template let-product pTemplate="item">
     <div class="flex align-items-center justify-content-center">
@@ -76,7 +76,7 @@
 </ng-template>
 
 <!-- Newsletter section -->
-<div class="flex align-items-center justify-content-around m-4 p-4">
+<div class="flex align-items-center justify-content-around m-4 mt-8 p-4">
   <div class="w-full p-7">
     <h2 class="center font-bold m-4 pb-3 w-full h-full">Subscribe to our newsletter</h2>
     <span class="text-center font-light text-xl">All the latest, discounted and current products are already on the site
@@ -93,7 +93,7 @@
         <input class="ml-1" type="text" pInputText placeholder="Last name" formControlName="lastName" />
       </div>
       <input class="w-full mt-1" type="email" pInputText placeholder="Email" formControlName="email" />
-      <p-button label="Sign up" styleClass="p-button-rounded mt-2 w-full"></p-button>
+      <p-button (click)="submitForm()" label="Sign up" styleClass="p-button-rounded mt-2 w-full"></p-button>
     </div>
   </div>
 </div>

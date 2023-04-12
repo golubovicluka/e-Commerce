@@ -1,6 +1,6 @@
 <p-toast position="bottom-center"></p-toast>
 <p-breadcrumb [home]="home" [model]="items"></p-breadcrumb>
-<ng-container *ngIf="numberOfItems">
+<ng-container *ngIf="numberOfItems && !shippingView">
   <h3 class="center font-light mb-0 pb-0 fadein animation-duration-300">
     Cart preview
   </h3>
@@ -9,9 +9,8 @@
   <div class="center font-light"></div>
 </ng-container>
 
-<div class="flex justify-content-around m-2 mt-4 px-2 fadein animation-duration-300"
-  *ngIf="numberOfItems; else emptyCart">
-  <div class="flex align-items-center justify-content-start mx-5 flex-column w-full gap-1 mb-1">
+<div *ngIf="numberOfItems" class="flex justify-content-around m-2 mt-4 px-2 fadein animation-duration-300">
+  <div *ngIf="!shippingView" class="flex align-items-center justify-content-start mx-5 flex-column w-full gap-1 mb-1">
     <ng-container *ngFor="let product of products$ | async; let index = index">
       <div
         class="flex relative align-items-center justify-content-between border-1 border-gray-50 border-round p-3 mx-5 h-8rem w-full shadow-2 transition-all animation-duration-500 transition-ease-out transition-duration-500 hover:shadow-3 hover:border-primary-400">
@@ -41,11 +40,21 @@
         <p-divider class="w-full p-0 w-0"></p-divider>
       </ng-container>
     </ng-container>
-    <span class="align-self-end font-light mt-3">
+    <span *ngIf="numberOfItems" class="align-self-end font-light mt-3">
       Total amount to pay: {{ totalPrice$ | async | number }} RSD
     </span>
   </div>
-  <div
+  <div *ngIf="shippingView" class="w-full gap-1 mb-1 mx-5">
+    <div>
+      <p-toast></p-toast>
+      <p-steps [model]="stepperItems" [readonly]="false" [activeIndex]="activeIndex"
+        (activeIndexChange)="onActiveIndexChange($event)"></p-steps>
+      <router-outlet></router-outlet>
+    </div>
+  </div>
+
+  <!-- Right section for payment details -->
+  <div *ngIf="numberOfItems"
     class="flex align-items-start justify-content-between flex-column border-1 border-primary border-round shadow-2 hover:shadow-3 p-3 h-20rem w-6">
     <div>
       <h3 class="m-2 font-medium">
@@ -56,7 +65,6 @@
       </h3>
       <h3 class="m-2 font-medium">Shipping cost: 0 RSD</h3>
     </div>
-    <!-- <div> -->
     <div class="flex align-content-center justify-content-between w-10">
       <div class="flex align-content-center justify-content-between flex-column w-full">
         <span class="product-price px-2 mx-2">
@@ -74,21 +82,24 @@
       <p-dropdown tooltipEvent="focus" [options]="monthlyPaymentOptions" [(ngModel)]="selectedMonthlyPayment"
         optionLabel="name"></p-dropdown>
     </div>
-    <!-- </div> -->
-    <button class="align-self-center p-button-outlined p-button-rounded p-button-primary w-8 mt-2 p-2" type="button"
-      pButton pRipple label="Choose payment option"></button>
+    <button (click)="openShippingView()"
+      class="align-self-center p-button-outlined p-button-rounded p-button-primary w-8 mt-2 p-2" type="button" pButton
+      pRipple label="Proceed with shipping"></button>
   </div>
 </div>
+
+<!-- Loading spinner -->
 <ng-template #loading="">
   <div class="center" style="padding-top: 30px">
     <i class="pi pi-spin pi-spinner" style="font-size: 2rem"></i>
   </div>
 </ng-template>
 
-<ng-template #emptyCart="">
+<!-- When cart is empty -->
+<ng-container *ngIf="!numberOfItems">
   <div class="fadein animation-duration-300 flex mt-2 align-items-center justify-content-center flex-column">
     <h3 class="font-light">Your cart is empty...</h3>
     <button class="p-button-outlined p-button-rounded w-2 mt-2 p-2" type="button" pButton pRipple
       [routerLink]="['/products']" label="Find a product"></button>
   </div>
-</ng-template>
+</ng-container>
