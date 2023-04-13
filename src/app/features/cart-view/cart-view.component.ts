@@ -72,8 +72,6 @@ export class CartViewComponent implements OnInit {
       { label: 'Cart', routerLink: '/cart' },
     ];
     this.home = { icon: 'pi pi-home', routerLink: '/home' };
-
-
   }
 
   onActiveIndexChange(event: any) {
