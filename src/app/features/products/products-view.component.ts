@@ -52,14 +52,15 @@ export class ProductsViewComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute
   ) {
     const navigation = this.router.getCurrentNavigation();
-    const state = navigation?.extras.state as { filters: any};
+    const state = navigation?.extras.state as { filters: any };
     const filters = state?.filters;
-    if(filters){
+    if (filters) {
       this.categoriesFilter = filters;
     }
   }
 
   ngOnInit() {
+    // TODO: convert to data stream -> put in constructor
     this.subs.add(this._productService.getProducts("asc", this.categoriesFilter).subscribe((products: any) => {
       this.products$ = of(products.data.product);
       this.numberOfProducts = products.data.product.length;
@@ -112,10 +113,10 @@ export class ProductsViewComponent implements OnInit, OnDestroy {
   }
 
   applyFilters(filtersObject: any) {
-    if(filtersObject){
+    if (filtersObject) {
       this.subs.add(this._productService.getFilteredProducts(filtersObject).subscribe((product: any) => {
-      this.products$ = of(product.data.product);
-    }))
+        this.products$ = of(product.data.product);
+      }))
     }
   }
 

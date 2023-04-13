@@ -7,6 +7,7 @@ import { WishlistViewComponent } from './features/wishlist/wishlist-view.compone
 import { CategoriesViewComponent } from './features/products/categories-view/categories-view.component';
 import { CartViewComponent } from './features/cart-view/cart-view.component';
 import { ShippingComponent } from './features/cart-view/shipping/shipping.component';
+import { NotFoundComponent } from './shared/not-found/not-found.component';
 
 const routes: Routes = [
   { path: 'products', component: ProductsViewComponent },
@@ -21,8 +22,9 @@ const routes: Routes = [
     ]
   },
   { path: 'login', component: LoginComponent },
+  { path: '404', component: NotFoundComponent },
   { path: 'home', loadChildren: () => import('./features/home/home.module').then(m => m.HomeModule) },
-  { path: '**', redirectTo: '/home', pathMatch: 'full' }, // Redirect to 404 page
+  { path: '**', redirectTo: '/404', pathMatch: 'full' }, // Redirect to 404 page
 ];
 
 @NgModule({

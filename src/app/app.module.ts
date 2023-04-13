@@ -39,6 +39,8 @@ import { SharedModule } from 'primeng/api';
 import { StepsModule } from 'primeng/steps';
 import { InputTextareaModule } from 'primeng/inputtextarea';
 import { ShippingComponent } from './features/cart-view/shipping/shipping.component';
+import { NotFoundComponent } from './shared/not-found/not-found.component';
+import { FooterComponent } from './features/main-layout/footer/footer.component';
 @NgModule({
   declarations: [
     AppComponent,
@@ -46,7 +48,9 @@ import { ShippingComponent } from './features/cart-view/shipping/shipping.compon
     LoginComponent,
     WishlistViewComponent,
     CartViewComponent,
-    ShippingComponent
+    ShippingComponent,
+    NotFoundComponent,
+    FooterComponent
   ],
   imports: [
     BrowserModule,

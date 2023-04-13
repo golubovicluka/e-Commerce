@@ -1,6 +1,7 @@
-<!-- save form details for future shopping -->
-<div class="flex flex-column align-items-center justify-content-center gap-4">
-  <div class="mt-6">
+<!-- Turn into reactive form -->
+<div
+  class="flex flex-column align-items-center justify-content-center gap-4 border-1 border-round-2xl border-surface my-4 p-3">
+  <div class="mt-2">
     <input class="mr-5" type="text" pInputText placeholder="Name" [(ngModel)]="name" />
     <input type="text" pInputText placeholder="Last name" [(ngModel)]="lastName" />
   </div>
@@ -15,7 +16,15 @@
   <div>
     <input type="text" pInputText placeholder="Phone number" [(ngModel)]="phoneNumber" />
   </div>
-  <textarea rows="5" cols="30" pInputTextarea [(ngModel)]="additionalInformation"></textarea>
-  <label for="saveDetails">Save form details</label>
-  <p-checkbox class="px-2" name="saveDetails" value="formDetails" [inputId]="saveFormDetails"></p-checkbox>
+  <textarea placeholder="More information for delivery..." rows="5" cols="30" pInputTextarea
+    [(ngModel)]="additionalInformation"></textarea>
+  <div class="flex flex-column align-items-center justify-content-center text-center">
+    <label for="saveDetails">Save form details. So when you shop next time with us, it will automatically be
+      updated.</label>
+    <div>
+      <span class="font-light">Save form details</span>
+      <p-checkbox class="px-2" name="saveDetails" value="formDetails" [inputId]="saveFormDetails"></p-checkbox>
+    </div>
+  </div>
+  <p-button class="align-self-end" label="View order"></p-button>
 </div>
