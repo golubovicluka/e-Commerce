@@ -141,7 +141,11 @@ export class ProductDetailsComponent implements OnInit {
         this._messageService.add({ severity: 'info', summary: 'Removed', detail: 'Removed from wishlist' })
       }
     }
+  }
 
+  addToCart(product: Product) {
+    this._cartService.addToCart(product);
+    console.log("Added to cart: ", product);
 
   }
 
