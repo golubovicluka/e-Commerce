@@ -41,6 +41,7 @@ import { InputTextareaModule } from 'primeng/inputtextarea';
 import { ShippingComponent } from './features/cart-view/shipping/shipping.component';
 import { NotFoundComponent } from './shared/not-found/not-found.component';
 import { FooterComponent } from './features/main-layout/footer/footer.component';
+import { RegistrationComponent } from './features/registration/registration.component';
 @NgModule({
   declarations: [
     AppComponent,
@@ -50,7 +51,8 @@ import { FooterComponent } from './features/main-layout/footer/footer.component'
     CartViewComponent,
     ShippingComponent,
     NotFoundComponent,
-    FooterComponent
+    FooterComponent,
+    RegistrationComponent
   ],
   imports: [
     BrowserModule,

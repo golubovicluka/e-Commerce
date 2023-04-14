@@ -8,6 +8,7 @@ import { CategoriesViewComponent } from './features/products/categories-view/cat
 import { CartViewComponent } from './features/cart-view/cart-view.component';
 import { ShippingComponent } from './features/cart-view/shipping/shipping.component';
 import { NotFoundComponent } from './shared/not-found/not-found.component';
+import { RegistrationComponent } from './features/registration/registration.component';
 
 const routes: Routes = [
   { path: 'products', component: ProductsViewComponent },
@@ -22,6 +23,7 @@ const routes: Routes = [
     ]
   },
   { path: 'login', component: LoginComponent },
+  { path: 'register', component: RegistrationComponent },
   { path: '404', component: NotFoundComponent },
   { path: 'home', loadChildren: () => import('./features/home/home.module').then(m => m.HomeModule) },
   { path: '**', redirectTo: '/404', pathMatch: 'full' }, // Redirect to 404 page

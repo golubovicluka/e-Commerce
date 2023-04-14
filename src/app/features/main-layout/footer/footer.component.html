@@ -6,13 +6,23 @@
   </div>
   <div class="flex align-items-center gap-4 justify-content-between w-3">
     <div class="flex flex-column gap-2">
-      <span class="font-light transition-duration-300 hover:text-primary cursor-pointer">Home</span>
-      <span class="font-light transition-duration-300 hover:text-primary cursor-pointer">Products</span>
-      <span class="font-light transition-duration-300 hover:text-primary cursor-pointer">Categories</span>
+      <a class="no-underline text-900" [routerLink]="['home']">
+        <span class="font-light transition-duration-300 hover:text-primary cursor-pointer">Home</span>
+      </a>
+      <a class="no-underline text-900" [routerLink]="['products']">
+        <span class="font-light transition-duration-300 hover:text-primary cursor-pointer">Products</span>
+      </a>
+      <a class="no-underline text-900" [routerLink]="['categories']">
+        <span class="font-light transition-duration-300 hover:text-primary cursor-pointer">Categories</span>
+      </a>
     </div>
     <div class="flex flex-column gap-2">
-      <span class="font-light transition-duration-300 hover:text-primary cursor-pointer">Login</span>
-      <span class="font-light transition-duration-300 hover:text-primary cursor-pointer">Register</span>
+      <a class="no-underline text-900" [routerLink]="['login']">
+        <span class="font-light transition-duration-300 hover:text-primary cursor-pointer">Login</span>
+      </a>
+      <a class="no-underline text-900" [routerLink]="['register']">
+        <span class="font-light transition-duration-300 hover:text-primary cursor-pointer">Register</span>
+      </a>
       <span class="font-light transition-duration-300 hover:text-primary cursor-pointer">Contact</span>
     </div>
   </div>
