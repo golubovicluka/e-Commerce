@@ -14,6 +14,7 @@ import { CartService } from 'src/app/shared/cart.service';
 })
 export class ProductDetailsComponent implements OnInit {
 
+
   images!: any[];
   product: any | null = null;
   id!: number;
@@ -117,30 +118,24 @@ export class ProductDetailsComponent implements OnInit {
     return this._wishlistService.inWishlist(id)
   }
 
-  addRemoveItemWishlist(product: Product, fromCarousel?: boolean) {
-    console.log(product);
-
-    if (!fromCarousel) {
-      this.inWishlist = !this.inWishlist;
-      if (this.inWishlist) {
-        this.addToWishList(product);
-        this._messageService.add({ severity: 'success', summary: 'Added', detail: 'Added to wishlist' })
-      } else {
-        this.removedFromWishList(product);
-        this._messageService.add({ severity: 'info', summary: 'Removed', detail: 'Removed from wishlist' })
-      }
+  addProductToWishList(product: Product) {
+    const itemInWishList = this.checkInWishlist(product.id);
+    if (!itemInWishList) {
+      this.addToWishList(product);
+      this.inWishlist = true;
+      this._messageService.add({ severity: 'success', summary: 'Added', detail: 'Added to wishlist' })
     } else {
-      const itemInWishList = this._wishlistService.inWishlist(product.id);
-      console.log("Item in wishlist: ", itemInWishList);
-
-      if (!itemInWishList) {
-        this.addToWishList(product);
-        this._messageService.add({ severity: 'success', summary: 'Added', detail: 'Added to wishlist' })
-      } else {
-        this.removedFromWishList(product);
-        this._messageService.add({ severity: 'info', summary: 'Removed', detail: 'Removed from wishlist' })
-      }
+      this.removedFromWishList(product);
+      this.inWishlist = false;
+      this._messageService.add({ severity: 'info', summary: 'Removed', detail: 'Removed from wishlist' })
     }
+  }
+
+  // TODO: fix add and remove from wishlist
+  addToWishlist(product: Product) {
+  }
+
+  removeFromWishlist(product: Product) {
   }
 
   addToCart(product: Product) {
@@ -157,6 +152,10 @@ export class ProductDetailsComponent implements OnInit {
   removedFromWishList(product: Product) {
     this._wishlistService.removeWishListItem(product);
     console.log('Removed from wishlist: ', product);
+  }
+
+  checkIfInWishlist(product: Product) {
+    return this._wishlistService.inWishlist(product.id);
   }
 
   // Move to service

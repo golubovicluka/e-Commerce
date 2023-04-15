@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { WishlistService } from '../../../shared/wishlist.service';
 import { Product } from '../../products/Product';
 import { CartService } from 'src/app/shared/cart.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-header',
@@ -14,7 +15,8 @@ export class HeaderComponent implements OnInit {
 
   constructor(
     private _wishlistService: WishlistService,
-    private _cartService: CartService
+    private _cartService: CartService,
+    private router: Router
   ) { }
 
   ngOnInit() {
@@ -27,7 +29,10 @@ export class HeaderComponent implements OnInit {
       console.log('cart items: ', data);
       this.cartItems = data.length.toString();
     })
+  }
 
+  isActiveRoute(route: string): boolean {
+    return this.router.url === route;
   }
 
 }

@@ -24,7 +24,7 @@
       class="fadein animation-duration-300 relative border-300 border-1 border-round-xl surface-overlay m-5 flex flex-column align-items-center justify-content-around"
       *ngIf="product" style="min-width: 500px; min-height: 500px">
       <p-tag class="m-1 tag" severity="danger" value="Excellent price" [rounded]="true"></p-tag>
-      <i class="favorite" (click)="addRemoveItemWishlist(product)"
+      <i class="favorite" (click)="addProductToWishList(product)"
         [class]="inWishlist ? 'pi pi-heart-fill wishlist' : 'pi pi-heart'"></i>
       <div class="align-self-start m-2 mt-5 px-2 flex flex-column">
         <h2 class="font-bold">
@@ -82,10 +82,10 @@
   </ng-template>
   <ng-template let-product pTemplate="item">
     <div class="flex align-items-center justify-content-center">
-      <app-product class="m-2" (addedToCart)="addToCart($event)" (addedToWishList)="addRemoveItemWishlist($event, true)"
-        [name]="product.name" [subcategory]="product.subcategory.name" [id]="product.id" [images]="product.images"
-        [inStock]="product.inStock" [price]="product.price" [category]="product.category"
-        [description]="product.description" [EAN]="product.EAN"></app-product>
+      <app-product class="m-2" (addedToCart)="addToCart($event)" (removedFromWishList)="removedFromWishList($event)"
+        (addedToWishList)="addToWishList($event)" [name]="product.name" [subcategory]="product.subcategory.name"
+        [id]="product.id" [images]="product.images" [inStock]="product.inStock" [price]="product.price"
+        [category]="product.category" [description]="product.description" [EAN]="product.EAN"></app-product>
     </div>
   </ng-template>
 </p-carousel>
