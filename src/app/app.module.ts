@@ -42,6 +42,7 @@ import { ShippingComponent } from './features/cart-view/shipping/shipping.compon
 import { NotFoundComponent } from './shared/not-found/not-found.component';
 import { FooterComponent } from './features/main-layout/footer/footer.component';
 import { RegistrationComponent } from './features/registration/registration.component';
+import { ContactComponent } from './features/contact/contact.component';
 @NgModule({
   declarations: [
     AppComponent,
@@ -52,7 +53,8 @@ import { RegistrationComponent } from './features/registration/registration.comp
     ShippingComponent,
     NotFoundComponent,
     FooterComponent,
-    RegistrationComponent
+    RegistrationComponent,
+    ContactComponent
   ],
   imports: [
     BrowserModule,
