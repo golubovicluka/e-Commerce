@@ -141,7 +141,10 @@ export class ProductDetailsComponent implements OnInit {
   addToCart(product: Product) {
     this._cartService.addToCart(product);
     console.log("Added to cart: ", product);
+  }
 
+  removeFromCart(product: Product) {
+    this._cartService.removeFromCart(product);
   }
 
   addToWishList(product: Product) {
