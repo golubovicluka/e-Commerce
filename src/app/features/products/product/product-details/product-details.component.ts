@@ -75,6 +75,7 @@ export class ProductDetailsComponent implements OnInit {
       console.log(state.product);
 
       this._productService.getProductsByCategory(productCategory).subscribe((suggestedProducts: any) => {
+        // TODO: filter out the currently selected item and remove it from suggestions list
         this.suggestedProducts = suggestedProducts.data.product;
         // Undefined when user reload the page or goes directly to this route
         console.log(this.suggestedProducts);

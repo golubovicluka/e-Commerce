@@ -9,6 +9,8 @@ import { CartViewComponent } from './features/cart-view/cart-view.component';
 import { ShippingComponent } from './features/cart-view/shipping/shipping.component';
 import { NotFoundComponent } from './shared/not-found/not-found.component';
 import { RegistrationComponent } from './features/registration/registration.component';
+import { OverviewComponent } from './features/cart-view/overview/overview.component';
+import { PaymentComponent } from './features/cart-view/payment/payment.component';
 
 const routes: Routes = [
   { path: 'products', component: ProductsViewComponent },
@@ -18,8 +20,8 @@ const routes: Routes = [
   {
     path: 'cart', component: CartViewComponent, children: [
       { path: 'shipping', component: ShippingComponent },
-      // { path: 'overview', component: OverviewComponent },
-      // { path: 'payment', component: PaymentComponent },
+      { path: 'overview', component: OverviewComponent },
+      { path: 'payment', component: PaymentComponent },
     ]
   },
   { path: 'login', component: LoginComponent },

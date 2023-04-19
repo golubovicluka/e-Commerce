@@ -43,6 +43,8 @@ import { NotFoundComponent } from './shared/not-found/not-found.component';
 import { FooterComponent } from './features/main-layout/footer/footer.component';
 import { RegistrationComponent } from './features/registration/registration.component';
 import { ContactComponent } from './features/contact/contact.component';
+import { OverviewComponent } from './features/cart-view/overview/overview.component';
+import { PaymentComponent } from './features/cart-view/payment/payment.component';
 @NgModule({
   declarations: [
     AppComponent,
@@ -54,7 +56,9 @@ import { ContactComponent } from './features/contact/contact.component';
     NotFoundComponent,
     FooterComponent,
     RegistrationComponent,
-    ContactComponent
+    ContactComponent,
+    OverviewComponent,
+    PaymentComponent
   ],
   imports: [
     BrowserModule,
