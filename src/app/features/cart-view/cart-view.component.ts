@@ -11,6 +11,7 @@ import { Router } from '@angular/router';
   styleUrls: ['./cart-view.component.scss']
 })
 export class CartViewComponent implements OnInit {
+
   products$!: Observable<Product[]>;
   totalPrice$!: Observable<number>;
 
@@ -111,6 +112,10 @@ export class CartViewComponent implements OnInit {
     return this.products$.pipe(
       map(products => products.reduce((total, product) => total + product.price, 0))
     );
+  }
+
+  openProductDetails(id: number) {
+    this.router.navigate(['/products', id]);
   }
 
 }

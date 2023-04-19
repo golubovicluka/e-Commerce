@@ -17,7 +17,8 @@
         <p-button class="remove-btn" icon="pi pi-times" (click)="removeFromCart(product)"
           styleClass="p-button-rounded p-button-danger p-button-text"></p-button>
         <div class="flex align-items-center">
-          <img [src]="product.images[0]" height="120px" width="120px" [alt]="product.name">
+          <img class="cursor-pointer" (click)="openProductDetails(product.id)" [src]="product.images[0]" height="120px" width="120px"
+            [alt]="product.name">
           <div class="flex flex-column">
             <h2 class="p-0 m-0 max-w-18rem">{{ product.name }}</h2>
             <span>{{ product.price | number }} RSD</span>

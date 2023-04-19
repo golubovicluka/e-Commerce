@@ -6,6 +6,7 @@ import { Product } from '../features/products/Product';
   providedIn: 'root'
 })
 export class CartService {
+  // TODO: create DTO to contain Product + amount of items in the cart of that type
   private cartItems$ = new BehaviorSubject<Product[]>([]);
   cartItems = this.cartItems$.asObservable();
 
