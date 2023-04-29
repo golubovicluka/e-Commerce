@@ -5,7 +5,8 @@
   <div class="image" (click)="openProductDetails(id)" [ngStyle]="{ 'background-image': 'url(' + images[0] + ')'}">
   </div>
   <div class="title-section">
-    <span style="font-size: 1.2rem;font-weight: bold;">{{name}}</span>
+    <span (click)="openProductDetails(id)" class="cursor-pointer hover:underline"
+      style="font-size: 1.2rem;font-weight: bold;">{{name}}</span>
     <span>{{description}}</span>
   </div>
 
@@ -35,7 +36,9 @@
       <img (click)="openProductDetails(id)" [src]="images[0]" [alt]="name" class="mx-5 cursor-pointer"
         style="aspect-ratio: auto;max-width: 200px;max-height: 200px;">
       <div class="flex flex-column justify-content-center align-items-start">
-        <h2 class="font-bold text-blue-400 m-0 p-0">{{name}}</h2>
+        <h2 (click)="openProductDetails(id)" class="font-bold hover:underline cursor-pointer text-blue-400 m-0 p-0">
+          {{name}}
+        </h2>
         <span class="font-light">EAN: {{EAN}}</span>
         <span>{{description}}</span>
         <span>{{category?.name}} > {{subcategory?.name}}</span>
