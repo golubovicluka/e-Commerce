@@ -5,8 +5,17 @@
     <p-divider class="w-full"></p-divider>
     <!-- Render all cart items with all their details -->
     <ng-container *ngFor="let product of products$ | async; let index = index">
-
+      <div class="flex align-items-center justify-content-between m-3 p-3">
+        <span class="font-medium text-2xl">{{product.name}}</span>
+        <div>
+          <span class="font-light">{{product.price}} RSD</span>
+        </div>
+      </div>
     </ng-container>
   </div>
-  <p-button [routerLink]="['/cart/payment']" class="align-self-end" label="Payment"></p-button>
+  <p-divider class="w-full"></p-divider>
+  <div class="flex align-items-center justify-content-between w-full">
+    <p-button [routerLink]="['/cart/shipping']" label="Back"></p-button>
+    <p-button [routerLink]="['/cart/payment']" label="Payment"></p-button>
+  </div>
 </div>
