@@ -1,17 +1,18 @@
 import { Component, OnInit } from '@angular/core';
-import { MenuItem, MessageService } from 'primeng/api';
-import { CartService } from 'src/app/shared/cart.service';
-import { Product } from '../products/Product';
-import { Observable, Subscription, map, of } from 'rxjs';
 import { Router } from '@angular/router';
+
+import { MenuItem, MessageService } from 'primeng/api';
+import { map, Observable, of, Subscription } from 'rxjs';
+import { CartService } from 'src/app/shared/cart.service';
+
+import { Product } from '../products/Product';
 
 @Component({
   selector: 'app-cart-view',
   templateUrl: './cart-view.component.html',
-  styleUrls: ['./cart-view.component.scss']
+  styleUrls: ['./cart-view.component.scss'],
 })
 export class CartViewComponent implements OnInit {
-
   products$!: Observable<Product[]>;
   totalPrice$!: Observable<number>;
 
@@ -21,12 +22,8 @@ export class CartViewComponent implements OnInit {
   activeIndex: number = 1;
 
   // Monthly payment options
-  selectedMonthlyPayment: any = { name: 12 }
-  monthlyPaymentOptions: any[] = [
-    { name: 12 },
-    { name: 24 },
-    { name: 36 },
-  ];
+  selectedMonthlyPayment: any = { name: 12 };
+  monthlyPaymentOptions: any[] = [{ name: 12 }, { name: 24 }, { name: 36 }];
 
   stepperItems!: MenuItem[];
 
@@ -35,37 +32,43 @@ export class CartViewComponent implements OnInit {
   productsSubscription!: Subscription;
   public items!: MenuItem[];
   home!: MenuItem;
+  shippingViewText!: 'Proceed with shipping' | 'Back to cart view';
 
   constructor(
     private _cartService: CartService,
     public messageService: MessageService,
-    private router: Router,
-  ) { }
+    private router: Router
+  ) {}
 
   ngOnInit() {
-    this.stepperItems = [{
-      label: 'Shipping',
-      routerLink: 'shipping'
-    },
-    {
-      label: 'Overview',
-      routerLink: 'overview'
-    },
-    {
-      label: 'Payment',
-      routerLink: 'payment'
-    },
+    this.stepperItems = [
+      {
+        label: 'Shipping',
+        routerLink: 'shipping',
+      },
+      {
+        label: 'Overview',
+        routerLink: 'overview',
+      },
+      {
+        label: 'Payment',
+        routerLink: 'payment',
+      },
     ];
 
-    this.productsSubscription = this._cartService.getCartItems().subscribe((products) => {
-      console.log(products);
-      this.numberOfItems = products.length;
-      this.products$ = of(products)
-    })
+    this.productsSubscription = this._cartService
+      .getCartItems()
+      .subscribe((products) => {
+        console.log(products);
+        this.numberOfItems = products.length;
+        this.products$ = of(products);
+      });
+
+    this.shippingViewText = 'Proceed with shipping';
 
     // Calculate total amount in cart
-    this.priceObservable = this.getTotalPrice().subscribe(price => {
-      this.totalPrice$ = of(price)
+    this.priceObservable = this.getTotalPrice().subscribe((price) => {
+      this.totalPrice$ = of(price);
     });
 
     this.items = [
@@ -95,6 +98,9 @@ export class CartViewComponent implements OnInit {
   // TODO: create Shipping - Overview - Payment stepper && guard to check if user is logged in
   openShippingView() {
     this.shippingView = !this.shippingView;
+    this.shippingView
+      ? (this.shippingViewText = 'Back to cart view')
+      : (this.shippingViewText = 'Proceed with shipping');
     this.router.navigate(['cart/shipping']);
   }
 
@@ -105,17 +111,20 @@ export class CartViewComponent implements OnInit {
 
   removeFromCart(product: Product) {
     this._cartService.removeFromCart(product);
-    this.priceObservable = this.getTotalPrice().subscribe(price => this.totalPrice$ = of(price));
+    this.priceObservable = this.getTotalPrice().subscribe(
+      (price) => (this.totalPrice$ = of(price))
+    );
   }
 
   getTotalPrice() {
     return this.products$.pipe(
-      map(products => products.reduce((total, product) => total + product.price, 0))
+      map((products) =>
+        products.reduce((total, product) => total + product.price, 0)
+      )
     );
   }
 
   openProductDetails(id: number) {
     this.router.navigate(['/products', id]);
   }
-
 }

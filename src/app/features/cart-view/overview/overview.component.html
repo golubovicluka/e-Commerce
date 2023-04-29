@@ -1,7 +1,12 @@
-<div class="flex flex-column align-items-center justify-content-center gap-4 border-1 border-round-2xl border-surface my-4 p-3">
-<div class="w-full">
-  <span class="center font-light">Cart overview</span>
-  <p-divider class="w-full"></p-divider>
-</div>    
-<p-button [routerLink]="['/cart/payment']" class="align-self-end" label="Payment"></p-button>
+<div
+  class="flex flex-column align-items-center justify-content-center gap-4 border-1 border-round-2xl border-surface my-4 p-3">
+  <div class="w-full">
+    <span class="center font-light">Cart overview</span>
+    <p-divider class="w-full"></p-divider>
+    <!-- Render all cart items with all their details -->
+    <ng-container *ngFor="let product of products$ | async; let index = index">
+
+    </ng-container>
+  </div>
+  <p-button [routerLink]="['/cart/payment']" class="align-self-end" label="Payment"></p-button>
 </div>
