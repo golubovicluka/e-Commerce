@@ -28,7 +28,7 @@ const routes: Routes = [
   { path: 'register', component: RegistrationComponent },
   { path: '404', component: NotFoundComponent },
   { path: 'home', loadChildren: () => import('./features/home/home.module').then(m => m.HomeModule) },
-  { path: '**', redirectTo: '/404', pathMatch: 'full' }, // Redirect to 404 page
+  { path: '**', redirectTo: '/home', pathMatch: 'full' }, // Redirect to 404 page
 ];
 
 @NgModule({
