@@ -17,7 +17,6 @@ export class ProductDetailsComponent implements OnInit {
   product: any | null = null;
   id!: number;
 
-  // Monthly payment options
   selectedMonthlyPayment: any = { name: 12 }
   monthlyPaymentOptions: any[] = [
     { name: 12 },
@@ -71,7 +70,6 @@ export class ProductDetailsComponent implements OnInit {
       // Suggested products
       const productCategory = state?.product.category?.name;
       console.log(state.product);
-
       this._productService.getProductsByCategory(productCategory).subscribe((suggestedProducts: any) => {
         // TODO: filter out the currently selected item and remove it from suggestions list
         this.suggestedProducts = suggestedProducts.data.product;
@@ -163,7 +161,6 @@ export class ProductDetailsComponent implements OnInit {
 
   // Move to service
   openProductDetails(id: number) {
-    // TODO: find a Different way of doing this, this is only from preview -> details
     const product = {
       name: this.product.name,
       description: this.product.description,
@@ -199,6 +196,7 @@ export class ProductDetailsComponent implements OnInit {
   replaceProduct(id: number) {
     const newProduct = this.suggestedProducts.find((p) => p.id == id)
     this.id = newProduct.id;
+    // TODO: fix inWishlist to reflect on the UI for suggested/currently active product
     this.inWishlist = this.checkIfInWishlist(newProduct.id);
     this.product = newProduct;
     this.images = newProduct.images;
