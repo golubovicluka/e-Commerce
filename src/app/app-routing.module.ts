@@ -13,9 +13,9 @@ import { OverviewComponent } from './features/cart-view/overview/overview.compon
 import { PaymentComponent } from './features/cart-view/payment/payment.component';
 
 const routes: Routes = [
-  { path: 'products', component: ProductsViewComponent },
+  { path: 'products/search', component: ProductsViewComponent },
   { path: 'categories', component: CategoriesViewComponent },
-  { path: 'products/:id', component: ProductDetailsComponent },
+  { path: 'product/:id', component: ProductDetailsComponent },
   { path: 'wishlist', component: WishlistViewComponent },
   {
     path: 'cart', component: CartViewComponent, children: [

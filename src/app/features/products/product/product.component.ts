@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { Router, NavigationExtras } from '@angular/router';
+import { Router, NavigationExtras, ActivatedRoute } from '@angular/router';
 import { MessageService } from 'primeng/api';
 import { Product, Subcategory, Category } from '../Product';
 import { WishlistService } from 'src/app/shared/wishlist.service';
@@ -32,6 +32,7 @@ export class ProductComponent implements OnInit {
   @Output() removedFromWishList = new EventEmitter();
   @Output() addedToCart = new EventEmitter();
   @Output() removedFromCart = new EventEmitter();
+  @Output() replaceCurrentProduct = new EventEmitter();
 
   inWishlist!: boolean;
   inCart!: boolean;
@@ -42,6 +43,7 @@ export class ProductComponent implements OnInit {
   constructor(
     private _messageService: MessageService,
     private router: Router,
+    private route: ActivatedRoute,
     private _wishlistService: WishlistService,
     private _cartService: CartService
   ) {
@@ -101,12 +103,21 @@ export class ProductComponent implements OnInit {
   }
 
   openProductDetails(id: number) {
-    const navigationExtras: NavigationExtras = {
-      state: {
-        product: this.product
+    // Check if currently active route has /product inside of it
+    const currentRoute = this.route.snapshot.url.join('/');
+    console.log('Current route: ', currentRoute);
+    if (currentRoute.includes('products')) {
+      console.log('Not on details page');
+      const navigationExtras: NavigationExtras = {
+        state: {
+          product: this.product
+        }
       }
+      this.router.navigate(['/product', id], navigationExtras);
+    } else {
+      console.log('On details page');
+      this.replaceCurrentProduct.emit(id);
     }
-    this.router.navigate(['/products', id], navigationExtras);
   }
 
   getInstallmentPayAmount(price: number) {

@@ -82,11 +82,13 @@
   </ng-template>
   <ng-template let-product pTemplate="item">
     <div class="flex align-items-center justify-content-center">
-      <app-product class="m-2" (addedToCart)="addToCart($event)" (removedFromCart)="removeFromCart($event)"
-        (removedFromWishList)="removedFromWishList($event)" (addedToWishList)="addToWishList($event)"
-        [name]="product.name" [subcategory]="product.subcategory.name" [id]="product.id" [images]="product.images"
-        [inStock]="product.inStock" [price]="product.price" [category]="product.category"
-        [description]="product.description" [EAN]="product.EAN"></app-product>
+
+      <!-- On click -> reloads product for the current component -->
+      <app-product class="m-2" (addedToCart)="addToCart($event)" (replaceCurrentProduct)="replaceProduct($event)"
+        (removedFromCart)="removeFromCart($event)" (removedFromWishList)="removedFromWishList($event)"
+        (addedToWishList)="addToWishList($event)" [name]="product.name" [subcategory]="product.subcategory.name"
+        [id]="product.id" [images]="product.images" [inStock]="product.inStock" [price]="product.price"
+        [category]="product.category" [description]="product.description" [EAN]="product.EAN"></app-product>
     </div>
   </ng-template>
 </p-carousel>

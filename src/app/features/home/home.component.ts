@@ -40,7 +40,7 @@ export class HomeComponent implements OnInit {
   }
 
   redirect(id: number) {
-    this.router.navigate(['/products', id]);
+    this.router.navigate(['/product', id]);
   }
 
   ngOnDestroy() {

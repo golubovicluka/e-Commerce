@@ -13,8 +13,6 @@ import { CartService } from 'src/app/shared/cart.service';
   styleUrls: ['./product-details.component.scss']
 })
 export class ProductDetailsComponent implements OnInit {
-
-
   images!: any[];
   product: any | null = null;
   id!: number;
@@ -78,7 +76,7 @@ export class ProductDetailsComponent implements OnInit {
         // TODO: filter out the currently selected item and remove it from suggestions list
         this.suggestedProducts = suggestedProducts.data.product;
         // Undefined when user reload the page or goes directly to this route
-        console.log(this.suggestedProducts);
+        console.log("Suggested: ", this.suggestedProducts);
       })
     }
   }
@@ -116,6 +114,7 @@ export class ProductDetailsComponent implements OnInit {
   }
 
   checkInWishlist(id: number) {
+    console.log("check in wishlist called");
     return this._wishlistService.inWishlist(id)
   }
 
@@ -183,7 +182,7 @@ export class ProductDetailsComponent implements OnInit {
         product
       }
     }
-    this.router.navigate(['/products', id], navigationExtras);
+    this.router.navigate(['/product', id], navigationExtras);
   }
 
   getInstallmentPayAmount(price: number, months: any) {
@@ -192,9 +191,18 @@ export class ProductDetailsComponent implements OnInit {
 
   setBreadcrumbItems() {
     this.items = [
-      { label: 'Products', routerLink: '/products' },
-      { label: `${this.product?.name}`, routerLink: `/products/${this.product?.id}` }
+      { label: 'Products', routerLink: '/products/search' },
+      { label: `${this.product?.name}`, routerLink: `/product/${this.product?.id}` }
     ];
+  }
+
+  replaceProduct(id: number) {
+    const newProduct = this.suggestedProducts.find((p) => p.id == id)
+    this.id = newProduct.id;
+    this.inWishlist = this.checkIfInWishlist(newProduct.id);
+    this.product = newProduct;
+    this.images = newProduct.images;
+    this.router.navigate(['/product', newProduct.id])
   }
 
   buyProduct(product: Product) {

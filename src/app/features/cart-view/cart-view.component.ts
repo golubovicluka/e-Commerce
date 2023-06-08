@@ -38,7 +38,7 @@ export class CartViewComponent implements OnInit {
     private _cartService: CartService,
     public messageService: MessageService,
     private router: Router
-  ) {}
+  ) { }
 
   ngOnInit() {
     this.stepperItems = [
@@ -72,7 +72,7 @@ export class CartViewComponent implements OnInit {
     });
 
     this.items = [
-      { label: 'Products', routerLink: '/products' },
+      { label: 'Products', routerLink: '/products/search' },
       { label: 'Cart', routerLink: '/cart' },
     ];
     this.home = { icon: 'pi pi-home', routerLink: '/home' };
@@ -125,6 +125,6 @@ export class CartViewComponent implements OnInit {
   }
 
   openProductDetails(id: number) {
-    this.router.navigate(['/products', id]);
+    this.router.navigate(['/product', id]);
   }
 }

@@ -32,7 +32,7 @@ export class WishlistViewComponent implements OnInit {
     })
 
     this.items = [
-      { label: 'Products', routerLink: '/products' },
+      { label: 'Products', routerLink: '/products/search' },
       { label: 'Wishlist', routerLink: '/wishlist' },
     ];
     this.home = { icon: 'pi pi-home', routerLink: '/home' };

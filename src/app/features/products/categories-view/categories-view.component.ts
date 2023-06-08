@@ -38,7 +38,7 @@ export class CategoriesViewComponent implements OnInit {
       }
     }
 
-    this.router.navigate(['/products'], navigationExtras);
+    this.router.navigate(['/products/search'], navigationExtras);
   }
 
 }

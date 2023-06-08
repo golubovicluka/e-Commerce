@@ -90,7 +90,7 @@ export class ProductsViewComponent implements OnInit, OnDestroy {
 
     // Breadcrumbs
     this.items = [
-      { label: 'Products', routerLink: '/products' },
+      { label: 'Products', routerLink: '/products/search' },
     ];
     this.home = { icon: 'pi pi-home', routerLink: '/home' };
 
@@ -147,7 +147,7 @@ export class ProductsViewComponent implements OnInit, OnDestroy {
   }
 
   openProductDetails(id: number) {
-    this.router.navigate(['/products', id]);
+    this.router.navigate(['/product', id]);
   }
 
   handlePriceFilter(event: any) {
