@@ -89,10 +89,10 @@
     class="flex flex-column align-items-center justify-content-center w-full h-10 mx-5 my-3 px-5 py-5 border-2 border-primary transition-duration-500 border-round-2xl hover:bg-blue-50">
     <div class="mb-4">
       <div>
-        <input class="mr-1" type="text" pInputText placeholder="Name" formControlName="name" />
-        <input class="ml-1" type="text" pInputText placeholder="Last name" formControlName="lastName" />
+        <input class="mr-1" name="name" type="text" pInputText placeholder="Name" formControlName="name" />
+        <input class="ml-1" name="surname" type="text" pInputText placeholder="Last name" formControlName="lastName" />
       </div>
-      <input class="w-full mt-1" type="email" pInputText placeholder="Email" formControlName="email" />
+      <input class="w-full mt-1" name="email" type="email" pInputText placeholder="Email" formControlName="email" />
       <p-button (click)="submitForm()" label="Sign up" styleClass="p-button-rounded mt-3 w-full"></p-button>
     </div>
   </div>
