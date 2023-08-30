@@ -34,13 +34,6 @@ It allows users to browse products, filter and sort products by categories and p
 
 **Tests:** Cypress
 
-
-## Screenshots
-
-Home page
-
-![Home page](https://d3dehtdmp2rwcw.cloudfront.net/ms_584985/qEJqjhszWZoSTFzCsgMCGFkJXOpCBE/Monosnap%2BWebshop%2B2023-06-10%2B10-37-59.png?Expires=1686387600&Signature=DtaqSsrfNdnvnOnOdQ-yvTo9je22ReLDLUQvBB0ZaJx1wcLl26Ng8HWHnvjWOxVy78PaKXdLc-p3FK8mkc-YbLatO-wxPYiJ8C8KdU8BW-XP4sA7bVM2MkJnNTy38FQbQl~lUjhrCMwCeWTdQtGor6l5H7vzZ~Jg~95UCJixRLnOsXW9xSqRgqsZJQbXNNIaQhcRO45ZfbcfM0WZ6tEo2BUlM8h2MsRXNZgJjl8txjl5l2CFCaKvw06rOuOz4eFLUgEJy3ABLz4ZtPOtUYbWP4LcAB~9xnKrZ6lbAAM5g5h42ARC53AX5lGtmqQOS1~cxR0RTTRwhSBxmqj858HB0w__&Key-Pair-Id=APKAJBCGYQYURKHBGCOA)
-
 ## Running e2e Tests
 
 To run tests, run the following command inside project root folder
