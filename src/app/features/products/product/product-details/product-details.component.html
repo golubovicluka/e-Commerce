@@ -21,7 +21,7 @@
       </ng-template>
     </p-galleria>
     <div
-      class="fadein animation-duration-300 relative border-300 border-1 border-round-xl surface-overlay m-5 flex flex-column align-items-center justify-content-around"
+      class="fadein animation-duration-300 relative border-300 max-w-30rem border-1 border-round-xl surface-overlay m-5 flex flex-column align-items-center justify-content-around"
       *ngIf="product" style="min-width: 500px; min-height: 500px">
       <p-tag class="m-1 tag" severity="danger" value="Excellent price" [rounded]="true"></p-tag>
       <i class="favorite" (click)="addProductToWishList(product)"

@@ -61,7 +61,6 @@
   </ng-template>
   <ng-template let-product pTemplate="item">
     <div class="flex align-items-center justify-content-center">
-      <!-- TODO: turn into separate component SuggestedProduct -->
       <app-suggested-product (openProductDetails)="redirect($event)" [inStock]="product.inStock" [id]="product.id"
         [name]="product.name" [description]="product.description" [price]="product.price"
         [image]="product.images[0]"></app-suggested-product>
