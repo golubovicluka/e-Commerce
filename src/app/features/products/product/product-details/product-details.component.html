@@ -1,7 +1,7 @@
 <p-toast position="bottom-left"></p-toast>
 <p-breadcrumb [home]="home" [model]="items"></p-breadcrumb>
 <div *ngIf="product; else loading">
-  <div class="flex justify-content-around align-items-center">
+  <div class="flex justify-content-center gap-3 align-items-center">
     <p-galleria [value]="images" [(activeIndex)]="activeIndex" [(visible)]="displayCustom"
       [responsiveOptions]="responsiveOptions" [containerStyle]="{'max-width': '850px'}" [numVisible]="7"
       [circular]="true" [fullScreen]="false" [showItemNavigators]="false" [showThumbnails]="false"
@@ -83,7 +83,6 @@
   <ng-template let-product pTemplate="item">
     <div class="flex align-items-center justify-content-center">
 
-      <!-- On click -> reloads product for the current component -->
       <app-product class="m-2" (addedToCart)="addToCart($event)" (replaceCurrentProduct)="replaceProduct($event)"
         (removedFromCart)="removeFromCart($event)" (removedFromWishList)="removedFromWishList($event)"
         (addedToWishList)="addToWishList($event)" [name]="product.name" [subcategory]="product.subcategory.name"
