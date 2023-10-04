@@ -23,8 +23,6 @@ It allows users to browse products, filter and sort products by categories and p
 - End to end tests
 
 ---
-## 🚨🚨🚨 Bugs 🪲🪲🪲
-🚨 There are bugs in this application that I don't plan on fixing. This was a learning experience for me, and I feel that addressing simple and easy bugs for a side project would only consume my free time. Instead, I prefer to focus on learning new things.
 
 ## Tech Stack
 
