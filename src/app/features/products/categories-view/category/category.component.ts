@@ -17,7 +17,6 @@ export class CategoryComponent implements OnInit {
   ngOnInit(): void { }
 
   openProductsPage(categoryName: string) {
-    console.log('This should open /products/search with filters for the category with name: ', categoryName);
     this.applyCategoryFilter.emit(categoryName);
   }
 

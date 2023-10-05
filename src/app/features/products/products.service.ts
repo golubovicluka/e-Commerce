@@ -17,8 +17,6 @@ export class ProductsService {
 
   // Get all products (including sortBy and category)
   getProducts(sortBy?: string, category?: string) {
-    console.log('getProducts called');
-
     const categoryQuery = category ? `where: {category: {name: {_eq: "${category}"}}},` : '';
     const sortByQuery = sortBy ? `order_by: {price: ${sortBy}},` : '';
 

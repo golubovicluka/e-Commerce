@@ -30,13 +30,11 @@ export class HomeComponent implements OnInit {
 
   ngOnInit() {
     this.suggestedProductsSubscription = this._productService.getSuggestedProducts().subscribe((products: any) => {
-      console.log(products);
       this.suggestedProducts = products.data.product;
     })
   }
 
   submitForm() {
-    console.log("Email sent");
   }
 
   redirect(id: number) {

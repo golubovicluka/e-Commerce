@@ -69,12 +69,10 @@ export class ProductDetailsComponent implements OnInit {
 
       // Suggested products
       const productCategory = state?.product.category?.name;
-      console.log(state.product);
       this._productService.getProductsByCategory(productCategory).subscribe((suggestedProducts: any) => {
         // TODO: filter out the currently selected item and remove it from suggestions list
         this.suggestedProducts = suggestedProducts.data.product;
         // Undefined when user reload the page or goes directly to this route
-        console.log("Suggested: ", this.suggestedProducts);
       })
     }
   }
@@ -94,9 +92,6 @@ export class ProductDetailsComponent implements OnInit {
         const productCategory = product.data.product[0].category?.name;
         this._productService.getProductsByCategory(productCategory).subscribe((suggestedProducts: any) => {
           this.suggestedProducts = suggestedProducts.data.product;
-          console.log('this.product value: ', this.product);
-
-          console.log(this.suggestedProducts);
         })
       })
       this.inWishlist = this.checkInWishlist(this.id);
@@ -112,7 +107,6 @@ export class ProductDetailsComponent implements OnInit {
   }
 
   checkInWishlist(id: number) {
-    console.log("check in wishlist called");
     return this._wishlistService.inWishlist(id)
   }
 
@@ -138,7 +132,6 @@ export class ProductDetailsComponent implements OnInit {
 
   addToCart(product: Product) {
     this._cartService.addToCart(product);
-    console.log("Added to cart: ", product);
   }
 
   removeFromCart(product: Product) {
@@ -147,12 +140,10 @@ export class ProductDetailsComponent implements OnInit {
 
   addToWishList(product: Product) {
     this._wishlistService.addWishListItem(product);
-    console.log('Added to wishlist: ', product);
   }
 
   removedFromWishList(product: Product) {
     this._wishlistService.removeWishListItem(product);
-    console.log('Removed from wishlist: ', product);
   }
 
   checkIfInWishlist(product: Product) {
@@ -171,8 +162,6 @@ export class ProductDetailsComponent implements OnInit {
       inStock: this.product.inStock,
       price: this.product.price
     }
-    console.log(product);
-
 
     const navigationExtras: NavigationExtras = {
       state: {

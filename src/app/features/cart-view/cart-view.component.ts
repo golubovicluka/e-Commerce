@@ -59,7 +59,6 @@ export class CartViewComponent implements OnInit {
     this.productsSubscription = this._cartService
       .getCartItems()
       .subscribe((products) => {
-        console.log(products);
         this.numberOfItems = products.length;
         this.products$ = of(products);
       });
@@ -105,7 +104,6 @@ export class CartViewComponent implements OnInit {
   }
 
   getInstallmentPayAmount(price: number | null | undefined, months: any) {
-    console.log(price, months);
     return Math.floor(price! / months);
   }
 

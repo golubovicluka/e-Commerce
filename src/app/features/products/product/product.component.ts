@@ -105,9 +105,7 @@ export class ProductComponent implements OnInit {
   openProductDetails(id: number) {
     // Check if currently active route has /product inside of it
     const currentRoute = this.route.snapshot.url.join('/');
-    console.log('Current route: ', currentRoute);
     if (currentRoute.includes('products')) {
-      console.log('Not on details page');
       const navigationExtras: NavigationExtras = {
         state: {
           product: this.product
@@ -115,7 +113,6 @@ export class ProductComponent implements OnInit {
       }
       this.router.navigate(['/product', id], navigationExtras);
     } else {
-      console.log('On details page');
       this.replaceCurrentProduct.emit(id);
     }
   }

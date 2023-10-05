@@ -21,12 +21,10 @@ export class HeaderComponent implements OnInit {
 
   ngOnInit() {
     this._wishlistService.getWishListItems().subscribe((data: Product[]) => {
-      console.log('data from header component: ', data);
       this.wishListItems = data.length.toString();
     });
 
     this._cartService.getCartItems().subscribe((data: Product[]) => {
-      console.log('cart items: ', data);
       this.cartItems = data.length.toString();
     })
   }

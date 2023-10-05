@@ -21,7 +21,6 @@ export class CategoriesViewComponent implements OnInit {
 
   ngOnInit(): void {
     this._productsService.getProductCategories().subscribe((categories: any) => {
-      console.log(categories.data.category);
       this.categories = categories.data.category;
     });
     this.items = [

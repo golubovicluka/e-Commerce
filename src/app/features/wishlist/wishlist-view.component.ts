@@ -27,7 +27,6 @@ export class WishlistViewComponent implements OnInit {
 
   ngOnInit(): void {
     this._wishlistService.getWishListItems().subscribe((data) => {
-      console.log('Data: ', data);
       this.wishlistItems = data;
     })
 
@@ -55,7 +54,6 @@ export class WishlistViewComponent implements OnInit {
   }
 
   removeFromWishlist(product: Product) {
-    console.log(product);
 
     const removeProduct = this.productComponent.product;
     this._messageService.add({ severity: 'info', summary: 'Removed', detail: 'Removed from wishlist' })
