@@ -12,29 +12,33 @@
 <div *ngIf="numberOfItems" class="flex justify-content-around m-2 mt-4 px-2 fadein animation-duration-300">
   <div *ngIf="!shippingView" class="flex align-items-center justify-content-start mx-5 flex-column w-full gap-1 mb-1">
     <ng-container *ngFor="let product of products$ | async; let index = index">
+      <!--      <app-cart-item (openProductDetails)="openProductDetails($event)" (removeFromCart)="removeFromCart($event)"-->
+      <!--                     [product]="product"></app-cart-item>-->
       <div
         class="flex relative align-items-center justify-content-between border-1 border-gray-50 border-round p-3 mx-5 h-8rem w-full shadow-2 transition-all animation-duration-500 transition-ease-out transition-duration-500 hover:shadow-3 hover:border-primary-400">
         <p-button class="remove-btn" icon="pi pi-times" (click)="removeFromCart(product)"
-          styleClass="p-button-rounded p-button-danger p-button-text"></p-button>
+                  styleClass="p-button-rounded p-button-danger p-button-text"></p-button>
         <div class="flex align-items-center">
           <img class="cursor-pointer" (click)="openProductDetails(product.id)" [src]="product.images[0]" height="120px"
-            width="120px" [alt]="product.name">
+               width="120px" [alt]="product.name">
           <div class="flex flex-column">
             <h2 class="p-0 m-0 max-w-18rem">{{ product.name }}</h2>
             <span>{{ product.price | number }} RSD</span>
             <span *ngIf="product.inStock > 1" class="mt-1 text-green-400">{{product.inStock}} items available</span>
             <span *ngIf="product.inStock === 1" class="mt-1 text-green-400">
-              <i class="pi pi-info-circle" style="color: #3A82F6"></i>
-              Only {{product.inStock}} item available</span>
+                    <i class="pi pi-info-circle" style="color: #3A82F6"></i>
+                    Only {{product.inStock}} item available</span>
           </div>
         </div>
+
+        <!-- TODO: refactor this so the plus icon increments current item in cart by one-->
         <div class="mr-5 pr-5">
           <i class="pi pi-minus cursor-pointer" (click)="decrementProductCount()" style="color: red"></i>
           <p-inputNumber class="m-1" [min]="1" [max]="product.inStock" [placeholder]="pieces" inputId="integeronly"
-            [(ngModel)]="pieces">
+                         [(ngModel)]="pieces">
           </p-inputNumber>
           <i class="pi pi-plus cursor-pointer" (click)="incrementProductCount(product.inStock)"
-            style="color: green"></i>
+             style="color: green"></i>
         </div>
       </div>
       <ng-container *ngIf="numberOfItems > 1">
@@ -51,14 +55,14 @@
     <div>
       <p-toast></p-toast>
       <p-steps [model]="stepperItems" [readonly]="false" [activeIndex]="activeIndex"
-        (activeIndexChange)="onActiveIndexChange($event)"></p-steps>
+               (activeIndexChange)="onActiveIndexChange($event)"></p-steps>
       <router-outlet></router-outlet>
     </div>
   </div>
 
   <!-- Right section for payment details -->
   <div *ngIf="numberOfItems"
-    class="flex align-items-start justify-content-between flex-column border-1 border-primary border-round shadow-2 hover:shadow-3 p-3 h-20rem w-6">
+       class="flex align-items-start justify-content-between flex-column border-1 border-primary border-round shadow-2 hover:shadow-3 p-3 h-20rem w-6">
     <div>
       <h3 class="m-2 font-medium">
         Subtotal ({{ numberOfItems }}
@@ -83,11 +87,12 @@
         </span>
       </div>
       <p-dropdown tooltipEvent="focus" [options]="monthlyPaymentOptions" [(ngModel)]="selectedMonthlyPayment"
-        optionLabel="name"></p-dropdown>
+                  optionLabel="name"></p-dropdown>
     </div>
     <button (click)="openShippingView()"
-      class="align-self-center p-button-outlined p-button-rounded p-button-primary w-8 mt-2 p-2" type="button" pButton
-      pRipple [label]="shippingViewText"></button>
+            class="align-self-center p-button-outlined p-button-rounded p-button-primary w-8 mt-2 p-2" type="button"
+            pButton
+            pRipple [label]="shippingViewText"></button>
   </div>
 </div>
 
@@ -103,6 +108,6 @@
   <div class="fadein animation-duration-300 flex mt-2 align-items-center justify-content-center flex-column">
     <h3 class="font-light">Your cart is empty...</h3>
     <button class="p-button-outlined p-button-rounded w-2 mt-2 p-2" type="button" pButton pRipple
-      [routerLink]="['/products/search']" label="Find a product"></button>
+            [routerLink]="['/products/search']" label="Find a product"></button>
   </div>
 </ng-container>

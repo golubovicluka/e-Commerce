@@ -1,50 +1,52 @@
-import { CUSTOM_ELEMENTS_SCHEMA, NgModule } from '@angular/core';
-import { BrowserModule } from '@angular/platform-browser';
+import {CUSTOM_ELEMENTS_SCHEMA, NgModule} from '@angular/core';
+import {BrowserModule} from '@angular/platform-browser';
 
-import { CommonModule } from '@angular/common';
-import { AppRoutingModule } from './app-routing.module';
-import { AppComponent } from './app.component';
-import { CoreModule } from './core/core.module';
-import { ProductsService } from './features/products/products.service';
-import { RouterModule } from '@angular/router';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import {CommonModule} from '@angular/common';
+import {AppRoutingModule} from './app-routing.module';
+import {AppComponent} from './app.component';
+import {CoreModule} from './core/core.module';
+import {ProductsService} from './features/products/products.service';
+import {RouterModule} from '@angular/router';
+import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 
 // Apollo
-import { ApolloModule, APOLLO_OPTIONS } from 'apollo-angular'
-import { HttpLink } from 'apollo-angular/http';
-import { HttpClientModule, HttpHeaders } from '@angular/common/http';
-import { InMemoryCache } from '@apollo/client/core';
+import {ApolloModule, APOLLO_OPTIONS} from 'apollo-angular'
+import {HttpLink} from 'apollo-angular/http';
+import {HttpClientModule, HttpHeaders} from '@angular/common/http';
+import {InMemoryCache} from '@apollo/client/core';
 
 // Feature modules
-import { ProductsModule } from './features/products/products.module';
-import { HeaderComponent } from './features/main-layout/header/header.component';
+import {ProductsModule} from './features/products/products.module';
+import {HeaderComponent} from './features/main-layout/header/header.component';
 
 // PrimeNG modules
-import { BadgeModule } from 'primeng/badge';
-import { ButtonModule } from 'primeng/button';
-import { CheckboxModule } from 'primeng/checkbox';
-import { InputTextModule } from 'primeng/inputtext';
-import { BreadcrumbModule } from 'primeng/breadcrumb';
+import {BadgeModule} from 'primeng/badge';
+import {ButtonModule} from 'primeng/button';
+import {CheckboxModule} from 'primeng/checkbox';
+import {InputTextModule} from 'primeng/inputtext';
+import {BreadcrumbModule} from 'primeng/breadcrumb';
 
-import { WishlistService } from './shared/wishlist.service';
-import { LoginComponent } from './features/login/login.component';
-import { WishlistViewComponent } from './features/wishlist/wishlist-view.component';
-import { ToastModule } from 'primeng/toast';
-import { CartViewComponent } from './features/cart-view/cart-view.component';
-import { InputNumberModule } from 'primeng/inputnumber';
-import { DividerModule } from 'primeng/divider';
-import { DropdownModule } from 'primeng/dropdown';
-import { FormsModule } from '@angular/forms';
-import { SharedModule } from 'primeng/api';
-import { StepsModule } from 'primeng/steps';
-import { InputTextareaModule } from 'primeng/inputtextarea';
-import { ShippingComponent } from './features/cart-view/shipping/shipping.component';
-import { NotFoundComponent } from './shared/not-found/not-found.component';
-import { FooterComponent } from './features/main-layout/footer/footer.component';
-import { RegistrationComponent } from './features/registration/registration.component';
-import { ContactComponent } from './features/contact/contact.component';
-import { OverviewComponent } from './features/cart-view/overview/overview.component';
-import { PaymentComponent } from './features/cart-view/payment/payment.component';
+import {WishlistService} from './shared/wishlist.service';
+import {LoginComponent} from './features/login/login.component';
+import {WishlistViewComponent} from './features/wishlist/wishlist-view.component';
+import {ToastModule} from 'primeng/toast';
+import {CartViewComponent} from './features/cart-view/cart-view.component';
+import {InputNumberModule} from 'primeng/inputnumber';
+import {DividerModule} from 'primeng/divider';
+import {DropdownModule} from 'primeng/dropdown';
+import {FormsModule} from '@angular/forms';
+import {SharedModule} from 'primeng/api';
+import {StepsModule} from 'primeng/steps';
+import {InputTextareaModule} from 'primeng/inputtextarea';
+import {ShippingComponent} from './features/cart-view/shipping/shipping.component';
+import {NotFoundComponent} from './shared/not-found/not-found.component';
+import {FooterComponent} from './features/main-layout/footer/footer.component';
+import {RegistrationComponent} from './features/registration/registration.component';
+import {ContactComponent} from './features/contact/contact.component';
+import {OverviewComponent} from './features/cart-view/overview/overview.component';
+import {PaymentComponent} from './features/cart-view/payment/payment.component';
+import { CartItemComponent } from './features/cart-view/cart-item/cart-item.component';
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -58,7 +60,8 @@ import { PaymentComponent } from './features/cart-view/payment/payment.component
     RegistrationComponent,
     ContactComponent,
     OverviewComponent,
-    PaymentComponent
+    PaymentComponent,
+    CartItemComponent,
   ],
   imports: [
     BrowserModule,
@@ -84,8 +87,7 @@ import { PaymentComponent } from './features/cart-view/payment/payment.component
     DropdownModule,
     StepsModule
   ],
-  exports: [
-  ],
+  exports: [],
   providers: [
     WishlistService,
     ProductsService,
@@ -108,4 +110,5 @@ import { PaymentComponent } from './features/cart-view/payment/payment.component
   bootstrap: [AppComponent],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
-export class AppModule { }
+export class AppModule {
+}
