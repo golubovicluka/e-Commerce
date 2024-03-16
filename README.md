@@ -1,3 +1,4 @@
+## [Demo](https://ecommerce-app-angular.netlify.app/)
 
 # Shoply
 
@@ -6,7 +7,7 @@ This is an Angular application for an ecommerce website.
 It allows users to browse products, filter and sort products by categories and price, add them to their cart, add them to their wishlist, and checkout the products.
 
 
-## [Demo](https://ecommerce-app-angular.netlify.app/)
+
 
 
 ## Features
