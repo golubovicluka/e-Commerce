@@ -1,2 +1,69 @@
-<p>payment works!</p>
-<span>Proceed with payment</span>
+<div
+    class="flex flex-column align-items-center justify-content-center gap-4 border-1 border-round-2xl border-surface my-4 p-3 md:w-10 md:mx-4 lg:w-8 lg:mx-6">
+    <h3 class="font-light text-center mb-4">Finalize Payment</h3>
+
+    <!-- Payment options -->
+    <div class="w-full grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <p-card header="Credit Card" class="p-col">
+            <div class="flex align-items-center">
+                <p-radioButton name="paymentMethod" value="creditCard" [(ngModel)]="selectedPaymentMethod"
+                    inputId="creditCard"></p-radioButton>
+                <label for="creditCard" class="ml-2">Credit Card</label>
+            </div>
+            <p>Enter your credit card details.</p>
+        </p-card>
+
+        <p-card header="PayPal" class="p-col">
+            <div class="flex align-items-center">
+                <p-radioButton name="paymentMethod" value="paypal" [(ngModel)]="selectedPaymentMethod"
+                    inputId="paypal"></p-radioButton>
+                <label for="paypal" class="ml-2">PayPal</label>
+            </div>
+            <p>Log in to your PayPal account to complete the payment.</p>
+        </p-card>
+
+        <p-card header="Bank Transfer" class="p-col">
+            <div class="flex align-items-center">
+                <p-radioButton name="paymentMethod" value="bankTransfer" [(ngModel)]="selectedPaymentMethod"
+                    inputId="bankTransfer"></p-radioButton>
+                <label for="bankTransfer" class="ml-2">Bank Transfer</label>
+            </div>
+            <p>Transfer the total amount to our bank account.</p>
+        </p-card>
+    </div>
+
+    <!-- Order summary -->
+    <div class="w-full border-1 border-round-2xl border-surface p-3 my-4">
+        <h4 class="font-light mb-2">Order Summary</h4>
+        <div class="flex flex-column gap-2">
+            <div class="flex justify-content-between">
+                <span>Subtotal:</span>
+                <span>\${{subtotal}}</span>
+            </div>
+            <div class="flex justify-content-between">
+                <span>Shipping:</span>
+                <span>\${{shipping}}</span>
+            </div>
+            <div class="flex justify-content-between">
+                <span>Total:</span>
+                <span>\${{total}}</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Payment form -->
+    <div *ngIf="selectedPaymentMethod === 'creditCard'" class="w-full flex flex-column gap-3">
+        <p-inputText ngDefaultControl name="cardNumber" placeholder="Card Number" [(ngModel)]="cardNumber"
+            class="w-full"></p-inputText>
+        <p-inputText ngDefaultControl name="cardHolderName" placeholder="Card Holder Name" [(ngModel)]="cardHolderName"
+            class="w-full"></p-inputText>
+        <p-inputText ngDefaultControl name="expiryDate" placeholder="Expiry Date (MM/YY)" [(ngModel)]="expiryDate"
+            class="w-full"></p-inputText>
+        <p-inputText ngDefaultControl name="cvv" placeholder="CVV" [(ngModel)]="cvv" class="w-full"></p-inputText>
+    </div>
+
+    <div class="flex flex-column align-items-center justify-content-center mt-4 w-full">
+        <p-button label="Complete Payment" (click)="completePayment()"
+            class="p-button-success w-full md:w-auto"></p-button>
+    </div>
+</div>

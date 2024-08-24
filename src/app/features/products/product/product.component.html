@@ -1,64 +1,64 @@
 <!-- Grid view -->
-<div *ngIf="!isListView; else listView" class="product-card transition-duration-500">
-  <i (click)="addRemoveItemWishlist(product)" class="favorite"
-    [class]="inWishlist ? 'pi pi-heart-fill wishlist' : 'pi pi-heart'"></i>
-  <div class="image" (click)="openProductDetails(id)" [ngStyle]="{ 'background-image': 'url(' + images[0] + ')'}">
-  </div>
-  <div class="title-section">
-    <span (click)="openProductDetails(id)" class="cursor-pointer hover:underline"
-      style="font-size: 1.2rem;font-weight: bold;">{{name}}</span>
-    <span class="custom-ellipsis">{{description}}</span>
-  </div>
-
-  <div class="item-bottom">
-    <div class="bottom-left">
-      <span>{{subcategory?.name}}</span>
-      <p class="text-lg font-bold">{{price | number}} RSD</p>
-      <span *ngIf="inStock !== 0;else notInStock">{{inStock}} items available</span>
-      <ng-template #notInStock>
-        <span class="text-red-500">Not available</span>
-      </ng-template>
+<div *ngIf="!isListView; else listView" class="product-card transition-duration-500 p-2" style="max-width: 100%; width: 100%; height: 100%;">
+  <div class="relative flex flex-column" style="height: 100%;">
+    <div class="image-container flex justify-center items-center" style="height: 200px; width: 200px; max-width: 100%; margin-bottom: 10px;">
+      <img (click)="openProductDetails(id)" [src]="images[0]" [alt]="name" class="max-h-full max-w-full object-contain cursor-pointer" style="align-self: center;">
     </div>
-    <div class="bottom-right">
-      <p-button (click)="addRemoveCartItem(product)" [disabled]="product.inStock === 0" icon="pi pi-cart-plus"
-        [styleClass]="inCart ? 'p-button-rounded p-button-primary' : 'p-button-rounded p-button-outlined'"></p-button>
+    <i (click)="addRemoveItemWishlist(product)" class="favorite absolute top-2 right-2 z-10 text-xl cursor-pointer"
+      [class]="inWishlist ? 'pi pi-heart-fill wishlist' : 'pi pi-heart'"></i>
+    <div class="content-section flex-grow p-3" style="height: calc(100% - 200px);">
+      <span (click)="openProductDetails(id)" class="block text-base sm:text-lg font-bold mb-2 cursor-pointer hover:underline truncate">{{name}}</span>
+      <span class="block text-xs sm:text-sm mb-2 h-10 overflow-hidden relative" 
+            [pTooltip]="description.length > 50 ? description : ''" 
+            tooltipPosition="top">
+        {{description | slice:0:50}}{{description.length > 50 ? '...' : ''}}
+      </span>
+      <span class="block text-xs sm:text-sm mb-2">{{subcategory?.name}}</span>
+      <p class="text-base sm:text-lg font-bold mb-2">{{price | number}} RSD</p>
+      <span *ngIf="inStock !== 0;else notInStock" class="text-xs sm:text-sm block mb-2">{{inStock}} items available</span>
+      <ng-template #notInStock>
+        <span class="text-xs sm:text-sm text-red-500 block mb-2">Not available</span>
+      </ng-template>
+      <div class="text-right">
+        <p-button (click)="addRemoveCartItem(product)" [disabled]="product.inStock === 0" icon="pi pi-cart-plus"
+          [styleClass]="inCart ? 'p-button-rounded p-button-primary' : 'p-button-rounded p-button-outlined'"></p-button>
+      </div>
     </div>
   </div>
 </div>
 
 <!-- List view -->
 <ng-template #listView>
-  <div style="min-height: 202px;position: relative;"
-    class="flex transition-duration-500 hover:shadow-4 align-items-end justify-content-between w-full border-1 border-primary wishlist-container border-round-md my-3 px-5">
-    <i *ngIf="!wishlistView" (click)="addRemoveItemWishlist(product)" class="favorite z-5"
+  <div class="flex flex-column transition-duration-500 hover:shadow-4 w-full border-1 border-primary wishlist-container border-round-md my-3 p-3 md:p-5 relative">
+    <i *ngIf="!wishlistView" (click)="addRemoveItemWishlist(product)" class="favorite absolute top-2 right-2 z-10 text-xl cursor-pointer"
       [class]="inWishlist ? 'pi pi-heart-fill wishlist' : 'pi pi-heart'"></i>
-    <div class="flex align-items-center justify-content-center">
-      <img (click)="openProductDetails(id)" [src]="images[0]" [alt]="name" class="mx-5 cursor-pointer"
-        style="aspect-ratio: auto;max-width: 200px;max-height: 200px;">
-      <div class="flex flex-column justify-content-center align-items-start">
-        <h2 (click)="openProductDetails(id)" class="font-bold hover:underline cursor-pointer text-blue-400 m-0 p-0">
+    <div class="flex flex-column items-center md:items-start md:flex-row mb-4">
+      <img (click)="openProductDetails(id)" [src]="images[0]" [alt]="name" class="w-48 h-48 object-contain cursor-pointer mb-4 md:mb-0 md:mr-5 align-self-center md:align-self-auto" style="max-width: 200px; max-height: 200px;">
+      <div class="flex flex-column justify-center items-center md:items-start text-center md:text-left">
+        <h2 (click)="openProductDetails(id)" class="font-bold hover:underline cursor-pointer text-blue-400 m-0 p-0 text-lg md:text-xl mb-2">
           {{name}}
         </h2>
-        <span class="font-light">EAN: {{EAN}}</span>
-        <span>{{description}}</span>
-        <span>{{category?.name}} > {{subcategory?.name}}</span>
+        <span class="font-light text-sm mb-1">EAN: {{EAN}}</span>
+        <span class="text-sm mb-1">{{description}}</span>
+        <span class="text-sm">{{category?.name}} > {{subcategory?.name}}</span>
       </div>
     </div>
-    <div class="flex flex-column align-items-end justify-content-between">
-      <span class="text-green-500" *ngIf="inStock > 1">{{inStock}} items available</span>
-      <span class="text-green-500" *ngIf="inStock === 1">{{inStock}} item available</span>
-      <span *ngIf="inStock === 0" class="text-red-500">Not available</span>
-      <div class="flex align-items-end justify-content-around my-3 mb-3">
-        <div class="flex align-self-start align-items-start flex-column mr-4">
-          <h2 class="font-medium my-2">{{price | number}} RSD</h2>
-          <span>or 12 x {{getInstallmentPayAmount(price) | number}} RSD / month</span>
+    <div class="flex flex-column items-center md:items-end justify-between mt-4 md:mt-0 md:ml-auto">
+      <span class="text-green-500 text-sm mb-2 align-self-center md:align-self-auto" *ngIf="inStock > 1">{{inStock}} items available</span>
+      <span class="text-green-500 text-sm mb-2 align-self-center md:align-self-auto" *ngIf="inStock === 1">{{inStock}} item available</span>
+      <span *ngIf="inStock === 0" class="text-red-500 text-sm mb-2 align-self-center md:align-self-auto">Not available</span>
+      <div class="flex flex-column md:flex-row items-center md:items-end justify-between w-full mt-2 md:mt-auto">
+        <div class="flex flex-column items-center md:items-start mb-3 md:mb-0 md:mr-4 align-self-center md:align-self-auto">
+          <h2 class="font-medium text-lg md:text-xl mb-1">{{price | number}} RSD</h2>
+          <span class="text-sm">or 12 x {{getInstallmentPayAmount(price) | number}} RSD / month</span>
         </div>
-        <p-button (click)="addRemoveCartItem(product)" [disabled]="product.inStock === 0" icon="pi pi-cart-plus"
-          [styleClass]="inCart ? 'p-button-rounded p-button-primary' : 'p-button-rounded p-button-outlined'"></p-button>
+        <p-button (click)="product.inStock > 0 && addRemoveCartItem(product)" 
+          [disabled]="product.inStock === 0" 
+          icon="pi pi-cart-plus"
+          [styleClass]="product.inStock === 0 ? 'p-button-rounded p-button-outlined p-button-secondary' : (inCart ? 'p-button-rounded p-button-primary' : 'p-button-rounded p-button-outlined')" 
+          class="align-self-end">
+        </p-button>
       </div>
     </div>
   </div>
-
 </ng-template>
-
-<!-- Card view - regular small card with image, name and price -->

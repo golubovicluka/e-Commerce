@@ -1,5 +1,4 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { ProductsService } from '../../products.service';
 
 @Component({
   selector: 'app-category',

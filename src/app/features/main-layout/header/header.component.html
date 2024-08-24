@@ -1,34 +1,30 @@
-<div class="header mb-3">
-  <span [routerLink]="['/home']" class="font-bold">Shoply
+<div class="header mb-3 flex align-items-center justify-content-between">
+  <!-- Mobile menu button -->
+  <button #btn class="p-link lg:hidden" (click)="menu.toggle($event)">
+    <i class="pi pi-bars text-2xl text-white"></i>
+  </button>
+
+  <!-- Desktop menu -->
+  <ul class="hidden lg:flex align-items-center list-none p-0 m-0 flex-grow-1">
+    <li><a [routerLink]="['/home']" routerLinkActive="text-primary" class="p-2 no-underline text-white">Home</a></li>
+    <li><a [routerLink]="['/products/search']" routerLinkActive="text-primary" class="p-2 no-underline text-white">Products</a></li>
+    <li><a [routerLink]="['/categories']" routerLinkActive="text-primary" class="p-2 no-underline text-white">Categories</a></li>
+    <li><a [routerLink]="['/wishlist']" routerLinkActive="text-primary" class="p-2 no-underline text-white">
+      <i class="pi pi-heart mr-2" *ngIf="wishListItems !== '0'" pBadge [value]="wishListItems"></i>
+      <i class="pi pi-heart mr-2" *ngIf="wishListItems === '0'"></i>
+      Wishlist
+    </a></li>
+    <li><a [routerLink]="['/cart']" routerLinkActive="text-primary" class="p-2 no-underline text-white">
+      <i class="pi pi-shopping-cart mr-2" *ngIf="cartItems !== '0'" pBadge [value]="cartItems"></i>
+      <i class="pi pi-shopping-cart mr-2" *ngIf="cartItems === '0'"></i>
+      Cart
+    </a></li>
+  </ul>
+
+  <span [routerLink]="['/home']" class="font-bold text-xl cursor-pointer text-white pr-0">Shoply
     <i class="pi pi-shopping-bag ml-2" style="font-size: 1.5rem"></i>
   </span>
-  <ul>
-    <!-- TODO: add active route color -->
-    <li [routerLink]="['/home']">Home</li>
-    <li [routerLink]="['/products/search']">Products</li>
-    <li [routerLink]="['/categories']">Categories</li>
-    <li [routerLink]="['/login']"><i class="pi pi-user mx-2" style="font-size: 1.2rem"></i>Login</li>
-    <li [routerLink]="['/wishlist']">
-      <i class="pi pi-heart mx-2" *ngIf="wishListItems !== '0'; else noWishList" pBadge [value]="wishListItems"
-        style="font-size: 1.2rem"></i>
-      <span *ngIf="wishListItems !== '0'">
-        Wishlist
-      </span>
-      <ng-template #noWishList="">
-        <i class="pi pi-pi-heart" style="font-size: 1.2rem"></i>
-        Wishlist
-      </ng-template>
-    </li>
-    <li [routerLink]="['/cart']">
-      <i class="pi pi-shopping-cart mr-2" *ngIf="cartItems !== '0'; else noCartItems" pBadge [value]="cartItems"
-        style="font-size: 1.2rem"></i>
-      <span *ngIf="cartItems !== '0'">
-        Cart
-      </span>
-      <ng-template #noCartItems="">
-        <i class="pi pi-shopping-cart mr-2" style="font-size: 1.2rem"></i>
-        Cart
-      </ng-template>
-    </li>
-  </ul>
+
+  <!-- SlideMenu for mobile -->
+  <p-slideMenu #menu [model]="items" [popup]="true" [viewportHeight]="250"></p-slideMenu>
 </div>

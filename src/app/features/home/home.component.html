@@ -1,14 +1,13 @@
-<div
-  class="flex fadein animation-duration-300 align-items-center justify-content-center gap-3 container w-full h-full mt-4">
+<div class="flex flex-column md:flex-row fadein animation-duration-300 align-items-center justify-content-center gap-3 container w-full mt-4">
   <!-- Left section -->
   <div
-    class="flex align-items-center justify-content-center cursor-pointer border-round-2xl border-1 surface-border h-full w-full transition-duration-300 hover:shadow-2 hover:border-primary"
-    (click)="redirect(macbookId)" style="height: 420px !important">
-    <img alt="macbook image" [src]="macbookImg" height="300px" width="300px" />
-    <div class="flex flex-column">
+    class="flex flex-column md:flex-row align-items-center justify-content-center cursor-pointer border-round-2xl border-1 surface-border w-full transition-duration-300 hover:shadow-2 hover:border-primary mb-3 md:mb-0 shadow-2"
+    (click)="redirect(macbookId)" style="min-height: 420px">
+    <img alt="macbook image" [src]="macbookImg" class="w-full md:w-6 h-auto object-cover" style="max-width: 250px; max-height: 250px;" />
+    <div class="flex flex-column p-3">
       <h2 class="p-0 m-0 mb-2">Macbook Air M1</h2>
-      <span class="font-light pr-3">
-        MacBook Air with M1 is an incredibly portable laptop, it’s nimble and
+      <span class="font-light">
+        MacBook Air with M1 is an incredibly portable laptop, it's nimble and
         quick, with a silent, fanless design and a beautiful Retina display.
         Thanks to its slim profile and all‑day battery life, this Air moves at
         the speed of lightness.
@@ -19,12 +18,12 @@
   </div>
 
   <!-- Right section -->
-  <div class="flex flex-column align-items-center gap-3 justify-content-center h-full w-full">
+  <div class="flex flex-column align-items-center gap-3 justify-content-center w-full">
     <div
-      class="flex cursor-pointer align-items-center justify-content-start border-1 surface-border h-full w-full border-round-2xl transition-duration-300 hover:shadow-2 hover:border-primary"
+      class="flex flex-column md:flex-row cursor-pointer align-items-center justify-content-start border-1 surface-border w-full border-round-2xl transition-duration-300 hover:shadow-2 hover:border-primary mb-3 shadow-2"
       (click)="redirect(ipadId)">
-      <img class="border-round-2xl" alt="ipad image" [src]="ipadImg" height="200px" width="200px" />
-      <div class="flex flex-column">
+      <img class="border-round-2xl w-full md:w-4 h-auto object-cover" alt="ipad image" [src]="ipadImg" style="max-width: 250px; max-height: 250px;" />
+      <div class="flex flex-column p-3">
         <h2 class="p-0 m-0 mb-2">iPad Pro M2</h2>
         <span class="font-light">
           The new iPad Pro features a next-level Apple Pencil hover experience,
@@ -36,10 +35,10 @@
       </div>
     </div>
     <div
-      class="flex cursor-pointer align-items-center justify-content-start border-1 surface-border h-full w-full border-round-2xl transition-duration-300 hover:shadow-2 hover:border-primary"
+      class="flex flex-column md:flex-row cursor-pointer align-items-center justify-content-start border-1 surface-border w-full border-round-2xl transition-duration-300 hover:shadow-2 hover:border-primary shadow-2"
       (click)="redirect(iphoneId)">
-      <img class="border-round-2xl" alt="macbook image" [src]="iphoneImg" height="200px" width="200px" />
-      <div class="flex flex-column">
+      <img class="border-round-2xl w-full md:w-4 h-auto object-cover" alt="iphone image" [src]="iphoneImg" style="max-width: 250px; max-height: 250px;" />
+      <div class="flex flex-column p-3">  
         <h2 class="p-0 m-0 mb-2">iPhone 14 Pro Max</h2>
         <span class="font-light">
           The iPhone 14 Plus comes with 6.7-inch OLED display with 120Hz refresh
@@ -54,13 +53,13 @@
 </div>
 
 <!-- Carousel section -->
-<p-carousel *ngIf="suggestedProducts;else loading" [value]="suggestedProducts" [numVisible]="3" [numScroll]="1"
-  [circular]="true">
+<p-carousel *ngIf="suggestedProducts;else loading" [value]="suggestedProducts" [numVisible]="5" [numScroll]="1"
+  [circular]="true" [responsiveOptions]="carouselResponsiveOptions" class="shadow-2">
   <ng-template pTemplate="header">
-    <h2 class="center font-light m-4 mt-8 pb-3 w-full h-full">Our newest products</h2>
+    <h2 class="text-center font-light m-4 mt-8 pb-3 w-full">Our Latest Products</h2>
   </ng-template>
   <ng-template let-product pTemplate="item">
-    <div class="flex align-items-center justify-content-center">
+    <div class="flex align-items-center justify-content-center p-2">
       <app-suggested-product (openProductDetails)="redirect($event)" [inStock]="product.inStock" [id]="product.id"
         [name]="product.name" [description]="product.description" [price]="product.price"
         [image]="product.images[0]"></app-suggested-product>
@@ -68,31 +67,28 @@
   </ng-template>
 </p-carousel>
 
-<ng-template #loading="">
-  <div class="center" style="padding-top: 30px">
+<ng-template #loading>
+  <div class="flex justify-content-center" style="padding-top: 30px">
     <i class="pi pi-spin pi-spinner" style="font-size: 2rem"></i>
   </div>
 </ng-template>
 
 <!-- Newsletter section -->
-<div class="flex align-items-center justify-content-around m-4 mt-8 p-4">
-  <div class="w-full p-7">
-    <h2 class="center font-bold m-4 pb-3 w-full h-full">Subscribe to our newsletter</h2>
-    <span class="text-center font-light text-xl">All the latest, discounted and current products are already on the site
-      and we
-      have selected them for you! All
-      you have
-      to do is sign up for our Newsletter!</span>
+<div class="flex flex-column align-items-center justify-content-center m-4 mt-8 p-4">
+  <div class="w-full md:w-6 p-3 md:p-7 text-center">
+    <h2 class="font-bold m-4 pb-3">Subscribe to our newsletter</h2>
+    <span class="font-light text-xl block">All the latest, discounted and current products are already on the site and
+      we've selected them for you! All you need to do is sign up for our newsletter!</span>
   </div>
   <div
-    class="flex flex-column align-items-center justify-content-center w-full h-10 mx-5 my-3 px-5 py-5 border-2 border-primary transition-duration-500 border-round-2xl hover:bg-blue-50">
-    <div class="mb-4">
-      <div>
-        <input class="mr-1" name="name" type="text" pInputText placeholder="Name" formControlName="name" />
-        <input class="ml-1" name="surname" type="text" pInputText placeholder="Last name" formControlName="lastName" />
+    class="flex flex-column align-items-center justify-content-center w-full md:w-6 h-auto mx-3 my-3 p-3 md:p-5 border-2 border-primary transition-duration-500 border-round-2xl hover:bg-blue-50 shadow-2">
+    <div class="w-full">
+      <div class="flex flex-column md:flex-row mb-2">
+        <input class="w-full md:w-6 mb-2 md:mb-0 md:mr-1" name="name" type="text" pInputText placeholder="First Name" formControlName="name" />
+        <input class="w-full md:w-6 md:ml-1" name="surname" type="text" pInputText placeholder="Last Name" formControlName="lastName" />
       </div>
-      <input class="w-full mt-1" name="email" type="email" pInputText placeholder="Email" formControlName="email" />
-      <p-button (click)="submitForm()" label="Sign up" styleClass="p-button-rounded mt-3 w-full"></p-button>
+      <input class="w-full mb-2" name="email" type="email" pInputText placeholder="Email" formControlName="email" />
+      <p-button (click)="submitForm()" label="Sign Up" styleClass="p-button-rounded w-full p-3 md:p-2"></p-button>
     </div>
   </div>
 </div>

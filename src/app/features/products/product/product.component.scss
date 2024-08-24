@@ -3,28 +3,44 @@
 }
 
 .product-card {
-  width: 330px;
-  height: 390px;
+  width: 100%;
+  height: auto;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-direction: column;
   border-radius: 15px;
-  border: 1px solid rgb(#f3f3f3, 0.8);
+  border: 1px solid rgba(243, 243, 243, 0.8);
   backdrop-filter: blur(3px);
   background-color: #ffffff;
   position: relative;
-  margin: 0rem;
+  margin: 0;
   filter: drop-shadow(0 0.2rem 0.25rem rgba(0, 0, 0, 0.1));
   transition: 0.5s ease-out;
+  
+  @media (min-width: 640px) {
+    width: 50%;
+  }
+  
+  @media (min-width: 768px) {
+    width: 33.33%;
+  }
+  
+  @media (min-width: 1024px) {
+    width: 25%;
+  }
+  
+  @media (min-width: 1280px) {
+    width: 20%;
+  }
+  
   &:hover {
     filter: drop-shadow(0 0.2rem 0.25rem rgba(0, 0, 0, 0.3));
   }
 }
 
-.custom-ellipsis{
+.custom-ellipsis {
   display: -webkit-box;
-  //max-width: 400px;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
@@ -65,21 +81,22 @@
 }
 
 .image {
-  width: 210px;
-  height: 210px;
-  max-height: 210px;
-  max-width: 210px;
+  width: 100%;
+  max-width: 250px;
+  max-height: 250px;
+  height: 250px;
   background-size: contain;
   background-repeat: no-repeat;
+  background-position: center;
   cursor: pointer;
+  margin: 0 auto;
 }
 
 .favorite {
   font-size: 1.5rem;
   position: absolute;
-  top: 0;
-  right: 0;
-  padding: 10px;
+  top: 0.5rem;
+  right: 0.5rem;
   cursor: pointer;
   filter: drop-shadow(0 0.2rem 0.25rem rgba(0, 0, 0, 0.1));
 }
@@ -93,7 +110,7 @@
   padding: 10px;
   border-radius: 50%;
   &:hover {
-    background-color: rgb(#c6c6c6, 0.25);
+    background-color: rgba(198, 198, 198, 0.25);
     cursor: pointer;
   }
 }

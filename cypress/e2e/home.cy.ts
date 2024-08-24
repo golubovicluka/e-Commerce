@@ -64,16 +64,6 @@ describe('Footer menu tests', () => {
         cy.url().should('include', '/categories')
     })
 
-    it('should navigate to Login page', () => {
-        cy.get('body > app-root > app-footer > div > div.flex.align-items-center.gap-4.justify-content-between.w-3 > div:nth-child(2) > a:nth-child(1) > span').click()
-        cy.url().should('include', '/login')
-    })
-
-    it('should navigate to Register page', () => {
-        cy.get('body > app-root > app-footer > div > div.flex.align-items-center.gap-4.justify-content-between.w-3 > div:nth-child(2) > a:nth-child(2) > span').click()
-        cy.url().should('include', '/register')
-    })
-
     it('should have visible LinkedIn icon', () => {
         cy.get('.pi-linkedin').should('exist')
     })

@@ -4,31 +4,91 @@
   align-items: center;
   width: 100%;
   height: 4rem;
-  padding: 0px 40px;
-  background-color: rgba(#1c1c1c, 0.75);
-  backdrop-filter: blur(3px);
-  filter: drop-shadow(0 0.2rem 0.25rem rgba(0, 0, 0, 0.5));
+  padding: 0 2rem;
+  background-color: #2c3e50; // Tamno siva pozadina
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 
-  position: sticky !important;
+  position: sticky;
   top: 0;
   z-index: 1000;
+
   span {
-    color: rgb(255, 255, 255);
+    color: #ffffff;
+    font-size: 1.5rem;
+    font-weight: bold;
     cursor: pointer;
+    transition: color 0.3s ease;
+
     &:hover {
-      color: rgb(178, 178, 178);
+      color: #ecf0f1;
+    }
+
+    .pi-shopping-bag {
+      color: #ffffff;
     }
   }
-  li {
-    display: inline;
-    padding: 10px;
-    color: rgb(255, 255, 255);
-    cursor: pointer;
-    &:hover {
-      color: rgb(202, 202, 202);
-    }
-    // &:active {
 
-    // }
+  ul {
+    display: flex;
+    gap: 1rem;
+
+    li {
+      list-style-type: none;
+
+      a {
+        color: #ffffff;
+        text-decoration: none;
+        padding: 0.5rem 1rem;
+        border-radius: 4px;
+        transition: background-color 0.3s ease;
+
+        &:hover {
+          background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        &.text-primary {
+          background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .pi {
+          color: #ffffff;
+        }
+      }
+    }
+  }
+
+  .p-slidemenu {
+    .p-menuitem-link {
+      color: #ffffff;
+
+      &:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+      }
+
+      .p-menuitem-icon,
+      .p-menuitem-text {
+        color: #ffffff;
+      }
+    }
+  }
+
+  // Stilovi za mobilni meni dugme
+  .p-link {
+    color: #ffffff;
+
+    .pi-bars {
+      font-size: 1.5rem;
+    }
+  }
+}
+
+// Medija upit za responsivnost
+@media screen and (max-width: 991px) {
+  .header {
+    padding: 0 1rem;
+
+    ul {
+      display: none;
+    }
   }
 }

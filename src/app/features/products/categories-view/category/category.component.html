@@ -1,7 +1,8 @@
 <div
-  class="flex fadein animation-duration-300 text-0 hover:text-200 font-bold text-xl uppercase bg-no-repeat bg-cover transition-duration-500 cursor-pointer align-items-center justify-content-center h-15rem w-18rem border-1 border-round border-blue-500 p-8 mb-3 hover:shadow-5"
-  (click)="openProductsPage(name)" [ngStyle]="{'background-image': 'url(' + getCategoryImage(name) + ')'}">
-  <span>
+  class="flex fadein animation-duration-300 text-0 hover:text-200 font-bold text-xl uppercase bg-no-repeat bg-cover transition-duration-500 cursor-pointer align-items-center justify-content-center border-1 border-round border-blue-500 p-4 mb-3 hover:shadow-5"
+  (click)="openProductsPage(name)" [ngStyle]="{'background-image': 'url(' + getCategoryImage(name) + ')'}"
+  [ngClass]="{'h-15rem w-15rem': true, 'sm:h-12rem sm:w-12rem': true, 'md:h-13rem md:w-13rem': true, 'lg:h-15rem lg:w-15rem': true}">
+  <span class="text-center">
     {{name}}
   </span>
 </div>

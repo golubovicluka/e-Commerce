@@ -1,34 +1,28 @@
 <div
-  class="flex align-items-center justify-content-around border-1 border-blue-100 border-round-top surface-50 w-full h-10rem">
-  <div>
+  class="flex flex-column sm:flex-row align-items-center justify-content-around border-1 border-blue-100 border-round-top surface-50 w-full p-4">
+  <div class="mb-4 sm:mb-0">
     <span (click)="toHome()"
       class="font-bold text-xl transition-duration-300 hover:text-gray-700 cursor-pointer">Shoply</span>
   </div>
-  <div class="flex align-items-center gap-4 justify-content-between w-3">
-    <div class="flex flex-column gap-2">
-      <a class="no-underline text-900" [routerLink]="['home']">
+  <div class="flex flex-column sm:flex-row align-items-center gap-4 justify-content-between w-full sm:w-3 mb-4 sm:mb-0">
+    <div class="flex flex-column sm:flex-row gap-4 text-center sm:text-left">
+      <a class="no-underline text-900 flex-1" [routerLink]="['home']">
         <span class="font-light transition-duration-300 hover:text-primary cursor-pointer">Home</span>
       </a>
-      <a class="no-underline text-900" [routerLink]="['products/search']">
+      <a class="no-underline text-900 flex-1" [routerLink]="['products/search']">
         <span class="font-light transition-duration-300 hover:text-primary cursor-pointer">Products</span>
       </a>
-      <a class="no-underline text-900" [routerLink]="['categories']">
+      <a class="no-underline text-900 flex-1" [routerLink]="['categories']">
         <span class="font-light transition-duration-300 hover:text-primary cursor-pointer">Categories</span>
       </a>
-    </div>
-    <div class="flex flex-column gap-2">
-      <a class="no-underline text-900" [routerLink]="['login']">
-        <span class="font-light transition-duration-300 hover:text-primary cursor-pointer">Login</span>
+      <a class="no-underline text-900 flex-1" [routerLink]="['Contact']">
+        <span class="font-light transition-duration-300 hover:text-primary cursor-pointer">Contact</span>
       </a>
-      <a class="no-underline text-900" [routerLink]="['register']">
-        <span class="font-light transition-duration-300 hover:text-primary cursor-pointer">Register</span>
-      </a>
-      <span class="font-light transition-duration-300 hover:text-primary cursor-pointer">Contact</span>
     </div>
   </div>
   <div class="flex align-items-center justify-content-center gap-4">
     <span>
-      <i (click)="openLink('https://www.linkedin.com/in/luka-golubovic')"
+      <i (click)="openLink('https://rs.linkedin.com/in/lukagolubovic?trk=public_profile_browsemap')"
         class="pi pi-linkedin cursor-pointer transition-duration-300 hover:text-blue-700" style="font-size: 2rem"></i>
     </span>
     <span>

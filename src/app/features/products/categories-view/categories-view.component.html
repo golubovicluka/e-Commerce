@@ -1,13 +1,14 @@
-<p-breadcrumb [home]="home" [model]="items"></p-breadcrumb>
-<div *ngIf="categories; else loading" class="flex align-items-center justify-content-center gap-3 mt-5">
-  <div *ngFor="let category of categories; let index = index">
+<p-breadcrumb [home]="home" [model]="items" class="mb-4"></p-breadcrumb>
+
+<div *ngIf="categories; else loading" class="flex flex-wrap align-items-center justify-content-center gap-4 p-3 m-3">
+  <div *ngFor="let category of categories" class="w-full sm:w-6 md:w-4 lg:w-3 xl:w-2 p-2">
     <app-category (applyCategoryFilter)="openProductsPage($event)" [name]="category.name"
       [id]="category.id"></app-category>
   </div>
 </div>
 
 <ng-template #loading>
-  <div class="center" style="padding-top: 30px">
+  <div class="center mt-5">
     <i class="pi pi-spin pi-spinner" style="font-size: 2rem"></i>
   </div>
 </ng-template>

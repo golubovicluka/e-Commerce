@@ -1,28 +1,29 @@
 <p-toast position="bottom-left"></p-toast>
-<p-breadcrumb [home]="home" [model]="items"></p-breadcrumb>
-<div *ngIf="product; else loading">
-  <div class="flex justify-content-center gap-3 align-items-center">
-    <p-galleria [value]="images" [(activeIndex)]="activeIndex" [(visible)]="displayCustom"
-      [responsiveOptions]="responsiveOptions" [containerStyle]="{'max-width': '850px'}" [numVisible]="7"
-      [circular]="true" [fullScreen]="false" [showItemNavigators]="false" [showThumbnails]="false"
-      [baseZIndex]="100000">
-      <ng-template pTemplate="item" let-item>
+<p-breadcrumb [home]="home" [model]="items" class="mb-3"></p-breadcrumb>
 
-        <!-- TODO: Show only 4-5 images, the rest of the images can be seen from withing full screen carousel -->
-        <div class="fadein animation-duration-300 flex flex-column mx-5" *ngIf="images"
-          style="max-width: 150px;max-height: 100%;">
-          <div class="col-3" *ngFor="let image of images; let index = index;" key="index">
-            <img [src]="image" width="120px" height="120px" [alt]="image" style="cursor: pointer"
-              (click)="imageClick(index)">
+<div *ngIf="product; else loading">
+  <div class="flex flex-column lg:flex-row justify-content-center gap-4 align-items-center">
+    <div class="w-full lg:w-auto">
+      <p-galleria [value]="images" [(activeIndex)]="activeIndex" [(visible)]="displayCustom"
+        [responsiveOptions]="carouselResponsiveOptions" [containerStyle]="{'max-width': '100%'}" [numVisible]="3"
+        [circular]="true" [fullScreen]="false" [showItemNavigators]="false" [showThumbnails]="false"
+        [baseZIndex]="100000" class="p-2">
+        <ng-template pTemplate="item" let-item>
+          <div class="fadein animation-duration-300 mx-auto" *ngIf="images" style="max-width: 150px; max-height: 100%;">
+            <div class="flex flex-wrap justify-content-center" *ngFor="let image of images; let index = index;"
+              key="index">
+              <img [src]="image" width="120px" height="120px" [alt]="image" style="cursor: pointer"
+                (click)="imageClick(index)">
+            </div>
           </div>
-        </div>
-        <p-image [src]="item" [preview]="true" width="400px" height="400px">
-        </p-image>
-      </ng-template>
-    </p-galleria>
+          <p-image [src]="item" [preview]="true" width="100%" height="auto">
+          </p-image>
+        </ng-template>
+      </p-galleria>
+    </div>
     <div
-      class="fadein animation-duration-300 relative border-300 max-w-30rem border-1 border-round-xl surface-overlay m-5 flex flex-column align-items-center justify-content-around"
-      *ngIf="product" style="min-width: 500px; min-height: 500px">
+      class="fadein animation-duration-300 relative border-300 border-1 border-round-xl surface-overlay m-5 flex flex-column align-items-center justify-content-around w-full lg:w-auto p-4"
+      *ngIf="product" style="max-width: 100%;">
       <p-tag class="m-1 tag" severity="danger" value="Excellent price" [rounded]="true"></p-tag>
       <i class="favorite" (click)="addProductToWishList(product)"
         [class]="inWishlist ? 'pi pi-heart-fill wishlist' : 'pi pi-heart'"></i>
@@ -33,36 +34,37 @@
         <span class="align-self-start font-light text-green-400 text-sm"
           *ngIf="product.inStock > 0; else notAvailable">Available</span>
         <ng-template #notAvailable="">
-          <span class="align-self-start font-light text-red-400 text-sm">Unavailable at the
-            moment</span>
+          <span class="align-self-start font-light text-red-400 text-sm">Unavailable at the moment</span>
         </ng-template>
         <span class="font-light">
           EAN: {{product.EAN}}
         </span>
         <span class="font-light align-self-start">
-          {{product?.category?.name}} > {{product?.subcategory?.name}}
+          {{product?.subcategory?.name}}
         </span>
       </div>
       <span class="align-self-start mx-2 px-2">
         {{product.description}}
       </span>
-      <div class="flex align-content-center justify-content-between">
-        <div class="flex align-content-center justify-content-between flex-column w-full">
+      <div
+        class="flex align-content-center justify-content-between flex-column w-full sm:flex-row sm:justify-content-start gap-3">
+        <div class="flex align-content-center justify-content-between flex-column w-full sm:w-auto">
           <span class="product-price px-2 mx-2">
             {{product.price | number}} RSD
           </span>
           <span class="font-medium align-self-start px-2 mx-2">
             or monthly payment {{selectedMonthlyPayment.name}} x {{getInstallmentPayAmount(product.price,
-            selectedMonthlyPayment.name) | number}}
-            RSD
+            selectedMonthlyPayment.name) | number}} RSD
           </span>
         </div>
-        <p-dropdown pTooltip="Select monhtly payment" placeholder="12" tooltipEvent="focus"
-          [options]="monthlyPaymentOptions" [(ngModel)]="selectedMonthlyPayment" optionLabel="name"></p-dropdown>
+        <p-dropdown pTooltip="Select monthly payment" placeholder="12" tooltipEvent="focus"
+          [options]="monthlyPaymentOptions" [(ngModel)]="selectedMonthlyPayment" optionLabel="name"
+          class="align-self-end"></p-dropdown>
       </div>
-      <button (click)="buyProduct(product)" class="p-button-outlined p-button-rounded w-10 mt-2 p-2" type="button"
-        pButton pRipple label="Buy now" [disabled]="product.inStock === 0"></button>
-      <span class="text-blue-400 underline cursor-pointer" *ngIf="product.inStock === 0">Notify when available</span>
+      <button (click)="buyProduct(product)" class="p-button-outlined p-button-rounded w-full sm:w-10 mt-2 p-2"
+        type="button" pButton pRipple label="Buy now" [disabled]="product.inStock === 0"></button>
+      <span class="text-blue-400 underline cursor-pointer mt-2" *ngIf="product.inStock === 0">Notify when
+        available</span>
     </div>
   </div>
 </div>
@@ -74,20 +76,19 @@
 </ng-template>
 
 <!-- Suggested products -->
-<!-- TODO: Make carousel responsive -->
 <p-carousel *ngIf="suggestedProducts" [value]="suggestedProducts" [numVisible]="3" [numScroll]="1" [circular]="false"
-  [responsiveOptions]="responsiveOptions">
+  [responsiveOptions]="carouselResponsiveOptions" styleClass="w-full mt-4">
   <ng-template pTemplate="header">
     <h2>Suggested products from category {{product.category?.name}}</h2>
   </ng-template>
   <ng-template let-product pTemplate="item">
     <div class="flex align-items-center justify-content-center">
-
-      <app-product class="m-2" (addedToCart)="addToCart($event)" (replaceCurrentProduct)="replaceProduct($event)"
-        (removedFromCart)="removeFromCart($event)" (removedFromWishList)="removedFromWishList($event)"
-        (addedToWishList)="addToWishList($event)" [name]="product.name" [subcategory]="product.subcategory.name"
-        [id]="product.id" [images]="product.images" [inStock]="product.inStock" [price]="product.price"
-        [category]="product.category" [description]="product.description" [EAN]="product.EAN"></app-product>
+      <app-product class="m-2 w-full sm:w-auto" (addedToCart)="addToCart($event)"
+        (replaceCurrentProduct)="replaceProduct($event)" (removedFromCart)="removeFromCart($event)"
+        (removedFromWishList)="removedFromWishList($event)" (addedToWishList)="addToWishList($event)"
+        [name]="product.name" [subcategory]="product.subcategory.name" [id]="product.id" [images]="product.images"
+        [inStock]="product.inStock" [price]="product.price" [category]="product.category"
+        [description]="product.description" [EAN]="product.EAN"></app-product>
     </div>
   </ng-template>
 </p-carousel>

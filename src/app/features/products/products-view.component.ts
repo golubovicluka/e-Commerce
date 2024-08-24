@@ -16,7 +16,7 @@ import { CartService } from 'src/app/shared/cart.service';
 })
 export class ProductsViewComponent implements OnInit, OnDestroy {
   products$!: Observable<any>
-  // Find a way to unsubscribe from all subscrptions via SubscriptionContainer
+
   subs = new SubscriptionContainer();
   categories!: any;
 

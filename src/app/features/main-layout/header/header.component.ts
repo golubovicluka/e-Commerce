@@ -3,6 +3,7 @@ import { WishlistService } from '../../../shared/wishlist.service';
 import { Product } from '../../products/Product';
 import { CartService } from 'src/app/shared/cart.service';
 import { Router } from '@angular/router';
+import { MenuItem } from 'primeng/api';
 
 @Component({
   selector: 'app-header',
@@ -12,6 +13,7 @@ import { Router } from '@angular/router';
 export class HeaderComponent implements OnInit {
   wishListItems!: string;
   cartItems: string = "0";
+  items: MenuItem[] = [];
 
   constructor(
     private _wishlistService: WishlistService,
@@ -27,6 +29,34 @@ export class HeaderComponent implements OnInit {
     this._cartService.getCartItems().subscribe((data: Product[]) => {
       this.cartItems = data.length.toString();
     })
+
+    this.items = [
+      {
+        label: 'Home',
+        icon: 'pi pi-home',
+        routerLink: ['/home']
+      },
+      {
+        label: 'Products',
+        icon: 'pi pi-list',
+        routerLink: ['/products/search']
+      },
+      {
+        label: 'Categories',
+        icon: 'pi pi-th-large',
+        routerLink: ['/categories']
+      },
+      {
+        label: 'Wishlist',
+        icon: 'pi pi-heart',
+        routerLink: ['/wishlist']
+      },
+      {
+        label: 'Cart',
+        icon: 'pi pi-shopping-cart',
+        routerLink: ['/cart']
+      }
+    ];
   }
 
   isActiveRoute(route: string): boolean {

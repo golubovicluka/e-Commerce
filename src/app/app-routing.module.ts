@@ -1,6 +1,5 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { LoginComponent } from './features/login/login.component';
 import { ProductDetailsComponent } from './features/products/product/product-details/product-details.component';
 import { ProductsViewComponent } from './features/products/products-view.component';
 import { WishlistViewComponent } from './features/wishlist/wishlist-view.component';
@@ -8,7 +7,6 @@ import { CategoriesViewComponent } from './features/products/categories-view/cat
 import { CartViewComponent } from './features/cart-view/cart-view.component';
 import { ShippingComponent } from './features/cart-view/shipping/shipping.component';
 import { NotFoundComponent } from './shared/not-found/not-found.component';
-import { RegistrationComponent } from './features/registration/registration.component';
 import { OverviewComponent } from './features/cart-view/overview/overview.component';
 import { PaymentComponent } from './features/cart-view/payment/payment.component';
 
@@ -24,11 +22,9 @@ const routes: Routes = [
       { path: 'payment', component: PaymentComponent },
     ]
   },
-  { path: 'login', component: LoginComponent },
-  { path: 'register', component: RegistrationComponent },
   { path: '404', component: NotFoundComponent },
   { path: 'home', loadChildren: () => import('./features/home/home.module').then(m => m.HomeModule) },
-  { path: '**', redirectTo: '/home', pathMatch: 'full' }, // Redirect to 404 page
+  { path: '**', redirectTo: '/products/search', pathMatch: 'full' },
 ];
 
 @NgModule({

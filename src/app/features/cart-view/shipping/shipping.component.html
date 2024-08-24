@@ -1,34 +1,32 @@
-<!-- Turn into reactive form -->
 <div
-  class="flex flex-column align-items-center justify-content-center gap-4 border-1 border-round-2xl border-surface my-4 p-3">
+  class="flex flex-column align-items-center justify-content-center gap-4 border-1 border-round-2xl border-surface my-4 p-3 md:w-10 md:mx-4 lg:w-8 lg:mx-6">
   <div class="w-full">
     <span class="center font-light">Shipping details</span>
     <p-divider class="w-full p-0 m-0"></p-divider>
   </div>
-  <div class="mt-2">
-    <input class="mr-5" type="text" pInputText placeholder="Name" [(ngModel)]="name" />
-    <input type="text" pInputText placeholder="Last name" [(ngModel)]="lastName" />
+  <div class="w-full grid md:grid-cols-2 gap-4">
+    <input class="w-full" type="text" pInputText placeholder="Name" [(ngModel)]="name" />
+    <input class="w-full" type="text" pInputText placeholder="Last name" [(ngModel)]="lastName" />
   </div>
-  <div>
-    <input class="mr-5" type="text" pInputText placeholder="Address" [(ngModel)]="address" />
-    <input type="text" pInputText placeholder="Apartment number" [(ngModel)]="apartmentNumber" />
+  <div class="w-full grid md:grid-cols-2 gap-4">
+    <input class="w-full" type="text" pInputText placeholder="Address" [(ngModel)]="address" />
+    <input class="w-full" type="text" pInputText placeholder="Apartment number" [(ngModel)]="apartmentNumber" />
   </div>
-  <div>
-    <input class="mr-5" type="text" pInputText placeholder="Postal code" [(ngModel)]="postalCode" />
-    <input type="text" pInputText placeholder="City" [(ngModel)]="city" />
+  <div class="w-full grid md:grid-cols-2 gap-4">
+    <input class="w-full" type="text" pInputText placeholder="Postal code" [(ngModel)]="postalCode" />
+    <input class="w-full" type="text" pInputText placeholder="City" [(ngModel)]="city" />
   </div>
-  <div>
-    <input type="text" pInputText placeholder="Phone number" style="width: 434px!important;"
-      [(ngModel)]="phoneNumber" />
+  <div class="w-full">
+    <input class="w-full md:w-1/2" type="text" pInputText placeholder="Phone number" [(ngModel)]="phoneNumber" />
   </div>
-  <textarea placeholder="More information for delivery..." style="width: 434px!important;" rows="5" cols="30"
-    pInputTextarea [(ngModel)]="additionalInformation"></textarea>
+  <textarea class="w-full md:w-1/2" placeholder="More information for delivery..." rows="5" pInputTextarea
+    [(ngModel)]="additionalInformation"></textarea>
   <div class="flex flex-column align-items-center justify-content-center text-center">
-    <label for="saveDetails">Save form details. So when you shop next time with us, it will automatically be
-      updated.</label>
-    <div>
-      <span class="font-light">Save form details</span>
-      <p-checkbox class="px-2" name="saveDetails" value="formDetails" [inputId]="saveFormDetails"></p-checkbox>
+    <label for="saveDetails" class="text-center">Save form details. So when you shop next time with us, it will
+      automatically be updated.</label>
+    <div class="flex align-items-center">
+      <span class="font-light mr-2">Save form details</span>
+      <p-checkbox name="saveDetails" value="formDetails" [inputId]="saveFormDetails"></p-checkbox>
     </div>
   </div>
   <p-button [routerLink]="['/cart/overview']" class="align-self-end" label="View order"></p-button>

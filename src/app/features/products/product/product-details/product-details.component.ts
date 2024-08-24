@@ -29,18 +29,21 @@ export class ProductDetailsComponent implements OnInit {
   public items!: MenuItem[];
   home!: MenuItem;
 
-  responsiveOptions: any[] = [
+  carouselResponsiveOptions = [
     {
       breakpoint: '1024px',
-      numVisible: 5
+      numVisible: 3,
+      numScroll: 3
     },
     {
       breakpoint: '768px',
-      numVisible: 3
+      numVisible: 1,
+      numScroll: 1
     },
     {
       breakpoint: '560px',
-      numVisible: 1
+      numVisible: 1,
+      numScroll: 1
     }
   ];
 
