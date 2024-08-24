@@ -33,16 +33,19 @@
 
 <!-- List view -->
 <ng-template #listView>
+  <!-- Container -->
   <div
     class="flex flex-column transition-duration-500 hover:shadow-4 w-full border-1 border-primary wishlist-container border-round-md my-3 p-3 md:p-5 relative">
     <i *ngIf="!wishlistView" (click)="addRemoveItemWishlist(product)"
       class="favorite absolute top-2 right-2 z-10 text-xl cursor-pointer"
       [class]="inWishlist ? 'pi pi-heart-fill wishlist' : 'pi pi-heart'"></i>
+    <!-- Left side -->
     <div class="flex flex-column items-center md:items-start md:flex-row">
       <img (click)="openProductDetails(id)" [src]="images[0]" [alt]="name"
         class="w-48 h-48 object-contain cursor-pointer md:mb-0 md:mr-5 align-self-center md:align-self-auto"
         style="max-width: 200px; max-height: 200px;">
-      <div class="flex flex-column justify-center items-center md:items-start text-center md:text-left">
+      <div style="max-width: 600px;"
+        class="flex flex-column justify-center items-center md:items-start text-center md:text-left">
         <h2 (click)="openProductDetails(id)"
           class="font-bold hover:underline cursor-pointer text-blue-400 m-0 p-0 text-lg md:text-xl mb-2">
           {{name}}
@@ -51,27 +54,29 @@
         <span class="text-sm mb-1">{{description}}</span>
         <span class="text-sm">{{category?.name}} > {{subcategory?.name}}</span>
       </div>
-    </div>
-    <!-- Right side, available items + cart icon and price -->
-    <div class="flex flex-column items-center md:items-end justify-between mt-4 md:mt-0 md:ml-auto">
-      <span class="text-green-500 text-sm mb-2 align-self-center md:align-self-auto" *ngIf="inStock > 1">{{inStock}}
-        items available</span>
-      <span class="text-green-500 text-sm mb-2 align-self-center md:align-self-auto" *ngIf="inStock === 1">{{inStock}}
-        item available</span>
-      <span *ngIf="inStock === 0" class="text-red-500 text-sm mb-2 align-self-center md:align-self-auto">Not
-        available</span>
-      <div class="flex flex-column md:flex-row items-center md:items-end justify-between w-full mt-2 md:mt-auto">
-        <div
-          class="flex flex-column items-center md:items-start mb-3 md:mb-0 md:mr-4 align-self-center md:align-self-auto">
-          <h2 class="font-medium text-lg md:text-xl mb-1">{{price | number}} RSD</h2>
-          <span class="text-sm">or 12 x {{getInstallmentPayAmount(price) | number}} RSD / month</span>
+      <div class="flex flex-column items-center md:items-end justify-between md:mt-0 md:ml-auto">
+
+        <div class="flex flex-column md:flex-row items-center md:items-end justify-between w-full mt-2 md:mt-auto">
+          <div
+            class="flex flex-column items-center md:items-start mb-3 md:mb-0 md:mr-4 align-self-center md:align-self-auto">
+            <span class="text-green-500 text-sm align-self-center md:align-self-auto" *ngIf="inStock > 1">{{inStock}}
+              items available</span>
+            <span class="text-green-500 text-sm align-self-center md:align-self-auto" *ngIf="inStock === 1">{{inStock}}
+              item available</span>
+            <span *ngIf="inStock === 0" class="text-red-500 text-sm align-self-center md:align-self-auto">Not
+              available</span>
+            <h2 class="font-medium text-lg md:text-xl mb-1">{{price | number}} RSD</h2>
+            <span class="text-sm">or 12 x {{getInstallmentPayAmount(price) | number}} RSD / month</span>
+          </div>
+          <p-button (click)="product.inStock > 0 && addRemoveCartItem(product)" [disabled]="product.inStock === 0"
+            icon="pi pi-cart-plus"
+            [styleClass]="product.inStock === 0 ? 'p-button-rounded p-button-outlined p-button-secondary' : (inCart ? 'p-button-rounded p-button-primary' : 'p-button-rounded p-button-outlined')"
+            class="align-self-end">
+          </p-button>
         </div>
-        <p-button (click)="product.inStock > 0 && addRemoveCartItem(product)" [disabled]="product.inStock === 0"
-          icon="pi pi-cart-plus"
-          [styleClass]="product.inStock === 0 ? 'p-button-rounded p-button-outlined p-button-secondary' : (inCart ? 'p-button-rounded p-button-primary' : 'p-button-rounded p-button-outlined')"
-          class="align-self-end">
-        </p-button>
       </div>
     </div>
   </div>
+  <!-- Right side, available items + cart icon and price -->
+
 </ng-template>
