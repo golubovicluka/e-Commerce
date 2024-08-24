@@ -1,24 +1,32 @@
 <div (click)="openDetails(id)"
-  class="flex cursor-pointer flex-column relative align-items-center justify-content-center product border-1 border-round-xl border-200 p-4 h-23rem w-15rem transition-duration-300 hover:border-primary shadow-2">
-  <div class="absolute m-1 px-2 py-1 border-1 bg-primary border-round-2xl" style="top: 0;left: 0;">
+  class="product-card flex cursor-pointer flex-column align-items-center justify-content-center border-round-xl border-200 p-4 transition-duration-300 hover:border-primary shadow-2 w-full md:w-15rem h-auto relative">
+
+  <div class="absolute m-1 px-2 py-1 border-round-2xl border-1 bg-primary" style="top: 0; left: 0;">
     <span class="text-white font-light">New</span>
   </div>
-  <img [src]="image" height="200px" width="200px" alt="name">
-  <span class="font-bold text-center">
+
+  <img [src]="image" class="w-full h-auto md:w-12rem md:h-12rem object-contain" alt="name">
+
+  <span class="product-name font-bold text-center mt-2">
     {{name}}
   </span>
-  <span class="text-center custom-ellipsis">
+
+  <span class="product-description text-center custom-ellipsis mt-2">
     {{description}}
   </span>
-  <span>
+
+  <span class="product-price text-center mt-2">
     {{price | number}} RSD
   </span>
-  <span *ngIf="inStock > 0;else notAvailable" class="font-light text-green-400 pt-1">
+
+  <span *ngIf="inStock > 0; else notAvailable" class="stock-status font-light text-green-400 pt-1">
     Available
   </span>
+
   <ng-template #notAvailable>
-    <span class="font-light text-red-400 pt-1">
+    <span class="stock-status font-light text-red-400 pt-1">
       Not available
     </span>
   </ng-template>
+
 </div>
