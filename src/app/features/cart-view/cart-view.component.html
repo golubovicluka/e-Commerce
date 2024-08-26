@@ -109,7 +109,7 @@
 <ng-container *ngIf="!numberOfItems">
   <div class="fadein animation-duration-300 flex mt-2 align-items-center justify-content-center flex-column">
     <h3 class="font-light">Your cart is empty...</h3>
-    <button class="p-button-outlined p-button-rounded w-full sm:w-8 mt-2 p-2" type="button" pButton pRipple
-      [routerLink]="['/products/search']" label="Find a product"></button>
+    <button style="max-width: 150px;" class="p-button-outlined p-button-rounded w-full sm:w-2 mt-2 p-2" type="button"
+      pButton pRipple [routerLink]="['/products/search']" label="Find a product"></button>
   </div>
 </ng-container>

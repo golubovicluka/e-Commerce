@@ -1,6 +1,6 @@
 <p-breadcrumb [home]="home" [model]="items" class="mb-4"></p-breadcrumb>
 
-<div *ngIf="categories; else loading" class="flex flex-wrap align-items-center justify-content-center gap-4 p-3 m-3">
+<div *ngIf="categories; else loading" class="flex flex-wrap align-items-center justify-content-center gap-7 p-3 m-3">
   <div *ngFor="let category of categories" class="w-full sm:w-6 md:w-4 lg:w-3 xl:w-2 p-2">
     <app-category (applyCategoryFilter)="openProductsPage($event)" [name]="category.name"
       [id]="category.id"></app-category>
