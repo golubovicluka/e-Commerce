@@ -1,5 +1,9 @@
 .main-container {
   margin: 0px 30px 30px 30px;
-  min-height: calc(100vh - 270px);
+  min-height: calc(100vh - 195px);
   // position: relative;
+}
+
+* {
+  box-sizing: border-box;
 }

@@ -19,7 +19,7 @@
   <div class="fadein animation-duration-500 flex align-items-center flex-column justify-content-center"
     *ngIf="wishlistItems.length === 0">
     <h3 class="font-light">No wishlist items to display...</h3>
-    <button class="p-button-outlined p-button-rounded w-2 mt-2 p-2" type="button" pButton pRipple
+    <button class="p-button-outlined p-button-rounded w-full sm:w-8 mt-2 p-2" type="button" pButton pRipple
       [routerLink]="['/products/search']" label="Find a product"></button>
   </div>
 </ng-container>
