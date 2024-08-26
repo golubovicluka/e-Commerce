@@ -20,9 +20,6 @@ yarn-error.log
 .settings/
 *.sublime-workspace
 
-# Prod enviroment variables etc
-src/environments
-
 # Visual Studio Code
 .vscode/*
 !.vscode/settings.json

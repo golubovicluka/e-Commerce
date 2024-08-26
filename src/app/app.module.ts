@@ -48,7 +48,6 @@ import { OverviewComponent } from './features/cart-view/overview/overview.compon
 import { PaymentComponent } from './features/cart-view/payment/payment.component';
 import { CartItemComponent } from './features/cart-view/cart-item/cart-item.component';
 import { SlideMenuModule } from 'primeng/slidemenu';
-import { environment } from 'src/environments/environment';
 
 @NgModule({
   declarations: [
@@ -103,7 +102,7 @@ import { environment } from 'src/environments/environment';
           link: httpLink.create({
             uri: 'https://webshop.hasura.app/v1/graphql',
             headers: new HttpHeaders({
-              "x-hasura-admin-secret": environment.hasuraAdminSecret
+              "x-hasura-admin-secret": "6sftAV4UtDQ6V26v1p4U4mDAS8eXiDDnBo62JFsQbdTjksQQjcF54reBmrA2p7Jl"
             }),
           }),
         };
