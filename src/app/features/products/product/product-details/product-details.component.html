@@ -16,14 +16,14 @@
                 (click)="imageClick(index)">
             </div>
           </div>
-          <p-image [src]="item" [preview]="true" width="100%" height="auto">
+          <p-image [src]="item" [preview]="true" width="350px" style="max-height: 450px; max-width: 450px" height="100%">
           </p-image>
         </ng-template>
       </p-galleria>
     </div>
     <div
-      class="fadein animation-duration-300 relative border-300 border-1 border-round-xl surface-overlay m-5 flex flex-column align-items-center justify-content-around w-full lg:w-auto p-4"
-      *ngIf="product" style="max-width: 100%;">
+      class="fadein animation-duration-300 relative border-300 border-1 border-round-xl surface-overlay m-5 flex flex-column align-items-center justify-content-around lg:w-auto p-4"
+      *ngIf="product" style="max-width: 450px;">
       <p-tag class="m-1 tag" severity="danger" value="Excellent price" [rounded]="true"></p-tag>
       <i class="favorite" (click)="addProductToWishList(product)"
         [class]="inWishlist ? 'pi pi-heart-fill wishlist' : 'pi pi-heart'"></i>
@@ -43,7 +43,7 @@
           {{product?.subcategory?.name}}
         </span>
       </div>
-      <span class="align-self-start mx-2 px-2">
+      <span class="align-self-start mx-2 px-2 py-2">
         {{product.description}}
       </span>
       <div
