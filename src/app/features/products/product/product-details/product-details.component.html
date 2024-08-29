@@ -79,7 +79,7 @@
 <p-carousel *ngIf="suggestedProducts" [value]="suggestedProducts" [numVisible]="3" [numScroll]="1" [circular]="false"
   [responsiveOptions]="carouselResponsiveOptions" styleClass="w-full mt-4">
   <ng-template pTemplate="header">
-    <h2>Suggested products from category {{product.category?.name}}</h2>
+    <h2 class="text-center">Suggested products from category {{product.category?.name}}</h2>
   </ng-template>
   <ng-template let-product pTemplate="item">
     <div class="flex align-items-center justify-content-center">

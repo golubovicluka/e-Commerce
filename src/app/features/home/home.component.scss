@@ -1,10 +1,8 @@
-/* General styling for carousel */
 .carousel-container {
   width: 100%;
   max-width: 100%;
 }
 
-/* Header styling */
 .carousel-header {
   text-align: center;
   font-weight: 300;
@@ -12,7 +10,6 @@
   padding-bottom: 1rem;
 }
 
-/* Item styling */
 .carousel-item {
   display: flex;
   align-items: center;
@@ -20,32 +17,24 @@
   padding: 1rem;
 }
 
-/* Remove padding and margins on small screens */
 @media (max-width: 768px) {
   .carousel-header {
     margin: 0;
-    /* Remove margins on small screens */
     padding: 0;
-    /* Remove padding on small screens */
   }
 
   .carousel-item {
     padding: 0;
-    /* Remove padding on small screens */
   }
 }
 
-/* Adjust styling for larger screens */
 @media (min-width: 769px) {
   .carousel-header {
     margin: 2rem;
-    /* Example margin for larger screens */
     padding-bottom: 2rem;
-    /* Example padding for larger screens */
   }
 
   .carousel-item {
     padding: 1rem;
-    /* Example padding for larger screens */
   }
 }
