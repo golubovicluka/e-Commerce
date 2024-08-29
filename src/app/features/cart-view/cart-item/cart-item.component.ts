@@ -8,25 +8,32 @@ import {Product} from "../../products/Product";
 })
 export class CartItemComponent {
   @Input() product!: Product;
-  @Output() removeFromCart = new EventEmitter();
-  @Output() openProductDetails = new EventEmitter();
+  @Output() removeFromCart = new EventEmitter<Product>();
+  @Output() openProductDetails = new EventEmitter<number>();
+  @Output() updateCartTotal = new EventEmitter<number>();
 
   pieces: number = 1;
 
   decrementProductCount() {
-    this.pieces = Math.max(this.pieces - 1, 1);
+    if (this.pieces > 1) {
+      this.pieces--;
+      this.updateCartTotal.emit(-this.product.price);
+    }
   }
 
   incrementProductCount(maxStock: number) {
-    this.pieces = Math.min(this.pieces + 1, maxStock);
+    if (this.pieces < maxStock) {
+      this.pieces++;
+      this.updateCartTotal.emit(this.product.price);
+    }
   }
 
   removeItem(product: Product) {
     this.removeFromCart.emit(product);
+    this.updateCartTotal.emit(-this.product.price * this.pieces);
   }
 
   openDetails(id: number) {
     this.openProductDetails.emit(id);
   }
-
 }

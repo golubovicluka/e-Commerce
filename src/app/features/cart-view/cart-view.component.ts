@@ -16,18 +16,16 @@ export class CartViewComponent implements OnInit {
   products$!: Observable<Product[]>;
   totalPrice$!: Observable<number>;
 
-  pieces: any = 1;
+  pieces: number[] = [];
   numberOfItems!: number;
   shippingView = false;
   activeIndex: number = 1;
 
-  // Monthly payment options
   selectedMonthlyPayment: any = { name: 12 };
   monthlyPaymentOptions: any[] = [{ name: 12 }, { name: 24 }, { name: 36 }];
 
   stepperItems!: MenuItem[];
 
-  // TODO: refactor to use SubscriptionContainer
   priceObservable!: Subscription;
   productsSubscription!: Subscription;
   public items!: MenuItem[];
@@ -61,11 +59,12 @@ export class CartViewComponent implements OnInit {
       .subscribe((products) => {
         this.numberOfItems = products.length;
         this.products$ = of(products);
+        
+        this.pieces = products.map(() => 1);
       });
 
     this.shippingViewText = 'Proceed with shipping';
 
-    // Calculate total amount in cart
     this.priceObservable = this.getTotalPrice().subscribe((price) => {
       this.totalPrice$ = of(price);
     });
@@ -86,15 +85,20 @@ export class CartViewComponent implements OnInit {
     this.productsSubscription.unsubscribe();
   }
 
-  incrementProductCount(itemsInStock: number) {
-    if (this.pieces < itemsInStock) this.pieces++;
+  incrementProductCount(index: number, itemsInStock: number) {
+    if (this.pieces[index] < itemsInStock) {
+      this.pieces[index]++;
+      this.updateTotalPrice();
+    }
   }
 
-  decrementProductCount() {
-    if (this.pieces > 1) this.pieces--;
+  decrementProductCount(index: number) {
+    if (this.pieces[index] > 1) {
+      this.pieces[index]--;
+      this.updateTotalPrice();
+    }
   }
 
-  // TODO: create Shipping - Overview - Payment stepper && guard to check if user is logged in
   openShippingView() {
     this.shippingView = !this.shippingView;
     this.shippingView
@@ -117,12 +121,19 @@ export class CartViewComponent implements OnInit {
   getTotalPrice() {
     return this.products$.pipe(
       map((products) =>
-        products.reduce((total, product) => total + product.price, 0)
+        products.reduce((total, product, index) => 
+          total + (product.price * this.pieces[index] || 0), 0)
       )
     );
   }
 
   openProductDetails(id: number) {
     this.router.navigate(['/product', id]);
+  }
+
+  updateTotalPrice() {
+    this.priceObservable = this.getTotalPrice().subscribe((price) => {
+      this.totalPrice$ = of(price);
+    });
   }
 }

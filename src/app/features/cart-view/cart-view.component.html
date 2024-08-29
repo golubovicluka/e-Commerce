@@ -38,10 +38,10 @@
           </div>
         </div>
         <div class="mt-3 sm:mt-0">
-          <i class="pi pi-minus cursor-pointer" (click)="decrementProductCount()" style="color: red"></i>
-          <p-inputNumber class="m-1" [min]="1" [max]="product.inStock" inputId="integeronly" [(ngModel)]="pieces">
+          <i class="pi pi-minus cursor-pointer" (click)="decrementProductCount(index)" style="color: red"></i>
+          <p-inputNumber class="m-1" [min]="1" [max]="product.inStock" inputId="integeronly" [(ngModel)]="pieces[index]">
           </p-inputNumber>
-          <i class="pi pi-plus cursor-pointer" (click)="incrementProductCount(product.inStock)"
+          <i class="pi pi-plus cursor-pointer" (click)="incrementProductCount(index, product.inStock)"
             style="color: green"></i>
         </div>
       </div>
