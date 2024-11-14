@@ -23,7 +23,6 @@ export class ProductComponent implements OnInit {
   @Input() id!: number;
   @Input() inStock!: number;
   @Input() price!: number;
-
   @Input() isListView!: boolean;
   @Input() wishlistView?: boolean;
 
@@ -32,7 +31,7 @@ export class ProductComponent implements OnInit {
   @Output() removedFromWishList = new EventEmitter();
   @Output() addedToCart = new EventEmitter();
   @Output() removedFromCart = new EventEmitter();
-  @Output() replaceCurrentProduct = new EventEmitter();
+  @Output() replaceCurrentProduct = new EventEmitter<number>();
 
   inWishlist!: boolean;
   inCart!: boolean;
@@ -103,7 +102,6 @@ export class ProductComponent implements OnInit {
   }
 
   openProductDetails(id: number) {
-    // Check if currently active route has /product inside of it
     const currentRoute = this.route.snapshot.url.join('/');
     if (currentRoute.includes('products')) {
       const navigationExtras: NavigationExtras = {
@@ -114,6 +112,7 @@ export class ProductComponent implements OnInit {
       this.router.navigate(['/product', id], navigationExtras);
     } else {
       this.replaceCurrentProduct.emit(id);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   }
 

@@ -29,6 +29,21 @@ export class ProductDetailsComponent implements OnInit {
   public items!: MenuItem[];
   home!: MenuItem;
 
+  galleryResponsiveOptions = [
+    {
+      breakpoint: '1024px',
+      numVisible: 3
+    },
+    {
+      breakpoint: '768px',
+      numVisible: 2
+    },
+    {
+      breakpoint: '560px',
+      numVisible: 1
+    }
+  ];
+
   carouselResponsiveOptions = [
     {
       breakpoint: '1024px',
@@ -103,6 +118,13 @@ export class ProductDetailsComponent implements OnInit {
     // Breadcrumbs setup
     this.setBreadcrumbItems();
     this.home = { icon: 'pi pi-home', routerLink: '/home' };
+  }
+
+  getNumVisible(): number {
+    const width = window.innerWidth;
+    if (width <= 560) return 1;
+    if (width <= 768) return 2;
+    return 3;
   }
 
   navigateBack() {
@@ -185,10 +207,13 @@ export class ProductDetailsComponent implements OnInit {
     ];
   }
 
+  scrollToTop(): void {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
   replaceProduct(id: number) {
     const newProduct = this.suggestedProducts.find((p) => p.id == id)
     this.id = newProduct.id;
-    // TODO: fix inWishlist to reflect on the UI for suggested/currently active product
     this.inWishlist = this.checkIfInWishlist(newProduct.id);
     this.product = newProduct;
     this.images = newProduct.images;
@@ -205,4 +230,5 @@ export class ProductDetailsComponent implements OnInit {
     this.displayCustom = true;
   }
 
+    protected readonly scrollY = scrollY;
 }
