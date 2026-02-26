@@ -4,7 +4,7 @@
   <div
     class="flex flex-column md:flex-row align-items-center justify-content-center cursor-pointer border-round-2xl border-1 surface-border w-full transition-duration-300 hover:shadow-2 hover:border-primary mb-3 md:mb-0 shadow-2"
     (click)="redirect(macbookId)" style="min-height: 420px">
-    <img alt="macbook image" [src]="macbookImg" class="w-full md:w-6 h-auto object-cover"
+    <img appFallbackImage alt="macbook image" [src]="macbookImg" class="w-full md:w-6 h-auto object-cover"
       style="max-width: 250px; max-height: 250px;" />
     <div class="flex flex-column p-3">
       <h2 class="p-0 m-0 mb-2">Macbook Air M1</h2>
@@ -24,7 +24,7 @@
     <div
       class="flex flex-column md:flex-row cursor-pointer align-items-center justify-content-start border-1 surface-border w-full border-round-2xl transition-duration-300 hover:shadow-2 hover:border-primary mb-3 shadow-2"
       (click)="redirect(ipadId)">
-      <img class="border-round-2xl w-full md:w-4 h-auto object-cover" alt="ipad image" [src]="ipadImg"
+      <img appFallbackImage class="border-round-2xl w-full md:w-4 h-auto object-cover" alt="ipad image" [src]="ipadImg"
         style="max-width: 250px; max-height: 250px;" />
       <div class="flex flex-column p-3">
         <h2 class="p-0 m-0 mb-2">iPad Pro M2</h2>
@@ -40,7 +40,7 @@
     <div
       class="flex flex-column md:flex-row cursor-pointer align-items-center justify-content-start border-1 surface-border w-full border-round-2xl transition-duration-300 hover:shadow-2 hover:border-primary shadow-2"
       (click)="redirect(iphoneId)">
-      <img class="border-round-2xl w-full md:w-4 h-auto object-cover" alt="iphone image" [src]="iphoneImg"
+      <img appFallbackImage class="border-round-2xl w-full md:w-4 h-auto object-cover" alt="iphone image" [src]="iphoneImg"
         style="max-width: 250px; max-height: 250px;" />
       <div class="flex flex-column p-3">
         <h2 class="p-0 m-0 mb-2">iPhone 14 Pro Max</h2>

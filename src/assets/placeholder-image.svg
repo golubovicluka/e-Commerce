@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300" viewBox="0 0 400 300" role="img" aria-labelledby="title desc">
+  <title id="title">Image unavailable</title>
+  <desc id="desc">Placeholder shown when product image cannot be loaded.</desc>
+  <rect width="400" height="300" fill="#e8e8e8"/>
+  <g fill="none" stroke="#c8c8c8" stroke-width="10" stroke-linejoin="round">
+    <rect x="120" y="70" width="120" height="90"/>
+    <rect x="160" y="105" width="140" height="100"/>
+  </g>
+  <g fill="#d3d3d3">
+    <circle cx="195" cy="135" r="11"/>
+    <path d="M175 185l30-28 20 20 30-36 25 44z"/>
+  </g>
+</svg>

@@ -5,7 +5,7 @@
     <span class="text-white font-light">New</span>
   </div>
 
-  <img [src]="image" class="w-full h-auto md:w-12rem md:h-12rem object-contain" alt="name">
+  <img appFallbackImage [src]="image" class="w-full h-auto md:w-12rem md:h-12rem object-contain" alt="name">
 
   <span class="product-name font-bold text-center mt-2">
     {{name}}

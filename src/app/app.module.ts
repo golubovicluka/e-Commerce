@@ -48,6 +48,7 @@ import { OverviewComponent } from './features/cart-view/overview/overview.compon
 import { PaymentComponent } from './features/cart-view/payment/payment.component';
 import { CartItemComponent } from './features/cart-view/cart-item/cart-item.component';
 import { SlideMenuModule } from 'primeng/slidemenu';
+import { UiSharedModule } from './shared/ui-shared.module';
 
 @NgModule({
   declarations: [
@@ -88,7 +89,8 @@ import { SlideMenuModule } from 'primeng/slidemenu';
     SlideMenuModule,
     CardModule,
     RadioButtonModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    UiSharedModule
   ],
   exports: [],
   providers: [

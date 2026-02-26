@@ -31,6 +31,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AppRoutingModule } from 'src/app/app-routing.module';
 import { InputTextareaModule } from 'primeng/inputtextarea';
+import { UiSharedModule } from 'src/app/shared/ui-shared.module';
 
 @NgModule({
   declarations: [
@@ -66,7 +67,8 @@ import { InputTextareaModule } from 'primeng/inputtextarea';
     InputNumberModule,
     SkeletonModule,
     StepsModule,
-    ToastModule
+    ToastModule,
+    UiSharedModule
   ],
   exports: [
     ProductsViewComponent,

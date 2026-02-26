@@ -4,7 +4,7 @@
     <div class="relative flex flex-column align-items-center" style="height: 100%;">
         <div class="image-container flex justify-center items-center"
              style="height: 200px; width: 200px; max-width: 100%; margin-bottom: 10px;">
-            <img (click)="openProductDetails(id)" [src]="images[0]" [alt]="name"
+            <img appFallbackImage (click)="openProductDetails(id)" [src]="images[0]" [alt]="name"
                  class="max-h-full max-w-full object-contain cursor-pointer" style="align-self: center; margin: auto;">
         </div>
         <i (click)="addRemoveItemWishlist(product)" class="favorite absolute top-2 right-2 z-10 text-xl cursor-pointer"
@@ -42,7 +42,7 @@
            [class]="inWishlist ? 'pi pi-heart-fill wishlist' : 'pi pi-heart'"></i>
         <!-- Left side -->
         <div class="flex flex-column items-center md:items-start md:flex-row">
-            <img (click)="openProductDetails(id)" [src]="images[0]" [alt]="name"
+            <img appFallbackImage (click)="openProductDetails(id)" [src]="images[0]" [alt]="name"
                  class="w-48 h-48 object-contain cursor-pointer md:mb-0 md:mr-5 align-self-center md:align-self-auto"
                  style="max-width: 200px; max-height: 200px;">
             <div style="max-width: 600px;"
