@@ -4,6 +4,7 @@ import { MessageService } from 'primeng/api';
 import { Product, Subcategory, Category } from '../Product';
 import { WishlistService } from 'src/app/shared/wishlist.service';
 import { CartService } from 'src/app/shared/cart.service';
+import { ProductImageService } from 'src/app/shared/product-image.service';
 
 
 @Component({
@@ -44,13 +45,16 @@ export class ProductComponent implements OnInit {
     private router: Router,
     private route: ActivatedRoute,
     private _wishlistService: WishlistService,
-    private _cartService: CartService
+    private _cartService: CartService,
+    private _productImageService: ProductImageService
   ) {
     this.inWishlist = this.checkInWishlist(this.id);
     this.inCart = this.checkInCart(this.id);
   }
 
   ngOnInit() {
+    this.images = this._productImageService.normalizeImages(this.images, this.name);
+
     this.product = {
       name: this.name,
       description: this.description,
@@ -118,6 +122,14 @@ export class ProductComponent implements OnInit {
 
   getInstallmentPayAmount(price: number) {
     return Math.floor(price / 12);
+  }
+
+  get primaryImageSrc(): string {
+    return this._productImageService.resolvePrimaryImage(this.images, this.name);
+  }
+
+  onImageError(event: Event): void {
+    this._productImageService.handleImageError(event, this.name);
   }
 
 }

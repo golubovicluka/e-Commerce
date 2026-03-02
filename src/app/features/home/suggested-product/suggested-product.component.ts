@@ -1,4 +1,5 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { ProductImageService } from 'src/app/shared/product-image.service';
 
 @Component({
   selector: 'app-suggested-product',
@@ -16,9 +17,19 @@ export class SuggestedProductComponent {
   @Input() image!: string;
   @Output() openProductDetails = new EventEmitter();
 
+  constructor(private _productImageService: ProductImageService) {
+  }
 
   openDetails(id: number) {
     this.openProductDetails.emit(id);
+  }
+
+  get resolvedImage(): string {
+    return this._productImageService.resolvePrimaryImage([this.image], this.name);
+  }
+
+  onImageError(event: Event): void {
+    this._productImageService.handleImageError(event, this.name);
   }
 
 }

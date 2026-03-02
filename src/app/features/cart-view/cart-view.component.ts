@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { MenuItem, MessageService } from 'primeng/api';
 import { map, Observable, of, Subscription } from 'rxjs';
 import { CartService } from 'src/app/shared/cart.service';
+import { ProductImageService } from 'src/app/shared/product-image.service';
 
 import { Product } from '../products/Product';
 
@@ -35,7 +36,8 @@ export class CartViewComponent implements OnInit {
   constructor(
     private _cartService: CartService,
     public messageService: MessageService,
-    private router: Router
+    private router: Router,
+    private _productImageService: ProductImageService
   ) { }
 
   ngOnInit() {
@@ -135,5 +137,13 @@ export class CartViewComponent implements OnInit {
     this.priceObservable = this.getTotalPrice().subscribe((price) => {
       this.totalPrice$ = of(price);
     });
+  }
+
+  getProductImage(product: Product): string {
+    return this._productImageService.resolvePrimaryImage(product.images, product.name);
+  }
+
+  onProductImageError(event: Event, productName: string): void {
+    this._productImageService.handleImageError(event, productName);
   }
 }

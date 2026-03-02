@@ -6,6 +6,7 @@ import { MenuItem, MessageService } from 'primeng/api';
 import { WishlistService } from 'src/app/shared/wishlist.service';
 import { Product } from '../../Product';
 import { CartService } from 'src/app/shared/cart.service';
+import { ProductImageService } from 'src/app/shared/product-image.service';
 
 @Component({
   selector: 'app-product-details',
@@ -13,7 +14,7 @@ import { CartService } from 'src/app/shared/cart.service';
   styleUrls: ['./product-details.component.scss']
 })
 export class ProductDetailsComponent implements OnInit {
-  images!: any[];
+  images!: string[];
   product: any | null = null;
   id!: number;
 
@@ -75,7 +76,8 @@ export class ProductDetailsComponent implements OnInit {
     private _productService: ProductsService,
     private _wishlistService: WishlistService,
     private _cartService: CartService,
-    private _messageService: MessageService
+    private _messageService: MessageService,
+    private _productImageService: ProductImageService
   ) {
     const navigation = this.router.getCurrentNavigation();
     const state = navigation?.extras.state as { product: any };
@@ -83,7 +85,8 @@ export class ProductDetailsComponent implements OnInit {
       this.id = state?.product.id;
       this.inWishlist = this.checkInWishlist(this.id)
       this.product = state?.product;
-      this.images = state?.product.images
+      this.images = this._productImageService.normalizeImages(state?.product.images, state?.product.name);
+      this.product.images = this.images;
 
       // Suggested products
       const productCategory = state?.product.category?.name;
@@ -102,7 +105,8 @@ export class ProductDetailsComponent implements OnInit {
     if (!this.product) {
       this._productService.getProductById(this.id).subscribe((product: any) => {
         this.product = product.data.product[0];
-        this.images = product.data.product[0].images;
+        this.images = this._productImageService.normalizeImages(product.data.product[0].images, product.data.product[0].name);
+        this.product.images = this.images;
         this.setBreadcrumbItems();
         this.inWishlist = this.checkInWishlist(this.id);
 
@@ -216,7 +220,8 @@ export class ProductDetailsComponent implements OnInit {
     this.id = newProduct.id;
     this.inWishlist = this.checkIfInWishlist(newProduct.id);
     this.product = newProduct;
-    this.images = newProduct.images;
+    this.images = this._productImageService.normalizeImages(newProduct.images, newProduct.name);
+    this.product.images = this.images;
     this.router.navigate(['/product', newProduct.id])
   }
 
@@ -230,5 +235,13 @@ export class ProductDetailsComponent implements OnInit {
     this.displayCustom = true;
   }
 
-    protected readonly scrollY = scrollY;
+  onGalleryImageError(event: Event, imageIndex: number): void {
+    const imageElement = event.target as HTMLImageElement | null;
+    this._productImageService.handleImageError(event, this.product?.name);
+    if (imageElement?.src) {
+      this.images[imageIndex] = imageElement.src;
+    }
+  }
+
+  protected readonly scrollY = scrollY;
 }

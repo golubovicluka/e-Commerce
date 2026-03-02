@@ -1,5 +1,6 @@
 import {Component, EventEmitter, Input, Output} from '@angular/core';
 import {Product} from "../../products/Product";
+import { ProductImageService } from 'src/app/shared/product-image.service';
 
 @Component({
   selector: 'app-cart-item',
@@ -13,6 +14,9 @@ export class CartItemComponent {
   @Output() updateCartTotal = new EventEmitter<number>();
 
   pieces: number = 1;
+
+  constructor(private _productImageService: ProductImageService) {
+  }
 
   decrementProductCount() {
     if (this.pieces > 1) {
@@ -35,5 +39,13 @@ export class CartItemComponent {
 
   openDetails(id: number) {
     this.openProductDetails.emit(id);
+  }
+
+  getProductImage(product: Product): string {
+    return this._productImageService.resolvePrimaryImage(product.images, product.name);
+  }
+
+  onProductImageError(event: Event, productName: string): void {
+    this._productImageService.handleImageError(event, productName);
   }
 }

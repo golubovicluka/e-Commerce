@@ -19,8 +19,9 @@
                                     <div *ngFor="let image of images; let index = index"
                                          class="thumbnail-item"
                                          [ngClass]="{'active': activeIndex === index}"
-                                         (click)="imageClick(index)">
+                                        (click)="imageClick(index)">
                                         <img [src]="image"
+                                             (error)="onGalleryImageError($event, index)"
                                              class="w-full h-auto border-round"
                                              [alt]="image">
                                     </div>
