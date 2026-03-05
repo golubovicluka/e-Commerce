@@ -31,8 +31,8 @@ export class ProductsViewComponent implements OnInit, OnDestroy {
   priceTo!: number;
   rangeValues: number[] = [];
 
-  highestPrice: number = 0;
-  lowestPrice: number = 0;
+  highestPrice = 0;
+  lowestPrice = 0;
 
   numberOfProducts!: number;
   isLoading = true;
@@ -68,19 +68,9 @@ export class ProductsViewComponent implements OnInit, OnDestroy {
 
       const sortedPrices = [...products.data.product].sort((productA: any, productB: any) => (productA.price - productB.price))
 
-      this.highestPrice = sortedPrices[0].price
-      this.lowestPrice = sortedPrices.at(-1).price;
-      this.rangeValues = [this.highestPrice, this.lowestPrice];
-
-      products.data.product.forEach((product: Product) => {
-        if (product.price > this.highestPrice) {
-          this.highestPrice = product.price;
-        };
-
-        if (product.price < this.lowestPrice) {
-          this.lowestPrice = product.price;
-        };
-      });
+      this.lowestPrice = sortedPrices[0]?.price ?? 0;
+      this.highestPrice = sortedPrices.at(-1)?.price ?? 0;
+      this.rangeValues = [this.lowestPrice, this.highestPrice];
     }));
 
     this.subs.add(this._productService.getProductCategories().subscribe((categories: any) => {
@@ -109,7 +99,7 @@ export class ProductsViewComponent implements OnInit, OnDestroy {
   }
 
   trackByProductId(index: number, product: Product): number {
-    return index;
+    return product.id;
   }
 
   applyFilters(filtersObject: any) {

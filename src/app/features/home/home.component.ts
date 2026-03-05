@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { Subscription } from "rxjs";
 import { ProductsService } from '../products/products.service';
+import { ProductImageService } from 'src/app/shared/product-image.service';
 
 @Component({
   selector: 'app-home',
@@ -43,12 +44,16 @@ export class HomeComponent implements OnInit {
 
   constructor(
     private router: Router,
-    private _productService: ProductsService
+    private _productService: ProductsService,
+    private _productImageService: ProductImageService
   ) { }
 
   ngOnInit() {
     this.suggestedProductsSubscription = this._productService.getSuggestedProducts().subscribe((products: any) => {
-      this.suggestedProducts = products.data.product;
+      this.suggestedProducts = products.data.product.map((product: any) => ({
+        ...product,
+        images: this._productImageService.normalizeImages(product.images, product.name)
+      }));
     })
   }
 

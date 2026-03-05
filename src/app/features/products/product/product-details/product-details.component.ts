@@ -92,7 +92,12 @@ export class ProductDetailsComponent implements OnInit {
       const productCategory = state?.product.category?.name;
       this._productService.getProductsByCategory(productCategory).subscribe((suggestedProducts: any) => {
         // TODO: filter out the currently selected item and remove it from suggestions list
-        this.suggestedProducts = suggestedProducts.data.product;
+        this.suggestedProducts = suggestedProducts.data.product
+          .filter((suggestedProduct: Product) => suggestedProduct.id !== this.id)
+          .map((suggestedProduct: Product) => ({
+            ...suggestedProduct,
+            images: this._productImageService.normalizeImages(suggestedProduct.images, suggestedProduct.name)
+          }));
         // Undefined when user reload the page or goes directly to this route
       })
     }
@@ -113,7 +118,12 @@ export class ProductDetailsComponent implements OnInit {
         // Suggested products
         const productCategory = product.data.product[0].category?.name;
         this._productService.getProductsByCategory(productCategory).subscribe((suggestedProducts: any) => {
-          this.suggestedProducts = suggestedProducts.data.product;
+          this.suggestedProducts = suggestedProducts.data.product
+          .filter((suggestedProduct: Product) => suggestedProduct.id !== this.id)
+          .map((suggestedProduct: Product) => ({
+            ...suggestedProduct,
+            images: this._productImageService.normalizeImages(suggestedProduct.images, suggestedProduct.name)
+          }));
         })
       })
       this.inWishlist = this.checkInWishlist(this.id);
@@ -216,13 +226,18 @@ export class ProductDetailsComponent implements OnInit {
   }
 
   replaceProduct(id: number) {
-    const newProduct = this.suggestedProducts.find((p) => p.id == id)
+    const newProduct = this.suggestedProducts.find((p) => p.id === id);
+    if (!newProduct) {
+      return;
+    }
+
     this.id = newProduct.id;
-    this.inWishlist = this.checkIfInWishlist(newProduct.id);
+    this.inWishlist = this.checkIfInWishlist(newProduct);
     this.product = newProduct;
     this.images = this._productImageService.normalizeImages(newProduct.images, newProduct.name);
     this.product.images = this.images;
-    this.router.navigate(['/product', newProduct.id])
+    this.setBreadcrumbItems();
+    this.router.navigate(['/product', newProduct.id]);
   }
 
   buyProduct(product: Product) {

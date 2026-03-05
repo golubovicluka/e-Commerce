@@ -106,7 +106,7 @@
         <h2 class="text-center">Suggested products from category {{ product.category?.name }}</h2>
     </ng-template>
     <ng-template let-product pTemplate="item">
-        <div class="flex align-items-center justify-content-center">
+        <div class="flex align-items-center justify-content-center w-full p-2">
             <app-product class="mt-2 mb-2 w-full sm:w-auto"
                          (addedToCart)="addToCart($event)"
                          (replaceCurrentProduct)="replaceProduct($event)"
@@ -114,7 +114,7 @@
                          (removedFromWishList)="removedFromWishList($event)"
                          (addedToWishList)="addToWishList($event)"
                          [name]="product.name"
-                         [subcategory]="product.subcategory.name"
+                         [subcategory]="product.subcategory"
                          [id]="product.id"
                          [images]="product.images"
                          [inStock]="product.inStock"
