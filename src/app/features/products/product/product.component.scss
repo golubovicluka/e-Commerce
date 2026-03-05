@@ -4,35 +4,18 @@
 
 .product-card {
   width: 100%;
-  height: auto;
+  min-height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-direction: column;
   border-radius: 15px;
   border: 1px solid rgba(243, 243, 243, 0.8);
-  backdrop-filter: blur(3px);
   background-color: #ffffff;
   position: relative;
   margin: 0;
   filter: drop-shadow(0 0.2rem 0.25rem rgba(0, 0, 0, 0.1));
-  transition: 0.5s ease-out;
-
-  @media (min-width: 640px) {
-    width: 50%;
-  }
-
-  @media (min-width: 768px) {
-    width: 33.33%;
-  }
-
-  @media (min-width: 1024px) {
-    width: 25%;
-  }
-
-  @media (min-width: 1280px) {
-    width: 20%;
-  }
+  transition: 0.3s ease-out;
 
   &:hover {
     filter: drop-shadow(0 0.2rem 0.25rem rgba(0, 0, 0, 0.3));
@@ -45,51 +28,6 @@
   -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
-}
-
-.title-section {
-  display: flex;
-  flex-direction: column;
-  max-width: 90%;
-  flex-grow: 2;
-}
-
-.bottom-left {
-  display: flex;
-  justify-content: center;
-  align-items: space-between;
-  flex-direction: column;
-  padding: 20px 0px 10px 20px;
-  width: 100%;
-}
-
-.bottom-right {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  width: 100%;
-  padding: 10px 10px 0 10px;
-}
-
-.item-bottom {
-  display: flex;
-  width: 100%;
-  align-items: center;
-  justify-content: space-around;
-  flex-grow: 1;
-  padding: 10px;
-}
-
-.image {
-  width: 100%;
-  max-width: 250px;
-  max-height: 250px;
-  height: 250px;
-  background-size: contain;
-  background-repeat: no-repeat;
-  background-position: center;
-  cursor: pointer;
-  margin: 0 auto;
 }
 
 .favorite {
@@ -105,24 +43,13 @@
   color: red;
 }
 
-.cart {
-  border: 1px solid #e9e9e9;
-  padding: 10px;
-  border-radius: 50%;
-
-  &:hover {
-    background-color: rgba(198, 198, 198, 0.25);
-    cursor: pointer;
-  }
-}
-
 .product-list-container {
   background-color: #f3f3f3;
   filter: drop-shadow(0 0.2rem 0.25rem rgba(0, 0, 0, 0.2));
-  transition: 0.5s ease-out;
+  transition: 0.3s ease-out;
 
   &:hover {
-    filter: drop-shadow(0 0.2rem 0.25rem rgba(0, 0, 0, 0.5));
+    filter: drop-shadow(0 0.2rem 0.25rem rgba(0, 0, 0, 0.45));
     background-color: #f8f8f8;
   }
 }

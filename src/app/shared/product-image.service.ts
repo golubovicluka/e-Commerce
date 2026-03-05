@@ -5,6 +5,7 @@ import { Injectable } from '@angular/core';
 })
 export class ProductImageService {
   private readonly fallbackAssetPath = 'assets/images/product-placeholder.png';
+  private readonly maxProductImages = 2;
 
   getFallbackImageByName(productName?: string | null): string {
     const trimmedName = productName?.trim();
@@ -22,11 +23,18 @@ export class ProductImageService {
       .map((image) => image?.trim())
       .filter((image): image is string => Boolean(image));
 
-    if (validImages.length > 0) {
-      return validImages;
+    const limitedImages = validImages.slice(0, this.maxProductImages);
+
+    if (limitedImages.length >= this.maxProductImages) {
+      return limitedImages;
     }
 
-    return [this.getFallbackImageByName(productName)];
+    if (limitedImages.length === 1) {
+      return [limitedImages[0], this.getFallbackImageByName(productName)];
+    }
+
+    const fallback = this.getFallbackImageByName(productName);
+    return [fallback, this.getFallbackAssetPath()];
   }
 
   resolvePrimaryImage(images: string[] | null | undefined, productName?: string | null): string {
