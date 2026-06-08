@@ -223,6 +223,24 @@ describe('CartService', () => {
         done();
       });
     });
+
+    // Edge case the happy-path tests miss: removeFromCart filters by id, so a
+    // single remove drops EVERY copy of a duplicated product rather than
+    // decrementing a quantity. This test documents that behaviour (and flags it
+    // as a latent bug: the cart models quantity by repeating items, but removal
+    // does not match that model).
+    it('removes ALL copies of a duplicated product in a single call', (done) => {
+      service.addToCart(mockProducts[0]);
+      service.addToCart(mockProducts[0]);
+
+      service.removeFromCart(mockProducts[0]);
+
+      service.getCartItems().subscribe(items => {
+        expect(items.length).toBe(0); // both copies gone, not one
+        expect(service.inCart(mockProducts[0].id)).toBe(false);
+        done();
+      });
+    });
   });
 
   describe('getCartItems', () => {
