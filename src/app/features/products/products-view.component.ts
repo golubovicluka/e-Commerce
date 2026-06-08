@@ -1,5 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { Observable, of, filter } from 'rxjs';
+import { Subject } from 'rxjs';
+import { debounceTime, distinctUntilChanged, map, switchMap, tap } from 'rxjs/operators';
 import { Product } from './Product';
 import { ProductsService } from './products.service';
 import { SubscriptionContainer } from './SubscriptionContainer';
@@ -15,30 +16,38 @@ import { CartService } from 'src/app/shared/cart.service';
   styleUrls: ['./products-view.component.scss'],
 })
 export class ProductsViewComponent implements OnInit, OnDestroy {
-  products$!: Observable<any>
+  // Current page of products (server-side paginated — never the whole table).
+  products: Product[] = [];
+  totalRecords = 0;
+  rows = 10;
+  first = 0;
 
   subs = new SubscriptionContainer();
   categories!: any;
 
   // Sorting
   sortOptions!: any[];
-  sortKey!: string;
-  sortField!: string;
-  sortOrder!: number;
+  sortKey: 'asc' | 'desc' = 'asc';
 
-  // Ordering by price
-  priceFrom!: number;
-  priceTo!: number;
+  // Price range
+  priceFrom: number | null = null;
+  priceTo: number | null = null;
   rangeValues: number[] = [];
-
   highestPrice = 0;
   lowestPrice = 0;
 
-  numberOfProducts!: number;
+  numberOfProducts = 0;
   isLoading = true;
 
   searchInput = '';
   categoriesFilter!: string;
+  private subcategoryFilters: string[] = [];
+
+  // Streams that drive data loading. Funnelling every interaction through a
+  // single pipeline (below) means at most one query is ever in flight.
+  private searchTerms$ = new Subject<string>();
+  private priceChanges$ = new Subject<void>();
+  private pageRequests$ = new Subject<void>();
 
   public items!: MenuItem[];
   home!: MenuItem;
@@ -60,28 +69,66 @@ export class ProductsViewComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    // TODO: convert to data stream -> put in constructor
-    this.subs.add(this._productService.getProducts("asc", this.categoriesFilter).subscribe((products: any) => {
-      this.products$ = of(products.data.product);
-      this.numberOfProducts = products.data.product.length;
-      this.isLoading = false;
+    // Single product-loading pipeline. `switchMap` cancels any in-flight
+    // request when a new one starts, so only ONE watched query is ever active.
+    // This replaces the previous pattern of creating a brand-new watchQuery
+    // subscription on every keystroke/filter/sort interaction (a steady leak).
+    this.subs.add(
+      this.pageRequests$
+        .pipe(
+          tap(() => (this.isLoading = true)),
+          switchMap(() =>
+            this._productService.getProductsPage({
+              where: this.buildWhere(),
+              orderBy: [{ price: this.sortKey }],
+              limit: this.rows,
+              offset: this.first,
+            })
+          )
+        )
+        .subscribe((result: any) => {
+          this.products = result.data.product;
+          this.totalRecords = result.data.product_aggregate.aggregate.count;
+          this.numberOfProducts = this.totalRecords;
+          this.isLoading = false;
+        })
+    );
 
-      const sortedPrices = [...products.data.product].sort((productA: any, productB: any) => (productA.price - productB.price))
+    // Debounced search: one request per pause in typing, not one per keystroke.
+    this.subs.add(
+      this.searchTerms$
+        .pipe(
+          map((term) => (term ?? '').trim()),
+          debounceTime(300),
+          distinctUntilChanged()
+        )
+        .subscribe((term) => {
+          this.searchInput = term;
+          this.resetToFirstPage();
+        })
+    );
 
-      this.lowestPrice = sortedPrices[0]?.price ?? 0;
-      this.highestPrice = sortedPrices.at(-1)?.price ?? 0;
-      this.rangeValues = [this.lowestPrice, this.highestPrice];
-    }));
+    // The price number inputs emit on every keystroke; debounce before querying.
+    this.subs.add(
+      this.priceChanges$.pipe(debounceTime(400)).subscribe(() => {
+        this.priceFrom = this.rangeValues[0];
+        this.priceTo = this.rangeValues[1];
+        this.resetToFirstPage();
+      })
+    );
 
-    this.subs.add(this._productService.getProductCategories().subscribe((categories: any) => {
-      this.categories = categories.data.category;
-      this.isLoading = false;
-    }))
+    // Price-slider bounds come from a DB aggregate, independent of the page.
+    this.loadPriceBounds();
+
+    // Categories for the filter sidebar.
+    this.subs.add(
+      this._productService.getProductCategories().subscribe((categories: any) => {
+        this.categories = categories.data.category;
+      })
+    );
 
     // Breadcrumbs
-    this.items = [
-      { label: 'Products', routerLink: '/products/search' },
-    ];
+    this.items = [{ label: 'Products', routerLink: '/products/search' }];
     this.home = { icon: 'pi pi-home', routerLink: '/home' };
 
     this.sortOptions = [
@@ -90,36 +137,87 @@ export class ProductsViewComponent implements OnInit, OnDestroy {
     ];
   }
 
-  // Search filtering
-  onChanges(changes: any) {
-    this.searchInput = changes;
-    this.subs.add(this._productService.searchProducts(changes).subscribe((product: any) => {
-      this.products$ = of(product.data.product);
-    }))
+  /** Builds one Hasura `where` expression from all active filters (AND-combined). */
+  private buildWhere(): any {
+    const where: any = {};
+    if (this.searchInput) {
+      where.name = { _ilike: `%${this.searchInput}%` };
+    }
+    if (this.categoriesFilter) {
+      where.category = { name: { _eq: this.categoriesFilter } };
+    }
+    if (this.subcategoryFilters.length) {
+      where.subcategory = { name: { _in: this.subcategoryFilters } };
+    }
+    if (this.priceFrom != null && this.priceTo != null) {
+      where.price = { _gte: this.priceFrom, _lte: this.priceTo };
+    }
+    return where;
+  }
+
+  private loadPriceBounds(): void {
+    const where: any = this.categoriesFilter
+      ? { category: { name: { _eq: this.categoriesFilter } } }
+      : {};
+    this.subs.add(
+      this._productService.getPriceBounds(where).subscribe((res: any) => {
+        const aggregate = res.data.product_aggregate.aggregate;
+        this.lowestPrice = aggregate.min?.price ?? 0;
+        this.highestPrice = aggregate.max?.price ?? 0;
+        // Only seed the slider range while the user hasn't set a price filter.
+        if (this.priceFrom == null && this.priceTo == null) {
+          this.rangeValues = [this.lowestPrice, this.highestPrice];
+        }
+      })
+    );
+  }
+
+  /** Reset to page 1 and reload; the dataView paginator follows `first`. */
+  private resetToFirstPage(): void {
+    this.first = 0;
+    this.fetchPage();
+  }
+
+  private fetchPage(): void {
+    this.pageRequests$.next();
   }
 
   trackByProductId(index: number, product: Product): number {
     return product.id;
   }
 
-  applyFilters(filtersObject: any) {
-    if (filtersObject) {
-      this.subs.add(this._productService.getFilteredProducts(filtersObject).subscribe((product: any) => {
-        this.products$ = of(product.data.product);
-      }))
-    }
+  // --- Template event handlers ---
+
+  // Pagination. Also fires once on init via p-dataView's lazy load, which is
+  // what performs the very first fetch.
+  loadData(event: any) {
+    this.first = event.first ?? 0;
+    this.rows = event.rows ?? this.rows;
+    this.fetchPage();
   }
 
-  getBySubcategory(selectedCategory: string) {
-    this.subs.add(this._productService.getProductBySubcategory(selectedCategory).subscribe((products: any) => {
-      this.products$ = of(products.data.product);
-    }))
+  onChanges(searchInput: string) {
+    this.searchTerms$.next(searchInput);
   }
 
-  filterSubcategories(categories: string[]) {
-    this.subs.add(this._productService.getProductsFromSubcategories(categories).subscribe((products: any) => {
-      this.products$ = of(products.data.product)
-    }))
+  applyFilters(subcategoryNames: string[]) {
+    this.subcategoryFilters = subcategoryNames ?? [];
+    this.resetToFirstPage();
+  }
+
+  onSortChange(event: any) {
+    this.sortKey = event.value;
+    this.resetToFirstPage();
+  }
+
+  handlePriceFilter(event: any) {
+    this.priceFrom = event.values[0];
+    this.priceTo = event.values[1];
+    this.resetToFirstPage();
+  }
+
+  onPriceChange(_event: any) {
+    this.priceChanges$.next();
   }
 
   addToWishList(product: Product) {
@@ -130,22 +228,8 @@ export class ProductsViewComponent implements OnInit, OnDestroy {
     this._wishlistService.removeWishListItem(product);
   }
 
-  // For pagination
-  loadData(event: any) {
-    event.first = 3
-    event.rows = 3;
-  }
-
   openProductDetails(id: number) {
     this.router.navigate(['/product', id]);
-  }
-
-  handlePriceFilter(event: any) {
-    this.priceFrom = event.values[0]
-    this.priceTo = event.values[1]
-    this.subs.add(this._productService.getProductsByPrice(this.priceFrom, this.priceTo).subscribe((products: any) => {
-      this.products$ = of(products.data.product);
-    }))
   }
 
   addToCart(product: Product) {
@@ -156,32 +240,7 @@ export class ProductsViewComponent implements OnInit, OnDestroy {
     this._cartService.removeFromCart(product);
   }
 
-  onPriceChange(event: any) {
-    this.subs.add(this._productService.getProductsByPrice(this.rangeValues[0], this.rangeValues[1]).subscribe((products: any) => {
-      this.products$ = of(products.data.product);
-    }))
-  }
-
-  onSortChange(event: any) {
-    this.subs.add(this._productService.getProducts(event.value).subscribe((product: any) => {
-      this.products$ = of(product.data.product);
-    }))
-
-    // For pagination
-    // let value = event.value;
-
-    // if (value.indexOf('!') === 0) {
-    //   this.sortOrder = -1;
-    //   this.sortField = value.substring(1, value.length);
-    // }
-    // else {
-    //   this.sortOrder = 1;
-    //   this.sortField = value;
-    // }
-  }
-
   ngOnDestroy() {
-    this.subs?.dispose()
+    this.subs?.dispose();
   }
-
 }

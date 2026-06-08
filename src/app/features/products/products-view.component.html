@@ -33,7 +33,8 @@
 
   <!-- Products section -->
   <div class="w-full md:w-9 lg:w-10 mt-3 md:mt-0 md:ml-3">
-    <p-dataView [value]="products$ | async" [paginator]="true" [rows]="10" (onLazyLoad)="loadData($event)"
+    <p-dataView [value]="products" [lazy]="true" [paginator]="true" [rows]="rows" [totalRecords]="totalRecords"
+      [first]="first" [trackBy]="trackByProductId" (onLazyLoad)="loadData($event)"
       [loading]="isLoading" [rowsPerPageOptions]="[10,20,30]" paginatorPosition="bottom">
       <ng-template pTemplate="header">
         <div class="flex flex-column sm:flex-row align-items-center justify-content-between">

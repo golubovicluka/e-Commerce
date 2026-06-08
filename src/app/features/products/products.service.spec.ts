@@ -383,6 +383,77 @@ describe('ProductsService', () => {
     });
   });
 
+  describe('getProductsPage', () => {
+    it('should fetch a single page with where, orderBy, limit and offset', () => {
+      const mockResponse = {
+        data: {
+          product: mockProducts.slice(0, 2),
+          product_aggregate: { aggregate: { count: mockProducts.length } }
+        }
+      };
+      apolloSpy.watchQuery.and.returnValue(createMockWatchQueryResponse(mockResponse) as any);
+
+      const where = { category: { name: { _eq: 'Electronics' } } };
+      const orderBy = [{ price: 'desc' }];
+      const result$ = service.getProductsPage({ where, orderBy, limit: 10, offset: 20 });
+
+      result$.subscribe((result: any) => {
+        expect(result.data.product.length).toBe(2);
+        expect(result.data.product_aggregate.aggregate.count).toBe(mockProducts.length);
+      });
+
+      const call = apolloSpy.watchQuery.calls.mostRecent();
+      expect(call.args[0].variables).toEqual({ where, orderBy, limit: 10, offset: 20 });
+    });
+
+    it('should default where and orderBy when not provided', () => {
+      const mockResponse = {
+        data: { product: [], product_aggregate: { aggregate: { count: 0 } } }
+      };
+      apolloSpy.watchQuery.and.returnValue(createMockWatchQueryResponse(mockResponse) as any);
+
+      service.getProductsPage({ limit: 5, offset: 0 }).subscribe();
+
+      const call = apolloSpy.watchQuery.calls.mostRecent();
+      expect(call.args[0].variables).toEqual({
+        where: {},
+        orderBy: [{ price: 'asc' }],
+        limit: 5,
+        offset: 0
+      });
+    });
+  });
+
+  describe('getPriceBounds', () => {
+    it('should request the min/max aggregate for the given filter', () => {
+      const mockResponse = {
+        data: { product_aggregate: { aggregate: { min: { price: 19.99 }, max: { price: 2499.99 } } } }
+      };
+      apolloSpy.watchQuery.and.returnValue(createMockWatchQueryResponse(mockResponse) as any);
+
+      const where = { category: { name: { _eq: 'Electronics' } } };
+      service.getPriceBounds(where).subscribe((result: any) => {
+        expect(result.data.product_aggregate.aggregate.min.price).toBe(19.99);
+        expect(result.data.product_aggregate.aggregate.max.price).toBe(2499.99);
+      });
+
+      const call = apolloSpy.watchQuery.calls.mostRecent();
+      expect(call.args[0].variables).toEqual({ where });
+    });
+
+    it('should default to an empty filter', () => {
+      const mockResponse = {
+        data: { product_aggregate: { aggregate: { min: { price: 0 }, max: { price: 0 } } } }
+      };
+      apolloSpy.watchQuery.and.returnValue(createMockWatchQueryResponse(mockResponse) as any);
+
+      service.getPriceBounds().subscribe();
+
+      const call = apolloSpy.watchQuery.calls.mostRecent();
+      expect(call.args[0].variables).toEqual({ where: {} });
+    });
+  });
+
   describe('Integration Tests', () => {
     it('should handle multiple service calls independently', () => {
       const mockResponse1 = { data: { product: [mockProducts[0]] } };

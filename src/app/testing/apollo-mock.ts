@@ -21,9 +21,11 @@ export function createApolloQueryResult<T>(data: T): ApolloQueryResult<T> {
  * Create a mock Apollo watchQuery response
  */
 export function createMockWatchQueryResponse<T>(data: T): Partial<QueryRef<any, any>> {
+  // Callers pass a full Apollo result shape (e.g. `{ data: { product: [...] } }`),
+  // so emit it as-is rather than wrapping it in another result object.
   return {
-    valueChanges: of(createApolloQueryResult(data)),
-    refetch: jasmine.createSpy('refetch').and.returnValue(Promise.resolve(createApolloQueryResult(data))),
+    valueChanges: of(data as any),
+    refetch: jasmine.createSpy('refetch').and.returnValue(Promise.resolve(data)),
     fetchMore: jasmine.createSpy('fetchMore'),
     startPolling: jasmine.createSpy('startPolling'),
     stopPolling: jasmine.createSpy('stopPolling'),
@@ -45,8 +47,8 @@ export function createMockApolloService() {
  */
 export function createMockQueryRef<T>(data: T) {
   return {
-    valueChanges: of(createApolloQueryResult(data)),
-    refetch: jasmine.createSpy('refetch').and.returnValue(Promise.resolve(createApolloQueryResult(data))),
+    valueChanges: of(data as any),
+    refetch: jasmine.createSpy('refetch').and.returnValue(Promise.resolve(data)),
     fetchMore: jasmine.createSpy('fetchMore'),
     startPolling: jasmine.createSpy('startPolling'),
     stopPolling: jasmine.createSpy('stopPolling'),
