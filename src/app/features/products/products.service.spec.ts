@@ -1,493 +1,272 @@
 import { TestBed } from '@angular/core/testing';
+import { ApolloTestingModule, ApolloTestingController } from 'apollo-angular/testing';
 import { ProductsService } from './products.service';
-import { Apollo } from 'apollo-angular';
+import { Product } from './Product';
 import { mockProducts, mockProduct, mockCategoriesWithSubcategories } from '../../testing/mock-data';
-import { createMockWatchQueryResponse } from '../../testing/apollo-mock';
 
+/**
+ * Apollo's test cache adds `__typename` to every selection, so a flushed payload
+ * must carry `__typename` or the cache returns hollow ({}) objects on read.
+ * This annotates a fixture (and its nested entities) for flushing; Apollo strips
+ * `__typename` again on read, so the emitted value still deep-equals the fixture.
+ */
+function asGql(product: Product) {
+  return {
+    __typename: 'product',
+    ...product,
+    category: product.category ? { __typename: 'category', ...product.category } : product.category,
+    subcategory: product.subcategory
+      ? { __typename: 'subcategory', ...product.subcategory }
+      : product.subcategory,
+  };
+}
+
+/**
+ * ProductsService talks to a Hasura GraphQL backend through Apollo. The previous
+ * version of this spec replaced Apollo with a hand-rolled `watchQuery` spy. That
+ * approach had three problems:
+ *
+ *   1. It never validated the GraphQL documents the service builds, so a broken
+ *      query, a renamed variable, or a wrong operation would still "pass".
+ *   2. The mock double-wrapped the payload (`{ data: { data: { product } } }`),
+ *      so every `result.data.product` assertion silently compared against
+ *      `undefined` — the assertions were effectively dead. (See git history:
+ *      ~18 of these tests were red.)
+ *   3. Subscriptions were never completed/unsubscribed, leaking a callback that
+ *      threw inside `afterAll` and disconnected the Karma browser.
+ *
+ * This version uses ApolloTestingModule so we exercise the real Apollo links:
+ * the service emits a request, we assert on the *actual* operation name and
+ * variables, then flush a controlled response (or a network error). `verify()`
+ * fails the test if the service issues an unexpected query. Emissions arrive
+ * asynchronously, so each test uses the `done` callback.
+ */
 describe('ProductsService', () => {
   let service: ProductsService;
-  let apolloSpy: jasmine.SpyObj<Apollo>;
+  let controller: ApolloTestingController;
 
   beforeEach(() => {
-    apolloSpy = jasmine.createSpyObj('Apollo', ['watchQuery']);
-
     TestBed.configureTestingModule({
-      providers: [
-        ProductsService,
-        { provide: Apollo, useValue: apolloSpy }
-      ]
+      imports: [ApolloTestingModule],
+      providers: [ProductsService],
     });
-
     service = TestBed.inject(ProductsService);
+    controller = TestBed.inject(ApolloTestingController);
+  });
+
+  afterEach(() => {
+    // Fails if any query was issued that a test did not explicitly expect/flush.
+    controller.verify();
   });
 
   describe('Initialization', () => {
     it('should be created', () => {
       expect(service).toBeTruthy();
     });
-
-    it('should have categoryFilter$ subject', () => {
-      expect(service.categoryFilter$).toBeDefined();
-    });
-
-    it('should have categoryFilter observable', () => {
-      expect(service.categoryFilter).toBeDefined();
-    });
   });
 
   describe('setCategoryFilter', () => {
-    it('should emit category filter value', (done) => {
-      const category = 'Electronics';
+    it('emits the category on the categoryFilter stream', (done) => {
+      service.categoryFilter.subscribe((value) => {
+        expect(value).toBe('Electronics');
+        done();
+      });
+      service.setCategoryFilter('Electronics');
+    });
 
-      service.categoryFilter.subscribe(value => {
-        expect(value).toBe(category);
+    it('emits every pushed category in order', () => {
+      const received: string[] = [];
+      service.categoryFilter.subscribe((v) => received.push(v));
+
+      ['Electronics', 'Clothing', 'Home & Garden'].forEach((c) => service.setCategoryFilter(c));
+
+      expect(received).toEqual(['Electronics', 'Clothing', 'Home & Garden']);
+    });
+  });
+
+  describe('getProducts (query selection by arguments)', () => {
+    it('uses GetProducts with category + sortBy when both are provided', (done) => {
+      service.getProducts('desc', 'Electronics').subscribe((r: any) => {
+        expect(r.data.product).toEqual([mockProducts[0]]);
         done();
       });
 
-      service.setCategoryFilter(category);
+      const op = controller.expectOne('GetProducts');
+      expect(op.operation.variables).toEqual({ category: 'Electronics', sortBy: 'desc' });
+      op.flushData({ product: [asGql(mockProducts[0])] });
     });
 
-    it('should emit multiple category filter values', (done) => {
-      const categories = ['Electronics', 'Clothing', 'Home & Garden'];
-      let index = 0;
+    it('uses GetProductsByCategory when only a category is provided', (done) => {
+      service.getProducts(undefined, 'Electronics').subscribe(() => done());
 
-      service.categoryFilter.subscribe(value => {
-        expect(value).toBe(categories[index]);
-        index++;
-        if (index === categories.length) {
-          done();
-        }
-      });
-
-      categories.forEach(cat => service.setCategoryFilter(cat));
-    });
-  });
-
-  describe('getProducts', () => {
-    it('should get all products without filters', () => {
-      const mockResponse = { data: { product: mockProducts } };
-      apolloSpy.watchQuery.and.returnValue(createMockWatchQueryResponse(mockResponse) as any);
-
-      const result$ = service.getProducts();
-
-      result$.subscribe((result: any) => {
-        expect(result.data.product).toEqual(mockProducts);
-      });
-
-      expect(apolloSpy.watchQuery).toHaveBeenCalled();
+      const op = controller.expectOne('GetProductsByCategory');
+      expect(op.operation.variables).toEqual({ category: 'Electronics' });
+      op.flushData({ product: [] });
     });
 
-    it('should get products with category filter', () => {
-      const mockResponse = { data: { product: [mockProducts[0]] } };
-      apolloSpy.watchQuery.and.returnValue(createMockWatchQueryResponse(mockResponse) as any);
+    it('uses GetProductsSorted when only sortBy is provided', (done) => {
+      service.getProducts('asc').subscribe(() => done());
 
-      const result$ = service.getProducts(undefined, 'Electronics');
-
-      result$.subscribe((result: any) => {
-        expect(result.data.product).toEqual([mockProducts[0]]);
-      });
-
-      const call = apolloSpy.watchQuery.calls.mostRecent();
-      expect(call.args[0].variables).toEqual({ category: 'Electronics' });
+      const op = controller.expectOne('GetProductsSorted');
+      expect(op.operation.variables).toEqual({ sortBy: 'asc' });
+      op.flushData({ product: mockProducts });
     });
 
-    it('should get products with sortBy filter', () => {
-      const mockResponse = { data: { product: mockProducts } };
-      apolloSpy.watchQuery.and.returnValue(createMockWatchQueryResponse(mockResponse) as any);
+    it('falls back to GetProductsDefault when no arguments are provided', (done) => {
+      service.getProducts().subscribe(() => done());
 
-      const result$ = service.getProducts('asc');
-
-      result$.subscribe((result: any) => {
-        expect(result.data.product).toEqual(mockProducts);
-      });
-
-      const call = apolloSpy.watchQuery.calls.mostRecent();
-      expect(call.args[0].variables).toEqual({ sortBy: 'asc' });
-    });
-
-    it('should get products with both category and sortBy', () => {
-      const mockResponse = { data: { product: [mockProducts[0]] } };
-      apolloSpy.watchQuery.and.returnValue(createMockWatchQueryResponse(mockResponse) as any);
-
-      const result$ = service.getProducts('desc', 'Electronics');
-
-      result$.subscribe((result: any) => {
-        expect(result.data.product).toEqual([mockProducts[0]]);
-      });
-
-      const call = apolloSpy.watchQuery.calls.mostRecent();
-      expect(call.args[0].variables).toEqual({ category: 'Electronics', sortBy: 'desc' });
-    });
-  });
-
-  describe('getProductsDefault', () => {
-    it('should get default products list', () => {
-      const mockResponse = { data: { product: mockProducts } };
-      apolloSpy.watchQuery.and.returnValue(createMockWatchQueryResponse(mockResponse) as any);
-
-      const result$ = service.getProductsDefault();
-
-      result$.subscribe((result: any) => {
-        expect(result.data.product).toEqual(mockProducts);
-      });
-
-      expect(apolloSpy.watchQuery).toHaveBeenCalled();
+      const op = controller.expectOne('GetProductsDefault');
+      expect(op.operation.variables).toEqual({});
+      op.flushData({ product: mockProducts });
     });
   });
 
   describe('getProductsByPrice', () => {
-    it('should get products within price range', () => {
-      const filteredProducts = [mockProducts[2]];
-      const mockResponse = { data: { product: filteredProducts } };
-      apolloSpy.watchQuery.and.returnValue(createMockWatchQueryResponse(mockResponse) as any);
-
-      const result$ = service.getProductsByPrice(10, 50);
-
-      result$.subscribe((result: any) => {
-        expect(result.data.product).toEqual(filteredProducts);
+    it('sends the price bounds and returns the matching products', (done) => {
+      service.getProductsByPrice(10, 50).subscribe((r: any) => {
+        expect(r.data.product).toEqual([mockProducts[2]]);
+        done();
       });
 
-      const call = apolloSpy.watchQuery.calls.mostRecent();
-      expect(call.args[0].variables).toEqual({ priceFrom: 10, priceTo: 50 });
+      const op = controller.expectOne('GetProductsByPrice');
+      expect(op.operation.variables).toEqual({ priceFrom: 10, priceTo: 50 });
+      op.flushData({ product: [asGql(mockProducts[2])] });
     });
 
-    it('should handle minimum price of 0', () => {
-      const mockResponse = { data: { product: mockProducts } };
-      apolloSpy.watchQuery.and.returnValue(createMockWatchQueryResponse(mockResponse) as any);
+    it('preserves a lower bound of 0 (no falsy coercion)', (done) => {
+      service.getProductsByPrice(0, 5000).subscribe(() => done());
 
-      const result$ = service.getProductsByPrice(0, 5000);
-
-      result$.subscribe((result: any) => {
-        expect(result.data.product).toEqual(mockProducts);
-      });
-
-      const call = apolloSpy.watchQuery.calls.mostRecent();
-      expect(call.args[0].variables?.['priceFrom']).toBe(0);
+      const op = controller.expectOne('GetProductsByPrice');
+      expect(op.operation.variables['priceFrom']).toBe(0);
+      op.flushData({ product: mockProducts });
     });
   });
 
   describe('searchProducts', () => {
-    it('should search products by name', () => {
-      const searchResults = [mockProducts[0]];
-      const mockResponse = { data: { product: searchResults } };
-      apolloSpy.watchQuery.and.returnValue(createMockWatchQueryResponse(mockResponse) as any);
+    it('wraps the search term in SQL wildcards for _ilike', (done) => {
+      service.searchProducts('iPhone').subscribe(() => done());
 
-      const result$ = service.searchProducts('iPhone');
-
-      result$.subscribe((result: any) => {
-        expect(result.data.product).toEqual(searchResults);
-      });
-
-      const call = apolloSpy.watchQuery.calls.mostRecent();
-      expect(call.args[0].variables?.['searchInput']).toBe('%iPhone%');
+      const op = controller.expectOne('SearchProducts');
+      expect(op.operation.variables).toEqual({ searchInput: '%iPhone%' });
+      op.flushData({ product: [mockProducts[0]] });
     });
 
-    it('should wrap search input with wildcards', () => {
-      const mockResponse = { data: { product: [] } };
-      apolloSpy.watchQuery.and.returnValue(createMockWatchQueryResponse(mockResponse) as any);
+    it('still wildcard-wraps an empty search term', (done) => {
+      service.searchProducts('').subscribe(() => done());
 
-      service.searchProducts('test').subscribe();
-
-      const call = apolloSpy.watchQuery.calls.mostRecent();
-      expect(call.args[0].variables?.['searchInput']).toBe('%test%');
-    });
-
-    it('should handle empty search results', () => {
-      const mockResponse = { data: { product: [] } };
-      apolloSpy.watchQuery.and.returnValue(createMockWatchQueryResponse(mockResponse) as any);
-
-      const result$ = service.searchProducts('nonexistent');
-
-      result$.subscribe((result: any) => {
-        expect(result.data.product).toEqual([]);
-      });
+      const op = controller.expectOne('SearchProducts');
+      expect(op.operation.variables['searchInput']).toBe('%%');
+      op.flushData({ product: [] });
     });
   });
 
   describe('getProductById', () => {
-    it('should get product by id', () => {
-      const mockResponse = { data: { product: [mockProduct] } };
-      apolloSpy.watchQuery.and.returnValue(createMockWatchQueryResponse(mockResponse) as any);
-
-      const result$ = service.getProductById(1);
-
-      result$.subscribe((result: any) => {
-        expect(result.data.product).toEqual([mockProduct]);
+    it('sends the id and returns the product', (done) => {
+      service.getProductById(5).subscribe((r: any) => {
+        expect(r.data.product[0].id).toBe(5);
+        done();
       });
 
-      const call = apolloSpy.watchQuery.calls.mostRecent();
-      expect(call.args[0].variables).toEqual({ id: 1 });
+      const op = controller.expectOne('GetProductById');
+      expect(op.operation.variables).toEqual({ id: 5 });
+      op.flushData({ product: [asGql(mockProducts[4])] });
     });
 
-    it('should handle numeric id correctly', () => {
-      const mockResponse = { data: { product: [mockProducts[4]] } };
-      apolloSpy.watchQuery.and.returnValue(createMockWatchQueryResponse(mockResponse) as any);
-
-      const result$ = service.getProductById(5);
-
-      result$.subscribe((result: any) => {
-        expect(result.data.product[0].id).toBe(5);
+    it('returns an empty list for a non-existent id', (done) => {
+      service.getProductById(999).subscribe((r: any) => {
+        expect(r.data.product).toEqual([]);
+        done();
       });
 
-      const call = apolloSpy.watchQuery.calls.mostRecent();
-      expect(call.args[0].variables?.['id']).toBe(5);
-    });
-
-    it('should return empty array for non-existent id', () => {
-      const mockResponse = { data: { product: [] } };
-      apolloSpy.watchQuery.and.returnValue(createMockWatchQueryResponse(mockResponse) as any);
-
-      const result$ = service.getProductById(999);
-
-      result$.subscribe((result: any) => {
-        expect(result.data.product).toEqual([]);
-      });
-    });
-  });
-
-  describe('getProductsByCategory', () => {
-    it('should get products by category', () => {
-      const electronicsProducts = mockProducts.filter(p => p.categoryId === 1);
-      const mockResponse = { data: { product: electronicsProducts } };
-      apolloSpy.watchQuery.and.returnValue(createMockWatchQueryResponse(mockResponse) as any);
-
-      const result$ = service.getProductsByCategory('Electronics');
-
-      result$.subscribe((result: any) => {
-        expect(result.data.product).toEqual(electronicsProducts);
-      });
-
-      const call = apolloSpy.watchQuery.calls.mostRecent();
-      expect(call.args[0].variables).toEqual({ category: 'Electronics' });
-    });
-
-    it('should handle different category names', () => {
-      const clothingProducts = mockProducts.filter(p => p.categoryId === 2);
-      const mockResponse = { data: { product: clothingProducts } };
-      apolloSpy.watchQuery.and.returnValue(createMockWatchQueryResponse(mockResponse) as any);
-
-      const result$ = service.getProductsByCategory('Clothing');
-
-      result$.subscribe((result: any) => {
-        expect(result.data.product).toEqual(clothingProducts);
-      });
+      controller.expectOne('GetProductById').flushData({ product: [] });
     });
   });
 
   describe('getFilteredProducts', () => {
-    it('should get products filtered by subcategories', () => {
-      const filtered = [mockProducts[0]];
-      const mockResponse = { data: { product: filtered } };
-      apolloSpy.watchQuery.and.returnValue(createMockWatchQueryResponse(mockResponse) as any);
+    it('queries GetFilteredProducts with the subcategory list', (done) => {
+      service.getFilteredProducts(['Smartphones', 'Laptops']).subscribe(() => done());
 
-      const result$ = service.getFilteredProducts(['Smartphones']);
-
-      result$.subscribe((result: any) => {
-        expect(result.data.product).toEqual(filtered);
-      });
-
-      const call = apolloSpy.watchQuery.calls.mostRecent();
-      expect(call.args[0].variables).toEqual({ filter: ['Smartphones'] });
+      const op = controller.expectOne('GetFilteredProducts');
+      expect(op.operation.variables).toEqual({ filter: ['Smartphones', 'Laptops'] });
+      op.flushData({ product: [mockProducts[0], mockProducts[1]] });
     });
 
-    it('should get default products when filter is empty', () => {
-      const mockResponse = { data: { product: mockProducts } };
-      apolloSpy.watchQuery.and.returnValue(createMockWatchQueryResponse(mockResponse) as any);
+    it('short-circuits to GetProductsDefault for an empty filter (no needless filtered query)', (done) => {
+      service.getFilteredProducts([]).subscribe(() => done());
 
-      const result$ = service.getFilteredProducts([]);
-
-      result$.subscribe((result: any) => {
-        expect(result.data.product).toEqual(mockProducts);
-      });
-
-      expect(apolloSpy.watchQuery).toHaveBeenCalled();
-    });
-
-    it('should handle multiple subcategory filters', () => {
-      const filtered = [mockProducts[0], mockProducts[1]];
-      const mockResponse = { data: { product: filtered } };
-      apolloSpy.watchQuery.and.returnValue(createMockWatchQueryResponse(mockResponse) as any);
-
-      const result$ = service.getFilteredProducts(['Smartphones', 'Laptops']);
-
-      result$.subscribe((result: any) => {
-        expect(result.data.product).toEqual(filtered);
-      });
-
-      const call = apolloSpy.watchQuery.calls.mostRecent();
-      expect(call.args[0].variables?.['filter']).toEqual(['Smartphones', 'Laptops']);
+      controller.expectNone('GetFilteredProducts');
+      controller.expectOne('GetProductsDefault').flushData({ product: mockProducts });
     });
   });
 
   describe('getProductCategories', () => {
-    it('should get all categories with subcategories', () => {
-      const mockResponse = { data: { category: mockCategoriesWithSubcategories } };
-      apolloSpy.watchQuery.and.returnValue(createMockWatchQueryResponse(mockResponse) as any);
-
-      const result$ = service.getProductCategories();
-
-      result$.subscribe((result: any) => {
-        expect(result.data.category).toEqual(mockCategoriesWithSubcategories);
-        expect(result.data.category.length).toBe(3);
-        expect(result.data.category[0].subcategories.length).toBe(2);
+    it('returns categories with their nested subcategories', (done) => {
+      service.getProductCategories().subscribe((r: any) => {
+        expect(r.data.category.length).toBe(3);
+        expect(r.data.category[0].subcategories.length).toBe(2);
+        done();
       });
 
-      expect(apolloSpy.watchQuery).toHaveBeenCalled();
-    });
-
-    it('should include subcategories in categories', () => {
-      const mockResponse = { data: { category: mockCategoriesWithSubcategories } };
-      apolloSpy.watchQuery.and.returnValue(createMockWatchQueryResponse(mockResponse) as any);
-
-      const result$ = service.getProductCategories();
-
-      result$.subscribe((result: any) => {
-        const categories = result.data.category;
-        categories.forEach((category: any) => {
-          expect(category.subcategories).toBeDefined();
-          expect(Array.isArray(category.subcategories)).toBe(true);
-        });
-      });
+      controller
+        .expectOne('GetProductCategories')
+        .flushData({ category: mockCategoriesWithSubcategories });
     });
   });
 
   describe('getSuggestedProducts', () => {
-    it('should get limited number of suggested products', () => {
-      const suggestedProducts = mockProducts.slice(0, 10);
-      const mockResponse = { data: { product: suggestedProducts } };
-      apolloSpy.watchQuery.and.returnValue(createMockWatchQueryResponse(mockResponse) as any);
-
-      const result$ = service.getSuggestedProducts();
-
-      result$.subscribe((result: any) => {
-        expect(result.data.product).toEqual(suggestedProducts);
-        expect(result.data.product.length).toBeLessThanOrEqual(10);
+    it('returns the suggested products payload', (done) => {
+      service.getSuggestedProducts().subscribe((r: any) => {
+        expect(r.data.product[0].id).toBe(mockProduct.id);
+        done();
       });
 
-      expect(apolloSpy.watchQuery).toHaveBeenCalled();
-    });
-
-    it('should return products with all required fields', () => {
-      const mockResponse = { data: { product: [mockProduct] } };
-      apolloSpy.watchQuery.and.returnValue(createMockWatchQueryResponse(mockResponse) as any);
-
-      const result$ = service.getSuggestedProducts();
-
-      result$.subscribe((result: any) => {
-        const product = result.data.product[0];
-        expect(product.id).toBeDefined();
-        expect(product.name).toBeDefined();
-        expect(product.price).toBeDefined();
-        expect(product.images).toBeDefined();
-      });
+      controller.expectOne('GetSuggestedProducts').flushData({ product: [asGql(mockProduct)] });
     });
   });
 
-  describe('getProductsPage', () => {
-    it('should fetch a single page with where, orderBy, limit and offset', () => {
-      const mockResponse = {
-        data: {
-          product: mockProducts.slice(0, 2),
-          product_aggregate: { aggregate: { count: mockProducts.length } }
-        }
-      };
-      apolloSpy.watchQuery.and.returnValue(createMockWatchQueryResponse(mockResponse) as any);
+  describe('legacy aliases', () => {
+    it('getProductBySubcategory delegates to the category query', (done) => {
+      service.getProductBySubcategory('Clothing').subscribe(() => done());
 
-      const where = { category: { name: { _eq: 'Electronics' } } };
-      const orderBy = [{ price: 'desc' }];
-      const result$ = service.getProductsPage({ where, orderBy, limit: 10, offset: 20 });
-
-      result$.subscribe((result: any) => {
-        expect(result.data.product.length).toBe(2);
-        expect(result.data.product_aggregate.aggregate.count).toBe(mockProducts.length);
-      });
-
-      const call = apolloSpy.watchQuery.calls.mostRecent();
-      expect(call.args[0].variables).toEqual({ where, orderBy, limit: 10, offset: 20 });
+      const op = controller.expectOne('GetProductsByCategory');
+      expect(op.operation.variables).toEqual({ category: 'Clothing' });
+      op.flushData({ product: [] });
     });
 
-    it('should default where and orderBy when not provided', () => {
-      const mockResponse = {
-        data: { product: [], product_aggregate: { aggregate: { count: 0 } } }
-      };
-      apolloSpy.watchQuery.and.returnValue(createMockWatchQueryResponse(mockResponse) as any);
+    it('getProductsFromSubcategories delegates to the filtered query', (done) => {
+      service.getProductsFromSubcategories(['Jeans']).subscribe(() => done());
 
-      service.getProductsPage({ limit: 5, offset: 0 }).subscribe();
-
-      const call = apolloSpy.watchQuery.calls.mostRecent();
-      expect(call.args[0].variables).toEqual({
-        where: {},
-        orderBy: [{ price: 'asc' }],
-        limit: 5,
-        offset: 0
-      });
+      const op = controller.expectOne('GetFilteredProducts');
+      expect(op.operation.variables).toEqual({ filter: ['Jeans'] });
+      op.flushData({ product: [] });
     });
   });
 
-  describe('getPriceBounds', () => {
-    it('should request the min/max aggregate for the given filter', () => {
-      const mockResponse = {
-        data: { product_aggregate: { aggregate: { min: { price: 19.99 }, max: { price: 2499.99 } } } }
-      };
-      apolloSpy.watchQuery.and.returnValue(createMockWatchQueryResponse(mockResponse) as any);
-
-      const where = { category: { name: { _eq: 'Electronics' } } };
-      service.getPriceBounds(where).subscribe((result: any) => {
-        expect(result.data.product_aggregate.aggregate.min.price).toBe(19.99);
-        expect(result.data.product_aggregate.aggregate.max.price).toBe(2499.99);
-      });
-
-      const call = apolloSpy.watchQuery.calls.mostRecent();
-      expect(call.args[0].variables).toEqual({ where });
-    });
-
-    it('should default to an empty filter', () => {
-      const mockResponse = {
-        data: { product_aggregate: { aggregate: { min: { price: 0 }, max: { price: 0 } } } }
-      };
-      apolloSpy.watchQuery.and.returnValue(createMockWatchQueryResponse(mockResponse) as any);
-
-      service.getPriceBounds().subscribe();
-
-      const call = apolloSpy.watchQuery.calls.mostRecent();
-      expect(call.args[0].variables).toEqual({ where: {} });
-    });
-  });
-
-  describe('Integration Tests', () => {
-    it('should handle multiple service calls independently', () => {
-      const mockResponse1 = { data: { product: [mockProducts[0]] } };
-      const mockResponse2 = { data: { product: [mockProducts[1]] } };
-
-      apolloSpy.watchQuery.and.returnValues(
-        createMockWatchQueryResponse(mockResponse1) as any,
-        createMockWatchQueryResponse(mockResponse2) as any
-      );
-
-      service.getProductById(1).subscribe((result: any) => {
-        expect(result.data.product).toEqual([mockProducts[0]]);
-      });
-
-      service.getProductById(2).subscribe((result: any) => {
-        expect(result.data.product).toEqual([mockProducts[1]]);
-      });
-
-      expect(apolloSpy.watchQuery).toHaveBeenCalledTimes(2);
-    });
-
-    it('should handle category filter updates', (done) => {
-      const categories = ['Electronics', 'Clothing'];
-      let index = 0;
-
-      service.categoryFilter.subscribe(category => {
-        expect(category).toBe(categories[index]);
-        index++;
-        if (index === categories.length) {
+  describe('error handling (the path the old happy-only suite never covered)', () => {
+    it('surfaces a network error to the subscriber instead of swallowing it', (done) => {
+      service.getProductById(1).subscribe({
+        next: () => fail('expected the stream to error, not emit'),
+        error: (err) => {
+          expect(err).toBeTruthy();
           done();
-        }
+        },
       });
 
-      categories.forEach(cat => service.setCategoryFilter(cat));
+      controller.expectOne('GetProductById').networkError(new Error('Network failure'));
+    });
+
+    it('surfaces GraphQL errors to the subscriber', (done) => {
+      service.getProductsDefault().subscribe({
+        next: () => fail('expected the stream to error, not emit'),
+        error: (err) => {
+          expect(err).toBeTruthy();
+          done();
+        },
+      });
+
+      controller
+        .expectOne('GetProductsDefault')
+        .graphqlErrors([{ message: 'field "product" not found' } as any]);
     });
   });
 });

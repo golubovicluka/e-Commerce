@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import {BehaviorSubject, map, Observable} from 'rxjs';
-import { Product } from '../features/products/Product';
+import { Product, parseStoredProducts } from '../features/products/Product';
 
 @Injectable({
   providedIn: 'root'
@@ -11,10 +11,7 @@ export class CartService {
 
   constructor() {
     try {
-      const cartItems = localStorage.getItem('cart');
-      if (cartItems) {
-        this.cartItems$.next(JSON.parse(cartItems));
-      }
+      this.cartItems$.next(parseStoredProducts(localStorage.getItem('cart')));
     } catch (error) {
       console.error('Failed to load cart items from localStorage:', error);
       this.cartItems$.next([]);

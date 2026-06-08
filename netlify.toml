@@ -1,0 +1,15 @@
+# Netlify build configuration, committed to the repo so every connected site
+# builds this project with identical, correct settings (instead of relying on
+# per-site dashboard configuration).
+#
+# Publish dir matches `outputPath` in angular.json ("dist/project").
+# SPA route fallback continues to be provided by src/_redirects (copied into the
+# publish directory as part of the Angular build assets).
+
+[build]
+  command = "npm run build"
+  publish = "dist/project"
+
+[build.environment]
+  # Angular 15 supports Node 18.x; pin it for reproducible builds.
+  NODE_VERSION = "18"

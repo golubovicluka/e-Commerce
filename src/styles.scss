@@ -1,9 +1,15 @@
-/* You can add global styles to this file, and also import other style files */
-@import "primeicons/primeicons.css";
-@import url("https://fonts.googleapis.com/css2?family=Inter&family=Poppins&family=Rubik:wght@400;500;700&display=swap");
+/* =============================================================================
+   Global styles. Design values live in styles/tokens.scss — consume via var().
+   ============================================================================= */
 
-* {
-  font-family: "Inter", sans-serif;
+/* Brand fonts: Syne (display) · DM Sans (body) · JetBrains Mono (data/code). */
+@import url("https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=JetBrains+Mono:wght@400;500&family=Syne:wght@600;700;800&display=swap");
+@import "primeicons/primeicons.css";
+@import "styles/tokens";
+
+*,
+*::before,
+*::after {
   box-sizing: border-box;
 }
 
@@ -15,15 +21,176 @@ body {
   width: 100%;
 }
 
-p,
+body {
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  font-weight: 400;
+  line-height: 1.6;
+  color: var(--color-text-primary);
+  background-color: var(--color-bg);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* Headings use the display family with tight tracking (see Typography Rules). */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  color: var(--color-text-primary);
+}
+
 h1 {
-  padding: 0;
+  font-size: var(--text-3xl);
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+}
+
+h2 {
+  font-size: var(--text-2xl);
+}
+
+h3 {
+  font-size: var(--text-xl);
+}
+
+h4 {
+  font-size: var(--text-lg);
+}
+
+p {
   margin: 0;
 }
 
-// Global styles
+/* Native form controls don't inherit font by default — opt them in. */
+button,
+input,
+select,
+textarea {
+  font-family: inherit;
+}
+
+/* Keep the whole app on the brand body font, including PrimeNG components.
+   `body .p-component` outranks the theme's `.p-component` without !important. */
+body .p-component {
+  font-family: var(--font-body);
+}
+
+/* Utility: monospaced data/figures (prices, SKUs, counts). */
+.font-mono {
+  font-family: var(--font-mono);
+}
+
+/* Existing centering helper. */
 .center {
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+/* ---------------------------------------------------------------------------
+   Accessibility primitives
+   --------------------------------------------------------------------------- */
+
+/* Accessible focus ring — replaces the default outline, never just removes it. */
+:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+  border-radius: var(--radius-sm);
+}
+
+/* Visually hidden but available to screen readers. */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Skip-navigation link — hidden until focused, then slides into view. */
+.skip-link {
+  position: absolute;
+  left: var(--space-2);
+  top: var(--space-2);
+  z-index: 1000;
+  padding: var(--space-2) var(--space-4);
+  background: var(--color-surface-elevated);
+  color: var(--color-text-primary);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-150%);
+  transition: transform var(--duration-base) var(--ease-out);
+}
+
+.skip-link:focus {
+  transform: translateY(0);
+}
+
+/* ---------------------------------------------------------------------------
+   Loading & entrance primitives
+   --------------------------------------------------------------------------- */
+
+/* Skeleton shimmer — shape these to match the real content they stand in for. */
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--color-surface) 25%,
+    var(--color-surface-elevated) 50%,
+    var(--color-surface) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.6s ease-in-out infinite;
+  border-radius: var(--radius-sm);
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* Entrance animation — opacity + transform only (GPU-composited). */
+@keyframes enter {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.component-enter {
+  animation: enter var(--duration-enter) var(--ease-out) both;
+}
+
+/* ---------------------------------------------------------------------------
+   Reduced motion — mandatory. The !important here is the sanctioned exception
+   from CLAUDE.md's required snippet.
+   --------------------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
 }

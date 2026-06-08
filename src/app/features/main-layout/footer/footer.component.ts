@@ -11,7 +11,7 @@ export class FooterComponent {
   constructor(private router: Router) { }
 
   openLink(link: string) {
-    window.open(link);
+    window.open(link, '_blank', 'noopener,noreferrer');
   }
 
   toHome() {

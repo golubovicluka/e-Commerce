@@ -13,8 +13,9 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 // Apollo
 import { ApolloModule, APOLLO_OPTIONS } from 'apollo-angular'
 import { HttpLink } from 'apollo-angular/http';
-import { HttpClientModule, HttpHeaders } from '@angular/common/http';
+import { HttpClientModule } from '@angular/common/http';
 import { InMemoryCache } from '@apollo/client/core';
+import { environment } from '../environments/environment';
 
 // Feature modules
 import { ProductsModule } from './features/products/products.module';
@@ -99,11 +100,12 @@ import { SlideMenuModule } from 'primeng/slidemenu';
       useFactory(httpLink: HttpLink) {
         return {
           cache: new InMemoryCache(),
+          // No authorization header is sent from the browser. A Hasura admin secret
+          // must NEVER be embedded in client-side code: it ships in the JS bundle and
+          // grants full database access to anyone who reads it. The public catalog is
+          // served by Hasura's read-only "anonymous" role (see SECURITY.md).
           link: httpLink.create({
-            uri: 'https://webshop.hasura.app/v1/graphql',
-            headers: new HttpHeaders({
-              "x-hasura-admin-secret": "6sftAV4UtDQ6V26v1p4U4mDAS8eXiDDnBo62JFsQbdTjksQQjcF54reBmrA2p7Jl"
-            }),
+            uri: environment.graphqlEndpoint,
           }),
         };
       },

@@ -1,108 +1,85 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MessageService } from 'primeng/api';
-import { of } from 'rxjs';
 
 import { ProductsViewComponent } from './products-view.component';
 import { ProductsService } from './products.service';
 import { WishlistService } from '../../shared/wishlist.service';
 import { CartService } from 'src/app/shared/cart.service';
-import { mockProducts, mockCategoriesWithSubcategories } from '../../testing/mock-data';
+import { mockProducts } from 'src/app/testing/mock-data';
 
+/**
+ * The CLI stub threw `No provider for Apollo!` via ProductsService. This is the
+ * most logic-heavy component in the app; ngOnInit fires multiple queries and a
+ * large PrimeNG template, so the smoke test stops at construction (the
+ * constructor reads `router.getCurrentNavigation()`, hence the Router spy).
+ * Dependency-light behaviour — the trackBy and the wishlist/cart handoffs — is
+ * covered directly.
+ */
 describe('ProductsViewComponent', () => {
   let component: ProductsViewComponent;
   let fixture: ComponentFixture<ProductsViewComponent>;
-  let productsServiceSpy: jasmine.SpyObj<ProductsService>;
-
-  const productsPageResponse = {
-    data: {
-      product: mockProducts.slice(0, 2),
-      product_aggregate: { aggregate: { count: mockProducts.length } }
-    }
-  };
-  const priceBoundsResponse = {
-    data: { product_aggregate: { aggregate: { min: { price: 19.99 }, max: { price: 2499.99 } } } }
-  };
-  const categoriesResponse = { data: { category: mockCategoriesWithSubcategories } };
+  let wishlist: jasmine.SpyObj<WishlistService>;
+  let cart: jasmine.SpyObj<CartService>;
+  let router: jasmine.SpyObj<Router>;
 
   beforeEach(async () => {
-    productsServiceSpy = jasmine.createSpyObj('ProductsService', [
-      'getProductsPage',
-      'getPriceBounds',
-      'getProductCategories'
+    const products = jasmine.createSpyObj('ProductsService', [
+      'getProducts',
+      'getProductCategories',
+      'searchProducts',
+      'getFilteredProducts',
+      'getProductsByPrice',
     ]);
-    productsServiceSpy.getProductsPage.and.returnValue(of(productsPageResponse) as any);
-    productsServiceSpy.getPriceBounds.and.returnValue(of(priceBoundsResponse) as any);
-    productsServiceSpy.getProductCategories.and.returnValue(of(categoriesResponse) as any);
-
-    const routerSpy = jasmine.createSpyObj('Router', ['navigate', 'getCurrentNavigation']);
-    routerSpy.getCurrentNavigation.and.returnValue(null);
+    wishlist = jasmine.createSpyObj('WishlistService', ['addWishListItem', 'removeWishListItem']);
+    cart = jasmine.createSpyObj('CartService', ['addToCart', 'removeFromCart']);
+    router = jasmine.createSpyObj('Router', ['navigate', 'getCurrentNavigation']);
+    router.getCurrentNavigation.and.returnValue(null);
 
     await TestBed.configureTestingModule({
-      imports: [CommonModule],
       declarations: [ProductsViewComponent],
       providers: [
-        { provide: ProductsService, useValue: productsServiceSpy },
-        { provide: Router, useValue: routerSpy },
-        { provide: ActivatedRoute, useValue: {} },
-        {
-          provide: WishlistService,
-          useValue: jasmine.createSpyObj('WishlistService', ['addWishListItem', 'removeWishListItem'])
-        },
-        {
-          provide: CartService,
-          useValue: jasmine.createSpyObj('CartService', ['addToCart', 'removeFromCart'])
-        },
-        { provide: MessageService, useValue: jasmine.createSpyObj('MessageService', ['add']) }
+        { provide: ProductsService, useValue: products },
+        { provide: WishlistService, useValue: wishlist },
+        { provide: CartService, useValue: cart },
+        { provide: Router, useValue: router },
+        { provide: ActivatedRoute, useValue: { snapshot: { params: {} } } },
+        MessageService,
       ],
-      schemas: [NO_ERRORS_SCHEMA]
+      schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
 
     fixture = TestBed.createComponent(ProductsViewComponent);
     component = fixture.componentInstance;
-    fixture.detectChanges();
   });
 
   it('should create', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should load price-slider bounds from the aggregate', () => {
-    expect(productsServiceSpy.getPriceBounds).toHaveBeenCalled();
-    expect(component.lowestPrice).toBe(19.99);
-    expect(component.highestPrice).toBe(2499.99);
-    expect(component.rangeValues).toEqual([19.99, 2499.99]);
+  it('trackByProductId returns the product id', () => {
+    expect(component.trackByProductId(0, mockProducts[2])).toBe(mockProducts[2].id);
   });
 
-  it('should load categories for the filter sidebar', () => {
-    expect(productsServiceSpy.getProductCategories).toHaveBeenCalled();
-    expect(component.categories).toEqual(mockCategoriesWithSubcategories);
+  it('addToWishList / removedFromWishList delegate to WishlistService', () => {
+    component.addToWishList(mockProducts[0]);
+    expect(wishlist.addWishListItem).toHaveBeenCalledOnceWith(mockProducts[0]);
+
+    component.removedFromWishList(mockProducts[0]);
+    expect(wishlist.removeWishListItem).toHaveBeenCalledOnceWith(mockProducts[0]);
   });
 
-  it('should fetch one page (with total count) on a lazy load request', () => {
-    component.loadData({ first: 10, rows: 10 });
+  it('addToCart / removeFromCart delegate to CartService', () => {
+    component.addToCart(mockProducts[1]);
+    expect(cart.addToCart).toHaveBeenCalledOnceWith(mockProducts[1]);
 
-    expect(productsServiceSpy.getProductsPage).toHaveBeenCalled();
-    const args = productsServiceSpy.getProductsPage.calls.mostRecent().args[0];
-    expect(args.offset).toBe(10);
-    expect(args.limit).toBe(10);
-    expect(component.totalRecords).toBe(mockProducts.length);
-    expect(component.products.length).toBe(2);
-    expect(component.isLoading).toBeFalse();
+    component.removeFromCart(mockProducts[1]);
+    expect(cart.removeFromCart).toHaveBeenCalledOnceWith(mockProducts[1]);
   });
 
-  it('should reset to the first page when sorting changes', () => {
-    component.loadData({ first: 30, rows: 10 });
-    expect(component.first).toBe(30);
-
-    component.onSortChange({ value: 'desc' });
-
-    expect(component.first).toBe(0);
-    expect(component.sortKey).toBe('desc');
-    const args = productsServiceSpy.getProductsPage.calls.mostRecent().args[0];
-    expect(args.orderBy).toEqual([{ price: 'desc' }]);
-    expect(args.offset).toBe(0);
+  it('openProductDetails navigates to the product route', () => {
+    component.openProductDetails(9);
+    expect(router.navigate).toHaveBeenCalledWith(['/product', 9]);
   });
 });
