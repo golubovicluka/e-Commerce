@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
-import { Product } from '../features/products/Product';
+import { Product, parseStoredProducts } from '../features/products/Product';
 
 @Injectable({
   providedIn: 'root'
@@ -11,10 +11,7 @@ export class WishlistService {
 
   constructor() {
     try {
-      const wishList = localStorage.getItem('wishlist');
-      if (wishList) {
-        this.wishListItems$.next(JSON.parse(wishList));
-      }
+      this.wishListItems$.next(parseStoredProducts(localStorage.getItem('wishlist')));
     } catch (error) {
       console.error('Failed to load wishlist items from localStorage:', error);
       this.wishListItems$.next([]);
