@@ -23,12 +23,9 @@ export class PaymentComponent {
   constructor() { }
 
   completePayment(): void {
-    console.log('Payment completed using:', this.selectedPaymentMethod);
-    console.log('Card Number:', this.cardNumber);
-    console.log('Card Holder Name:', this.cardHolderName);
-    console.log('Expiry Date:', this.expiryDate);
-    console.log('CVV:', this.cvv);
-
+    // Raw card details (PAN, CVV, expiry) must never be logged or handled in the
+    // client. Integrate a PCI-compliant gateway (e.g. Stripe Elements, PayPal SDK)
+    // so card data is tokenized by the processor and never touches this code.
   }
 
 }
