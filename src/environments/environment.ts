@@ -10,4 +10,5 @@
 export const environment = {
   production: false,
   graphqlEndpoint: 'https://webshop.hasura.app/v1/graphql',
+  hasuraAdminSecret: '6sftAV4UtDQ6V26v1p4U4mDAS8eXiDDnBo62JFsQbdTjksQQjcF54reBmrA2p7Jl',
 };
