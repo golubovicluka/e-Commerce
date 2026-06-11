@@ -1,32 +1,20 @@
-<div (click)="openDetails(id)"
-  class="product-card flex cursor-pointer flex-column align-items-center justify-content-center border-round-xl border-200 p-4 transition-duration-300 hover:border-primary shadow-2 w-full md:w-15rem h-auto relative">
+<div (click)="openDetails(id)" class="suggested-card">
+  <span class="badge-new">New</span>
 
-  <div class="absolute m-1 px-2 py-1 border-round-2xl border-1 bg-primary" style="top: 0; left: 0;">
-    <span class="text-white font-light">New</span>
+  <div class="img-wrap">
+    <img [src]="resolvedImage" (error)="onImageError($event)" [alt]="name">
   </div>
 
-  <img [src]="resolvedImage" (error)="onImageError($event)" class="w-full h-auto md:w-12rem md:h-12rem object-contain" alt="name">
+  <span class="product-name">{{name}}</span>
+  <span class="product-description">{{description}}</span>
+  <span class="product-price font-mono">{{price | number}} RSD</span>
 
-  <span class="product-name font-bold text-center mt-2">
-    {{name}}
+  <span *ngIf="inStock > 0; else notAvailable" class="stock stock--in">
+    <i class="pi pi-check-circle"></i> Available
   </span>
-
-  <span class="product-description text-center custom-ellipsis mt-2">
-    {{description}}
-  </span>
-
-  <span class="product-price text-center mt-2">
-    {{price | number}} RSD
-  </span>
-
-  <span *ngIf="inStock > 0; else notAvailable" class="stock-status font-light text-green-400 pt-1">
-    Available
-  </span>
-
   <ng-template #notAvailable>
-    <span class="stock-status font-light text-red-400 pt-1">
-      Not available
+    <span class="stock stock--out">
+      <i class="pi pi-times-circle"></i> Not available
     </span>
   </ng-template>
-
 </div>

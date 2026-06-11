@@ -1,5 +1,5 @@
 <div
-  class="flex relative align-items-center justify-content-between border-1 border-gray-50 border-round p-3 mx-5 h-8rem w-full shadow-2 transition-all animation-duration-500 transition-ease-out transition-duration-500 hover:shadow-3 hover:border-primary-400">
+  class="cart-item-card flex relative align-items-center justify-content-between p-4 w-full">
   <p-button class="remove-btn" icon="pi pi-times" (click)="removeItem(product)"
             styleClass="p-button-rounded p-button-danger p-button-text"></p-button>
   <div class="flex align-items-center">
@@ -9,21 +9,20 @@
     <div class="flex flex-column">
       <h2 class="p-0 m-0 max-w-18rem">{{ product.name }}</h2>
       <span>{{ product.price | number }} RSD</span>
-      <span *ngIf="product.inStock > 1" class="mt-1 text-green-400">{{product.inStock}} items available</span>
-      <span *ngIf="product.inStock === 1" class="mt-1 text-green-400">
-              <i class="pi pi-info-circle" style="color: #3A82F6"></i>
+      <span *ngIf="product.inStock > 1" class="mt-1 stock-in">{{product.inStock}} items available</span>
+      <span *ngIf="product.inStock === 1" class="mt-1 stock-in">
+              <i class="pi pi-info-circle"></i>
               Only {{product.inStock}} item available</span>
     </div>
   </div>
 
   <!-- TODO: refactor this so the plus icon increments current item in cart by one-->
-  <div class="mr-5 pr-5">
-    <i class="pi pi-minus cursor-pointer" (click)="decrementProductCount()" style="color: red"></i>
+  <div class="qty-controls">
+    <i class="pi pi-minus cursor-pointer" (click)="decrementProductCount()"></i>
     <p-inputNumber class="m-1" [min]="1" [max]="product.inStock" [placeholder]="pieces.toString()"
                    inputId="integeronly"
                    [(ngModel)]="pieces">
     </p-inputNumber>
-    <i class="pi pi-plus cursor-pointer" (click)="incrementProductCount(product.inStock)"
-       style="color: green"></i>
+    <i class="pi pi-plus cursor-pointer" (click)="incrementProductCount(product.inStock)"></i>
   </div>
 </div>

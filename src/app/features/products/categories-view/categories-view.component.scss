@@ -1,0 +1,10 @@
+.section-heading {
+  text-align: center;
+  margin: var(--space-4) 0 var(--space-12);
+}
+
+.categories-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: var(--space-6);
+}

@@ -1,7 +1,3 @@
-:root {
-  --primary-color: mediumslateblue;
-}
-
 .product-card {
   width: 100%;
   min-height: 100%;
@@ -9,16 +5,20 @@
   align-items: center;
   justify-content: center;
   flex-direction: column;
-  border-radius: 15px;
-  border: 1px solid rgba(243, 243, 243, 0.8);
-  background-color: #ffffff;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
   position: relative;
   margin: 0;
-  filter: drop-shadow(0 0.2rem 0.25rem rgba(0, 0, 0, 0.1));
-  transition: 0.3s ease-out;
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow var(--duration-base) var(--ease-out),
+    transform var(--duration-base) var(--ease-out),
+    border-color var(--duration-base) var(--ease-out);
 
   &:hover {
-    filter: drop-shadow(0 0.2rem 0.25rem rgba(0, 0, 0, 0.3));
+    box-shadow: var(--shadow-md);
+    border-color: var(--color-accent);
+    transform: translateY(-3px);
   }
 }
 
@@ -31,25 +31,56 @@
 }
 
 .favorite {
-  font-size: 1.5rem;
+  font-size: 1.4rem;
   position: absolute;
-  top: 0.5rem;
-  right: 0.5rem;
+  top: var(--space-3);
+  right: var(--space-3);
   cursor: pointer;
-  filter: drop-shadow(0 0.2rem 0.25rem rgba(0, 0, 0, 0.1));
+  color: var(--color-text-secondary);
+  transition: color var(--duration-base) var(--ease-out),
+    transform var(--duration-fast) var(--ease-out);
+
+  &:hover {
+    color: var(--color-danger);
+    transform: scale(1.12);
+  }
 }
 
 .wishlist {
-  color: red;
+  color: var(--color-danger);
 }
 
-.product-list-container {
-  background-color: #f3f3f3;
-  filter: drop-shadow(0 0.2rem 0.25rem rgba(0, 0, 0, 0.2));
-  transition: 0.3s ease-out;
+.list-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow var(--duration-base) var(--ease-out),
+    border-color var(--duration-base) var(--ease-out);
 
   &:hover {
-    filter: drop-shadow(0 0.2rem 0.25rem rgba(0, 0, 0, 0.45));
-    background-color: #f8f8f8;
+    box-shadow: var(--shadow-md);
+    border-color: var(--color-accent);
   }
+}
+
+.list-title {
+  color: var(--color-text-primary);
+  transition: color var(--duration-base) var(--ease-out);
+
+  &:hover {
+    color: var(--color-accent);
+  }
+}
+
+.text-muted {
+  color: var(--color-text-secondary);
+}
+
+.stock-in {
+  color: var(--color-success);
+}
+
+.stock-out {
+  color: var(--color-danger);
 }

@@ -1,22 +1,101 @@
+.section-heading {
+  text-align: center;
+  margin: var(--space-4) 0 var(--space-8);
+
+  .free-shipping {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin-top: var(--space-3);
+    padding: var(--space-2) var(--space-4);
+    border-radius: var(--radius-full);
+    background: var(--color-success-dim);
+    color: var(--color-success);
+    font-weight: 500;
+    font-size: var(--text-sm);
+  }
+}
+
+.cart-item-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow var(--duration-base) var(--ease-out),
+    border-color var(--duration-base) var(--ease-out);
+
+  &:hover {
+    box-shadow: var(--shadow-md);
+    border-color: var(--color-accent);
+  }
+}
+
+.stock-in {
+  color: var(--color-success);
+  font-size: var(--text-sm);
+}
+
+.qty-controls {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+
+  .pi-minus,
+  .pi-plus {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: var(--radius-full);
+    border: 1px solid var(--color-border);
+    background: var(--color-surface-elevated);
+    color: var(--color-text-primary);
+    font-size: 0.8rem;
+    transition: all var(--duration-base) var(--ease-out);
+
+    &:hover {
+      border-color: var(--color-accent);
+      color: var(--color-accent);
+    }
+  }
+}
+
 .remove-btn {
   font-size: 1rem;
   position: absolute;
-  top: 0;
-  right: 0;
-  z-index: 1000;
+  top: var(--space-1);
+  right: var(--space-1);
+  z-index: 10;
 }
 
 ::ng-deep #integeronly {
-  width: 50px !important;
+  width: 60px !important;
   text-align: center !important;
 }
 
 .product-price {
+  font-family: var(--font-mono);
   font-size: 1.5rem;
   font-weight: 600;
   align-self: flex-start;
 }
 
+.total-line {
+  font-weight: 600;
+  font-size: var(--text-lg);
+}
+
 .payment-details {
-  height: 350px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  height: auto;
+  min-height: 350px;
+
+  @media (min-width: 992px) {
+    position: sticky;
+    top: 5.5rem;
+  }
 }

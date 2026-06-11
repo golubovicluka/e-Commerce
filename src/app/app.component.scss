@@ -1,9 +1,13 @@
 .main-container {
-  margin: 0px 30px 30px 30px;
-  min-height: calc(100vh - 195px);
-  // position: relative;
+  width: 100%;
+  max-width: var(--layout-max-width);
+  margin: 0 auto;
+  padding: var(--space-4) var(--space-4) var(--space-16);
+  min-height: calc(100vh - 320px);
 }
 
-* {
-  box-sizing: border-box;
+@media (min-width: 768px) {
+  .main-container {
+    padding: var(--space-6) var(--space-8) var(--space-24);
+  }
 }

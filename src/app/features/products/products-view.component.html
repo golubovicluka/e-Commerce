@@ -1,25 +1,26 @@
 <p-toast position="bottom-left"></p-toast>
 <p-breadcrumb [home]="home" [model]="items" styleClass="w-full"></p-breadcrumb>
 
-<div class="flex flex-column md:flex-row align-items-start justify-content-center mt-3">
-  <div class="bg-gray-50 border-round-md py-0 mx-0 w-full md:px-0 md:w-0 lg:w-2" *ngIf="!isLoading;else loadingFilters">
+<div class="products-layout">
+  <aside class="filters-panel" *ngIf="!isLoading;else loadingFilters">
+    <h3 class="filters-title">Filters</h3>
     <app-filters (filtersObject)="applyFilters($event)" [categories]="categories"></app-filters>
-    <div class="flex flex-column align-items-center my-1 py-3">
+    <div class="price-filter">
       <p-inputNumber class="mb-2 w-full" [(ngModel)]="rangeValues[0]" (ngModelChange)="onPriceChange($event)" mode="currency"
         inputId="currency" currency="RSD" locale="en-US">
       </p-inputNumber>
       <p-inputNumber class="mb-2 w-full" [(ngModel)]="rangeValues[1]" (ngModelChange)="onPriceChange($event)" mode="currency"
         inputId="currency" currency="RSD" locale="en-US">
       </p-inputNumber>
-      <h5 class="font-medium mt-3 py-1 text-center">
+      <span class="price-label">
         Price range: {{(rangeValues[0] | number) + ' - ' + (rangeValues[1] | number)}} RSD
-      </h5>
+      </span>
+      <p-slider [(ngModel)]="rangeValues" [range]="true" [min]="lowestPrice" [max]="highestPrice" [animate]="true"
+        (onSlideEnd)="handlePriceFilter($event)" class="w-full"></p-slider>
     </div>
-    <p-slider [(ngModel)]="rangeValues" [range]="true" [min]="lowestPrice" [max]="highestPrice" [animate]="true"
-      (onSlideEnd)="handlePriceFilter($event)" class="w-full sm:w-11/12 md:w-full"></p-slider>
-  </div>
+  </aside>
   <ng-template #loadingFilters>
-    <div class="bg-gray-50 border-round-md py-0 mx-0 w-full md:px-0 md:w-0 lg:w-2">
+    <div class="filters-panel">
       <p-skeleton height="3rem" width="100%" styleClass="mb-2"></p-skeleton>
       <p-skeleton height="4rem" width="100%" styleClass="mb-2"></p-skeleton>
       <p-skeleton height="3.5rem" width="100%" styleClass="mb-2"></p-skeleton>
@@ -32,12 +33,12 @@
   </ng-template>
 
   <!-- Products section -->
-  <div class="w-full md:w-9 lg:w-10 mt-3 md:mt-0 md:ml-3">
+  <div class="products-results">
     <p-dataView [value]="products" [lazy]="true" [paginator]="true" [rows]="rows" [totalRecords]="totalRecords"
       [first]="first" [trackBy]="trackByProductId" (onLazyLoad)="loadData($event)"
       [loading]="isLoading" [rowsPerPageOptions]="[10,20,30]" paginatorPosition="bottom">
       <ng-template pTemplate="header">
-        <div class="flex flex-column sm:flex-row align-items-center justify-content-between">
+        <div class="flex flex-column sm:flex-row align-items-center justify-content-between gap-3">
           <span class="p-input-icon-left w-full sm:w-auto mb-2 sm:mb-0">
             <i class="pi pi-search"></i>
             <input class="w-full" type="text" pInputText (ngModelChange)="onChanges($event)"

@@ -1,23 +1,60 @@
-.products-container {
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  gap: 20px;
-  flex-wrap: wrap;
-  margin-bottom: 10px;
+:host ::ng-deep .p-dataview .p-dataview-content {
+  background: transparent;
 }
 
-::ng-deep .p-dataview .p-dataview-header {
-  border-radius: 15px !important;
+.products-layout {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  margin-top: var(--space-2);
+
+  @media (min-width: 992px) {
+    flex-direction: row;
+    align-items: flex-start;
+  }
+}
+
+.filters-panel {
+  width: 100%;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+  box-shadow: var(--shadow-sm);
+
+  @media (min-width: 992px) {
+    width: 280px;
+    flex-shrink: 0;
+    position: sticky;
+    top: 5.5rem;
+  }
+
+  .filters-title {
+    font-size: var(--text-base);
+    font-weight: 700;
+    margin-bottom: var(--space-3);
+  }
+}
+
+.price-filter {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-1) var(--space-2);
+
+  .price-label {
+    font-weight: 600;
+    font-size: var(--text-sm);
+    text-align: center;
+    color: var(--color-text-secondary);
+  }
+}
+
+.products-results {
+  flex: 1;
+  min-width: 0;
 }
 
 .p-dropdown {
-  width: 14rem;
   font-weight: normal;
-}
-
-@media (max-width: 768px) {
-  .p-dropdown {
-    width: 100%;
-  }
 }
