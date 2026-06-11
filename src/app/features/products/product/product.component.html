@@ -19,10 +19,10 @@
             <span class="block text-xs sm:text-sm mb-2 text-center">{{ subcategory?.name }}</span>
             <p class="text-base sm:text-lg font-bold mb-2 text-center">{{ price | number }} RSD</p>
             <span *ngIf="inStock !== 0;else notInStock"
-                  class="text-xs sm:text-sm block mb-2 text-green-500 text-center">{{ inStock }} items
+                  class="text-xs sm:text-sm block mb-2 stock-in text-center">{{ inStock }} items
         available</span>
             <ng-template #notInStock>
-                <span class="text-xs sm:text-sm text-red-500 block mb-2 text-center">Not available</span>
+                <span class="text-xs sm:text-sm stock-out block mb-2 text-center">Not available</span>
             </ng-template>
             <div class="text-center">
                 <p-button (click)="addRemoveCartItem(product)" [disabled]="product.inStock === 0" icon="pi pi-cart-plus"
@@ -36,7 +36,7 @@
 <ng-template #listView>
     <!-- Container -->
     <div
-            class="flex flex-column transition-duration-500 hover:shadow-4 w-full border-1 border-primary wishlist-container border-round-md my-3 p-3 md:p-5 relative">
+            class="list-card flex flex-column w-full my-3 p-4 md:p-5 relative">
         <i *ngIf="!wishlistView" (click)="addRemoveItemWishlist(product)"
            class="favorite absolute top-2 right-2 z-10 text-xl cursor-pointer"
            [class]="inWishlist ? 'pi pi-heart-fill wishlist' : 'pi pi-heart'"></i>
@@ -48,24 +48,24 @@
             <div style="max-width: 600px;"
                  class="flex flex-column justify-center items-center md:items-start text-center md:text-left">
                 <h2 (click)="openProductDetails(id)"
-                    class="font-bold hover:underline cursor-pointer text-blue-400 m-0 p-0 text-lg md:text-xl mb-2">
+                    class="list-title font-bold cursor-pointer m-0 p-0 text-lg md:text-xl mb-2">
                     {{ name }}
                 </h2>
-                <span class="font-light text-sm mb-1">EAN: {{ EAN }}</span>
-                <span class="text-sm mb-1">{{ description }}</span>
-                <span class="text-sm">{{ category?.name }} > {{ subcategory?.name }}</span>
+                <span class="text-muted text-sm mb-1">EAN: {{ EAN }}</span>
+                <span class="text-muted text-sm mb-1">{{ description }}</span>
+                <span class="text-muted text-sm">{{ category?.name }} &rsaquo; {{ subcategory?.name }}</span>
             </div>
             <div class="flex flex-column items-center md:items-end justify-between md:mt-0 md:ml-auto">
 
                 <div class="flex flex-column md:flex-row items-center md:items-end justify-between w-full mt-2 md:mt-auto">
                     <div
                             class="flex flex-column items-center md:items-start mb-3 md:mb-0 md:mr-4 align-self-center md:align-self-auto">
-            <span class="text-green-500 text-sm align-self-center md:align-self-auto" *ngIf="inStock > 1">{{ inStock }}
+            <span class="stock-in text-sm align-self-center md:align-self-auto" *ngIf="inStock > 1">{{ inStock }}
                 items available</span>
-                        <span class="text-green-500 text-sm align-self-center md:align-self-auto"
+                        <span class="stock-in text-sm align-self-center md:align-self-auto"
                               *ngIf="inStock === 1">{{ inStock }}
                             item available</span>
-                        <span *ngIf="inStock === 0" class="text-red-500 text-sm align-self-center md:align-self-auto">Not
+                        <span *ngIf="inStock === 0" class="stock-out text-sm align-self-center md:align-self-auto">Not
               available</span>
                         <h2 class="font-medium text-lg md:text-xl mb-1">{{ price | number }} RSD</h2>
                         <span class="text-sm">or 12 x {{ getInstallmentPayAmount(price) | number }} RSD / month</span>

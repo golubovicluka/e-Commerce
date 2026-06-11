@@ -1,21 +1,21 @@
 <div
-  class="flex flex-column align-items-center justify-content-center gap-4 border-1 border-round-2xl border-surface my-4 p-3">
+  class="checkout-panel flex flex-column align-items-center justify-content-center gap-4 my-4">
   <div class="w-full">
-    <span class="center font-light">Cart overview</span>
+    <h3 class="center panel-title">Cart overview</h3>
     <p-divider class="w-full"></p-divider>
     <!-- Render all cart items with all their details -->
     <ng-container *ngFor="let product of products$ | async; let index = index">
-      <div class="flex align-items-center justify-content-between m-3 p-3">
-        <span class="font-medium text-2xl">{{product.name}}</span>
+      <div class="overview-row flex align-items-center justify-content-between">
+        <span class="font-medium text-lg">{{product.name}}</span>
         <div>
-          <span class="font-light">{{product.price}} RSD</span>
+          <span class="font-mono">{{product.price | number}} RSD</span>
         </div>
       </div>
     </ng-container>
   </div>
   <p-divider class="w-full"></p-divider>
   <div class="flex align-items-center justify-content-between w-full">
-    <p-button [routerLink]="['/cart/shipping']" label="Back"></p-button>
+    <p-button [routerLink]="['/cart/shipping']" label="Back" styleClass="p-button-outlined"></p-button>
     <p-button [routerLink]="['/cart/payment']" label="Payment"></p-button>
   </div>
 </div>

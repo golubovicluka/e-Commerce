@@ -41,7 +41,7 @@
             </div>
 
             <div
-                    class="fadein animation-duration-300 relative border-300 border-1 border-round-xl surface-overlay mt-5 mb-5 flex flex-column align-items-center justify-content-around lg:w-auto pt-4 pb-4"
+                    class="details-panel component-enter relative flex flex-column align-items-center justify-content-around lg:w-auto"
                     *ngIf="product" style="max-width: 450px;">
                 <p-tag class="m-1 tag" severity="danger" value="Excellent price" [rounded]="true"></p-tag>
                 <i class="favorite" (click)="addProductToWishList(product)"
@@ -50,15 +50,15 @@
                     <h2 class="font-bold">
                         {{ product?.name }}
                     </h2>
-                    <span class="align-self-start font-light text-green-400 text-sm"
+                    <span class="align-self-start stock-in text-sm"
                           *ngIf="product.inStock > 0; else notAvailable">Available</span>
                     <ng-template #notAvailable="">
-                        <span class="align-self-start font-light text-red-400 text-sm">Unavailable at the moment</span>
+                        <span class="align-self-start stock-out text-sm">Unavailable at the moment</span>
                     </ng-template>
-                    <span class="font-light">
+                    <span class="text-muted">
           EAN: {{ product.EAN }}
         </span>
-                    <span class="font-light align-self-start">
+                    <span class="text-muted align-self-start">
           {{ product?.subcategory?.name }}
         </span>
                 </div>
@@ -85,7 +85,7 @@
                 </div>
                 <button (click)="buyProduct(product)" class="p-button-outlined p-button-rounded w-full sm:w-10 mt-2 p-2"
                         type="button" pButton pRipple label="Buy now" [disabled]="product.inStock === 0"></button>
-                <span class="text-blue-400 underline cursor-pointer mt-2" *ngIf="product.inStock === 0">Notify when
+                <span class="notify-link cursor-pointer mt-2" *ngIf="product.inStock === 0">Notify when
         available</span>
             </div>
         </div>
@@ -103,7 +103,7 @@
             [circular]="false"
             [responsiveOptions]="carouselResponsiveOptions" styleClass="w-full mt-4">
     <ng-template pTemplate="header">
-        <h2 class="text-center">Suggested products from category {{ product.category?.name }}</h2>
+        <h2 class="text-center suggested-heading">Suggested products from category {{ product.category?.name }}</h2>
     </ng-template>
     <ng-template let-product pTemplate="item">
         <div class="flex align-items-center justify-content-center w-full p-2">

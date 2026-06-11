@@ -1,8 +1,9 @@
 <p-toast position="bottom-left"></p-toast>
 <p-breadcrumb [home]="home" [model]="items"></p-breadcrumb>
-<h3 class="center font-light mb-3 pb-0 fadein animation-duration-300" *ngIf="wishlistItems.length > 0">
-  Wishlist items
-</h3>
+<div class="section-heading" *ngIf="wishlistItems.length > 0">
+  <h1 class="page-title">Your wishlist</h1>
+  <p class="page-subtitle">Things you've saved for later.</p>
+</div>
 <ng-container *ngIf="wishlistItems;else loading">
   <div *ngFor="let product of wishlistItems">
     <div class="w-full fadein animation-duration-300" auto-animate style="position: relative;">
@@ -16,11 +17,12 @@
         [EAN]="product.EAN"></app-product>
     </div>
   </div>
-  <div class="fadein animation-duration-500 flex align-items-center flex-column justify-content-center"
-    *ngIf="wishlistItems.length === 0">
-    <h3 class="font-light">No wishlist items to display...</h3>
-    <button style="max-width: 150px;" class="p-button-outlined p-button-rounded w-full sm:w-2 mt-2 p-2" type="button"
-      pButton pRipple [routerLink]="['/products/search']" label="Find a product"></button>
+  <div class="empty-state component-enter" *ngIf="wishlistItems.length === 0">
+    <i class="pi pi-heart"></i>
+    <h3>Your wishlist is empty</h3>
+    <p>Save products you love and find them here later.</p>
+    <button class="p-button-outlined" type="button" pButton pRipple [routerLink]="['/products/search']"
+      label="Find a product"></button>
   </div>
 </ng-container>
 <ng-template #loading="">
