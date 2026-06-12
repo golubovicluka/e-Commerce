@@ -2,6 +2,17 @@
   background: transparent;
 }
 
+:host ::ng-deep .p-dataview-grid .grid > div {
+  display: flex;
+  min-width: 0;
+
+  app-product {
+    display: block;
+    width: 100%;
+    min-width: 0;
+  }
+}
+
 .products-layout {
   display: flex;
   flex-direction: column;
