@@ -1,15 +1,15 @@
 .product-card {
   width: 100%;
+  min-width: 0;
   min-height: 100%;
   display: flex;
-  align-items: center;
-  justify-content: center;
   flex-direction: column;
   border-radius: var(--radius-lg);
   border: 1px solid var(--color-border);
   background: var(--color-surface);
   position: relative;
   margin: 0;
+  overflow: hidden;
   box-shadow: var(--shadow-sm);
   transition: box-shadow var(--duration-base) var(--ease-out),
     transform var(--duration-base) var(--ease-out),
@@ -20,6 +20,43 @@
     border-color: var(--color-accent);
     transform: translateY(-3px);
   }
+}
+
+.product-card-body {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  height: 100%;
+  min-width: 0;
+  padding: var(--space-2);
+}
+
+.image-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 12.5rem;
+  margin-bottom: var(--space-2);
+  overflow: hidden;
+  flex-shrink: 0;
+
+  .product-image {
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    cursor: pointer;
+  }
+}
+
+.content-section {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  padding: var(--space-3);
 }
 
 .custom-ellipsis {
