@@ -13,7 +13,7 @@ export class ShippingComponent {
   areaCode!: string;
   phoneNumber!: string;
   additionalInformation!: string;
-  saveFormDetails!: string;
+  saveFormDetails = 'saveDetails';
   phonePrefix!: string;
   apartmentNumber!: number;
 

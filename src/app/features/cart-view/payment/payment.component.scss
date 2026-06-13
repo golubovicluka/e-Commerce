@@ -1,31 +1,70 @@
-.checkout-panel {
-  width: 100%;
-  max-width: 720px;
-  margin-left: auto;
-  margin-right: auto;
-  background: var(--color-surface);
+/* Panel shell + field labels come from the global .checkout-panel styles. */
+
+.method-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-3);
+
+  @media (min-width: 576px) {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.method-tile {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  background: var(--color-surface-elevated);
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-sm);
-  padding: var(--space-6) var(--space-4);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: border-color var(--duration-base) var(--ease-out),
+    background var(--duration-base) var(--ease-out),
+    box-shadow var(--duration-base) var(--ease-out);
 
-  @media (min-width: 768px) {
-    padding: var(--space-8);
+  /* The radio stays accessible but the tile carries the visual state. */
+  ::ng-deep .p-radiobutton {
+    position: absolute;
+    top: var(--space-3);
+    right: var(--space-3);
+  }
+
+  &:hover {
+    border-color: var(--color-accent);
+  }
+
+  &.is-selected {
+    border-color: var(--color-accent);
+    background: var(--color-accent-dim);
+    box-shadow: var(--shadow-sm);
+
+    .method-icon {
+      color: var(--color-accent-strong);
+    }
   }
 }
 
-.panel-title {
-  font-size: var(--text-xl);
-  margin-bottom: var(--space-2);
+.method-icon {
+  font-size: 1.5rem;
+  color: var(--color-text-secondary);
+  transition: color var(--duration-base) var(--ease-out);
 }
 
-.overview-row {
-  padding: var(--space-3) var(--space-2);
-  border-bottom: 1px solid var(--color-border);
+.method-name {
+  font-weight: 700;
+  font-size: var(--text-sm);
+}
 
-  &:last-child {
-    border-bottom: none;
-  }
+.method-desc {
+  font-size: var(--text-xs);
+  color: var(--color-text-secondary);
+}
+
+.card-form {
+  padding-top: var(--space-2);
 }
 
 .order-summary {
@@ -33,4 +72,47 @@
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   padding: var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.summary-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-4);
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+
+  .row-free {
+    color: var(--color-success);
+    font-weight: 600;
+  }
+}
+
+.summary-total {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-4);
+  margin-top: var(--space-2);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--color-border);
+  font-weight: 600;
+  font-size: var(--text-lg);
+}
+
+.secure-note {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  width: 100%;
+  font-size: var(--text-xs);
+  color: var(--color-text-secondary);
+
+  i {
+    font-size: 0.8rem;
+  }
 }

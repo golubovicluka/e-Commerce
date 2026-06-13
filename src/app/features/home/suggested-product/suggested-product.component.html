@@ -1,20 +1,23 @@
-<div (click)="openDetails(id)" class="suggested-card">
+<article (click)="openDetails(id)" class="suggested-card" tabindex="0" role="link"
+  (keyup.enter)="openDetails(id)" [attr.aria-label]="name + ' — view product'">
   <span class="badge-new">New</span>
 
   <div class="img-wrap">
     <img [src]="resolvedImage" (error)="onImageError($event)" [alt]="name">
   </div>
 
-  <span class="product-name">{{name}}</span>
-  <span class="product-description">{{description}}</span>
-  <span class="product-price font-mono">{{price | number}} RSD</span>
+  <h3 class="product-name">{{ name }}</h3>
+  <p class="product-description">{{ description }}</p>
 
-  <span *ngIf="inStock > 0; else notAvailable" class="stock stock--in">
-    <i class="pi pi-check-circle"></i> Available
-  </span>
-  <ng-template #notAvailable>
-    <span class="stock stock--out">
-      <i class="pi pi-times-circle"></i> Not available
+  <div class="card-foot">
+    <span class="product-price font-mono">{{ price | number }} <span class="currency">RSD</span></span>
+    <span *ngIf="inStock > 0; else notAvailable" class="stock stock--in">
+      <span class="stock-dot"></span> In stock
     </span>
-  </ng-template>
-</div>
+    <ng-template #notAvailable>
+      <span class="stock stock--out">
+        <span class="stock-dot"></span> Sold out
+      </span>
+    </ng-template>
+  </div>
+</article>

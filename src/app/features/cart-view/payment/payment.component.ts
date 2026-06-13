@@ -1,5 +1,8 @@
 import { Component } from '@angular/core';
 
+import { map, Observable } from 'rxjs';
+import { CartService } from 'src/app/shared/cart.service';
+
 @Component({
   selector: 'app-payment',
   templateUrl: './payment.component.html',
@@ -8,19 +11,19 @@ import { Component } from '@angular/core';
 export class PaymentComponent {
 
   selectedPaymentMethod: string = 'creditCard';
-  subtotal: number = 100;
-  shipping: number = 10;
-
-  get total(): number {
-    return this.subtotal + this.shipping;
-  }
+  subtotal$: Observable<number>;
+  shipping: number = 0; // free shipping on all orders
+  total$: Observable<number>;
 
   cardNumber: string = '';
   cardHolderName: string = '';
   expiryDate: string = '';
   cvv: string = '';
 
-  constructor() { }
+  constructor(private _cartService: CartService) {
+    this.subtotal$ = this._cartService.getTotalPrice();
+    this.total$ = this.subtotal$.pipe(map((subtotal) => subtotal + this.shipping));
+  }
 
   completePayment(): void {
     // Raw card details (PAN, CVV, expiry) must never be logged or handled in the

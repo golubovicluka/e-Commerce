@@ -1,14 +1,22 @@
 <p-toast position="bottom-left"></p-toast>
 <p-breadcrumb [home]="home" [model]="items"></p-breadcrumb>
-<div class="section-heading" *ngIf="wishlistItems.length > 0">
-  <h1 class="page-title">Your wishlist</h1>
-  <p class="page-subtitle">Things you've saved for later.</p>
+
+<div class="section-head" *ngIf="wishlistItems.length > 0">
+  <div>
+    <span class="eyebrow">Saved for later</span>
+    <h1 class="page-title">Your wishlist</h1>
+  </div>
+  <span class="results-count font-mono">{{ wishlistItems.length }}
+    {{ wishlistItems.length === 1 ? 'item' : 'items' }}</span>
 </div>
-<ng-container *ngIf="wishlistItems;else loading">
-  <div *ngFor="let product of wishlistItems">
-    <div class="w-full fadein animation-duration-300" auto-animate style="position: relative;">
-      <p-button class="p-3 remove-btn" icon="pi pi-times" (click)="removeFromWishlist(product)"
-        styleClass="p-button-rounded p-button-danger"></p-button>
+
+<ng-container *ngIf="wishlistItems; else loading">
+  <div class="wishlist-items stagger">
+    <div class="wishlist-row" *ngFor="let product of wishlistItems" auto-animate>
+      <button class="remove-btn" type="button" (click)="removeFromWishlist(product)"
+        [attr.aria-label]="'Remove ' + product.name + ' from wishlist'">
+        <i class="pi pi-times"></i>
+      </button>
       <app-product #productComponent (addedToCart)="addToCart($event)" (removedFromCart)="removeFromCart($event)"
         [isListView]="true" [categoryId]="product.categoryId" [subcategoryId]="product.subcategoryId"
         [wishlistView]="true" [inWishlist]="existsInLocalStorage(product.id)" [name]="product.name"
@@ -25,8 +33,9 @@
       label="Find a product"></button>
   </div>
 </ng-container>
-<ng-template #loading="">
-  <div class="center" style="padding-top: 30px">
-    <i class="pi pi-spin pi-spinner" style="font-size: 2rem"></i>
+
+<ng-template #loading>
+  <div class="wishlist-items">
+    <div class="skeleton wishlist-skeleton" *ngFor="let s of [1, 2]"></div>
   </div>
 </ng-template>

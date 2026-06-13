@@ -1,10 +1,14 @@
-.section-heading {
-  text-align: center;
-  margin: var(--space-4) 0 var(--space-12);
+.section-head {
+  margin: var(--space-4) 0 var(--space-8);
 }
 
 .categories-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
   gap: var(--space-6);
+}
+
+.category-skeleton {
+  height: 16rem;
+  border-radius: var(--radius-lg);
 }

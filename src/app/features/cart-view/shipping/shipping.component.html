@@ -1,33 +1,55 @@
-<div
-  class="checkout-panel flex flex-column align-items-center justify-content-center gap-4 my-4">
-  <div class="w-full">
-    <h3 class="center panel-title">Shipping details</h3>
-    <p-divider class="w-full p-0 m-0"></p-divider>
+<div class="checkout-panel component-enter">
+  <div class="panel-head">
+    <span class="eyebrow">Step 1 of 3</span>
+    <h3 class="panel-title">Where should we deliver?</h3>
   </div>
-  <div class="w-full grid md:grid-cols-2 gap-4">
-    <input class="w-full" type="text" pInputText placeholder="Name" [(ngModel)]="name" />
-    <input class="w-full" type="text" pInputText placeholder="Last name" [(ngModel)]="lastName" />
-  </div>
-  <div class="w-full grid md:grid-cols-2 gap-4">
-    <input class="w-full" type="text" pInputText placeholder="Address" [(ngModel)]="address" />
-    <input class="w-full" type="text" pInputText placeholder="Apartment number" [(ngModel)]="apartmentNumber" />
-  </div>
-  <div class="w-full grid md:grid-cols-2 gap-4">
-    <input class="w-full" type="text" pInputText placeholder="Postal code" [(ngModel)]="postalCode" />
-    <input class="w-full" type="text" pInputText placeholder="City" [(ngModel)]="city" />
-  </div>
-  <div class="w-full">
-    <input class="w-full md:w-1/2" type="text" pInputText placeholder="Phone number" [(ngModel)]="phoneNumber" />
-  </div>
-  <textarea class="w-full md:w-1/2" placeholder="More information for delivery..." rows="5" pInputTextarea
-    [(ngModel)]="additionalInformation"></textarea>
-  <div class="flex flex-column align-items-center justify-content-center text-center">
-    <label for="saveDetails" class="text-center">Save form details. So when you shop next time with us, it will
-      automatically be updated.</label>
-    <div class="flex align-items-center">
-      <span class="font-light mr-2">Save form details</span>
-      <p-checkbox name="saveDetails" value="formDetails" [inputId]="saveFormDetails"></p-checkbox>
+
+  <div class="formgrid grid">
+    <div class="field col-12 md:col-6">
+      <label for="ship-name">First name</label>
+      <input id="ship-name" class="w-full" type="text" pInputText autocomplete="given-name" [(ngModel)]="name" />
+    </div>
+    <div class="field col-12 md:col-6">
+      <label for="ship-lastname">Last name</label>
+      <input id="ship-lastname" class="w-full" type="text" pInputText autocomplete="family-name"
+        [(ngModel)]="lastName" />
+    </div>
+    <div class="field col-12 md:col-8">
+      <label for="ship-address">Street address</label>
+      <input id="ship-address" class="w-full" type="text" pInputText autocomplete="street-address"
+        [(ngModel)]="address" />
+    </div>
+    <div class="field col-12 md:col-4">
+      <label for="ship-apartment">Apartment <span class="optional">(optional)</span></label>
+      <input id="ship-apartment" class="w-full" type="text" pInputText [(ngModel)]="apartmentNumber" />
+    </div>
+    <div class="field col-12 md:col-4">
+      <label for="ship-postal">Postal code</label>
+      <input id="ship-postal" class="w-full" type="text" pInputText autocomplete="postal-code" inputmode="numeric"
+        [(ngModel)]="postalCode" />
+    </div>
+    <div class="field col-12 md:col-8">
+      <label for="ship-city">City</label>
+      <input id="ship-city" class="w-full" type="text" pInputText autocomplete="address-level2" [(ngModel)]="city" />
+    </div>
+    <div class="field col-12 md:col-6">
+      <label for="ship-phone">Phone number</label>
+      <input id="ship-phone" class="w-full" type="tel" pInputText autocomplete="tel" [(ngModel)]="phoneNumber" />
+    </div>
+    <div class="field col-12">
+      <label for="ship-notes">Delivery notes <span class="optional">(optional)</span></label>
+      <textarea id="ship-notes" class="w-full" placeholder="Door code, floor, preferred time window…" rows="4"
+        pInputTextarea [(ngModel)]="additionalInformation"></textarea>
     </div>
   </div>
-  <p-button [routerLink]="['/cart/overview']" class="align-self-end" label="View order"></p-button>
+
+  <label class="save-details" for="saveDetails">
+    <p-checkbox name="saveDetails" value="formDetails" [inputId]="saveFormDetails"></p-checkbox>
+    <span>Save these details for faster checkout next time</span>
+  </label>
+
+  <div class="panel-actions">
+    <p-button [routerLink]="['/cart/overview']" label="Continue to overview" icon="pi pi-arrow-right"
+      iconPos="right"></p-button>
+  </div>
 </div>

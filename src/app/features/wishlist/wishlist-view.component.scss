@@ -1,7 +1,51 @@
+.results-count {
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+}
+
+.wishlist-items {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.wishlist-row {
+  position: relative;
+}
+
 .remove-btn {
-  font-size: 1.5rem;
   position: absolute;
-  top: 0;
-  right: 0;
-  z-index: 1000;
+  top: var(--space-3);
+  right: var(--space-3);
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border: none;
+  border-radius: var(--radius-full);
+  background: var(--color-surface-elevated);
+  box-shadow: var(--shadow-sm);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: background var(--duration-base) var(--ease-out),
+    color var(--duration-base) var(--ease-out),
+    transform var(--duration-fast) var(--ease-out);
+
+  i {
+    font-size: 0.9rem;
+  }
+
+  &:hover {
+    background: var(--color-danger-dim);
+    color: var(--color-danger);
+    transform: scale(1.06);
+  }
+}
+
+.wishlist-skeleton {
+  height: 14rem;
+  border-radius: var(--radius-lg);
 }

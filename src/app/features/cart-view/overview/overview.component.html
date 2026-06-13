@@ -1,21 +1,31 @@
-<div
-  class="checkout-panel flex flex-column align-items-center justify-content-center gap-4 my-4">
-  <div class="w-full">
-    <h3 class="center panel-title">Cart overview</h3>
-    <p-divider class="w-full"></p-divider>
-    <!-- Render all cart items with all their details -->
-    <ng-container *ngFor="let product of products$ | async; let index = index">
-      <div class="overview-row flex align-items-center justify-content-between">
-        <span class="font-medium text-lg">{{product.name}}</span>
-        <div>
-          <span class="font-mono">{{product.price | number}} RSD</span>
-        </div>
-      </div>
-    </ng-container>
+<div class="checkout-panel component-enter">
+  <div class="panel-head">
+    <span class="eyebrow">Step 2 of 3</span>
+    <h3 class="panel-title">Review your order</h3>
   </div>
-  <p-divider class="w-full"></p-divider>
-  <div class="flex align-items-center justify-content-between w-full">
-    <p-button [routerLink]="['/cart/shipping']" label="Back" styleClass="p-button-outlined"></p-button>
-    <p-button [routerLink]="['/cart/payment']" label="Payment"></p-button>
+
+  <div class="overview-list">
+    <div class="overview-row" *ngFor="let line of cartLines$ | async">
+      <span class="row-name">
+        {{ line.product.name }}
+        <span class="row-qty" *ngIf="line.quantity > 1">&times; {{ line.quantity }}</span>
+      </span>
+      <span class="row-price font-mono">{{ line.lineTotal | number }} RSD</span>
+    </div>
+    <div class="overview-row overview-row--shipping">
+      <span class="row-name">Shipping</span>
+      <span class="row-free">Free</span>
+    </div>
+    <div class="overview-total">
+      <span>Total</span>
+      <span class="font-mono">{{ total$ | async | number }} RSD</span>
+    </div>
+  </div>
+
+  <div class="panel-actions">
+    <p-button [routerLink]="['/cart/shipping']" label="Back" icon="pi pi-arrow-left"
+      styleClass="p-button-outlined"></p-button>
+    <p-button [routerLink]="['/cart/payment']" label="Continue to payment" icon="pi pi-arrow-right"
+      iconPos="right"></p-button>
   </div>
 </div>

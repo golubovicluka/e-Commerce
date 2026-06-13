@@ -1,22 +1,35 @@
 <p-toast position="bottom-left"></p-toast>
 <p-breadcrumb [home]="home" [model]="items" styleClass="w-full"></p-breadcrumb>
 
+<div class="section-head">
+  <div>
+    <span class="eyebrow">Catalog</span>
+    <h1 class="page-title">All products</h1>
+  </div>
+  <span class="results-count font-mono" *ngIf="!isLoading">{{ totalRecords | number }} products</span>
+</div>
+
 <div class="products-layout">
-  <aside class="filters-panel" *ngIf="!isLoading;else loadingFilters">
-    <h3 class="filters-title">Filters</h3>
+  <aside class="filters-panel" *ngIf="!isLoading; else loadingFilters">
+    <h3 class="filters-title">Category</h3>
     <app-filters (filtersObject)="applyFilters($event)" [categories]="categories"></app-filters>
+
+    <h3 class="filters-title price-title">Price</h3>
     <div class="price-filter">
-      <p-inputNumber class="mb-2 w-full" [(ngModel)]="rangeValues[0]" (ngModelChange)="onPriceChange($event)" mode="currency"
-        inputId="currency" currency="RSD" locale="en-US">
-      </p-inputNumber>
-      <p-inputNumber class="mb-2 w-full" [(ngModel)]="rangeValues[1]" (ngModelChange)="onPriceChange($event)" mode="currency"
-        inputId="currency" currency="RSD" locale="en-US">
-      </p-inputNumber>
-      <span class="price-label">
-        Price range: {{(rangeValues[0] | number) + ' - ' + (rangeValues[1] | number)}} RSD
-      </span>
+      <div class="price-inputs">
+        <p-inputNumber class="w-full" [(ngModel)]="rangeValues[0]" (ngModelChange)="onPriceChange($event)"
+          mode="currency" inputId="currency" currency="RSD" locale="en-US">
+        </p-inputNumber>
+        <span class="price-dash" aria-hidden="true">&ndash;</span>
+        <p-inputNumber class="w-full" [(ngModel)]="rangeValues[1]" (ngModelChange)="onPriceChange($event)"
+          mode="currency" inputId="currency" currency="RSD" locale="en-US">
+        </p-inputNumber>
+      </div>
       <p-slider [(ngModel)]="rangeValues" [range]="true" [min]="lowestPrice" [max]="highestPrice" [animate]="true"
         (onSlideEnd)="handlePriceFilter($event)" class="w-full"></p-slider>
+      <span class="price-label font-mono">
+        {{ (rangeValues[0] | number) + ' – ' + (rangeValues[1] | number) }} RSD
+      </span>
     </div>
   </aside>
   <ng-template #loadingFilters>
@@ -38,15 +51,15 @@
       [first]="first" [trackBy]="trackByProductId" (onLazyLoad)="loadData($event)"
       [loading]="isLoading" [rowsPerPageOptions]="[10,20,30]" paginatorPosition="bottom">
       <ng-template pTemplate="header">
-        <div class="flex flex-column sm:flex-row align-items-center justify-content-between gap-3">
-          <span class="p-input-icon-left w-full sm:w-auto mb-2 sm:mb-0">
+        <div class="results-toolbar">
+          <span class="p-input-icon-left search-field">
             <i class="pi pi-search"></i>
             <input class="w-full" type="text" pInputText (ngModelChange)="onChanges($event)"
-              [(ngModel)]="searchInput" placeholder="Search">
+              [(ngModel)]="searchInput" placeholder="Search products" aria-label="Search products">
           </span>
-          <div class="flex flex-column sm:flex-row w-full sm:w-auto">
-            <p-dropdown class="w-full sm:w-auto mb-2 sm:mb-0 sm:mr-2" [options]="sortOptions" [(ngModel)]="sortKey" placeholder="Sort By"
-              (onChange)="onSortChange($event)" [style]="{'min-width':'15em'}"></p-dropdown>
+          <div class="toolbar-controls">
+            <p-dropdown [options]="sortOptions" [(ngModel)]="sortKey" placeholder="Sort by"
+              (onChange)="onSortChange($event)" [style]="{'min-width':'13em'}"></p-dropdown>
             <p-dataViewLayoutOptions class="hidden sm:block"></p-dataViewLayoutOptions>
           </div>
         </div>
@@ -54,7 +67,7 @@
 
       <!-- List view -->
       <ng-template let-product pTemplate="listItem">
-        <div class="w-full" style="position: relative;">
+        <div class="w-full list-row">
           <app-product (addedToCart)="addToCart($event)" (removedFromCart)="removeFromCart($event)"
             (addedToWishList)="addToWishList($event)" [isListView]="true" [categoryId]="product.categoryId"
             [subcategoryId]="product.subcategoryId" (removedFromWishList)="removedFromWishList($event)"
@@ -66,7 +79,7 @@
 
       <!-- Grid view -->
       <ng-template let-product pTemplate="gridItem">
-        <div class="w-full sm:w-6 md:w-4 lg:w-3 xl:w-2 p-2">
+        <div class="w-full sm:w-6 md:w-4 lg:w-4 xl:w-3 p-2">
           <app-product (addedToCart)="addToCart($event)" (addedToWishList)="addToWishList($event)"
             [isListView]="false" [categoryId]="product.categoryId" [subcategoryId]="product.subcategoryId"
             (removedFromWishList)="removedFromWishList($event)" [name]="product.name" [category]="product.category"
@@ -75,10 +88,5 @@
         </div>
       </ng-template>
     </p-dataView>
-    <ng-template #loading>
-      <div class="flex justify-content-center" style="padding-top: 30px">
-        <i class="pi pi-spin pi-spinner" style="font-size: 2rem"></i>
-      </div>
-    </ng-template>
   </div>
 </div>

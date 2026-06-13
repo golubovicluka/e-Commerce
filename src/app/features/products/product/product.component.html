@@ -1,83 +1,72 @@
 <!-- Grid view -->
-<div *ngIf="!isListView; else listView" class="product-card transition-duration-500">
-    <div class="product-card-body">
-        <div class="image-container">
-            <img (click)="openProductDetails(id)" [src]="primaryImageSrc" [alt]="name" (error)="onImageError($event)"
-                 class="product-image">
-        </div>
-        <i (click)="addRemoveItemWishlist(product)" class="favorite"
-           [class]="inWishlist ? 'pi pi-heart-fill wishlist' : 'pi pi-heart'"></i>
-        <div class="content-section">
-      <span (click)="openProductDetails(id)"
-            class="block text-base sm:text-lg font-bold mb-2 cursor-pointer hover:underline truncate text-center">{{ name }}</span>
-            <span class="block text-xs sm:text-sm mb-2 h-10 overflow-hidden relative text-center"
-                  [pTooltip]="description.length > 50 ? description : ''" tooltipPosition="top">
-        {{ description | slice:0:50 }}{{ description.length > 50 ? '...' : '' }}
-      </span>
-            <span class="block text-xs sm:text-sm mb-2 text-center">{{ subcategory?.name }}</span>
-            <p class="text-base sm:text-lg font-bold mb-2 text-center">{{ price | number }} RSD</p>
-            <span *ngIf="inStock !== 0;else notInStock"
-                  class="text-xs sm:text-sm block mb-2 stock-in text-center">{{ inStock }} items
-        available</span>
-            <ng-template #notInStock>
-                <span class="text-xs sm:text-sm stock-out block mb-2 text-center">Not available</span>
-            </ng-template>
-            <div class="text-center">
-                <p-button (click)="addRemoveCartItem(product)" [disabled]="product.inStock === 0" icon="pi pi-cart-plus"
-                          [styleClass]="inCart ? 'p-button-rounded p-button-primary' : 'p-button-rounded p-button-outlined'"></p-button>
-            </div>
-        </div>
+<article *ngIf="!isListView; else listView" class="product-card">
+  <button class="favorite-btn" type="button" (click)="addRemoveItemWishlist(product)"
+    [attr.aria-label]="inWishlist ? 'Remove ' + name + ' from wishlist' : 'Add ' + name + ' to wishlist'"
+    [class.is-active]="inWishlist">
+    <i [class]="inWishlist ? 'pi pi-heart-fill' : 'pi pi-heart'"></i>
+  </button>
+
+  <div class="card-media" (click)="openProductDetails(id)">
+    <img [src]="primaryImageSrc" [alt]="name" (error)="onImageError($event)">
+  </div>
+
+  <div class="card-body">
+    <span class="card-kicker" *ngIf="subcategory?.name">{{ subcategory?.name }}</span>
+    <h3 class="card-name" (click)="openProductDetails(id)">{{ name }}</h3>
+    <p class="card-desc" [pTooltip]="description.length > 80 ? description : ''" tooltipPosition="top">
+      {{ description }}
+    </p>
+
+    <div class="card-foot">
+      <div class="price-stock">
+        <span class="card-price font-mono">{{ price | number }} <span class="currency">RSD</span></span>
+        <span class="stock" [class.stock--in]="inStock > 0" [class.stock--out]="inStock === 0">
+          <span class="stock-dot"></span>
+          <ng-container *ngIf="inStock > 0">{{ inStock }} in stock</ng-container>
+          <ng-container *ngIf="inStock === 0">Sold out</ng-container>
+        </span>
+      </div>
+      <p-button (click)="addRemoveCartItem(product)" [disabled]="product.inStock === 0" icon="pi pi-cart-plus"
+        [pTooltip]="inCart ? 'Remove from cart' : 'Add to cart'" tooltipPosition="top"
+        [styleClass]="inCart ? 'p-button-rounded' : 'p-button-rounded p-button-outlined'"></p-button>
     </div>
-</div>
+  </div>
+</article>
 
 <!-- List view -->
 <ng-template #listView>
-    <!-- Container -->
-    <div
-            class="list-card flex flex-column w-full my-3 p-4 md:p-5 relative">
-        <i *ngIf="!wishlistView" (click)="addRemoveItemWishlist(product)"
-           class="favorite absolute top-2 right-2 z-10 text-xl cursor-pointer"
-           [class]="inWishlist ? 'pi pi-heart-fill wishlist' : 'pi pi-heart'"></i>
-        <!-- Left side -->
-        <div class="flex flex-column items-center md:items-start md:flex-row">
-            <img (click)="openProductDetails(id)" [src]="primaryImageSrc" [alt]="name" (error)="onImageError($event)"
-                 class="w-48 h-48 object-contain cursor-pointer md:mb-0 md:mr-5 align-self-center md:align-self-auto"
-                 style="max-width: 200px; max-height: 200px;">
-            <div style="max-width: 600px;"
-                 class="flex flex-column justify-center items-center md:items-start text-center md:text-left">
-                <h2 (click)="openProductDetails(id)"
-                    class="list-title font-bold cursor-pointer m-0 p-0 text-lg md:text-xl mb-2">
-                    {{ name }}
-                </h2>
-                <span class="text-muted text-sm mb-1">EAN: {{ EAN }}</span>
-                <span class="text-muted text-sm mb-1">{{ description }}</span>
-                <span class="text-muted text-sm">{{ category?.name }} &rsaquo; {{ subcategory?.name }}</span>
-            </div>
-            <div class="flex flex-column items-center md:items-end justify-between md:mt-0 md:ml-auto">
+  <article class="list-card">
+    <button *ngIf="!wishlistView" class="favorite-btn" type="button" (click)="addRemoveItemWishlist(product)"
+      [attr.aria-label]="inWishlist ? 'Remove ' + name + ' from wishlist' : 'Add ' + name + ' to wishlist'"
+      [class.is-active]="inWishlist">
+      <i [class]="inWishlist ? 'pi pi-heart-fill' : 'pi pi-heart'"></i>
+    </button>
 
-                <div class="flex flex-column md:flex-row items-center md:items-end justify-between w-full mt-2 md:mt-auto">
-                    <div
-                            class="flex flex-column items-center md:items-start mb-3 md:mb-0 md:mr-4 align-self-center md:align-self-auto">
-            <span class="stock-in text-sm align-self-center md:align-self-auto" *ngIf="inStock > 1">{{ inStock }}
-                items available</span>
-                        <span class="stock-in text-sm align-self-center md:align-self-auto"
-                              *ngIf="inStock === 1">{{ inStock }}
-                            item available</span>
-                        <span *ngIf="inStock === 0" class="stock-out text-sm align-self-center md:align-self-auto">Not
-              available</span>
-                        <h2 class="font-medium text-lg md:text-xl mb-1">{{ price | number }} RSD</h2>
-                        <span class="text-sm">or 12 x {{ getInstallmentPayAmount(price) | number }} RSD / month</span>
-                    </div>
-                    <p-button (click)="product.inStock > 0 && addRemoveCartItem(product)"
-                              [disabled]="product.inStock === 0"
-                              icon="pi pi-cart-plus"
-                              [styleClass]="product.inStock === 0 ? 'p-button-rounded p-button-outlined p-button-secondary' : (inCart ? 'p-button-rounded p-button-primary' : 'p-button-rounded p-button-outlined')"
-                              class="align-self-end">
-                    </p-button>
-                </div>
-            </div>
-        </div>
+    <div class="list-media" (click)="openProductDetails(id)">
+      <img [src]="primaryImageSrc" [alt]="name" (error)="onImageError($event)">
     </div>
-    <!-- Right side, available items + cart icon and price -->
 
+    <div class="list-info">
+      <span class="card-kicker">
+        {{ category?.name }}<ng-container *ngIf="subcategory?.name"> &rsaquo; {{ subcategory?.name }}</ng-container>
+      </span>
+      <h3 class="card-name" (click)="openProductDetails(id)">{{ name }}</h3>
+      <p class="card-desc card-desc--list">{{ description }}</p>
+      <span class="list-ean font-mono">EAN {{ EAN }}</span>
+    </div>
+
+    <div class="list-buy">
+      <span class="card-price card-price--lg font-mono">{{ price | number }} <span class="currency">RSD</span></span>
+      <span class="installment">or 12 &times; {{ getInstallmentPayAmount(price) | number }} RSD&nbsp;/&nbsp;mo</span>
+      <span class="stock" [class.stock--in]="inStock > 0" [class.stock--out]="inStock === 0">
+        <span class="stock-dot"></span>
+        <ng-container *ngIf="inStock > 1">{{ inStock }} in stock</ng-container>
+        <ng-container *ngIf="inStock === 1">Last one in stock</ng-container>
+        <ng-container *ngIf="inStock === 0">Sold out</ng-container>
+      </span>
+      <p-button (click)="product.inStock > 0 && addRemoveCartItem(product)" [disabled]="product.inStock === 0"
+        icon="pi pi-cart-plus" [label]="inCart ? 'In cart' : 'Add to cart'"
+        [styleClass]="inCart ? '' : 'p-button-outlined'"></p-button>
+    </div>
+  </article>
 </ng-template>

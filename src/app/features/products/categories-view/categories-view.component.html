@@ -1,17 +1,20 @@
 <p-breadcrumb [home]="home" [model]="items"></p-breadcrumb>
 
-<div class="section-heading">
-  <h1 class="page-title">Shop by category</h1>
-  <p class="page-subtitle">Browse our catalog by what you're looking for.</p>
+<div class="section-head">
+  <div>
+    <span class="eyebrow">Browse</span>
+    <h1 class="page-title">Shop by category</h1>
+    <p class="section-sub">Find your way to the right gear faster.</p>
+  </div>
 </div>
 
-<div *ngIf="categories; else loading" class="categories-grid component-enter">
+<div *ngIf="categories; else loading" class="categories-grid stagger">
   <app-category *ngFor="let category of categories" (applyCategoryFilter)="openProductsPage($event)"
     [name]="category.name" [id]="category.id"></app-category>
 </div>
 
 <ng-template #loading>
-  <div class="center mt-5">
-    <i class="pi pi-spin pi-spinner" style="font-size: 2rem"></i>
+  <div class="categories-grid">
+    <div class="skeleton category-skeleton" *ngFor="let s of [1, 2, 3, 4, 5, 6]"></div>
   </div>
 </ng-template>

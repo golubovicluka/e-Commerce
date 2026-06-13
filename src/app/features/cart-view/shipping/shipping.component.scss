@@ -1,36 +1,9 @@
-.checkout-panel {
-  width: 100%;
-  max-width: 720px;
-  margin-left: auto;
-  margin-right: auto;
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-sm);
-  padding: var(--space-6) var(--space-4);
-
-  @media (min-width: 768px) {
-    padding: var(--space-8);
-  }
-}
-
-.panel-title {
-  font-size: var(--text-xl);
-  margin-bottom: var(--space-2);
-}
-
-.overview-row {
-  padding: var(--space-3) var(--space-2);
-  border-bottom: 1px solid var(--color-border);
-
-  &:last-child {
-    border-bottom: none;
-  }
-}
-
-.order-summary {
-  background: var(--color-bg);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  padding: var(--space-4);
+/* Panel shell + field labels come from the global .checkout-panel styles. */
+.save-details {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  cursor: pointer;
 }

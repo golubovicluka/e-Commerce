@@ -21,8 +21,10 @@ describe('CartViewComponent', () => {
   let router: jasmine.SpyObj<Router>;
 
   beforeEach(async () => {
-    cart = jasmine.createSpyObj('CartService', ['getCartItems', 'removeFromCart']);
+    cart = jasmine.createSpyObj('CartService', ['getCartItems', 'getTotalPrice', 'getQuantities', 'setQuantityAtIndex', 'removeFromCart']);
     cart.getCartItems.and.returnValue(of([]));
+    cart.getTotalPrice.and.returnValue(of(0));
+    cart.getQuantities.and.returnValue([]);
     router = jasmine.createSpyObj('Router', ['navigate']);
 
     await TestBed.configureTestingModule({

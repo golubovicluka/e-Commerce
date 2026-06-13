@@ -1,8 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 
 import { MenuItem, MessageService } from 'primeng/api';
-import { map, Observable, of, Subscription } from 'rxjs';
+import { Observable, of, Subscription } from 'rxjs';
 import { CartService } from 'src/app/shared/cart.service';
 import { ProductImageService } from 'src/app/shared/product-image.service';
 
@@ -13,7 +13,7 @@ import { Product } from '../products/Product';
   templateUrl: './cart-view.component.html',
   styleUrls: ['./cart-view.component.scss'],
 })
-export class CartViewComponent implements OnInit {
+export class CartViewComponent implements OnInit, OnDestroy {
   products$!: Observable<Product[]>;
   totalPrice$!: Observable<number>;
 
@@ -27,7 +27,6 @@ export class CartViewComponent implements OnInit {
 
   stepperItems!: MenuItem[];
 
-  priceObservable!: Subscription;
   productsSubscription!: Subscription;
   public items!: MenuItem[];
   home!: MenuItem;
@@ -56,20 +55,17 @@ export class CartViewComponent implements OnInit {
       },
     ];
 
+    this.totalPrice$ = this._cartService.getTotalPrice();
+
     this.productsSubscription = this._cartService
       .getCartItems()
       .subscribe((products) => {
         this.numberOfItems = products.length;
         this.products$ = of(products);
-        
-        this.pieces = products.map(() => 1);
+        this.pieces = this._cartService.getQuantities();
       });
 
     this.shippingViewText = 'Proceed with shipping';
-
-    this.priceObservable = this.getTotalPrice().subscribe((price) => {
-      this.totalPrice$ = of(price);
-    });
 
     this.items = [
       { label: 'Products', routerLink: '/products/search' },
@@ -83,22 +79,26 @@ export class CartViewComponent implements OnInit {
   }
 
   ngOnDestroy() {
-    this.priceObservable.unsubscribe();
     this.productsSubscription.unsubscribe();
   }
 
   incrementProductCount(index: number, itemsInStock: number) {
     if (this.pieces[index] < itemsInStock) {
       this.pieces[index]++;
-      this.updateTotalPrice();
+      this._cartService.setQuantityAtIndex(index, this.pieces[index]);
     }
   }
 
   decrementProductCount(index: number) {
     if (this.pieces[index] > 1) {
       this.pieces[index]--;
-      this.updateTotalPrice();
+      this._cartService.setQuantityAtIndex(index, this.pieces[index]);
     }
+  }
+
+  onQuantityChange(index: number, quantity: number): void {
+    this.pieces[index] = quantity;
+    this._cartService.setQuantityAtIndex(index, quantity);
   }
 
   openShippingView() {
@@ -115,28 +115,10 @@ export class CartViewComponent implements OnInit {
 
   removeFromCart(product: Product) {
     this._cartService.removeFromCart(product);
-    this.priceObservable = this.getTotalPrice().subscribe(
-      (price) => (this.totalPrice$ = of(price))
-    );
-  }
-
-  getTotalPrice() {
-    return this.products$.pipe(
-      map((products) =>
-        products.reduce((total, product, index) => 
-          total + (product.price * this.pieces[index] || 0), 0)
-      )
-    );
   }
 
   openProductDetails(id: number) {
     this.router.navigate(['/product', id]);
-  }
-
-  updateTotalPrice() {
-    this.priceObservable = this.getTotalPrice().subscribe((price) => {
-      this.totalPrice$ = of(price);
-    });
   }
 
   getProductImage(product: Product): string {

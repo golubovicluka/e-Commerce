@@ -1,9 +1,7 @@
 import { Component } from '@angular/core';
 
 import { Observable } from 'rxjs';
-import { CartService } from 'src/app/shared/cart.service';
-
-import { Product } from '../../products/Product';
+import { CartLine, CartService } from 'src/app/shared/cart.service';
 
 @Component({
   selector: 'app-overview',
@@ -11,9 +9,11 @@ import { Product } from '../../products/Product';
   styleUrls: ['./overview.component.scss'],
 })
 export class OverviewComponent {
-  products$: Observable<Product[]>;
+  cartLines$: Observable<CartLine[]>;
+  total$: Observable<number>;
 
   constructor(private _cartService: CartService) {
-    this.products$ = this._cartService.getCartItems();
+    this.cartLines$ = this._cartService.getCartLines();
+    this.total$ = this._cartService.getTotalPrice();
   }
 }

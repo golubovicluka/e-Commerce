@@ -17,8 +17,13 @@ describe('OverviewComponent', () => {
   let cart: jasmine.SpyObj<CartService>;
 
   beforeEach(async () => {
-    cart = jasmine.createSpyObj('CartService', ['getCartItems']);
+    cart = jasmine.createSpyObj('CartService', ['getCartItems', 'getCartLines', 'getTotalPrice']);
     cart.getCartItems.and.returnValue(of([mockProducts[0], mockProducts[1]]));
+    cart.getCartLines.and.returnValue(of([
+      { product: mockProducts[0], quantity: 1, lineTotal: mockProducts[0].price },
+      { product: mockProducts[1], quantity: 1, lineTotal: mockProducts[1].price },
+    ]));
+    cart.getTotalPrice.and.returnValue(of(mockProducts[0].price + mockProducts[1].price));
 
     await TestBed.configureTestingModule({
       declarations: [OverviewComponent],
@@ -34,9 +39,10 @@ describe('OverviewComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('exposes the cart items stream from CartService', (done) => {
-    component.products$.subscribe((items) => {
-      expect(items).toEqual([mockProducts[0], mockProducts[1]]);
+  it('exposes the cart lines stream from CartService', (done) => {
+    component.cartLines$.subscribe((lines) => {
+      expect(lines.length).toBe(2);
+      expect(lines[0].product).toEqual(mockProducts[0]);
       done();
     });
   });

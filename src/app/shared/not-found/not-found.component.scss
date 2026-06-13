@@ -1,5 +1,8 @@
 .code-404 {
-  font-size: var(--text-3xl);
+  font-size: clamp(6rem, 18vw, 11rem);
   font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.06em;
   color: var(--color-accent);
+  user-select: none;
 }

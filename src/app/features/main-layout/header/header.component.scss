@@ -9,6 +9,18 @@
   border-bottom: 1px solid var(--color-border);
 }
 
+/* Slim utility strip above the nav — sets the tone before anything else. */
+.announce-bar {
+  background: var(--color-ink);
+  color: var(--color-text-on-ink-muted);
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: var(--space-1) var(--space-4);
+}
+
 .header-inner {
   max-width: var(--layout-max-width);
   margin: 0 auto;

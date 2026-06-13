@@ -336,6 +336,57 @@ describe('CartService', () => {
         done();
       });
     });
+
+    it('should multiply line totals by persisted quantities', (done) => {
+      const product = createMockProduct({ price: 100.00 });
+      service.addToCart(product);
+      service.setQuantityAtIndex(0, 3);
+
+      service.getTotalPrice().subscribe(total => {
+        expect(total).toBe(300.00);
+        done();
+      });
+    });
+  });
+
+  describe('getCartLines', () => {
+    beforeEach(() => {
+      service = TestBed.inject(CartService);
+    });
+
+    it('should expose quantity and line totals for each cart row', (done) => {
+      const product = createMockProduct({ price: 50.00 });
+      service.addToCart(product);
+      service.setQuantityAtIndex(0, 2);
+
+      service.getCartLines().subscribe(lines => {
+        expect(lines.length).toBe(1);
+        expect(lines[0].quantity).toBe(2);
+        expect(lines[0].lineTotal).toBe(100.00);
+        done();
+      });
+    });
+  });
+
+  describe('setQuantityAtIndex', () => {
+    beforeEach(() => {
+      service = TestBed.inject(CartService);
+    });
+
+    it('should persist quantities to localStorage', () => {
+      service.addToCart(mockProducts[0]);
+      service.setQuantityAtIndex(0, 4);
+
+      expect(localStorageSpy.setItem).toHaveBeenCalledWith('cartQuantities', JSON.stringify([4]));
+      expect(service.getQuantities()).toEqual([4]);
+    });
+
+    it('should clamp quantities to at least 1', () => {
+      service.addToCart(mockProducts[0]);
+      service.setQuantityAtIndex(0, 0);
+
+      expect(service.getQuantities()).toEqual([1]);
+    });
   });
 
   describe('getNumberOfItems', () => {

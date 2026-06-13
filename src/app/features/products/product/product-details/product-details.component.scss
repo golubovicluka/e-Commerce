@@ -1,5 +1,30 @@
+/* =============================================================================
+   Product details — gallery left, buy panel right. The price block is the
+   visual anchor; everything else supports the decision to buy.
+   ============================================================================= */
 $sm: 576px;
 $md: 768px;
+
+.details-layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-8);
+  align-items: start;
+  margin-top: var(--space-4);
+
+  @media (min-width: 992px) {
+    grid-template-columns: 1.1fr 1fr;
+    gap: var(--space-12);
+  }
+}
+
+/* --- Gallery -------------------------------------------------------------------- */
+.gallery-pane {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  padding: var(--space-6);
+}
 
 :host ::ng-deep {
   .custom-galleria {
@@ -38,15 +63,16 @@ $md: 768px;
       width: 70px;
       height: 70px;
       padding: .3rem;
-      border: 1px solid var(--surface-200);
-      border-radius: var(--border-radius);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
       cursor: pointer;
-      transition: all .2s;
-      background: var(--surface-ground);
+      background: var(--color-surface-elevated);
+      transition: border-color var(--duration-base) var(--ease-out),
+        transform var(--duration-base) var(--ease-out);
 
       &:hover,
       &.active {
-        border-color: var(--primary-color);
+        border-color: var(--color-accent);
         transform: scale(1.03);
       }
 
@@ -54,6 +80,7 @@ $md: 768px;
         width: 100%;
         height: 100%;
         object-fit: cover;
+        border-radius: var(--radius-sm);
       }
 
       @media screen and (max-width: $sm) {
@@ -62,11 +89,18 @@ $md: 768px;
       }
     }
 
-    .main-image-wrapper ::ng-deep img {
-      max-width: 100%;
-      height: auto;
-      object-fit: contain;
-      max-height: 450px;
+    .main-image-wrapper {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      img {
+        max-width: 100%;
+        height: auto;
+        object-fit: contain;
+        max-height: 450px;
+      }
     }
 
     .p-galleria-indicators,
@@ -76,83 +110,265 @@ $md: 768px;
   }
 }
 
-.product-price {
-  font-size: 1.5rem;
+/* --- Buy panel ------------------------------------------------------------------- */
+.buy-pane {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-4);
+}
+
+.detail-name {
+  font-size: var(--text-2xl);
+  line-height: 1.1;
+}
+
+.meta-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.stock-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-xs);
   font-weight: 600;
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-full);
+
+  .stock-dot {
+    width: 0.45rem;
+    height: 0.45rem;
+    border-radius: var(--radius-full);
+  }
+
+  &--in {
+    background: var(--color-success-dim);
+    color: var(--color-success);
+
+    .stock-dot {
+      background: var(--color-success);
+    }
+  }
+
+  &--out {
+    background: var(--color-danger-dim);
+    color: var(--color-danger);
+
+    .stock-dot {
+      background: var(--color-danger);
+    }
+  }
 }
 
-.tag,
-.favorite {
-  position: absolute;
-  top: 0;
+.meta-ean {
+  font-size: var(--text-xs);
+  color: var(--color-text-secondary);
+  letter-spacing: 0.04em;
 }
 
-.tag {
-  left: 0;
+.detail-desc {
+  color: var(--color-text-secondary);
+  line-height: 1.65;
+  max-width: 58ch;
 }
 
-.favorite {
-  right: 0;
-  padding: 10px;
-  font-size: 1.5rem;
-  cursor: pointer;
+.price-block {
+  width: 100%;
+  border-top: 1px solid var(--color-border);
+  padding-top: var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
 }
 
-.wishlist {
-  color: red;
+.price-main {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-4);
+  flex-wrap: wrap;
 }
 
-.details-panel {
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-sm);
-  padding: var(--space-8) var(--space-4) var(--space-6);
-  margin: var(--space-6) 0;
-  max-width: 450px;
+.detail-price {
+  font-size: var(--text-2xl);
+  font-weight: 600;
+
+  .currency {
+    font-size: var(--text-base);
+    color: var(--color-text-secondary);
+  }
 }
 
-.stock-in {
+.price-note {
+  font-size: var(--text-sm);
   color: var(--color-success);
   font-weight: 500;
 }
 
-.stock-out {
-  color: var(--color-danger);
-  font-weight: 500;
+.installment-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+
+  .installment-text {
+    color: var(--color-text-secondary);
+    font-size: var(--text-sm);
+
+    strong {
+      color: var(--color-text-primary);
+      font-weight: 600;
+    }
+  }
 }
 
-.text-muted {
+.cta-row {
+  display: flex;
+  align-items: stretch;
+  gap: var(--space-3);
+  width: 100%;
+  margin-top: var(--space-2);
+}
+
+.buy-btn {
+  flex: 1;
+  justify-content: center;
+  font-size: var(--text-base);
+  padding: var(--space-3) var(--space-6);
+}
+
+.favorite-btn-lg {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 3.25rem;
+  flex-shrink: 0;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-full);
+  background: var(--color-surface-elevated);
   color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: color var(--duration-base) var(--ease-out),
+    border-color var(--duration-base) var(--ease-out),
+    transform var(--duration-fast) var(--ease-out);
+
+  i {
+    font-size: 1.25rem;
+  }
+
+  &:hover {
+    color: var(--color-danger);
+    border-color: var(--color-danger);
+  }
+
+  &:active {
+    transform: scale(0.92);
+  }
+
+  &.is-active {
+    color: var(--color-danger);
+    border-color: var(--color-danger);
+    background: var(--color-danger-dim);
+
+    i {
+      animation: heart-pop 360ms var(--ease-out);
+    }
+  }
 }
 
 .notify-link {
   color: var(--color-accent);
   text-decoration: underline;
+  font-size: var(--text-sm);
 
   &:hover {
     color: var(--color-accent-strong);
   }
 }
 
-.suggested-heading {
-  margin: var(--space-12) 0 var(--space-6);
-}
+.detail-perks {
+  list-style: none;
+  margin: var(--space-2) 0 0;
+  padding: var(--space-4) 0 0;
+  border-top: 1px solid var(--color-border);
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
 
-.product-price {
-  font-family: var(--font-mono);
-}
+  li {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    font-size: var(--text-sm);
+    color: var(--color-text-secondary);
+  }
 
-.favorite {
-  color: var(--color-text-secondary);
-  transition: color 0.2s, transform 0.12s;
-
-  &:hover {
-    color: var(--color-danger);
-    transform: scale(1.1);
+  i {
+    color: var(--color-accent);
+    font-size: 1rem;
   }
 }
 
-.wishlist {
-  color: var(--color-danger);
+/* --- Loading skeleton --------------------------------------------------------------- */
+.details-skeleton {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-8);
+  margin-top: var(--space-4);
+
+  @media (min-width: 992px) {
+    grid-template-columns: 1.1fr 1fr;
+    gap: var(--space-12);
+  }
+}
+
+.skeleton-gallery {
+  height: 28rem;
+  border-radius: var(--radius-xl);
+}
+
+.skeleton-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.skeleton-line {
+  height: 1rem;
+
+  &.w-40 {
+    width: 40%;
+  }
+
+  &.w-60 {
+    width: 60%;
+  }
+}
+
+.skeleton-title {
+  height: 2.5rem;
+  width: 80%;
+}
+
+.skeleton-cta {
+  height: 3.25rem;
+  margin-top: var(--space-4);
+  border-radius: var(--radius-full);
+}
+
+/* --- Suggested products --------------------------------------------------------------- */
+.suggested-section {
+  margin-top: var(--space-24);
+}
+
+.suggested-item {
+  display: flex;
+  align-items: stretch;
+  height: 100%;
+  padding: var(--space-3);
 }
