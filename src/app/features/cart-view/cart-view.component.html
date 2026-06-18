@@ -2,7 +2,7 @@
 <p-breadcrumb [home]="home" [model]="items" class="mb-4"></p-breadcrumb>
 
 <!-- Cart header -->
-<ng-container *ngIf="numberOfItems && !shippingView">
+<ng-container *ngIf="numberOfItems && !checkoutActive">
   <div class="section-head cart-head">
     <div>
       <span class="eyebrow">Checkout</span>
@@ -18,63 +18,64 @@
 <div *ngIf="numberOfItems" class="cart-layout component-enter">
 
   <!-- Cart Items List -->
-  <div *ngIf="!shippingView" class="cart-items stagger">
-    <div class="cart-item-card" *ngFor="let product of products$ | async; let index = index">
-      <div class="item-media" (click)="openProductDetails(product.id)">
-        <img [src]="getProductImage(product)" (error)="onProductImageError($event, product.name)"
-          [alt]="product.name">
+  <div *ngIf="!checkoutActive" class="cart-items stagger">
+    <div class="cart-item-card" *ngFor="let line of cartLines$ | async; trackBy: trackByProductId">
+      <div class="item-media" (click)="openProductDetails(line.product.id)">
+        <img [src]="getProductImage(line.product)" (error)="onProductImageError($event, line.product.name)"
+          [alt]="line.product.name">
       </div>
 
       <div class="item-info">
-        <h3 class="item-name" (click)="openProductDetails(product.id)">{{ product.name }}</h3>
-        <span class="item-price font-mono">{{ product.price | number }} <span class="currency">RSD</span></span>
-        <span *ngIf="product.inStock > 1" class="item-stock">
-          <span class="stock-dot"></span> {{ product.inStock }} in stock
+        <h3 class="item-name" (click)="openProductDetails(line.product.id)">{{ line.product.name }}</h3>
+        <span class="item-price font-mono">{{ line.product.price | number }} <span class="currency">RSD</span></span>
+        <span *ngIf="line.product.inStock > 1" class="item-stock">
+          <span class="stock-dot"></span> {{ line.product.inStock }} in stock
         </span>
-        <span *ngIf="product.inStock === 1" class="item-stock item-stock--low">
+        <span *ngIf="line.product.inStock === 1" class="item-stock item-stock--low">
           <i class="pi pi-info-circle"></i> Only 1 left
         </span>
       </div>
 
       <div class="item-actions">
-        <div class="qty-controls" role="group" [attr.aria-label]="'Quantity of ' + product.name">
+        <div class="qty-controls" role="group" [attr.aria-label]="'Quantity of ' + line.product.name">
           <button class="qty-btn" type="button" aria-label="Decrease quantity"
-            (click)="decrementProductCount(index)" [disabled]="pieces[index] <= 1">
+            (click)="decrementProductCount(line.product.id, line.quantity)" [disabled]="line.quantity <= 1">
             <i class="pi pi-minus"></i>
           </button>
-          <p-inputNumber [min]="1" [max]="product.inStock" inputId="integeronly" [(ngModel)]="pieces[index]"
-            (ngModelChange)="onQuantityChange(index, $event)">
+          <p-inputNumber [min]="1" [max]="line.product.inStock" [inputId]="'qty-' + line.product.id"
+            [ngModel]="line.quantity" (ngModelChange)="onQuantityChange(line.product.id, $event)">
           </p-inputNumber>
           <button class="qty-btn" type="button" aria-label="Increase quantity"
-            (click)="incrementProductCount(index, product.inStock)" [disabled]="pieces[index] >= product.inStock">
+            (click)="incrementProductCount(line.product.id, line.product.inStock, line.quantity)"
+            [disabled]="line.quantity >= line.product.inStock">
             <i class="pi pi-plus"></i>
           </button>
         </div>
-        <span class="line-total font-mono">{{ product.price * pieces[index] | number }} RSD</span>
+        <span class="line-total font-mono">{{ line.lineTotal | number }} <span class="currency">RSD</span></span>
       </div>
 
-      <button class="remove-btn" type="button" (click)="removeFromCart(product)"
-        [attr.aria-label]="'Remove ' + product.name + ' from cart'">
+      <button class="remove-btn" type="button" (click)="removeFromCart(line.product)"
+        [attr.aria-label]="'Remove ' + line.product.name + ' from cart'">
         <i class="pi pi-times"></i>
       </button>
     </div>
   </div>
 
   <!-- Checkout Stepper -->
-  <div *ngIf="shippingView" class="checkout-flow">
+  <div *ngIf="checkoutActive" class="checkout-flow">
     <p-steps [model]="stepperItems" [readonly]="false" [activeIndex]="activeIndex"
       (activeIndexChange)="onActiveIndexChange($event)"></p-steps>
     <router-outlet></router-outlet>
   </div>
 
   <!-- Order Summary -->
-  <aside class="order-summary-panel">
+  <aside class="order-summary-panel" *ngIf="totalPrice$ | async as total">
     <h3 class="summary-title">Order summary</h3>
 
     <div class="summary-rows">
       <div class="summary-row">
         <span>Subtotal ({{ numberOfItems }} {{ numberOfItems === 1 ? 'item' : 'items' }})</span>
-        <span class="font-mono">{{ totalPrice$ | async | number }} RSD</span>
+        <span class="font-mono">{{ total | number }} <span class="currency">RSD</span></span>
       </div>
       <div class="summary-row">
         <span>Shipping</span>
@@ -84,23 +85,21 @@
 
     <div class="summary-total">
       <span>Total</span>
-      <span class="total-amount font-mono">{{ totalPrice$ | async | number }} <span class="currency">RSD</span></span>
+      <span class="total-amount font-mono">{{ total | number }} <span class="currency">RSD</span></span>
     </div>
 
     <div class="installment-row">
       <span class="installment-text">
         or {{ selectedMonthlyPayment.name }} &times;
-        <strong class="font-mono">{{
-          (totalPrice$ | async) &&
-          getInstallmentPayAmount((totalPrice$ | async), selectedMonthlyPayment.name) | number
-        }} RSD</strong>&nbsp;/&nbsp;mo
+        <strong class="font-mono">{{ getInstallmentAmount(total, selectedMonthlyPayment.name) | number }}
+          <span class="currency">RSD</span></strong>&nbsp;/&nbsp;mo
       </span>
       <p-dropdown tooltipEvent="focus" [options]="monthlyPaymentOptions" [(ngModel)]="selectedMonthlyPayment"
         optionLabel="name"></p-dropdown>
     </div>
 
     <button (click)="openShippingView()" class="summary-cta" type="button" pButton pRipple
-      [label]="shippingViewText"></button>
+      [label]="checkoutCtaLabel"></button>
     <span class="summary-note">
       <i class="pi pi-lock"></i> Secure checkout &middot; 14-day returns
     </span>

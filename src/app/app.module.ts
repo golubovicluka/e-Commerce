@@ -47,7 +47,6 @@ import { NotFoundComponent } from './shared/not-found/not-found.component';
 import { FooterComponent } from './features/main-layout/footer/footer.component';
 import { OverviewComponent } from './features/cart-view/overview/overview.component';
 import { PaymentComponent } from './features/cart-view/payment/payment.component';
-import { CartItemComponent } from './features/cart-view/cart-item/cart-item.component';
 import { SlideMenuModule } from 'primeng/slidemenu';
 
 @NgModule({
@@ -61,7 +60,6 @@ import { SlideMenuModule } from 'primeng/slidemenu';
     FooterComponent,
     OverviewComponent,
     PaymentComponent,
-    CartItemComponent,
   ],
   imports: [
     BrowserModule,

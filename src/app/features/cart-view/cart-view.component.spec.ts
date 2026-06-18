@@ -1,47 +1,52 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
-import { Router } from '@angular/router';
-import { MessageService } from 'primeng/api';
+import { ActivatedRoute, Router } from '@angular/router';
+import { Subject } from 'rxjs';
 
 import { CartViewComponent } from './cart-view.component';
 import { CartService } from 'src/app/shared/cart.service';
 import { ProductImageService } from 'src/app/shared/product-image.service';
 import { of } from 'rxjs';
 
-/**
- * The CLI stub threw `NullInjectorError: No provider for MessageService!`. We
- * provide doubles for every dependency. ngOnInit wires several PrimeNG
- * structures and subscriptions, so the smoke test stops at construction; the
- * pure installment helper is covered directly.
- */
 describe('CartViewComponent', () => {
   let component: CartViewComponent;
   let fixture: ComponentFixture<CartViewComponent>;
   let cart: jasmine.SpyObj<CartService>;
   let router: jasmine.SpyObj<Router>;
+  let route: { firstChild: { snapshot: { url: { path: string }[] } } | null };
 
   beforeEach(async () => {
-    cart = jasmine.createSpyObj('CartService', ['getCartItems', 'getTotalPrice', 'getQuantities', 'setQuantityAtIndex', 'removeFromCart']);
+    cart = jasmine.createSpyObj('CartService', [
+      'getCartItems',
+      'getCartLines',
+      'getTotalPrice',
+      'getProductIndex',
+      'setQuantityAtIndex',
+      'removeFromCart',
+    ]);
     cart.getCartItems.and.returnValue(of([]));
+    cart.getCartLines.and.returnValue(of([]));
     cart.getTotalPrice.and.returnValue(of(0));
-    cart.getQuantities.and.returnValue([]);
-    router = jasmine.createSpyObj('Router', ['navigate']);
+    cart.getProductIndex.and.returnValue(0);
+    router = jasmine.createSpyObj('Router', ['navigate'], { events: new Subject() });
+    route = { firstChild: null };
 
     await TestBed.configureTestingModule({
       declarations: [CartViewComponent],
       providers: [
         { provide: CartService, useValue: cart },
         { provide: Router, useValue: router },
-        { provide: ProductImageService, useValue: jasmine.createSpyObj('ProductImageService', ['resolvePrimaryImage', 'handleImageError']) },
-        MessageService,
+        { provide: ActivatedRoute, useValue: route },
+        {
+          provide: ProductImageService,
+          useValue: jasmine.createSpyObj('ProductImageService', ['resolvePrimaryImage', 'handleImageError']),
+        },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
 
     fixture = TestBed.createComponent(CartViewComponent);
     component = fixture.componentInstance;
-    // Run ngOnInit so the cart/price subscriptions exist; otherwise the
-    // component's ngOnDestroy throws on `undefined.unsubscribe()` during teardown.
     component.ngOnInit();
   });
 
@@ -49,19 +54,22 @@ describe('CartViewComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('getInstallmentPayAmount floors price / months', () => {
-    expect(component.getInstallmentPayAmount(1200, 12)).toBe(100);
-    expect(component.getInstallmentPayAmount(1000, 36)).toBe(27); // 27.7 -> 27
+  it('openShippingView navigates to shipping when checkout is inactive', () => {
+    component.checkoutActive = false;
+    component.openShippingView();
+    expect(router.navigate).toHaveBeenCalledWith(['/cart/shipping']);
   });
 
-  it('openShippingView toggles the label and navigates to the shipping route', () => {
+  it('openShippingView navigates back to cart when checkout is active', () => {
+    component.checkoutActive = true;
     component.openShippingView();
-    expect(component.shippingView).toBeTrue();
-    expect(component.shippingViewText).toBe('Back to cart view');
-    expect(router.navigate).toHaveBeenCalledWith(['cart/shipping']);
+    expect(router.navigate).toHaveBeenCalledWith(['/cart']);
+  });
 
-    component.openShippingView();
-    expect(component.shippingView).toBeFalse();
-    expect(component.shippingViewText).toBe('Proceed with shipping');
+  it('checkoutCtaLabel reflects checkout state', () => {
+    component.checkoutActive = false;
+    expect(component.checkoutCtaLabel).toBe('Proceed with shipping');
+    component.checkoutActive = true;
+    expect(component.checkoutCtaLabel).toBe('Back to cart view');
   });
 });

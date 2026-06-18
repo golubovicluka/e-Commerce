@@ -7,6 +7,12 @@ import { WishlistService } from 'src/app/shared/wishlist.service';
 import { Product } from '../../Product';
 import { CartService } from 'src/app/shared/cart.service';
 import { ProductImageService } from 'src/app/shared/product-image.service';
+import {
+  DEFAULT_MONTHLY_PAYMENT,
+  getInstallmentAmount,
+  MONTHLY_PAYMENT_OPTIONS,
+  MonthlyPaymentOption,
+} from 'src/app/shared/pricing';
 
 @Component({
   selector: 'app-product-details',
@@ -18,12 +24,8 @@ export class ProductDetailsComponent implements OnInit {
   product: any | null = null;
   id!: number;
 
-  selectedMonthlyPayment: any = { name: 12 }
-  monthlyPaymentOptions: any[] = [
-    { name: 12 },
-    { name: 24 },
-    { name: 36 },
-  ];
+  selectedMonthlyPayment: MonthlyPaymentOption = DEFAULT_MONTHLY_PAYMENT;
+  monthlyPaymentOptions = MONTHLY_PAYMENT_OPTIONS;
 
   suggestedProducts!: any[];
 
@@ -210,9 +212,7 @@ export class ProductDetailsComponent implements OnInit {
     this.router.navigate(['/product', id], navigationExtras);
   }
 
-  getInstallmentPayAmount(price: number, months: any) {
-    return Math.floor(price / months);
-  }
+  getInstallmentAmount = getInstallmentAmount;
 
   setBreadcrumbItems() {
     this.items = [
