@@ -1,8 +1,8 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Subscription } from 'rxjs';
 import { WishlistService } from '../../shared/wishlist.service';
 import { Product } from '../products/Product';
 import { MenuItem, MessageService } from 'primeng/api';
-import { ProductComponent } from '../products/product/product.component';
 import { CartService } from 'src/app/shared/cart.service';
 
 @Component({
@@ -10,14 +10,13 @@ import { CartService } from 'src/app/shared/cart.service';
   templateUrl: './wishlist-view.component.html',
   styleUrls: ['./wishlist-view.component.scss']
 })
-export class WishlistViewComponent implements OnInit {
+export class WishlistViewComponent implements OnInit, OnDestroy {
   wishlistItems: Product[] = [];
 
   public items!: MenuItem[];
   home!: MenuItem;
 
-  @ViewChild('productComponent') productComponent!: ProductComponent;
-
+  private wishlistSubscription!: Subscription;
 
   constructor(
     private _wishlistService: WishlistService,
@@ -26,9 +25,9 @@ export class WishlistViewComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
-    this._wishlistService.getWishListItems().subscribe((data) => {
+    this.wishlistSubscription = this._wishlistService.getWishListItems().subscribe((data) => {
       this.wishlistItems = data;
-    })
+    });
 
     this.items = [
       { label: 'Products', routerLink: '/products/search' },
@@ -37,12 +36,8 @@ export class WishlistViewComponent implements OnInit {
     this.home = { icon: 'pi pi-home', routerLink: '/home' };
   }
 
-  existsInLocalStorage(id: number) {
-    if (localStorage.getItem('wishlist') && JSON.parse(localStorage.getItem('wishlist')!).includes(id)) {
-      return true
-    } else {
-      return false;
-    }
+  ngOnDestroy(): void {
+    this.wishlistSubscription?.unsubscribe();
   }
 
   addToCart(product: Product) {
@@ -54,14 +49,11 @@ export class WishlistViewComponent implements OnInit {
   }
 
   removeFromWishlist(product: Product) {
-
-    const removeProduct = this.productComponent.product;
-    this._messageService.add({ severity: 'info', summary: 'Removed', detail: 'Removed from wishlist' })
-    this._wishlistService.removeWishListItem(removeProduct);
+    this._messageService.add({ severity: 'info', summary: 'Removed', detail: 'Removed from wishlist' });
+    this._wishlistService.removeWishListItem(product);
   }
 
-  clearLocalStorage(): void {
-    localStorage.clear();
+  trackByProductId(_index: number, product: Product): number {
+    return product.id;
   }
-
 }

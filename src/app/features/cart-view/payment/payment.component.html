@@ -56,26 +56,27 @@
     </div>
 
     <!-- Order summary -->
+    <ng-container *ngIf="total$ | async as total">
     <div class="order-summary">
         <div class="summary-row">
             <span>Subtotal</span>
-            <span class="font-mono">{{ subtotal$ | async | number }} RSD</span>
+            <span class="font-mono">{{ total | number }} <span class="currency">RSD</span></span>
         </div>
         <div class="summary-row">
             <span>Shipping</span>
-            <span class="row-free" *ngIf="shipping === 0">Free</span>
-            <span class="font-mono" *ngIf="shipping > 0">{{ shipping | number }} RSD</span>
+            <span class="row-free">Free</span>
         </div>
         <div class="summary-total">
             <span>Total</span>
-            <span class="font-mono">{{ total$ | async | number }} RSD</span>
+            <span class="font-mono">{{ total | number }} <span class="currency">RSD</span></span>
         </div>
     </div>
 
-    <div class="panel-actions" *ngIf="total$ | async as total">
+    <div class="panel-actions">
         <p-button [routerLink]="['/cart/overview']" label="Back" icon="pi pi-arrow-left"
             styleClass="p-button-outlined"></p-button>
         <p-button [label]="'Pay ' + (total | number) + ' RSD'" icon="pi pi-lock" (click)="completePayment()"></p-button>
     </div>
+    </ng-container>
     <span class="secure-note"><i class="pi pi-lock"></i> Payments are encrypted and processed securely.</span>
 </div>

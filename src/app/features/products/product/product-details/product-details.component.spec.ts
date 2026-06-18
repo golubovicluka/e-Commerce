@@ -68,9 +68,9 @@ describe('ProductDetailsComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('getInstallmentPayAmount floors price / months', () => {
-    expect(component.getInstallmentPayAmount(1200, 12)).toBe(100);
-    expect(component.getInstallmentPayAmount(1000, 24)).toBe(41); // 41.6 -> 41
+  it('getInstallmentAmount floors price / months', () => {
+    expect(component.getInstallmentAmount(1200, 12)).toBe(100);
+    expect(component.getInstallmentAmount(1000, 24)).toBe(41); // 41.6 -> 41
   });
 
   it('navigateBack uses Location.back', () => {

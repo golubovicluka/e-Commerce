@@ -5,6 +5,7 @@ import { Product, Subcategory, Category } from '../Product';
 import { WishlistService } from 'src/app/shared/wishlist.service';
 import { CartService } from 'src/app/shared/cart.service';
 import { ProductImageService } from 'src/app/shared/product-image.service';
+import { getInstallmentAmount } from 'src/app/shared/pricing';
 
 
 @Component({
@@ -120,9 +121,7 @@ export class ProductComponent implements OnInit {
     }
   }
 
-  getInstallmentPayAmount(price: number) {
-    return Math.floor(price / 12);
-  }
+  getInstallmentAmount = getInstallmentAmount;
 
   get primaryImageSrc(): string {
     return this._productImageService.resolvePrimaryImage(this.images, this.name);

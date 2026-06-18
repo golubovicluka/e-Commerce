@@ -57,7 +57,7 @@
 
     <div class="list-buy">
       <span class="card-price card-price--lg font-mono">{{ price | number }} <span class="currency">RSD</span></span>
-      <span class="installment">or 12 &times; {{ getInstallmentPayAmount(price) | number }} RSD&nbsp;/&nbsp;mo</span>
+      <span class="installment">or 12 &times; {{ getInstallmentAmount(price, 12) | number }} RSD&nbsp;/&nbsp;mo</span>
       <span class="stock" [class.stock--in]="inStock > 0" [class.stock--out]="inStock === 0">
         <span class="stock-dot"></span>
         <ng-container *ngIf="inStock > 1">{{ inStock }} in stock</ng-container>

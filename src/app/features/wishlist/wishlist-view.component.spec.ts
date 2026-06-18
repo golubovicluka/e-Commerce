@@ -56,4 +56,9 @@ describe('WishlistViewComponent', () => {
     component.removeFromCart(mockProducts[0]);
     expect(cart.removeFromCart).toHaveBeenCalledOnceWith(mockProducts[0]);
   });
+
+  it('removeFromWishlist delegates to WishlistService', () => {
+    component.removeFromWishlist(mockProducts[0]);
+    expect(wishlist.removeWishListItem).toHaveBeenCalledOnceWith(mockProducts[0]);
+  });
 });

@@ -34,7 +34,7 @@ describe('PaymentComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('total$ includes shipping on top of the cart subtotal', (done) => {
+  it('total$ reflects the cart subtotal', (done) => {
     component.total$.subscribe((total) => {
       expect(total).toBe(100);
       done();

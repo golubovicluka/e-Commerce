@@ -55,7 +55,7 @@
       <div class="installment-row">
         <span class="installment-text">
           or {{ selectedMonthlyPayment.name }} &times;
-          <strong class="font-mono">{{ getInstallmentPayAmount(product.price, selectedMonthlyPayment.name) | number }}
+          <strong class="font-mono">{{ getInstallmentAmount(product.price, selectedMonthlyPayment.name) | number }}
             RSD</strong>&nbsp;/&nbsp;month
         </span>
         <p-dropdown pTooltip="Number of monthly installments" tooltipEvent="focus" [options]="monthlyPaymentOptions"

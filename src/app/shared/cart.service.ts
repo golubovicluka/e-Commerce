@@ -119,6 +119,10 @@ export class CartService {
     return this.cartItems$.value.some(product => product.id === id);
   }
 
+  getProductIndex(productId: number): number {
+    return this.cartItems$.value.findIndex((product) => product.id === productId);
+  }
+
   private loadQuantities(cartLength: number): number[] {
     try {
       const stored = localStorage.getItem(QUANTITIES_KEY);

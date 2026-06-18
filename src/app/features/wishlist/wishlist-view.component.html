@@ -12,14 +12,14 @@
 
 <ng-container *ngIf="wishlistItems; else loading">
   <div class="wishlist-items stagger">
-    <div class="wishlist-row" *ngFor="let product of wishlistItems" auto-animate>
+    <div class="wishlist-row" *ngFor="let product of wishlistItems; trackBy: trackByProductId" auto-animate>
       <button class="remove-btn" type="button" (click)="removeFromWishlist(product)"
         [attr.aria-label]="'Remove ' + product.name + ' from wishlist'">
         <i class="pi pi-times"></i>
       </button>
-      <app-product #productComponent (addedToCart)="addToCart($event)" (removedFromCart)="removeFromCart($event)"
+      <app-product (addedToCart)="addToCart($event)" (removedFromCart)="removeFromCart($event)"
         [isListView]="true" [categoryId]="product.categoryId" [subcategoryId]="product.subcategoryId"
-        [wishlistView]="true" [inWishlist]="existsInLocalStorage(product.id)" [name]="product.name"
+        [wishlistView]="true" [name]="product.name"
         [category]="product.category" [subcategory]="product.subcategory" [id]="product.id" [images]="product.images"
         [inStock]="product.inStock" [price]="product.price" [description]="product.description"
         [EAN]="product.EAN"></app-product>
