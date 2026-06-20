@@ -1,6 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Subject } from 'rxjs';
-import { debounceTime, distinctUntilChanged, map, switchMap, tap } from 'rxjs/operators';
+import { debounceTime, distinctUntilChanged, map, switchMap, take, tap } from 'rxjs/operators';
 import { Product } from './Product';
 import { ProductsService } from './products.service';
 import { SubscriptionContainer } from './SubscriptionContainer';
@@ -69,6 +69,19 @@ export class ProductsViewComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
+    const historyFilters = history.state?.filters;
+    if (historyFilters && !this.categoriesFilter) {
+      this.categoriesFilter = historyFilters;
+    }
+
+    this.subs.add(
+      this._productService.categoryFilter.subscribe((category) => {
+        this.categoriesFilter = category;
+        this.loadPriceBounds();
+        this.resetToFirstPage();
+      })
+    );
+
     // Single product-loading pipeline. `switchMap` cancels any in-flight
     // request when a new one starts, so only ONE watched query is ever active.
     // This replaces the previous pattern of creating a brand-new watchQuery
@@ -160,7 +173,7 @@ export class ProductsViewComponent implements OnInit, OnDestroy {
       ? { category: { name: { _eq: this.categoriesFilter } } }
       : {};
     this.subs.add(
-      this._productService.getPriceBounds(where).subscribe((res: any) => {
+      this._productService.getPriceBounds(where).pipe(take(1)).subscribe((res: any) => {
         const aggregate = res.data.product_aggregate.aggregate;
         this.lowestPrice = aggregate.min?.price ?? 0;
         this.highestPrice = aggregate.max?.price ?? 0;

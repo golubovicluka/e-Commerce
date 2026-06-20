@@ -14,7 +14,6 @@ import { ProductImageService } from './product-image.service';
 describe('ProductImageService', () => {
   let service: ProductImageService;
   const ASSET_FALLBACK = 'assets/images/product-placeholder.png';
-  const NAME_FALLBACK_PREFIX = 'https://placehold.co/600x600/png?text=';
 
   beforeEach(() => {
     TestBed.configureTestingModule({ providers: [ProductImageService] });
@@ -26,24 +25,31 @@ describe('ProductImageService', () => {
   });
 
   describe('getFallbackImageByName', () => {
-    it('encodes the product name into the placeholder URL', () => {
-      expect(service.getFallbackImageByName('iPhone 13 Pro')).toBe(
-        `${NAME_FALLBACK_PREFIX}${encodeURIComponent('iPhone 13 Pro')}`
-      );
+    it('returns a deterministic SVG data URI for the product name', () => {
+      const first = service.getFallbackImageByName('iPhone 13 Pro');
+      const second = service.getFallbackImageByName('iPhone 13 Pro');
+      expect(first).toMatch(/^data:image\/svg\+xml,/);
+      expect(first).toBe(second);
+      expect(decodeURIComponent(first)).toContain('iPhone 13 Pro');
     });
 
-    it('URL-encodes names with reserved characters (no broken URLs)', () => {
-      expect(service.getFallbackImageByName('Tom & Jerry / 50% off?')).toBe(
-        `${NAME_FALLBACK_PREFIX}${encodeURIComponent('Tom & Jerry / 50% off?')}`
-      );
-    });
-
-    it('falls back to "Product Image" for null, undefined, empty and whitespace', () => {
-      const expected = `${NAME_FALLBACK_PREFIX}${encodeURIComponent('Product Image')}`;
+    it('falls back to "Product" for null, undefined, empty and whitespace', () => {
+      const expected = service.getFallbackImageByName('Product');
       expect(service.getFallbackImageByName(null)).toBe(expected);
       expect(service.getFallbackImageByName(undefined)).toBe(expected);
       expect(service.getFallbackImageByName('')).toBe(expected);
       expect(service.getFallbackImageByName('   ')).toBe(expected);
+    });
+  });
+
+  describe('getCategoryImage', () => {
+    it('returns a mapped image for known categories', () => {
+      expect(service.getCategoryImage('Electronics')).toContain('http');
+      expect(service.getCategoryImage('Kitchen')).toContain('http');
+    });
+
+    it('returns an SVG fallback for unmapped categories', () => {
+      expect(service.getCategoryImage('Totally Unknown Category')).toMatch(/^data:image\/svg\+xml,/);
     });
   });
 
@@ -76,7 +82,6 @@ describe('ProductImageService', () => {
     });
 
     it('trims entries and drops whitespace-only / falsy entries before counting', () => {
-      // After trimming, only 'real.jpg' survives -> treated as the single-image case.
       expect(
         service.normalizeImages(['   ', '', null as any, '  real.jpg  '], 'Chair')
       ).toEqual(['real.jpg', service.getFallbackImageByName('Chair')]);
@@ -101,7 +106,6 @@ describe('ProductImageService', () => {
   });
 
   describe('handleImageError (fallback state machine)', () => {
-    /** Minimal stub of the parts of HTMLImageElement the service reads/writes. */
     function imgStub(src: string, currentSrc = ''): HTMLImageElement {
       return { src, currentSrc } as HTMLImageElement;
     }
@@ -112,13 +116,13 @@ describe('ProductImageService', () => {
       ).not.toThrow();
     });
 
-    it('step 1: a failing real image swaps to the name-based placeholder', () => {
+    it('step 1: a failing real image swaps to the SVG placeholder', () => {
       const img = imgStub('https://cdn.example.com/real.jpg');
       service.handleImageError({ target: img } as unknown as Event, 'iPhone');
       expect(img.src).toBe(service.getFallbackImageByName('iPhone'));
     });
 
-    it('step 2: a failing name placeholder swaps to the local asset placeholder', () => {
+    it('step 2: a failing SVG placeholder swaps to the local asset placeholder', () => {
       const img = imgStub(service.getFallbackImageByName('iPhone'));
       service.handleImageError({ target: img } as unknown as Event, 'iPhone');
       expect(img.src).toBe(ASSET_FALLBACK);
@@ -131,7 +135,6 @@ describe('ProductImageService', () => {
     });
 
     it('prefers currentSrc over src when deciding the current stage', () => {
-      // currentSrc already points at the name placeholder -> advance to asset.
       const img = imgStub('whatever.jpg', service.getFallbackImageByName('iPhone'));
       service.handleImageError({ target: img } as unknown as Event, 'iPhone');
       expect(img.src).toBe(ASSET_FALLBACK);

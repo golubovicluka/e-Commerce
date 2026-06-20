@@ -193,6 +193,20 @@ export class ProductsService {
     }).valueChanges;
   }
 
+  getProductsByIds(ids: number[]) {
+    return this.apollo.watchQuery({
+      query: gql`
+        query GetProductsByIds($ids: [Int!]!) {
+          product(where: { id: { _in: $ids } }) {
+            ...ProductFields
+          }
+        }
+        ${PRODUCT_FIELDS}
+      `,
+      variables: { ids }
+    }).valueChanges;
+  }
+
   getProductById(id: number) {
     return this.apollo.watchQuery({
       query: gql`
@@ -268,7 +282,7 @@ export class ProductsService {
     return this.apollo.watchQuery({
       query: gql`
         query GetSuggestedProducts {
-          product(limit: 10) {
+          product(limit: 10, order_by: { id: desc }) {
             ...ProductFields
           }
         }

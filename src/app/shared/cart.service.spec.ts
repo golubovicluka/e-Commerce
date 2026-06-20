@@ -144,15 +144,30 @@ describe('CartService', () => {
       });
     });
 
-    it('should allow adding the same product multiple times', (done) => {
+    it('should increment quantity when adding the same product again', (done) => {
       const product = mockProducts[0];
 
       service.addToCart(product);
       service.addToCart(product);
 
       service.getCartItems().subscribe(items => {
-        expect(items.length).toBe(2);
-        expect(items.filter(p => p.id === product.id).length).toBe(2);
+        expect(items.length).toBe(1);
+        expect(items[0]).toEqual(product);
+        done();
+      });
+    });
+
+    it('should increment persisted quantity for duplicate adds', (done) => {
+      const product = createMockProduct({ price: 25.00 });
+
+      service.addToCart(product);
+      service.addToCart(product);
+      service.addToCart(product);
+
+      service.getCartLines().subscribe(lines => {
+        expect(lines.length).toBe(1);
+        expect(lines[0].quantity).toBe(3);
+        expect(lines[0].lineTotal).toBe(75.00);
         done();
       });
     });
@@ -224,19 +239,16 @@ describe('CartService', () => {
       });
     });
 
-    // Edge case the happy-path tests miss: removeFromCart filters by id, so a
-    // single remove drops EVERY copy of a duplicated product rather than
-    // decrementing a quantity. This test documents that behaviour (and flags it
-    // as a latent bug: the cart models quantity by repeating items, but removal
-    // does not match that model).
-    it('removes ALL copies of a duplicated product in a single call', (done) => {
+    // Edge case: removeFromCart filters by id, so a single remove drops the row
+    // even when quantity was incremented by duplicate adds.
+    it('removes the product row when removeFromCart is called once', (done) => {
       service.addToCart(mockProducts[0]);
       service.addToCart(mockProducts[0]);
 
       service.removeFromCart(mockProducts[0]);
 
       service.getCartItems().subscribe(items => {
-        expect(items.length).toBe(0); // both copies gone, not one
+        expect(items.length).toBe(0);
         expect(service.inCart(mockProducts[0].id)).toBe(false);
         done();
       });
@@ -421,12 +433,12 @@ describe('CartService', () => {
       });
     });
 
-    it('should count duplicate products separately', (done) => {
+    it('should keep a single row when the same product is added twice', (done) => {
       service.addToCart(mockProducts[0]);
       service.addToCart(mockProducts[0]);
 
       service.getNumberOfItems().subscribe(count => {
-        expect(count).toBe(2);
+        expect(count).toBe(1);
         done();
       });
     });
@@ -498,7 +510,8 @@ describe('CartService', () => {
       service.removeFromCart(mockProducts[1]);
 
       service.getCartItems().subscribe(items => {
-        expect(items.length).toBe(2);
+        expect(items.length).toBe(1);
+        expect(items[0].id).toBe(mockProducts[0].id);
         expect(service.inCart(mockProducts[1].id)).toBe(false);
         done();
       });

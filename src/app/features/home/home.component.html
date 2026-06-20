@@ -1,4 +1,5 @@
 <!-- Hero — editorial split: statement copy + ink product stage -->
+<p-toast position="bottom-right"></p-toast>
 <section class="hero stagger">
   <div class="hero-copy">
     <span class="eyebrow">The 2026 lineup &mdash; in stock</span>
@@ -22,16 +23,16 @@
   </div>
 
   <a class="hero-stage" (click)="redirect(macbookId)" tabindex="0" role="link"
-    (keyup.enter)="redirect(macbookId)" aria-label="MacBook Pro M1 — view product">
+    (keyup.enter)="redirect(macbookId)" [attr.aria-label]="macbookName + ' — view product'">
     <span class="stage-watermark" aria-hidden="true">M1</span>
     <span class="stage-chip">Featured</span>
     <span class="stage-plinth">
-      <img class="stage-img" alt="MacBook Pro M1" [src]="macbookImg"
-        (error)="onHeroImageError($event, 'MacBook Pro M1')" />
+      <img class="stage-img" [alt]="macbookName" [src]="macbookImg || null"
+        (error)="onHeroImageError($event, macbookName)" />
     </span>
     <span class="stage-caption">
-      <span class="stage-name">MacBook Pro M1</span>
-      <span class="stage-sub">Apple silicon. All-day battery. 13&Prime; Retina.</span>
+      <span class="stage-name">{{ macbookName }}</span>
+      <span class="stage-sub">{{ macbookSub }}</span>
       <span class="stage-cta">Shop now <i class="pi pi-arrow-right"></i></span>
     </span>
   </a>
@@ -40,24 +41,24 @@
 <!-- Secondary feature tiles -->
 <section class="hero-tiles stagger">
   <a class="tile" (click)="redirect(ipadId)" tabindex="0" role="link" (keyup.enter)="redirect(ipadId)"
-    aria-label="iPad Pro M2 — view product">
-    <img class="tile-img" alt="iPad Pro M2" [src]="ipadImg" (error)="onHeroImageError($event, 'iPad Pro M2')" />
+    [attr.aria-label]="ipadName + ' — view product'">
+    <img class="tile-img" [alt]="ipadName" [src]="ipadImg || null" (error)="onHeroImageError($event, ipadName)" />
     <span class="tile-body">
       <span class="tile-kicker">Tablets</span>
-      <span class="tile-name">iPad Pro M2</span>
-      <span class="tile-sub">Apple Pencil hover, ProRes capture, Wi&#8209;Fi&nbsp;6E.</span>
+      <span class="tile-name">{{ ipadName }}</span>
+      <span class="tile-sub">{{ ipadSub }}</span>
     </span>
     <i class="pi pi-arrow-right tile-arrow"></i>
   </a>
 
   <a class="tile" (click)="redirect(iphoneId)" tabindex="0" role="link" (keyup.enter)="redirect(iphoneId)"
-    aria-label="iPhone 14 Pro Max — view product">
-    <img class="tile-img" alt="iPhone 14 Pro Max" [src]="iphoneImg"
-      (error)="onHeroImageError($event, 'iPhone 14 Pro Max')" />
+    [attr.aria-label]="iphoneName + ' — view product'">
+    <img class="tile-img" [alt]="iphoneName" [src]="iphoneImg || null"
+      (error)="onHeroImageError($event, iphoneName)" />
     <span class="tile-body">
       <span class="tile-kicker">Phones</span>
-      <span class="tile-name">iPhone 14 Pro Max</span>
-      <span class="tile-sub">6.7&Prime; 120&nbsp;Hz OLED, A16 Bionic, 48&nbsp;MP camera.</span>
+      <span class="tile-name">{{ iphoneName }}</span>
+      <span class="tile-sub">{{ iphoneSub }}</span>
     </span>
     <i class="pi pi-arrow-right tile-arrow"></i>
   </a>
@@ -110,7 +111,8 @@
   </div>
   <div class="newsletter-form">
     <div class="newsletter-row">
-      <input name="email" type="email" pInputText placeholder="you@example.com" aria-label="Email address" />
+      <input name="email" type="email" pInputText placeholder="you@example.com" aria-label="Email address"
+        [(ngModel)]="newsletterEmail" [disabled]="newsletterSubmitted" />
       <p-button (click)="submitForm()" label="Sign up" styleClass="btn-on-ink"></p-button>
     </div>
     <span class="newsletter-note">Unsubscribe anytime. We never share your address.</span>

@@ -32,6 +32,6 @@ describe('NotFoundComponent', () => {
 
   it('toHome navigates back to the home route', () => {
     component.toHome();
-    expect(router.navigate).toHaveBeenCalledWith(['home']);
+    expect(router.navigate).toHaveBeenCalledWith(['/home']);
   });
 });

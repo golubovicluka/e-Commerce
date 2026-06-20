@@ -40,6 +40,10 @@ export class WishlistViewComponent implements OnInit, OnDestroy {
     this.wishlistSubscription?.unsubscribe();
   }
 
+  isInWishlist(id: number): boolean {
+    return this._wishlistService.inWishlist(id);
+  }
+
   addToCart(product: Product) {
     this._cartService.addToCart(product);
   }

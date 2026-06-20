@@ -32,8 +32,16 @@ export class CartService {
   }
 
   addToCart(item: Product): void {
-    const currentItems = [...this.cartItems$.value, item];
-    const currentQuantities = [...this.quantities$.value, 1];
+    const currentItems = [...this.cartItems$.value];
+    const currentQuantities = [...this.quantities$.value];
+    const existingIndex = currentItems.findIndex((product) => product.id === item.id);
+
+    if (existingIndex >= 0) {
+      currentQuantities[existingIndex] = (currentQuantities[existingIndex] ?? 1) + 1;
+    } else {
+      currentItems.push(item);
+      currentQuantities.push(1);
+    }
 
     try {
       localStorage.setItem(CART_KEY, JSON.stringify(currentItems));

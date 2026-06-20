@@ -8,9 +8,10 @@
       <div *ngFor="let subcategory of category.subcategories"
         class="flex justify-content-start align-items-center my-2">
 
-        <p-checkbox class="px-2" name="filters" value="{{subcategory.name}}" [inputId]="category"
+        <p-checkbox class="px-2" name="filters" value="{{subcategory.name}}"
+          [inputId]="'filter-' + subcategory.id"
           [(ngModel)]="selectedFilters" (ngModelChange)="changeFilter($event)"></p-checkbox>
-        <label for="subcategory">{{subcategory.name}}</label>
+        <label [for]="'filter-' + subcategory.id">{{subcategory.name}}</label>
 
       </div>
     </p-accordionTab>

@@ -1,6 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { Subscription } from "rxjs";
+import { MessageService } from 'primeng/api';
+import { Subscription, take } from 'rxjs';
 import { ProductsService } from '../products/products.service';
 import { ProductImageService } from 'src/app/shared/product-image.service';
 
@@ -9,21 +10,28 @@ import { ProductImageService } from 'src/app/shared/product-image.service';
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss']
 })
-export class HomeComponent implements OnInit {
-  iphoneImg = "https://www.mobilplanet.net/wp-content/uploads/2022/10/0174519_apple-iphone-14-pro-max-128gb-gold_550.jpeg";
+export class HomeComponent implements OnInit, OnDestroy {
+  iphoneImg = '';
   iphoneId = 4;
+  iphoneName = 'iPhone 14 Pro Max';
+  iphoneSub = '6.7″ 120 Hz OLED, A16 Bionic, 48 MP camera.';
 
-  // Product 1's own catalog image (the previous gigatron.rs hotlink went dead).
-  macbookImg = "https://d2u1z1lopyfwlx.cloudfront.net/thumbnails/42587d8f-d162-5343-9875-e7a99d5a2f85/42ed1b80-824c-5d2b-84cb-1128891ffb77.jpg";
+  macbookImg = '';
   macbookId = 1;
+  macbookName = 'MacBook Pro M1';
+  macbookSub = 'Apple silicon. All-day battery. 13″ Retina.';
 
-  ipadImg = "https://d2u1z1lopyfwlx.cloudfront.net/thumbnails/0ecd2826-5afe-555f-9b8c-f22f14b77e2b/eaa96650-7862-5a59-af1e-3ce2d1490176.jpg";
+  ipadImg = '';
   ipadId = 13;
+  ipadName = 'iPad Pro M2';
+  ipadSub = 'Apple Pencil hover, ProRes capture, Wi‑Fi 6E.';
 
   suggestedProducts!: any;
   suggestedProductsSubscription!: Subscription;
+  featuredProductsSubscription!: Subscription;
 
-  name!: any;
+  newsletterEmail = '';
+  newsletterSubmitted = false;
 
   carouselResponsiveOptions = [
     {
@@ -46,19 +54,103 @@ export class HomeComponent implements OnInit {
   constructor(
     private router: Router,
     private _productService: ProductsService,
-    private _productImageService: ProductImageService
+    private _productImageService: ProductImageService,
+    private _messageService: MessageService
   ) { }
 
   ngOnInit() {
+    this.setFeaturedFallback('macbook');
+    this.setFeaturedFallback('ipad');
+    this.setFeaturedFallback('iphone');
+    this.loadFeaturedProducts();
+
     this.suggestedProductsSubscription = this._productService.getSuggestedProducts().subscribe((products: any) => {
       this.suggestedProducts = products.data.product.map((product: any) => ({
         ...product,
         images: this._productImageService.normalizeImages(product.images, product.name)
       }));
-    })
+    });
+  }
+
+  private loadFeaturedProducts(): void {
+    const featuredIds = [this.macbookId, this.ipadId, this.iphoneId];
+    this.featuredProductsSubscription = this._productService
+      .getProductsByIds(featuredIds)
+      .pipe(take(1))
+      .subscribe((result: any) => {
+        const products: any[] = result.data?.product ?? [];
+        const byId = new Map(products.map((product) => [product.id, product]));
+
+        this.applyFeaturedProduct(byId.get(this.macbookId), 'macbook');
+        this.applyFeaturedProduct(byId.get(this.ipadId), 'ipad');
+        this.applyFeaturedProduct(byId.get(this.iphoneId), 'iphone');
+      });
+  }
+
+  private applyFeaturedProduct(product: any | undefined, slot: 'macbook' | 'ipad' | 'iphone'): void {
+    if (!product) {
+      this.setFeaturedFallback(slot);
+      return;
+    }
+
+    const image = this._productImageService.resolvePrimaryImage(product.images, product.name);
+    const description = product.description?.trim();
+
+    if (slot === 'macbook') {
+      this.macbookImg = image;
+      this.macbookName = product.name;
+      if (description) {
+        this.macbookSub = description;
+      }
+      return;
+    }
+
+    if (slot === 'ipad') {
+      this.ipadImg = image;
+      this.ipadName = product.name;
+      if (description) {
+        this.ipadSub = description;
+      }
+      return;
+    }
+
+    this.iphoneImg = image;
+    this.iphoneName = product.name;
+    if (description) {
+      this.iphoneSub = description;
+    }
+  }
+
+  private setFeaturedFallback(slot: 'macbook' | 'ipad' | 'iphone'): void {
+    if (slot === 'macbook') {
+      this.macbookImg = this._productImageService.getFallbackImageByName(this.macbookName);
+      return;
+    }
+    if (slot === 'ipad') {
+      this.ipadImg = this._productImageService.getFallbackImageByName(this.ipadName);
+      return;
+    }
+    this.iphoneImg = this._productImageService.getFallbackImageByName(this.iphoneName);
   }
 
   submitForm() {
+    const email = this.newsletterEmail?.trim();
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      this._messageService.add({
+        severity: 'warn',
+        summary: 'Invalid email',
+        detail: 'Please enter a valid email address.'
+      });
+      return;
+    }
+
+    this.newsletterSubmitted = true;
+    this.newsletterEmail = '';
+    this._messageService.add({
+      severity: 'success',
+      summary: "You're on the list",
+      detail: 'Thanks for signing up — watch your inbox for new arrivals.'
+    });
   }
 
   redirect(id: number) {
@@ -70,7 +162,7 @@ export class HomeComponent implements OnInit {
   }
 
   ngOnDestroy() {
-    this.suggestedProductsSubscription.unsubscribe();
+    this.suggestedProductsSubscription?.unsubscribe();
+    this.featuredProductsSubscription?.unsubscribe();
   }
-
 }
