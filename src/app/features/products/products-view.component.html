@@ -10,7 +10,23 @@
 </div>
 
 <div class="products-layout">
-  <aside class="filters-panel" *ngIf="!isLoading; else loadingFilters">
+  <button
+    type="button"
+    class="filters-toggle lg:hidden"
+    (click)="filtersOpen = !filtersOpen"
+    [attr.aria-expanded]="filtersOpen"
+    aria-controls="catalog-filters"
+  >
+    <i class="pi" [ngClass]="filtersOpen ? 'pi-times' : 'pi-sliders-h'"></i>
+    {{ filtersOpen ? 'Close filters' : 'Filters' }}
+  </button>
+
+  <aside
+    id="catalog-filters"
+    class="filters-panel"
+    [class.filters-panel--open]="filtersOpen"
+    *ngIf="!isLoading; else loadingFilters"
+  >
     <h3 class="filters-title">Category</h3>
     <app-filters (filtersObject)="applyFilters($event)" [categories]="categories"></app-filters>
 

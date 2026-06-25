@@ -51,6 +51,7 @@ export class ProductsViewComponent implements OnInit, OnDestroy {
 
   public items!: MenuItem[];
   home!: MenuItem;
+  filtersOpen = false;
 
   constructor(
     private _productService: ProductsService,
@@ -148,6 +149,16 @@ export class ProductsViewComponent implements OnInit, OnDestroy {
       { label: 'Price: Low to High', value: 'asc' },
       { label: 'Price: High to Low', value: 'desc' },
     ];
+
+    this.subs.add(
+      this.route.queryParams.subscribe((params) => {
+        const query = (params['q'] ?? '').trim();
+        if (query !== this.searchInput) {
+          this.searchInput = query;
+          this.resetToFirstPage();
+        }
+      })
+    );
   }
 
   /** Builds one Hasura `where` expression from all active filters (AND-combined). */

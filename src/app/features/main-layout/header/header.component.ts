@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { WishlistService } from '../../../shared/wishlist.service';
 import { Product } from '../../products/Product';
 import { CartService } from 'src/app/shared/cart.service';
@@ -14,6 +14,10 @@ export class HeaderComponent implements OnInit {
   wishListItems!: string;
   cartItems: string = "0";
   items: MenuItem[] = [];
+  searchQuery = '';
+  mobileSearchOpen = false;
+
+  @ViewChild('mobileSearchInput') mobileSearchInput?: ElementRef<HTMLInputElement>;
 
   constructor(
     private _wishlistService: WishlistService,
@@ -57,6 +61,21 @@ export class HeaderComponent implements OnInit {
         routerLink: ['/cart']
       }
     ];
+  }
+
+  onSearch(): void {
+    const query = this.searchQuery.trim();
+    this.mobileSearchOpen = false;
+    this.router.navigate(['/products/search'], {
+      queryParams: query ? { q: query } : {}
+    });
+  }
+
+  toggleMobileSearch(): void {
+    this.mobileSearchOpen = !this.mobileSearchOpen;
+    if (this.mobileSearchOpen) {
+      setTimeout(() => this.mobileSearchInput?.nativeElement.focus(), 50);
+    }
   }
 
   isActiveRoute(route: string): boolean {
