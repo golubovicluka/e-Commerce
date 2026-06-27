@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, NavigationExtras, Router } from '@angular/router';
 import { Location } from '@angular/common';
 import { ProductsService } from '../../products.service';
@@ -13,16 +13,19 @@ import {
   MONTHLY_PAYMENT_OPTIONS,
   MonthlyPaymentOption,
 } from 'src/app/shared/pricing';
+import { Subject, takeUntil } from 'rxjs';
 
 @Component({
   selector: 'app-product-details',
   templateUrl: './product-details.component.html',
   styleUrls: ['./product-details.component.scss']
 })
-export class ProductDetailsComponent implements OnInit {
+export class ProductDetailsComponent implements OnInit, OnDestroy {
   images!: string[];
   product: any | null = null;
   id!: number;
+  isLoading = false;
+  notFound = false;
 
   selectedMonthlyPayment: MonthlyPaymentOption = DEFAULT_MONTHLY_PAYMENT;
   monthlyPaymentOptions = MONTHLY_PAYMENT_OPTIONS;
@@ -31,6 +34,8 @@ export class ProductDetailsComponent implements OnInit {
 
   public items!: MenuItem[];
   home!: MenuItem;
+
+  private destroy$ = new Subject<void>();
 
   galleryResponsiveOptions = [
     {
@@ -106,34 +111,66 @@ export class ProductDetailsComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.id = this.activatedRoute.snapshot.params['id'];
+    this.home = { icon: 'pi pi-home', routerLink: '/home' };
 
-    // If user navigated manually to the route
-    if (!this.product) {
-      this._productService.getProductById(this.id).subscribe((product: any) => {
-        this.product = product.data.product[0];
-        this.images = this._productImageService.normalizeImages(product.data.product[0].images, product.data.product[0].name);
+    this.activatedRoute.paramMap.pipe(takeUntil(this.destroy$)).subscribe((params) => {
+      const nextId = Number(params.get('id'));
+      if (!nextId || Number.isNaN(nextId)) {
+        this.notFound = true;
+        this.product = null;
+        return;
+      }
+
+      if (this.id === nextId && this.product) {
+        return;
+      }
+
+      this.id = nextId;
+      this.loadProduct(this.id);
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  private loadProduct(productId: number): void {
+    this.isLoading = true;
+    this.notFound = false;
+    this.product = null;
+
+    this._productService.getProductById(productId).subscribe({
+      next: (response: any) => {
+        const loadedProduct = response.data.product[0];
+        if (!loadedProduct) {
+          this.isLoading = false;
+          this.notFound = true;
+          return;
+        }
+
+        this.product = loadedProduct;
+        this.images = this._productImageService.normalizeImages(loadedProduct.images, loadedProduct.name);
         this.product.images = this.images;
+        this.inWishlist = this.checkInWishlist(productId);
         this.setBreadcrumbItems();
-        this.inWishlist = this.checkInWishlist(this.id);
+        this.isLoading = false;
 
-        // Suggested products
-        const productCategory = product.data.product[0].category?.name;
+        const productCategory = loadedProduct.category?.name;
         this._productService.getProductsByCategory(productCategory).subscribe((suggestedProducts: any) => {
           this.suggestedProducts = suggestedProducts.data.product
-          .filter((suggestedProduct: Product) => suggestedProduct.id !== this.id)
-          .map((suggestedProduct: Product) => ({
-            ...suggestedProduct,
-            images: this._productImageService.normalizeImages(suggestedProduct.images, suggestedProduct.name)
-          }));
-        })
-      })
-      this.inWishlist = this.checkInWishlist(this.id);
-    }
-
-    // Breadcrumbs setup
-    this.setBreadcrumbItems();
-    this.home = { icon: 'pi pi-home', routerLink: '/home' };
+            .filter((suggestedProduct: Product) => suggestedProduct.id !== productId)
+            .map((suggestedProduct: Product) => ({
+              ...suggestedProduct,
+              images: this._productImageService.normalizeImages(suggestedProduct.images, suggestedProduct.name)
+            }));
+        });
+      },
+      error: () => {
+        this.isLoading = false;
+        this.notFound = true;
+      }
+    });
   }
 
   getNumVisible(): number {
