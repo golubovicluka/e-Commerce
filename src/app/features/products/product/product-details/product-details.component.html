@@ -1,7 +1,7 @@
 <p-toast position="bottom-left"></p-toast>
 <p-breadcrumb [home]="home" [model]="items" class="mb-3"></p-breadcrumb>
 
-<div *ngIf="product; else loading" class="details-layout component-enter">
+<div *ngIf="product; else stateTemplate" class="details-layout component-enter">
   <!-- Gallery -->
   <div class="gallery-pane">
     <p-galleria [value]="images" [(activeIndex)]="activeIndex" [containerStyle]="{'width': '100%'}"
@@ -72,7 +72,7 @@
         <i [class]="inWishlist ? 'pi pi-heart-fill' : 'pi pi-heart'"></i>
       </button>
     </div>
-    <span class="notify-link cursor-pointer" *ngIf="product.inStock === 0">Notify me when it's back</span>
+    <span class="notify-link" *ngIf="product.inStock === 0">Notify me when it's back (coming soon)</span>
 
     <ul class="detail-perks">
       <li><i class="pi pi-truck"></i> Free shipping, 1&ndash;3 business days</li>
@@ -81,6 +81,27 @@
     </ul>
   </div>
 </div>
+
+<ng-template #stateTemplate>
+  <div *ngIf="isLoading; else notFoundBlock" class="details-skeleton">
+    <div class="skeleton skeleton-gallery"></div>
+    <div class="skeleton-panel">
+      <div class="skeleton skeleton-line w-40"></div>
+      <div class="skeleton skeleton-title"></div>
+      <div class="skeleton skeleton-line"></div>
+      <div class="skeleton skeleton-line"></div>
+      <div class="skeleton skeleton-line w-60"></div>
+      <div class="skeleton skeleton-cta"></div>
+    </div>
+  </div>
+  <ng-template #notFoundBlock>
+    <div class="details-layout component-enter">
+      <p class="text-lg font-semibold">Product not found</p>
+      <p class="text-sm text-muted">The product you are looking for does not exist or is no longer available.</p>
+      <button pButton type="button" label="Back to products" routerLink="/products/search"></button>
+    </div>
+  </ng-template>
+</ng-template>
 
 <ng-template #loading>
   <div class="details-skeleton">

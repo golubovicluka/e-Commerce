@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 
 import { Observable } from 'rxjs';
+import { MessageService } from 'primeng/api';
 import { CartService } from 'src/app/shared/cart.service';
 
 @Component({
@@ -18,14 +19,20 @@ export class PaymentComponent {
   expiryDate: string = '';
   cvv: string = '';
 
-  constructor(private _cartService: CartService) {
+  constructor(
+    private _cartService: CartService,
+    private _messageService: MessageService,
+  ) {
     this.total$ = this._cartService.getTotalPrice();
   }
 
   completePayment(): void {
-    // Raw card details (PAN, CVV, expiry) must never be logged or handled in the
-    // client. Integrate a PCI-compliant gateway (e.g. Stripe Elements, PayPal SDK)
-    // so card data is tokenized by the processor and never touches this code.
+    this._messageService.add({
+      severity: 'info',
+      summary: 'Payment unavailable',
+      detail: 'Checkout uses a demo flow. Integrate a PCI-compliant gateway (e.g. Stripe Elements) before accepting real payments.',
+      life: 6000,
+    });
   }
 
 }

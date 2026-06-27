@@ -1,21 +1,23 @@
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { WishlistService } from '../../../shared/wishlist.service';
 import { Product } from '../../products/Product';
 import { CartService } from 'src/app/shared/cart.service';
 import { Router } from '@angular/router';
 import { MenuItem } from 'primeng/api';
+import { Subject, map, takeUntil } from 'rxjs';
 
 @Component({
   selector: 'app-header',
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.scss']
 })
-export class HeaderComponent implements OnInit {
-  wishListItems!: string;
-  cartItems: string = "0";
+export class HeaderComponent implements OnInit, OnDestroy {
+  wishListItems = '0';
+  cartItems = '0';
   items: MenuItem[] = [];
   searchQuery = '';
   mobileSearchOpen = false;
+  private destroy$ = new Subject<void>();
 
   @ViewChild('mobileSearchInput') mobileSearchInput?: ElementRef<HTMLInputElement>;
 
@@ -26,13 +28,13 @@ export class HeaderComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    this._wishlistService.getWishListItems().subscribe((data: Product[]) => {
+    this._wishlistService.getWishListItems().pipe(takeUntil(this.destroy$)).subscribe((data: Product[]) => {
       this.wishListItems = data.length.toString();
     });
 
-    this._cartService.getCartItems().subscribe((data: Product[]) => {
-      this.cartItems = data.length.toString();
-    })
+    this._cartService.getTotalUnits().pipe(takeUntil(this.destroy$)).subscribe((total) => {
+      this.cartItems = total.toString();
+    });
 
     this.items = [
       {
@@ -61,6 +63,11 @@ export class HeaderComponent implements OnInit {
         routerLink: ['/cart']
       }
     ];
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   onSearch(): void {

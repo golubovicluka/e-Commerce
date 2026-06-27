@@ -27,6 +27,10 @@ export class WishlistService {
   }
 
   addWishListItem(item: Product): void {
+    if (this.inWishlist(item.id)) {
+      return;
+    }
+
     const currentItems = [...this.wishListItems$.value, item];
 
     try {
