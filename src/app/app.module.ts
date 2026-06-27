@@ -13,7 +13,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 // Apollo
 import { ApolloModule, APOLLO_OPTIONS } from 'apollo-angular'
 import { HttpLink } from 'apollo-angular/http';
-import { HttpClientModule, HttpHeaders } from '@angular/common/http';
+import { HttpClientModule } from '@angular/common/http';
 import { InMemoryCache } from '@apollo/client/core';
 import { environment } from '../environments/environment';
 
@@ -100,9 +100,6 @@ import { SlideMenuModule } from 'primeng/slidemenu';
           cache: new InMemoryCache(),
           link: httpLink.create({
             uri: environment.graphqlEndpoint,
-            headers: new HttpHeaders({
-              'x-hasura-admin-secret': environment.hasuraAdminSecret,
-            }),
           }),
         };
       },
