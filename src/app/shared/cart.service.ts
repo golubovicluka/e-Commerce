@@ -117,6 +117,14 @@ export class CartService {
     );
   }
 
+  getTotalUnits(): Observable<number> {
+    return combineLatest([this.cartItems$, this.quantities$]).pipe(
+      map(([products, quantities]) =>
+        products.reduce((total, _product, index) => total + (quantities[index] ?? 1), 0)
+      )
+    );
+  }
+
   getNumberOfItems(): Observable<number> {
     return this.cartItems$.pipe(
       map((products) => products.length)
