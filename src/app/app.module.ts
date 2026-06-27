@@ -91,7 +91,6 @@ import { SlideMenuModule } from 'primeng/slidemenu';
   ],
   exports: [],
   providers: [
-    WishlistService,
     ProductsService,
     {
       provide: APOLLO_OPTIONS,
