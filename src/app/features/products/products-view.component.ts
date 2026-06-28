@@ -1,6 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Subject } from 'rxjs';
-import { debounceTime, distinctUntilChanged, map, switchMap, take, tap } from 'rxjs/operators';
+import { catchError, debounceTime, distinctUntilChanged, map, switchMap, take, tap } from 'rxjs/operators';
+import { of } from 'rxjs';
 import { Product } from './Product';
 import { ProductsService } from './products.service';
 import { SubscriptionContainer } from './SubscriptionContainer';
@@ -38,6 +39,7 @@ export class ProductsViewComponent implements OnInit, OnDestroy {
 
   numberOfProducts = 0;
   isLoading = true;
+  catalogError: string | null = null;
 
   searchInput = '';
   categoriesFilter!: string;
@@ -90,20 +92,35 @@ export class ProductsViewComponent implements OnInit, OnDestroy {
     this.subs.add(
       this.pageRequests$
         .pipe(
-          tap(() => (this.isLoading = true)),
+          tap(() => {
+            this.isLoading = true;
+            this.catalogError = null;
+          }),
           switchMap(() =>
             this._productService.getProductsPage({
               where: this.buildWhere(),
               orderBy: [{ price: this.sortKey }],
               limit: this.rows,
               offset: this.first,
-            })
+            }).pipe(
+              catchError(() => {
+                this.catalogError = 'We could not load products right now. Please try again later.';
+                return of({
+                  data: {
+                    product: [],
+                    product_aggregate: { aggregate: { count: 0 } },
+                  },
+                });
+              })
+            )
           )
         )
         .subscribe((result: any) => {
-          this.products = result.data.product;
-          this.totalRecords = result.data.product_aggregate.aggregate.count;
-          this.numberOfProducts = this.totalRecords;
+          if (!this.catalogError) {
+            this.products = result.data.product;
+            this.totalRecords = result.data.product_aggregate.aggregate.count;
+            this.numberOfProducts = this.totalRecords;
+          }
           this.isLoading = false;
         })
     );
@@ -194,6 +211,10 @@ export class ProductsViewComponent implements OnInit, OnDestroy {
         }
       })
     );
+  }
+
+  retryCatalogLoad(): void {
+    this.resetToFirstPage();
   }
 
   /** Reset to page 1 and reload; the dataView paginator follows `first`. */

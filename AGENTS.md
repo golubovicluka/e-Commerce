@@ -27,8 +27,8 @@ See `README.md` for clone/install/serve steps. Quick reference:
 ### Non-obvious caveats
 
 - **Node:** Works on Node 22 in this environment; Angular 15 officially supports Node 14.20+, 16.13+, or 18.10+.
-- **Hasura auth:** The app sends `x-hasura-admin-secret` via Apollo (`app.module.ts`). Direct `curl` to the GraphQL endpoint without that header returns access-denied; use the running app or mirror those headers.
-- **Unit tests:** As of setup, `ng test` runs 168 specs with 167 passing; 1 spec in `footer.component.spec.ts` ("openLink opens the given URL in a new window") fails due to an outdated expectation (it ignores the `_blank`/`noopener` args the component actually passes). This is a spec mismatch, not an environment issue—lint, build, and the running app all work.
+- **Hasura auth:** The browser sends **no** authorization header (`app.module.ts`). Catalog queries rely on a read-only Hasura `anonymous` role configured on the backend. Until that role is enabled, direct `curl` and the live app receive `access-denied` — see `SECURITY.md` for the required Hasura Cloud setup (not a client bug).
+- **Unit tests:** `ng test` runs 176 specs; all pass in ChromeHeadless with `--watch=false`.
 - **Cypress:** `cypress.config.ts` has no `baseUrl`. Several specs use `[data-cy="..."]` attributes not present in `src/`. `home.cy.ts` references a removed Login nav link.
 - **No git hooks:** No Husky/pre-commit; nothing extra to run before commits.
 

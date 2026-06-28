@@ -63,7 +63,13 @@
 
   <!-- Products section -->
   <div class="products-results">
-    <p-dataView [value]="products" [lazy]="true" [paginator]="true" [rows]="rows" [totalRecords]="totalRecords"
+    <div class="empty-state component-enter catalog-error" *ngIf="catalogError && !isLoading">
+      <i class="pi pi-exclamation-circle"></i>
+      <h3>Catalog unavailable</h3>
+      <p>{{ catalogError }}</p>
+      <button class="p-button-outlined" type="button" pButton pRipple (click)="retryCatalogLoad()" label="Try again"></button>
+    </div>
+    <p-dataView *ngIf="!catalogError" [value]="products" [lazy]="true" [paginator]="true" [rows]="rows" [totalRecords]="totalRecords"
       [first]="first" [trackBy]="trackByProductId" (onLazyLoad)="loadData($event)"
       [loading]="isLoading" [rowsPerPageOptions]="[10,20,30]" paginatorPosition="bottom">
       <ng-template pTemplate="header">

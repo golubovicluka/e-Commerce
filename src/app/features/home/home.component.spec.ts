@@ -58,6 +58,7 @@ describe('HomeComponent', () => {
   });
 
   it('ngOnInit maps suggested products through ProductImageService.normalizeImages', () => {
+    expect(component.suggestedProductsLoadState).toBe('ready');
     expect(component.suggestedProducts.length).toBe(1);
     expect(component.suggestedProducts[0].images).toEqual(['normalized.jpg', 'fallback.jpg']);
     expect(images.normalizeImages).toHaveBeenCalled();
