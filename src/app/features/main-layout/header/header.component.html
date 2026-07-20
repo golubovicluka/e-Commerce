@@ -59,7 +59,7 @@
         @if (wishListItems === '0') {
           <i class="pi pi-heart"></i>
         }
-        <span>Wishlist</span>
+        <span class="hidden sm:inline">Wishlist</span>
       </a>
       <a [routerLink]="['/cart']" routerLinkActive="active" class="icon-link" aria-label="Cart">
         @if (cartItems !== '0') {
