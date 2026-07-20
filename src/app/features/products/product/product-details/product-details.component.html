@@ -118,7 +118,7 @@
     <div class="product-strip w-full">
       @for (product of suggestedProducts; track product.id) {
         <div class="suggested-item">
-          <app-product class="w-full" (addedToCart)="addToCart($event)" (replaceCurrentProduct)="replaceProduct($event)"
+          <app-product class="w-full" [replaceProductOnClick]="true" (addedToCart)="addToCart($event)" (replaceCurrentProduct)="replaceProduct($event)"
             (removedFromCart)="removeFromCart($event)" (removedFromWishList)="removedFromWishList($event)"
             (addedToWishList)="addToWishList($event)" [name]="product.name" [subcategory]="product.subcategory"
             [id]="product.id" [images]="product.images" [inStock]="product.inStock" [price]="product.price"

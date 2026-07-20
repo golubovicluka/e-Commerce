@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, OnInit, Output, ChangeDetectionStrategy } from '@angular/core';
-import { Router, NavigationExtras, ActivatedRoute } from '@angular/router';
+import { Router, NavigationExtras } from '@angular/router';
 import { NotificationService } from 'src/app/shared/notification.service';
 import { Product, Subcategory, Category } from '../Product';
 import { WishlistService } from 'src/app/shared/wishlist.service';
@@ -30,6 +30,7 @@ export class ProductComponent implements OnInit {
   @Input() price!: number;
   @Input() isListView!: boolean;
   @Input() wishlistView?: boolean;
+  @Input() replaceProductOnClick = false;
 
 
   @Output() addedToWishList = new EventEmitter();
@@ -47,7 +48,6 @@ export class ProductComponent implements OnInit {
   constructor(
     private _messageService: NotificationService,
     private router: Router,
-    private route: ActivatedRoute,
     private _wishlistService: WishlistService,
     private _cartService: CartService,
     private _productImageService: ProductImageService
@@ -110,18 +110,18 @@ export class ProductComponent implements OnInit {
   }
 
   openProductDetails(id: number) {
-    const currentRoute = this.route.snapshot.url.join('/');
-    if (currentRoute.includes('products')) {
-      const navigationExtras: NavigationExtras = {
-        state: {
-          product: this.product
-        }
-      }
-      this.router.navigate(['/product', id], navigationExtras);
-    } else {
+    if (this.replaceProductOnClick) {
       this.replaceCurrentProduct.emit(id);
       window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
     }
+
+    const navigationExtras: NavigationExtras = {
+      state: {
+        product: this.product
+      }
+    };
+    this.router.navigate(['/product', id], navigationExtras);
   }
 
   getInstallmentAmount = getInstallmentAmount;

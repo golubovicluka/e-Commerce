@@ -177,19 +177,19 @@ describe('ProductComponent', () => {
     });
 
     describe('openProductDetails', () => {
-        it('navigates with product state when already on a products route', () => {
+        it('navigates with product state from a lazy route with an empty local URL', () => {
             component.ngOnInit(); // builds component.product
-            route.snapshot.url = ['products', 'search'];
+            route.snapshot.url = [];
 
             component.openProductDetails(42);
 
             expect(router.navigate).toHaveBeenCalledWith(['/product', 42], expect.objectContaining({ state: { product: component.product } }));
         });
 
-        it('emits replaceCurrentProduct and scrolls up when not on a products route', () => {
+        it('emits replaceCurrentProduct and scrolls up when rendered as a detail-page suggestion', () => {
             const replaceSpy = vi.spyOn(component.replaceCurrentProduct, 'emit').mockReturnValue(undefined);
             const scrollSpy = vi.spyOn(window, 'scrollTo').mockReturnValue(undefined);
-            route.snapshot.url = ['home'];
+            component.replaceProductOnClick = true;
 
             component.openProductDetails(7);
 
