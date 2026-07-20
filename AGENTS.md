@@ -20,16 +20,16 @@ See `README.md` for clone/install/serve steps. Quick reference:
 - **Install deps:** `npm install`
 - **Dev server:** `npm start` (or `ng serve --host 0.0.0.0 --port 4200` in Cloud VMs)
 - **Production build:** `npm run build` → browser output in `dist/project/browser`
-- **Unit tests:** `npm run test:ci` (Vitest)
+- **Unit tests:** `npm run test:ci` (Jest with 100% coverage thresholds)
 - **Lint:** `npm run lint`
-- **E2E:** `npx cypress open` (requires app on `http://localhost:4200`; see Cypress caveats below)
+- **E2E:** `npm run e2e:ci` (requires app on `http://localhost:4200`)
 
 ### Non-obvious caveats
 
 - **Node:** Use Node 24.15.0 from `.nvmrc`; Angular 22 requires Node `^22.22.3`, `^24.15.0`, or `>=26`.
 - **Hasura auth:** The browser sends **no** authorization header. Catalog queries rely on a read-only Hasura `anonymous` role configured on the backend. Until that role is enabled, direct `curl` and the live app receive `access-denied` — see `SECURITY.md` for the required Hasura Cloud setup (not a client bug).
-- **Unit tests:** `npm run test:ci` runs 181 specs in Vitest.
-- **Cypress:** `cypress.config.ts` has no `baseUrl`. Several specs use `[data-cy="..."]` attributes not present in `src/`. `home.cy.ts` references a removed Login nav link.
+- **Unit tests:** `npm run test:ci` runs 262 specs in Jest and enforces 100% statement, branch, function, and line coverage for executable `src/app` code.
+- **Cypress:** Browser flows use semantic selectors and deterministic GraphQL intercepts. Run the Angular app on `http://localhost:4200` before `npm run e2e:ci`.
 - **UI licensing:** Native standalone controls replaced PrimeNG. PrimeIcons stays on the MIT-licensed v7 major; v8 and PrimeNG 22 require a PrimeUI developer license key.
 - **No git hooks:** No Husky/pre-commit; nothing extra to run before commits.
 

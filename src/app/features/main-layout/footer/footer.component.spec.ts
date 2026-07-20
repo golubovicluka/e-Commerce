@@ -17,7 +17,7 @@ describe('FooterComponent', () => {
 
     beforeEach(async () => {
         router = {
-            navigate: vi.fn().mockName("Router.navigate")
+            navigate: jest.fn().mockName("Router.navigate")
         };
 
         await TestBed.configureTestingModule({
@@ -43,7 +43,7 @@ describe('FooterComponent', () => {
     });
 
     it('openLink opens the given URL in a new window without opener access', () => {
-        const openSpy = vi.spyOn(window, 'open').mockReturnValue(null);
+        const openSpy = jest.spyOn(window, 'open').mockReturnValue(null);
         component.openLink('https://github.com/golubovicluka');
         expect(openSpy).toHaveBeenCalledWith('https://github.com/golubovicluka', '_blank', 'noopener,noreferrer');
     });

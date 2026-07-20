@@ -6,9 +6,11 @@
     "start": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test",
-    "test:ci": "ng test --watch=false",
-    "lint": "eslint ."
+    "test": "jest --watch",
+    "test:ci": "jest --runInBand --coverage",
+    "lint": "eslint .",
+    "e2e": "cypress open",
+    "e2e:ci": "cypress run"
   },
   "private": true,
   "engines": {
@@ -36,14 +38,17 @@
     "@angular/build": "^22.0.7",
     "@angular/cli": "~22.0.7",
     "@angular/compiler-cli": "^22.0.7",
+    "@types/jest": "^30.0.0",
     "angular-cli-ghpages": "^3.1.0",
     "angular-eslint": "^22.1.0",
     "cypress": "^15.18.1",
     "eslint": "^10.7.0",
     "istanbul-lib-instrument": "^6.0.3",
+    "jest": "^30.4.2",
+    "jest-environment-jsdom": "^30.4.1",
+    "jest-preset-angular": "^17.0.0",
     "jsdom": "^29.1.1",
     "typescript": "~6.0.3",
-    "typescript-eslint": "^8.64.0",
-    "vitest": "^4.0.8"
+    "typescript-eslint": "^8.64.0"
   }
 }

@@ -1,274 +1,108 @@
-describe('Products Page', () => {
+describe('Catalog discovery', () => {
   beforeEach(() => {
+    cy.mockCatalog();
+    cy.clearLocalStorage();
     cy.visit('/products/search');
+    cy.wait('@gqlGetProductsPage');
   });
 
-  describe('Product Listing', () => {
-    it('should display products page', () => {
-      cy.url().should('include', '/products/search');
-    });
+  it('renders a paginated catalog and switches layouts', () => {
+    cy.contains('h1', 'All products').should('be.visible');
+    cy.contains('.results-count', '13 products').should('be.visible');
+    cy.get('.product-card').should('have.length', 10);
 
-    it('should display product cards', () => {
-      cy.get('[data-cy="product-card"]', { timeout: 10000 }).should('exist');
-      cy.get('[data-cy="product-card"]').should('have.length.greaterThan', 0);
-    });
+    cy.get('button[aria-label="List view"]').click();
+    cy.get('.list-card').should('have.length', 10);
+    cy.get('button[aria-label="List view"]').should('have.attr', 'aria-pressed', 'true');
 
-    it('should display product information on cards', () => {
-      cy.get('[data-cy="product-card"]').first().within(() => {
-        cy.get('[data-cy="product-name"]').should('be.visible');
-        cy.get('[data-cy="product-price"]').should('be.visible');
-        cy.get('[data-cy="product-image"]').should('be.visible');
-      });
-    });
-
-    it('should display stock status for products', () => {
-      cy.get('[data-cy="product-card"]').first().within(() => {
-        cy.get('[data-cy="stock-status"]').should('exist');
-      });
-    });
+    cy.get('button[aria-label="Grid view"]').click();
+    cy.get('.product-card').should('have.length', 10);
   });
 
-  describe('Product Search', () => {
-    it('should have a search input', () => {
-      cy.get('[data-cy="search-input"]').should('exist');
-    });
+  it('searches, filters, and sorts with server-side GraphQL variables', () => {
+    cy.get('.products-results input[aria-label="Search products"]').type('Phone');
+    cy.wait('@gqlGetProductsPage')
+      .its('request.body.variables.where.name._ilike')
+      .should('eq', '%Phone%');
+    cy.get('.product-card').should('have.length', 6);
 
-    it('should filter products by search term', () => {
-      cy.get('[data-cy="search-input"]').type('iPhone');
-      cy.get('[data-cy="product-card"]').should('have.length.greaterThan', 0);
-    });
+    cy.get('.products-results input[aria-label="Search products"]').clear();
+    cy.get('.product-card').should('have.length', 10);
+    cy.get('label[for="filter-2"]').click();
+    cy.wait('@gqlGetProductsPage')
+      .its('request.body.variables.where.subcategory.name._in')
+      .should('deep.equal', ['Laptops']);
+    cy.get('.card-kicker').should('contain.text', 'Laptops');
 
-    it('should show no results message for invalid search', () => {
-      cy.get('[data-cy="search-input"]').type('nonexistentproduct123456');
-      cy.wait(1000);
-      // Either no products or a no results message
-      cy.get('[data-cy="product-card"]').should('have.length', 0);
-    });
-
-    it('should clear search results', () => {
-      cy.get('[data-cy="search-input"]').type('test');
-      cy.get('[data-cy="search-input"]').clear();
-      cy.get('[data-cy="product-card"]').should('have.length.greaterThan', 0);
-    });
+    cy.get('select[aria-label="Sort products"]').select('Price: High to Low');
+    cy.wait('@gqlGetProductsPage')
+      .its('request.body.variables.orderBy.0.price')
+      .should('eq', 'desc');
+    cy.get('.card-name').first().should('contain.text', 'iPad Pro M2');
   });
 
-  describe('Product Sorting', () => {
-    it('should have sort dropdown', () => {
-      cy.get('[data-cy="sort-dropdown"]').should('exist');
-    });
+  it('moves between server-side pages and changes page size', () => {
+    cy.contains('.catalog-pagination', 'Page 1 of 2').should('be.visible');
+    cy.contains('.catalog-pagination button', 'Next').click();
+    cy.wait('@gqlGetProductsPage').its('request.body.variables.offset').should('eq', 10);
+    cy.contains('.catalog-pagination', 'Page 2 of 2').should('be.visible');
+    cy.get('.product-card').should('have.length', 3);
 
-    it('should sort products by price low to high', () => {
-      cy.get('[data-cy="sort-dropdown"]').click();
-      cy.contains('Low to High').click();
-      cy.wait(500);
-
-      // Verify products are sorted
-      cy.get('[data-cy="product-price"]').then($prices => {
-        const prices = [...$prices].map(el =>
-          parseFloat(el.textContent.replace(/[^0-9.]/g, ''))
-        );
-        const sortedPrices = [...prices].sort((a, b) => a - b);
-        expect(prices).to.deep.equal(sortedPrices);
-      });
-    });
-
-    it('should sort products by price high to low', () => {
-      cy.get('[data-cy="sort-dropdown"]').click();
-      cy.contains('High to Low').click();
-      cy.wait(500);
-
-      // Verify products are sorted in descending order
-      cy.get('[data-cy="product-price"]').then($prices => {
-        const prices = [...$prices].map(el =>
-          parseFloat(el.textContent.replace(/[^0-9.]/g, ''))
-        );
-        const sortedPrices = [...prices].sort((a, b) => b - a);
-        expect(prices).to.deep.equal(sortedPrices);
-      });
-    });
+    cy.get('.catalog-pagination select').select('20 per page');
+    cy.wait('@gqlGetProductsPage').its('request.body.variables.limit').should('eq', 20);
+    cy.contains('.catalog-pagination', 'Page 1 of 1').should('be.visible');
+    cy.get('.product-card').should('have.length', 13);
   });
 
-  describe('Product Categories', () => {
-    it('should display category filter', () => {
-      cy.get('[data-cy="category-filter"]').should('exist');
-    });
+  it('opens a category and carries its filter into the catalog', () => {
+    cy.get('nav.nav-links').contains('Categories').click();
+    cy.wait('@gqlGetProductCategories');
+    cy.contains('.category-tile', 'Electronics').click();
+    cy.wait('@gqlGetProductsPage')
+      .its('request.body.variables.where.category.name._eq')
+      .should('eq', 'Electronics');
 
-    it('should filter products by category', () => {
-      cy.get('[data-cy="category-filter"]').click();
-      cy.get('[data-cy="category-option"]').first().click();
-      cy.wait(500);
-      cy.get('[data-cy="product-card"]').should('exist');
-    });
-
-    it('should navigate to categories page', () => {
-      cy.get('[href="/categories"]').first().click();
-      cy.url().should('include', '/categories');
-    });
+    cy.location('pathname').should('eq', '/products/search');
+    cy.contains('h1', 'All products').should('be.visible');
   });
 
-  describe('Product Filters', () => {
-    it('should have advanced filters section', () => {
-      cy.get('[data-cy="filters-section"]').should('exist');
-    });
+  it('opens product details, updates wishlist, and buys the product', () => {
+    cy.contains('.card-name', 'MacBook Pro M1').click();
+    cy.wait('@gqlGetProductsByCategory');
+    cy.location('pathname').should('eq', '/product/1');
+    cy.contains('h1', 'MacBook Pro M1').should('be.visible');
 
-    it('should filter by price range', () => {
-      cy.get('[data-cy="price-from"]').clear().type('0');
-      cy.get('[data-cy="price-to"]').clear().type('100');
-      cy.get('[data-cy="apply-filter"]').click();
-      cy.wait(500);
+    cy.get('button[aria-label="Add to wishlist"]').click();
+    cy.contains('[role="status"]', 'Added to wishlist').should('be.visible');
+    cy.get('a[aria-label="Wishlist"] .icon-count').should('have.text', '1');
 
-      // Verify filtered results
-      cy.get('[data-cy="product-price"]').each($price => {
-        const price = parseFloat($price.text().replace(/[^0-9.]/g, ''));
-        expect(price).to.be.lte(100);
-      });
-    });
+    cy.contains('button', 'Buy now').click();
+    cy.location('pathname').should('eq', '/cart');
+    cy.contains('.cart-item-card', 'MacBook Pro M1').should('be.visible');
+  });
+});
 
-    it('should filter by subcategory', () => {
-      cy.get('[data-cy="subcategory-filter"]').should('exist');
-      cy.get('[data-cy="subcategory-checkbox"]').first().check();
-      cy.wait(500);
-      cy.get('[data-cy="product-card"]').should('exist');
-    });
+describe('Catalog recovery and direct product routes', () => {
+  it('retries a failed catalog page', () => {
+    cy.mockCatalog({ failOnce: ['GetProductsPage'] });
+    cy.visit('/products/search');
+    cy.wait('@gqlGetProductsPage');
+    cy.contains('h3', 'Catalog unavailable').should('be.visible');
 
-    it('should clear all filters', () => {
-      cy.get('[data-cy="price-from"]').type('50');
-      cy.get('[data-cy="clear-filters"]').click();
-      cy.get('[data-cy="price-from"]').should('have.value', '');
-    });
+    cy.contains('button', 'Try again').click();
+    cy.wait('@gqlGetProductsPage');
+    cy.get('.product-card').should('have.length', 10);
   });
 
-  describe('Product Details Navigation', () => {
-    it('should navigate to product details on card click', () => {
-      cy.get('[data-cy="product-card"]').first().click();
-      cy.url().should('include', '/product/');
-    });
+  it('loads a directly visited product and redirects unknown products to 404', () => {
+    cy.mockCatalog();
+    cy.visit('/product/4');
+    cy.wait('@gqlGetProductById');
+    cy.contains('h1', 'iPhone 14 Pro Max').should('be.visible');
 
-    it('should display product details page', () => {
-      cy.get('[data-cy="product-card"]').first().click();
-      cy.get('[data-cy="product-details"]').should('exist');
-      cy.get('[data-cy="product-name"]').should('be.visible');
-      cy.get('[data-cy="product-price"]').should('be.visible');
-      cy.get('[data-cy="product-description"]').should('be.visible');
-    });
-
-    it('should be able to navigate back from product details', () => {
-      cy.get('[data-cy="product-card"]').first().click();
-      cy.go('back');
-      cy.url().should('include', '/products/search');
-    });
-  });
-
-  describe('Add to Cart from Product List', () => {
-    it('should have add to cart button on product cards', () => {
-      cy.get('[data-cy="product-card"]').first().within(() => {
-        cy.get('[data-cy="add-to-cart-btn"]').should('exist');
-      });
-    });
-
-    it('should add product to cart', () => {
-      cy.get('[data-cy="product-card"]').first().within(() => {
-        cy.get('[data-cy="add-to-cart-btn"]').click();
-      });
-
-      // Verify cart counter updated
-      cy.get('[data-cy="cart-counter"]').should('contain', '1');
-    });
-
-    it('should show success message when adding to cart', () => {
-      cy.get('[data-cy="product-card"]').first().within(() => {
-        cy.get('[data-cy="add-to-cart-btn"]').click();
-      });
-
-      // Toast or message should appear
-      cy.get('[data-cy="toast-message"]', { timeout: 3000 }).should('be.visible');
-    });
-  });
-
-  describe('Add to Wishlist from Product List', () => {
-    it('should have wishlist button on product cards', () => {
-      cy.get('[data-cy="product-card"]').first().within(() => {
-        cy.get('[data-cy="wishlist-btn"]').should('exist');
-      });
-    });
-
-    it('should add product to wishlist', () => {
-      cy.get('[data-cy="product-card"]').first().within(() => {
-        cy.get('[data-cy="wishlist-btn"]').click();
-      });
-
-      // Verify wishlist counter updated or button state changed
-      cy.get('[data-cy="product-card"]').first().within(() => {
-        cy.get('[data-cy="wishlist-btn"]').should('have.class', 'active');
-      });
-    });
-
-    it('should remove product from wishlist on second click', () => {
-      // Add to wishlist
-      cy.get('[data-cy="product-card"]').first().within(() => {
-        cy.get('[data-cy="wishlist-btn"]').click();
-      });
-
-      cy.wait(500);
-
-      // Remove from wishlist
-      cy.get('[data-cy="product-card"]').first().within(() => {
-        cy.get('[data-cy="wishlist-btn"]').click();
-      });
-
-      cy.wait(500);
-
-      cy.get('[data-cy="product-card"]').first().within(() => {
-        cy.get('[data-cy="wishlist-btn"]').should('not.have.class', 'active');
-      });
-    });
-  });
-
-  describe('Pagination', () => {
-    it('should have pagination controls', () => {
-      cy.get('[data-cy="pagination"]').should('exist');
-    });
-
-    it('should navigate to next page', () => {
-      cy.get('[data-cy="next-page"]').click();
-      cy.wait(500);
-      cy.get('[data-cy="product-card"]').should('exist');
-    });
-
-    it('should navigate to previous page', () => {
-      cy.get('[data-cy="next-page"]').click();
-      cy.wait(500);
-      cy.get('[data-cy="prev-page"]').click();
-      cy.wait(500);
-      cy.get('[data-cy="product-card"]').should('exist');
-    });
-  });
-
-  describe('View Modes', () => {
-    it('should toggle between grid and list view', () => {
-      cy.get('[data-cy="view-toggle"]').should('exist');
-      cy.get('[data-cy="list-view-btn"]').click();
-      cy.get('[data-cy="product-list"]').should('have.class', 'list-view');
-
-      cy.get('[data-cy="grid-view-btn"]').click();
-      cy.get('[data-cy="product-list"]').should('have.class', 'grid-view');
-    });
-  });
-
-  describe('Responsive Design', () => {
-    it('should display properly on mobile', () => {
-      cy.viewport('iphone-x');
-      cy.get('[data-cy="product-card"]').should('be.visible');
-    });
-
-    it('should display properly on tablet', () => {
-      cy.viewport('ipad-2');
-      cy.get('[data-cy="product-card"]').should('be.visible');
-    });
-
-    it('should display mobile menu on small screens', () => {
-      cy.viewport('iphone-x');
-      cy.get('[data-cy="mobile-menu-toggle"]').should('be.visible');
-    });
+    cy.visit('/product/999');
+    cy.wait('@gqlGetProductById');
+    cy.location('pathname').should('eq', '/404');
+    cy.contains("This aisle doesn't exist").should('be.visible');
   });
 });

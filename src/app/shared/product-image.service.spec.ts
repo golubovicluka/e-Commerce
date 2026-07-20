@@ -40,6 +40,21 @@ describe('ProductImageService', () => {
       expect(service.getFallbackImageByName('')).toBe(expected);
       expect(service.getFallbackImageByName('   ')).toBe(expected);
     });
+
+    it('escapes and truncates labels used inside the SVG', () => {
+      const value = 'A & B <C> "quoted" \'single\' with a deliberately very long suffix';
+      const decoded = decodeURIComponent(service.getFallbackImageByName(value));
+
+      expect(decoded).toContain('&amp;');
+      expect(decoded).toContain('&lt;C&gt;');
+      expect(decoded).toContain('&quot;quoted&quot;');
+      expect(decoded).toContain('&apos;single&apos;');
+      expect(decoded).toContain('…');
+    });
+
+    it('uses P when initials are requested for an empty private label', () => {
+      expect((service as any).getInitials('')).toBe('P');
+    });
   });
 
   describe('getCategoryImage', () => {
@@ -138,6 +153,12 @@ describe('ProductImageService', () => {
       const img = imgStub('whatever.jpg', service.getFallbackImageByName('iPhone'));
       service.handleImageError({ target: img } as unknown as Event, 'iPhone');
       expect(img.src).toBe(ASSET_FALLBACK);
+    });
+
+    it('uses an empty current URL when neither image URL is available', () => {
+      const img = imgStub('', '');
+      service.handleImageError({ target: img } as unknown as Event, 'iPhone');
+      expect(img.src).toBe(service.getFallbackImageByName('iPhone'));
     });
   });
 });

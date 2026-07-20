@@ -11,8 +11,8 @@ describe('SuggestedProductComponent', () => {
 
     beforeEach(async () => {
         images = {
-            resolvePrimaryImage: vi.fn().mockName("ProductImageService.resolvePrimaryImage"),
-            handleImageError: vi.fn().mockName("ProductImageService.handleImageError")
+            resolvePrimaryImage: jest.fn().mockName("ProductImageService.resolvePrimaryImage"),
+            handleImageError: jest.fn().mockName("ProductImageService.handleImageError")
         };
         images.resolvePrimaryImage.mockReturnValue('resolved.jpg');
 
@@ -34,7 +34,7 @@ describe('SuggestedProductComponent', () => {
     });
 
     it('openDetails emits the product id', () => {
-        const emitSpy = vi.spyOn(component.openProductDetails, 'emit').mockReturnValue(undefined);
+        const emitSpy = jest.spyOn(component.openProductDetails, 'emit').mockReturnValue(undefined);
         component.openDetails(3);
         expect(emitSpy).toHaveBeenCalledTimes(1);
         expect(emitSpy).toHaveBeenCalledWith(3);

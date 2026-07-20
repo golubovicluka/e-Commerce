@@ -18,7 +18,7 @@ describe('PaymentComponent', () => {
 
     beforeEach(async () => {
         cart = {
-            getTotalPrice: vi.fn().mockName("CartService.getTotalPrice")
+            getTotalPrice: jest.fn().mockName("CartService.getTotalPrice")
         };
         cart.getTotalPrice.mockReturnValue(of(100));
 

@@ -20,12 +20,12 @@ describe('CategoriesViewComponent', () => {
 
     beforeEach(async () => {
         products = {
-            getProductCategories: vi.fn().mockName("ProductsService.getProductCategories"),
-            setCategoryFilter: vi.fn().mockName("ProductsService.setCategoryFilter")
+            getProductCategories: jest.fn().mockName("ProductsService.getProductCategories"),
+            setCategoryFilter: jest.fn().mockName("ProductsService.setCategoryFilter")
         };
         products.getProductCategories.mockReturnValue(of({ data: { category: mockCategoriesWithSubcategories } }) as any);
         router = {
-            navigate: vi.fn().mockName("Router.navigate")
+            navigate: jest.fn().mockName("Router.navigate")
         };
 
         await TestBed.configureTestingModule({

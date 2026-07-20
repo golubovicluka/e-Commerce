@@ -23,11 +23,11 @@ describe('HeaderComponent', () => {
 
     beforeEach(async () => {
         wishlist = {
-            getWishListItems: vi.fn().mockName("WishlistService.getWishListItems"),
+            getWishListItems: jest.fn().mockName("WishlistService.getWishListItems"),
             wishListItemsSignal: signal([mockProducts[0]]),
         };
         cart = {
-            getCartItems: vi.fn().mockName("CartService.getCartItems"),
+            getCartItems: jest.fn().mockName("CartService.getCartItems"),
             numberOfItemsSignal: signal(2),
         };
         wishlist.getWishListItems.mockReturnValue(of([mockProducts[0]]));
@@ -35,9 +35,10 @@ describe('HeaderComponent', () => {
         router = {
             url: '/home',
             events: new Subject(),
-            createUrlTree: vi.fn().mockReturnValue({}),
-            serializeUrl: vi.fn().mockReturnValue('/home'),
-            isActive: vi.fn().mockReturnValue(false),
+            navigate: jest.fn().mockName('Router.navigate'),
+            createUrlTree: jest.fn().mockReturnValue({}),
+            serializeUrl: jest.fn().mockReturnValue('/home'),
+            isActive: jest.fn().mockReturnValue(false),
         };
 
         await TestBed.configureTestingModule({
@@ -68,5 +69,59 @@ describe('HeaderComponent', () => {
     it('isActiveRoute matches the current router url', () => {
         expect(component.isActiveRoute('/home')).toBe(true);
         expect(component.isActiveRoute('/cart')).toBe(false);
+    });
+
+    it('searches with a trimmed query and closes the mobile search', () => {
+        component.searchQuery = '  laptop  ';
+        component.mobileSearchOpen = true;
+
+        component.onSearch();
+
+        expect(component.mobileSearchOpen).toBe(false);
+        expect(router.navigate).toHaveBeenCalledWith(['/products/search'], {
+            queryParams: { q: 'laptop' },
+        });
+    });
+
+    it('navigates without a q parameter for an empty search', () => {
+        component.searchQuery = '   ';
+        component.onSearch();
+
+        expect(router.navigate).toHaveBeenCalledWith(['/products/search'], { queryParams: {} });
+    });
+
+    it('opens, focuses, and closes the mobile search', () => {
+        const focus = jest.fn();
+        component.mobileSearchInput = { nativeElement: { focus } } as any;
+        const animationFrame = jest
+            .spyOn(globalThis, 'requestAnimationFrame')
+            .mockImplementation((callback) => {
+                callback(0);
+                return 1;
+            });
+
+        component.toggleMobileSearch();
+        expect(component.mobileSearchOpen).toBe(true);
+        expect(focus).toHaveBeenCalledTimes(1);
+
+        component.toggleMobileSearch();
+        expect(component.mobileSearchOpen).toBe(false);
+        animationFrame.mockRestore();
+    });
+
+    it('opens mobile search safely before the input is rendered', () => {
+        jest.spyOn(globalThis, 'requestAnimationFrame').mockImplementation((callback) => {
+            callback(0);
+            return 1;
+        });
+
+        expect(() => component.toggleMobileSearch()).not.toThrow();
+    });
+
+    it('toggles the mobile menu', () => {
+        component.toggleMobileMenu();
+        expect(component.mobileMenuOpen).toBe(true);
+        component.toggleMobileMenu();
+        expect(component.mobileMenuOpen).toBe(false);
     });
 });

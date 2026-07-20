@@ -11,7 +11,7 @@ describe('CategoryComponent', () => {
 
     beforeEach(async () => {
         images = {
-            getCategoryImage: vi.fn().mockName("ProductImageService.getCategoryImage")
+            getCategoryImage: jest.fn().mockName("ProductImageService.getCategoryImage")
         };
         images.getCategoryImage.mockImplementation((name: string) => name === 'Electronics' ? 'https://example.com/electronics.jpg' : 'data:image/svg+xml,fallback');
 
@@ -30,7 +30,7 @@ describe('CategoryComponent', () => {
     });
 
     it('openProductsPage emits the category name', () => {
-        const emitSpy = vi.spyOn(component.applyCategoryFilter, 'emit').mockReturnValue(undefined);
+        const emitSpy = jest.spyOn(component.applyCategoryFilter, 'emit').mockReturnValue(undefined);
         component.openProductsPage('Electronics');
         expect(emitSpy).toHaveBeenCalledTimes(1);
         expect(emitSpy).toHaveBeenCalledWith('Electronics');

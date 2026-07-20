@@ -15,7 +15,7 @@ describe('NotFoundComponent', () => {
 
     beforeEach(async () => {
         router = {
-            navigate: vi.fn().mockName("Router.navigate")
+            navigate: jest.fn().mockName("Router.navigate")
         };
 
         await TestBed.configureTestingModule({

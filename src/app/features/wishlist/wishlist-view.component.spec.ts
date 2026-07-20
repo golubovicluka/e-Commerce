@@ -16,14 +16,14 @@ describe('WishlistViewComponent', () => {
 
     beforeEach(async () => {
         wishlist = {
-            getWishListItems: vi.fn().mockName("WishlistService.getWishListItems"),
-            removeWishListItem: vi.fn().mockName("WishlistService.removeWishListItem"),
-            inWishlist: vi.fn().mockName("WishlistService.inWishlist"),
+            getWishListItems: jest.fn().mockName("WishlistService.getWishListItems"),
+            removeWishListItem: jest.fn().mockName("WishlistService.removeWishListItem"),
+            inWishlist: jest.fn().mockName("WishlistService.inWishlist"),
             wishListItemsSignal: signal([mockProducts[0], mockProducts[1]]),
         };
         cart = {
-            addToCart: vi.fn().mockName("CartService.addToCart"),
-            removeFromCart: vi.fn().mockName("CartService.removeFromCart")
+            addToCart: jest.fn().mockName("CartService.addToCart"),
+            removeFromCart: jest.fn().mockName("CartService.removeFromCart")
         };
         wishlist.getWishListItems.mockReturnValue(of([mockProducts[0], mockProducts[1]]));
         wishlist.inWishlist.mockReturnValue(true);

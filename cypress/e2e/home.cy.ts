@@ -1,111 +1,67 @@
-// Home page tests
-describe("Home page tests", () => {
-    beforeEach(() => {
-        cy.visit("http://localhost:4200/home")
-    })
+describe('Home storefront', () => {
+  beforeEach(() => {
+    cy.mockCatalog();
+    cy.clearLocalStorage();
+    cy.visit('/home');
+    cy.wait(['@gqlGetProductsByIds', '@gqlGetSuggestedProducts']);
+  });
 
-    it("should have title 'Webshop'", () => {
-        cy.title().should('eq', 'Webshop');
-    })
+  it('renders the current hero, service standards, and catalog entry points', () => {
+    cy.title().should('eq', 'Shoply — Technology for everyday life');
+    cy.contains('h1', 'Technology built').should('be.visible');
+    cy.contains('.stage-name', 'MacBook Pro M1').should('be.visible');
+    cy.contains('.tile-name', 'iPad Pro M2').should('be.visible');
+    cy.contains('.tile-name', 'iPhone 14 Pro Max').should('be.visible');
+    cy.get('.service-grid').should('contain.text', 'Included').and('contain.text', '2 years');
+    cy.contains('a', 'Explore the catalog').should('have.attr', 'href', '/products/search');
+  });
 
-    it('should display carousel header', () => {
-        cy.get('h2.center.font-light.m-4.mt-8.pb-3.w-full.h-full')
-            .should('exist')
-            .and('have.text', 'Our newest products');
-    });
+  it('searches from the global header', () => {
+    cy.get('form.header-search input[aria-label="Search products"]').type('phone{enter}');
+    cy.wait('@gqlGetProductsPage');
 
-    it('should display suggested products', () => {
-        cy.get('.p-carousel-item').should('have.length.gte', 1);
-    });
+    cy.location('pathname').should('eq', '/products/search');
+    cy.location('search').should('eq', '?q=phone');
+    cy.get('.product-card .card-name').should('have.length', 6).and('contain.text', 'Phone');
+  });
 
-    it('should redirect to product details page on clicking', () => {
-        cy.get('div.p-carousel-item:nth-child(5) > div:nth-child(1) > app-suggested-product:nth-child(1) > div:nth-child(1)').should('exist').click()
-        // Assuming that `redirect` method sets window.location.href to the product details URL
-        cy.window().its('location.href').should('contain', '/product/');
-    });
+  it('validates and accepts newsletter signup', () => {
+    cy.get('input[aria-label="Email address"]').type('not-an-email');
+    cy.contains('button', 'Subscribe').click();
+    cy.contains('[role="status"]', 'Invalid email').should('be.visible');
+    cy.get('[role="status"] button[aria-label="Dismiss notification"]').click();
 
-    it("should allow user to see home page products", () => {
-        cy.get("h2").should("contain.text", "Macbook Air M1").should('be.visible');
-        cy.get("h2").should("contain.text", "iPad Pro M2").should('be.visible');
-        cy.get("h2").should("contain.text", "iPhone 14 Pro Max").should('be.visible');
-    })
+    cy.get('input[aria-label="Email address"]').clear().type('shopper@example.com');
+    cy.contains('button', 'Subscribe').click();
 
-    it("should fill in form data", () => {
-        cy.get("input[name='name']").type("Katarina");
-        cy.get("input[name='surname']").type("Acimovic");
-        cy.get("input[name='email']").type("katarinakaca88@gmail.com");
-        cy.get('p-button[label="Sign up"]').click();
-    })
-})
+    cy.contains('[role="status"]', "You're on the list").should('be.visible');
+    cy.get('input[aria-label="Email address"]').should('be.disabled').and('have.value', '');
+  });
 
-// Footer tests
-describe('Footer menu tests', () => {
-    beforeEach(() => {
-        cy.visit('http://localhost:4200/home')
-    })
+  it('navigates through the footer and opens external links safely', () => {
+    cy.window().then((window) => cy.stub(window, 'open').as('windowOpen'));
+    cy.get('button[aria-label="GitHub"]').click();
+    cy.get('@windowOpen').should(
+      'have.been.calledWith',
+      'https://github.com/golubovicluka',
+      '_blank',
+      'noopener,noreferrer',
+    );
 
-    it('should display the Shoply logo', () => {
-        cy.get('body > app-root > app-footer > div > div:nth-child(1) > span')
-            .should('have.text', 'Shoply')
-    })
+    cy.get('nav[aria-label="Footer navigation"]').contains('Departments').click();
+    cy.wait('@gqlGetProductCategories');
+    cy.location('pathname').should('eq', '/categories');
+    cy.contains('h1', 'Shop by category').should('be.visible');
+  });
+});
 
-    it('should navigate to Home page', () => {
-        cy.get('body > app-root > app-footer > div > div.flex.align-items-center.gap-4.justify-content-between.w-3 > div:nth-child(1) > a:nth-child(1) > span').click()
-        cy.url().should('include', '/home')
-    })
+describe('Home catalog failure state', () => {
+  it('shows a useful fallback when latest products cannot load', () => {
+    cy.mockCatalog({ failAlways: ['GetSuggestedProducts'] });
+    cy.visit('/home');
+    cy.wait('@gqlGetSuggestedProducts');
 
-    it('should navigate to Products page', () => {
-        cy.get('body > app-root > app-footer > div > div.flex.align-items-center.gap-4.justify-content-between.w-3 > div:nth-child(1) > a:nth-child(2) > span').click()
-        cy.url().should('include', '/products/search')
-    })
-
-    it('should navigate to Categories page', () => {
-        cy.get('body > app-root > app-footer > div > div.flex.align-items-center.gap-4.justify-content-between.w-3 > div:nth-child(1) > a:nth-child(3) > span').click()
-        cy.url().should('include', '/categories')
-    })
-
-    it('should have visible LinkedIn icon', () => {
-        cy.get('.pi-linkedin').should('exist')
-    })
-
-    it('should have visible GitHub icon', () => {
-        cy.get('.pi-github').should('exist')
-    })
-})
-
-// Header tests
-describe('Header menu tests', () => {
-    beforeEach(() => {
-        cy.visit('http://localhost:4200/home')
-    })
-
-    it("should navigate to Home page on clicking Home link", () => {
-        cy.get(".header li").contains("Home").click();
-        cy.url().should("include", "/home");
-    });
-
-    it("should navigate to Products page on clicking Products link", () => {
-        cy.get(".header li").contains("Products").click();
-        cy.url().should("include", "/products/search");
-    });
-
-    it("should navigate to Categories page on clicking Categories link", () => {
-        cy.get(".header li").contains("Categories").click();
-        cy.url().should("include", "/categories");
-    });
-
-    it("should navigate to Login page on clicking Login link", () => {
-        cy.get(".header li").contains("Login").click();
-        cy.url().should("include", "/login");
-    });
-
-    it("should navigate to Wishlist page on clicking Wishlist link", () => {
-        cy.get(".header li").contains("Wishlist").click();
-        cy.url().should("include", "/wishlist");
-    });
-
-    it("should navigate to Cart page on clicking Cart link", () => {
-        cy.get(".header li").contains("Cart").click();
-        cy.url().should("include", "/cart");
-    });
-})
+    cy.contains('h3', 'Could not load latest products').should('be.visible');
+    cy.contains('a', 'Browse catalog').should('have.attr', 'href', '/products/search');
+  });
+});

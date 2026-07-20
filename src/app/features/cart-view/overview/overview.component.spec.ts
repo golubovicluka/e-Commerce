@@ -19,9 +19,9 @@ describe('OverviewComponent', () => {
 
     beforeEach(async () => {
         cart = {
-            getCartItems: vi.fn().mockName("CartService.getCartItems"),
-            getCartLines: vi.fn().mockName("CartService.getCartLines"),
-            getTotalPrice: vi.fn().mockName("CartService.getTotalPrice")
+            getCartItems: jest.fn().mockName("CartService.getCartItems"),
+            getCartLines: jest.fn().mockName("CartService.getCartLines"),
+            getTotalPrice: jest.fn().mockName("CartService.getTotalPrice")
         };
         cart.getCartItems.mockReturnValue(of([mockProducts[0], mockProducts[1]]));
         cart.getCartLines.mockReturnValue(of([

@@ -12,10 +12,10 @@ describe('WishlistService', () => {
             [key: string]: string;
         } = {};
         localStorageSpy = {
-            getItem: vi.fn().mockName("localStorage.getItem"),
-            setItem: vi.fn().mockName("localStorage.setItem"),
-            removeItem: vi.fn().mockName("localStorage.removeItem"),
-            clear: vi.fn().mockName("localStorage.clear")
+            getItem: jest.fn().mockName("localStorage.getItem"),
+            setItem: jest.fn().mockName("localStorage.setItem"),
+            removeItem: jest.fn().mockName("localStorage.removeItem"),
+            clear: jest.fn().mockName("localStorage.clear")
         };
         localStorageSpy.getItem.mockImplementation((key: string) => store[key] || null);
         localStorageSpy.setItem.mockImplementation((key: string, value: string) => {
@@ -73,7 +73,7 @@ describe('WishlistService', () => {
 
         it('should handle corrupted localStorage data gracefully', async () => {
             localStorageSpy.getItem.mockReturnValue('invalid json{');
-            vi.spyOn(console, 'error').mockReturnValue(undefined);
+            jest.spyOn(console, 'error').mockReturnValue(undefined);
 
             service = TestBed.inject(WishlistService);
 
@@ -88,7 +88,7 @@ describe('WishlistService', () => {
             localStorageSpy.getItem.mockImplementation(() => {
                 throw new Error('Storage error');
             });
-            vi.spyOn(console, 'error').mockReturnValue(undefined);
+            jest.spyOn(console, 'error').mockReturnValue(undefined);
 
             service = TestBed.inject(WishlistService);
 
@@ -201,7 +201,7 @@ describe('WishlistService', () => {
             localStorageSpy.setItem.mockImplementation(() => {
                 throw new Error('Storage full');
             });
-            vi.spyOn(console, 'error').mockReturnValue(undefined);
+            jest.spyOn(console, 'error').mockReturnValue(undefined);
             const product = mockProducts[0];
 
             service.addWishListItem(product);
@@ -287,7 +287,7 @@ describe('WishlistService', () => {
             localStorageSpy.setItem.mockImplementation(() => {
                 throw new Error('Storage error');
             });
-            vi.spyOn(console, 'error').mockReturnValue(undefined);
+            jest.spyOn(console, 'error').mockReturnValue(undefined);
 
             service.removeWishListItem(mockProducts[0]);
 

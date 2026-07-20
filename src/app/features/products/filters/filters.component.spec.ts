@@ -26,10 +26,21 @@ describe('FiltersComponent', () => {
     });
 
     it('changeFilter forwards the selected filter object to subscribers', () => {
-        const emitSpy = vi.spyOn(component.filtersObject, 'emit').mockReturnValue(undefined);
+        const emitSpy = jest.spyOn(component.filtersObject, 'emit').mockReturnValue(undefined);
         const payload = ['Smartphones', 'Laptops'];
         component.changeFilter(payload);
         expect(emitSpy).toHaveBeenCalledTimes(1);
         expect(emitSpy).toHaveBeenCalledWith(payload);
+    });
+
+    it('adds and removes subcategory filters', () => {
+        const emitSpy = jest.spyOn(component.filtersObject, 'emit').mockReturnValue(undefined);
+
+        component.onFilterToggle('Phones', true);
+        component.onFilterToggle('Laptops', true);
+        component.onFilterToggle('Phones', false);
+
+        expect(component.selectedFilters).toEqual(['Laptops']);
+        expect(emitSpy).toHaveBeenLastCalledWith(['Laptops']);
     });
 });

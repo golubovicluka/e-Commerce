@@ -83,6 +83,58 @@ describe('ProductsService', () => {
         });
     });
 
+    describe('server-side catalog queries', () => {
+        it('requests a page with default filters and sorting', () => {
+            service.getProductsPage({ limit: 10, offset: 20 }).subscribe();
+
+            const op = controller.expectOne('GetProductsPage');
+            expect(op.operation.variables).toEqual({
+                where: {},
+                orderBy: [{ price: 'asc' }],
+                limit: 10,
+                offset: 20,
+            });
+            op.flushData({
+                product: [],
+                product_aggregate: { aggregate: { count: 0 } },
+            });
+        });
+
+        it('requests a page with explicit where and orderBy expressions', () => {
+            const where = { name: { _ilike: '%phone%' } };
+            const orderBy = [{ price: 'desc' }];
+            service.getProductsPage({ where, orderBy, limit: 5, offset: 0 }).subscribe();
+
+            const op = controller.expectOne('GetProductsPage');
+            expect(op.operation.variables).toEqual({ where, orderBy, limit: 5, offset: 0 });
+            op.flushData({
+                product: [],
+                product_aggregate: { aggregate: { count: 0 } },
+            });
+        });
+
+        it('requests global and filtered price bounds', () => {
+            service.getPriceBounds().subscribe();
+            const global = controller.expectOne('GetPriceBounds');
+            expect(global.operation.variables).toEqual({ where: {} });
+            global.flushData({ product_aggregate: { aggregate: { min: null, max: null } } });
+
+            const where = { category: { name: { _eq: 'Electronics' } } };
+            service.getPriceBounds(where).subscribe();
+            const filtered = controller.expectOne('GetPriceBounds');
+            expect(filtered.operation.variables).toEqual({ where });
+            filtered.flushData({ product_aggregate: { aggregate: { min: null, max: null } } });
+        });
+
+        it('requests products by id list', () => {
+            service.getProductsByIds([1, 4, 13]).subscribe();
+
+            const op = controller.expectOne('GetProductsByIds');
+            expect(op.operation.variables).toEqual({ ids: [1, 4, 13] });
+            op.flushData({ product: [] });
+        });
+    });
+
     describe('getProducts (query selection by arguments)', () => {
         it('uses GetProducts with category + sortBy when both are provided', async () => {
             service.getProducts('desc', 'Electronics').subscribe((r: any) => {
@@ -244,7 +296,9 @@ describe('ProductsService', () => {
     describe('error handling (the path the old happy-only suite never covered)', () => {
         it('surfaces a network error to the subscriber instead of swallowing it', async () => {
             service.getProductById(1).subscribe({
-                next: () => expect.unreachable('expected the stream to error, not emit'),
+                next: () => {
+                    throw new Error('expected the stream to error, not emit');
+                },
                 error: (err) => {
                     expect(err).toBeTruthy();
                     ;
@@ -256,7 +310,9 @@ describe('ProductsService', () => {
 
         it('surfaces GraphQL errors to the subscriber', async () => {
             service.getProductsDefault().subscribe({
-                next: () => expect.unreachable('expected the stream to error, not emit'),
+                next: () => {
+                    throw new Error('expected the stream to error, not emit');
+                },
                 error: (err) => {
                     expect(err).toBeTruthy();
                     ;

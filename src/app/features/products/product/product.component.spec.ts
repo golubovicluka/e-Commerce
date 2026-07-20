@@ -39,25 +39,25 @@ describe('ProductComponent', () => {
 
     beforeEach(async () => {
         wishlist = {
-            inWishlist: vi.fn().mockName("WishlistService.inWishlist"),
-            addWishListItem: vi.fn().mockName("WishlistService.addWishListItem"),
-            removeWishListItem: vi.fn().mockName("WishlistService.removeWishListItem")
+            inWishlist: jest.fn().mockName("WishlistService.inWishlist"),
+            addWishListItem: jest.fn().mockName("WishlistService.addWishListItem"),
+            removeWishListItem: jest.fn().mockName("WishlistService.removeWishListItem")
         };
         cart = {
-            inCart: vi.fn().mockName("CartService.inCart"),
-            addToCart: vi.fn().mockName("CartService.addToCart"),
-            removeFromCart: vi.fn().mockName("CartService.removeFromCart")
+            inCart: jest.fn().mockName("CartService.inCart"),
+            addToCart: jest.fn().mockName("CartService.addToCart"),
+            removeFromCart: jest.fn().mockName("CartService.removeFromCart")
         };
         images = {
-            normalizeImages: vi.fn().mockName("ProductImageService.normalizeImages"),
-            resolvePrimaryImage: vi.fn().mockName("ProductImageService.resolvePrimaryImage"),
-            handleImageError: vi.fn().mockName("ProductImageService.handleImageError")
+            normalizeImages: jest.fn().mockName("ProductImageService.normalizeImages"),
+            resolvePrimaryImage: jest.fn().mockName("ProductImageService.resolvePrimaryImage"),
+            handleImageError: jest.fn().mockName("ProductImageService.handleImageError")
         };
         messages = {
-            add: vi.fn().mockName("MessageService.add")
+            add: jest.fn().mockName("MessageService.add")
         };
         router = {
-            navigate: vi.fn().mockName("Router.navigate")
+            navigate: jest.fn().mockName("Router.navigate")
         };
         route = { snapshot: { url: ['products', 'search'] } };
 
@@ -117,7 +117,7 @@ describe('ProductComponent', () => {
         it('adds: flips state on, emits addedToWishList and shows a success toast', () => {
             const product = createMockProduct({ id: 1 });
             component.inWishlist = false;
-            const addedSpy = vi.spyOn(component.addedToWishList, 'emit').mockReturnValue(undefined);
+            const addedSpy = jest.spyOn(component.addedToWishList, 'emit').mockReturnValue(undefined);
 
             component.addRemoveItemWishlist(product);
 
@@ -130,7 +130,7 @@ describe('ProductComponent', () => {
         it('removes: flips state off, emits removedFromWishList and shows an info toast', () => {
             const product = createMockProduct({ id: 1 });
             component.inWishlist = true;
-            const removedSpy = vi.spyOn(component.removedFromWishList, 'emit').mockReturnValue(undefined);
+            const removedSpy = jest.spyOn(component.removedFromWishList, 'emit').mockReturnValue(undefined);
 
             component.addRemoveItemWishlist(product);
 
@@ -145,7 +145,7 @@ describe('ProductComponent', () => {
         it('adds to cart: flips state on, emits addedToCart and shows a success toast', () => {
             const product = createMockProduct({ id: 1 });
             component.inCart = false;
-            const addedSpy = vi.spyOn(component.addedToCart, 'emit').mockReturnValue(undefined);
+            const addedSpy = jest.spyOn(component.addedToCart, 'emit').mockReturnValue(undefined);
 
             component.addRemoveCartItem(product);
 
@@ -158,7 +158,7 @@ describe('ProductComponent', () => {
         it('removes from cart: flips state off and emits removedFromCart', () => {
             const product = createMockProduct({ id: 1 });
             component.inCart = true;
-            const removedSpy = vi.spyOn(component.removedFromCart, 'emit').mockReturnValue(undefined);
+            const removedSpy = jest.spyOn(component.removedFromCart, 'emit').mockReturnValue(undefined);
 
             component.addRemoveCartItem(product);
 
@@ -187,8 +187,8 @@ describe('ProductComponent', () => {
         });
 
         it('emits replaceCurrentProduct and scrolls up when rendered as a detail-page suggestion', () => {
-            const replaceSpy = vi.spyOn(component.replaceCurrentProduct, 'emit').mockReturnValue(undefined);
-            const scrollSpy = vi.spyOn(window, 'scrollTo').mockReturnValue(undefined);
+            const replaceSpy = jest.spyOn(component.replaceCurrentProduct, 'emit').mockReturnValue(undefined);
+            const scrollSpy = jest.spyOn(window, 'scrollTo').mockReturnValue(undefined);
             component.replaceProductOnClick = true;
 
             component.openProductDetails(7);

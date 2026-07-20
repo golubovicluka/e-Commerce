@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NotificationService } from 'src/app/shared/notification.service';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
 
 import { HomeComponent } from './home.component';
 import { ProductsService } from '../products/products.service';
@@ -19,25 +19,25 @@ describe('HomeComponent', () => {
 
     beforeEach(async () => {
         products = {
-            getSuggestedProducts: vi.fn().mockName("ProductsService.getSuggestedProducts"),
-            getProductsByIds: vi.fn().mockName("ProductsService.getProductsByIds")
+            getSuggestedProducts: jest.fn().mockName("ProductsService.getSuggestedProducts"),
+            getProductsByIds: jest.fn().mockName("ProductsService.getProductsByIds")
         };
         products.getSuggestedProducts.mockReturnValue(of({ data: { product: [mockProducts[0]] } }) as any);
         products.getProductsByIds.mockReturnValue(of({ data: { product: [mockProducts[0], mockProducts[1]] } }) as any);
         images = {
-            normalizeImages: vi.fn().mockName("ProductImageService.normalizeImages"),
-            resolvePrimaryImage: vi.fn().mockName("ProductImageService.resolvePrimaryImage"),
-            getFallbackImageByName: vi.fn().mockName("ProductImageService.getFallbackImageByName"),
-            handleImageError: vi.fn().mockName("ProductImageService.handleImageError")
+            normalizeImages: jest.fn().mockName("ProductImageService.normalizeImages"),
+            resolvePrimaryImage: jest.fn().mockName("ProductImageService.resolvePrimaryImage"),
+            getFallbackImageByName: jest.fn().mockName("ProductImageService.getFallbackImageByName"),
+            handleImageError: jest.fn().mockName("ProductImageService.handleImageError")
         };
         images.normalizeImages.mockReturnValue(['normalized.jpg', 'fallback.jpg']);
         images.resolvePrimaryImage.mockReturnValue('featured.jpg');
         images.getFallbackImageByName.mockReturnValue('data:image/svg+xml,fallback');
         router = {
-            navigate: vi.fn().mockName("Router.navigate")
+            navigate: jest.fn().mockName("Router.navigate")
         };
         messages = {
-            add: vi.fn().mockName("MessageService.add")
+            add: jest.fn().mockName("MessageService.add")
         };
 
         await TestBed.configureTestingModule({
@@ -72,6 +72,9 @@ describe('HomeComponent', () => {
         expect(products.getProductsByIds).toHaveBeenCalledWith([1, 13, 4]);
         expect(images.resolvePrimaryImage).toHaveBeenCalled();
         expect(component.macbookImg).toBe('featured.jpg');
+        expect(component.iphoneImg).toBeTruthy();
+        expect(component.iphoneSub).toContain('OLED');
+        expect(component.ipadImg).toBeTruthy();
     });
 
     it('redirect navigates to the product details route', () => {
@@ -91,5 +94,62 @@ describe('HomeComponent', () => {
         expect(messages.add).toHaveBeenCalledWith(expect.objectContaining({ severity: 'success' }));
         expect(component.newsletterEmail).toBe('');
         expect(component.newsletterSubmitted).toBe(true);
+    });
+
+    it('marks suggested products as failed when the catalog request errors', () => {
+        products.getSuggestedProducts.mockReturnValue(throwError(() => new Error('offline')));
+        const errorFixture = TestBed.createComponent(HomeComponent);
+        const errorComponent = errorFixture.componentInstance;
+
+        errorComponent.ngOnInit();
+
+        expect(errorComponent.suggestedProductsLoadState).toBe('error');
+    });
+
+    it('loads all three featured slots and keeps fallback copy for blank descriptions', () => {
+        products.getProductsByIds.mockReturnValue(of({
+            data: {
+                product: [
+                    { ...mockProducts[0], id: 1, name: 'Mac', description: ' Fast ' },
+                    { ...mockProducts[1], id: 13, name: 'iPad', description: '   ' },
+                    { ...mockProducts[2], id: 4, name: 'iPhone', description: undefined },
+                ],
+            },
+        }));
+        const featuredFixture = TestBed.createComponent(HomeComponent);
+        const featuredComponent = featuredFixture.componentInstance;
+
+        featuredComponent.ngOnInit();
+
+        expect(featuredComponent.macbookName).toBe('Mac');
+        expect(featuredComponent.macbookSub).toBe('Fast');
+        expect(featuredComponent.ipadName).toBe('iPad');
+        expect(featuredComponent.ipadSub).toContain('Apple Pencil');
+        expect(featuredComponent.iphoneName).toBe('iPhone');
+    });
+
+    it('rejects a missing newsletter email', () => {
+        component.newsletterEmail = undefined as any;
+        component.submitForm();
+
+        expect(messages.add).toHaveBeenCalledWith(expect.objectContaining({ severity: 'warn' }));
+    });
+
+    it('delegates hero image failures to ProductImageService', () => {
+        const event = { target: {} } as Event;
+        component.onHeroImageError(event, 'MacBook');
+
+        expect(images.handleImageError).toHaveBeenCalledWith(event, 'MacBook');
+    });
+
+    it('keeps featured fallbacks when the response has no product data', () => {
+        products.getProductsByIds.mockReturnValue(of({ data: null }));
+        const fallbackComponent = TestBed.createComponent(HomeComponent).componentInstance;
+
+        fallbackComponent.ngOnInit();
+
+        expect(fallbackComponent.macbookImg).toBeTruthy();
+        expect(fallbackComponent.ipadImg).toBeTruthy();
+        expect(fallbackComponent.iphoneImg).toBeTruthy();
     });
 });

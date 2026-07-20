@@ -12,10 +12,10 @@ describe('CartService', () => {
             [key: string]: string;
         } = {};
         localStorageSpy = {
-            getItem: vi.fn().mockName("localStorage.getItem"),
-            setItem: vi.fn().mockName("localStorage.setItem"),
-            removeItem: vi.fn().mockName("localStorage.removeItem"),
-            clear: vi.fn().mockName("localStorage.clear")
+            getItem: jest.fn().mockName("localStorage.getItem"),
+            setItem: jest.fn().mockName("localStorage.setItem"),
+            removeItem: jest.fn().mockName("localStorage.removeItem"),
+            clear: jest.fn().mockName("localStorage.clear")
         };
         localStorageSpy.getItem.mockImplementation((key: string) => store[key] || null);
         localStorageSpy.setItem.mockImplementation((key: string, value: string) => {
@@ -71,9 +71,64 @@ describe('CartService', () => {
             });
         });
 
+        it('loads valid quantities, normalizes invalid values, and trims extras', () => {
+            const savedProducts = [mockProducts[0], mockProducts[1]];
+            localStorageSpy.getItem.mockImplementation((key: string) => {
+                if (key === 'cart') return JSON.stringify(savedProducts);
+                if (key === 'cartQuantities') return JSON.stringify([3, 0, 9]);
+                return null;
+            });
+
+            service = TestBed.inject(CartService);
+
+            expect(service.getQuantities()).toEqual([3, 1]);
+        });
+
+        it('fills missing quantities for a restored cart', () => {
+            const savedProducts = [mockProducts[0], mockProducts[1]];
+            localStorageSpy.getItem.mockImplementation((key: string) => {
+                if (key === 'cart') return JSON.stringify(savedProducts);
+                if (key === 'cartQuantities') return JSON.stringify([2]);
+                return null;
+            });
+
+            service = TestBed.inject(CartService);
+
+            expect(service.getQuantities()).toEqual([2, 1]);
+        });
+
+        it.each([null, JSON.stringify({ quantity: 2 })])(
+            'uses quantity one when stored quantities are absent or not an array',
+            (storedQuantities) => {
+                localStorageSpy.getItem.mockImplementation((key: string) => {
+                    if (key === 'cart') return JSON.stringify([mockProducts[0]]);
+                    if (key === 'cartQuantities') return storedQuantities;
+                    return null;
+                });
+
+                service = TestBed.inject(CartService);
+
+                expect(service.getQuantities()).toEqual([1]);
+            },
+        );
+
+        it('recovers from malformed stored quantities', () => {
+            jest.spyOn(console, 'error').mockReturnValue(undefined);
+            localStorageSpy.getItem.mockImplementation((key: string) => {
+                if (key === 'cart') return JSON.stringify([mockProducts[0]]);
+                if (key === 'cartQuantities') return '{broken';
+                return null;
+            });
+
+            service = TestBed.inject(CartService);
+
+            expect(service.getQuantities()).toEqual([1]);
+            expect(console.error).toHaveBeenCalled();
+        });
+
         it('should handle corrupted localStorage data gracefully', async () => {
             localStorageSpy.getItem.mockReturnValue('invalid json{');
-            vi.spyOn(console, 'error').mockReturnValue(undefined);
+            jest.spyOn(console, 'error').mockReturnValue(undefined);
 
             service = TestBed.inject(CartService);
 
@@ -88,7 +143,7 @@ describe('CartService', () => {
             localStorageSpy.getItem.mockImplementation(() => {
                 throw new Error('Storage error');
             });
-            vi.spyOn(console, 'error').mockReturnValue(undefined);
+            jest.spyOn(console, 'error').mockReturnValue(undefined);
 
             service = TestBed.inject(CartService);
 
@@ -141,7 +196,7 @@ describe('CartService', () => {
             localStorageSpy.setItem.mockImplementation(() => {
                 throw new Error('Storage full');
             });
-            vi.spyOn(console, 'error').mockReturnValue(undefined);
+            jest.spyOn(console, 'error').mockReturnValue(undefined);
             const product = mockProducts[0];
 
             service.addToCart(product);
@@ -227,7 +282,7 @@ describe('CartService', () => {
             localStorageSpy.setItem.mockImplementation(() => {
                 throw new Error('Storage error');
             });
-            vi.spyOn(console, 'error').mockReturnValue(undefined);
+            jest.spyOn(console, 'error').mockReturnValue(undefined);
 
             service.removeFromCart(mockProducts[0]);
 
@@ -409,6 +464,69 @@ describe('CartService', () => {
         it('should clamp quantities to at least 1', () => {
             service.addToCart(mockProducts[0]);
             service.setQuantityAtIndex(0, 0);
+
+            expect(service.getQuantities()).toEqual([1]);
+        });
+
+        it('ignores negative and out-of-range indexes', () => {
+            service.addToCart(mockProducts[0]);
+
+            service.setQuantityAtIndex(-1, 5);
+            service.setQuantityAtIndex(1, 5);
+
+            expect(service.getQuantities()).toEqual([1]);
+        });
+
+        it('keeps the current quantity when persistence fails', () => {
+            service.addToCart(mockProducts[0]);
+            localStorageSpy.setItem.mockImplementation(() => {
+                throw new Error('storage unavailable');
+            });
+            jest.spyOn(console, 'error').mockReturnValue(undefined);
+
+            service.setQuantityAtIndex(0, 5);
+
+            expect(service.getQuantities()).toEqual([1]);
+            expect(console.error).toHaveBeenCalled();
+        });
+    });
+
+    describe('getProductIndex', () => {
+        it('returns the stored row index or -1', () => {
+            service = TestBed.inject(CartService);
+            service.addToCart(mockProducts[0]);
+
+            expect(service.getProductIndex(mockProducts[0].id)).toBe(0);
+            expect(service.getProductIndex(mockProducts[1].id)).toBe(-1);
+        });
+    });
+
+    describe('defensive quantity fallbacks', () => {
+        beforeEach(() => {
+            service = TestBed.inject(CartService);
+        });
+
+        it('uses quantity one when a cart line has no quantity entry', () => {
+            (service as any).cartItemsState.set([mockProducts[0]]);
+            (service as any).quantitiesState.set([]);
+
+            expect(service.cartLinesSignal()[0].quantity).toBe(1);
+        });
+
+        it('increments a duplicate from quantity one when persisted quantity is absent', () => {
+            (service as any).cartItemsState.set([mockProducts[0]]);
+            (service as any).quantitiesState.set([]);
+
+            service.addToCart(mockProducts[0]);
+
+            expect(service.getQuantities()).toEqual([2]);
+        });
+
+        it('keeps quantity one when removing another item from incomplete state', () => {
+            (service as any).cartItemsState.set([mockProducts[0]]);
+            (service as any).quantitiesState.set([]);
+
+            service.removeFromCart(mockProducts[1]);
 
             expect(service.getQuantities()).toEqual([1]);
         });

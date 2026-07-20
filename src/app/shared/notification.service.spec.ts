@@ -4,12 +4,12 @@ describe('NotificationService', () => {
   let service: NotificationService;
 
   beforeEach(() => {
-    vi.useFakeTimers();
+    jest.useFakeTimers();
     service = new NotificationService();
   });
 
   afterEach(() => {
-    vi.useRealTimers();
+    jest.useRealTimers();
   });
 
   it('publishes and dismisses notifications through a readonly signal', () => {
@@ -26,7 +26,7 @@ describe('NotificationService', () => {
   it('automatically removes a notification after its display interval', () => {
     service.add({ severity: 'info', summary: 'Saved', detail: 'Wishlist updated' });
 
-    vi.advanceTimersByTime(4500);
+    jest.advanceTimersByTime(4500);
 
     expect(service.notifications()).toEqual([]);
   });
