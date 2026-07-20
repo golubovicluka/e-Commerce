@@ -217,7 +217,10 @@ export class ProductDetailsComponent implements OnInit {
   setBreadcrumbItems() {
     this.items = [
       { label: 'Products', routerLink: '/products/search' },
-      { label: `${this.product?.name}`, routerLink: `/product/${this.product?.id}` }
+      {
+        label: this.product?.name ?? 'Product details',
+        routerLink: `/product/${this.product?.id ?? this.id}`
+      }
     ];
   }
 

@@ -2,8 +2,8 @@
    Global styles. Design values live in styles/tokens.scss — consume via var().
    ============================================================================= */
 
-/* Brand fonts: Syne (display) · DM Sans (body) · JetBrains Mono (data/code). */
-@import url("https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=JetBrains+Mono:wght@400;500&family=Syne:wght@600;700;800&display=swap");
+/* Brand fonts: Barlow Condensed (display) · IBM Plex Sans (body) · Plex Mono (data). */
+@import url("https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap");
 @import "primeicons/primeicons.css";
 @import "styles/tokens";
 
@@ -28,12 +28,14 @@ body {
   line-height: 1.6;
   color: var(--color-text-primary);
   background-color: var(--color-bg);
+  background-image: linear-gradient(rgba(11, 23, 40, 0.025) 1px, transparent 1px);
+  background-size: 100% 4rem;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
 }
 
-/* Headings use the display family with tight tracking (see Typography Rules). */
+/* Condensed headings give catalogue pages a compact, technical hierarchy. */
 h1,
 h2,
 h3,
@@ -44,14 +46,14 @@ h6 {
   font-family: var(--font-display);
   font-weight: 700;
   line-height: 1.2;
-  letter-spacing: -0.02em;
+  letter-spacing: 0.005em;
   color: var(--color-text-primary);
 }
 
 h1 {
   font-size: var(--text-3xl);
-  line-height: 1.1;
-  letter-spacing: -0.03em;
+  line-height: 0.98;
+  letter-spacing: -0.01em;
 }
 
 h2 {
@@ -196,8 +198,8 @@ body .p-component {
 }
 
 /* =============================================================================
-   PrimeNG theme remap — loads after lara-light-blue, retints it to the brand
-   tokens (clay accent on warm paper) and rounds/softens the core components.
+   PrimeNG theme remap — loads after lara-light-blue, retints it to the Shoply
+   system and removes the theme's soft consumer-app geometry.
    ============================================================================= */
 
 :root {
@@ -211,7 +213,7 @@ body .p-component {
   --text-color-secondary: var(--color-text-secondary);
   --border-radius: var(--radius-md);
   --focus-ring: 0 0 0 3px var(--color-accent-dim);
-  --maskbg: rgba(29, 27, 22, 0.45);
+  --maskbg: rgba(11, 23, 40, 0.52);
 }
 
 /* --- Buttons ---------------------------------------------------------------- */
@@ -219,9 +221,11 @@ body .p-button {
   background: var(--color-accent);
   border: 1px solid var(--color-accent);
   color: #fff;
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-sm);
   font-weight: 600;
+  min-height: 2.75rem;
   padding: 0.65rem 1.4rem;
+  letter-spacing: 0.015em;
   transition: background var(--duration-base) var(--ease-out),
     border-color var(--duration-base) var(--ease-out),
     box-shadow var(--duration-base) var(--ease-out),
@@ -291,13 +295,20 @@ body .p-button.p-button-icon-only {
   justify-content: center;
 }
 
+/* PrimeNG's rounded modifier appears in legacy templates; Shoply deliberately
+   keeps action controls square even when that class is present. */
+body .p-button.p-button-rounded {
+  border-radius: var(--radius-sm);
+}
+
 /* --- Inputs ------------------------------------------------------------------ */
 body .p-inputtext {
   background: var(--color-surface-elevated);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   color: var(--color-text-primary);
-  padding: 0.7rem 1rem;
+  min-height: 2.75rem;
+  padding: 0.7rem 0.85rem;
   transition: border-color var(--duration-base) var(--ease-out),
     box-shadow var(--duration-base) var(--ease-out);
 }
@@ -429,7 +440,7 @@ body .p-paginator .p-paginator-pages .p-paginator-page.p-highlight {
   background: var(--color-accent);
   border-color: var(--color-accent);
   color: #fff;
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-sm);
 }
 
 body .p-paginator .p-paginator-pages .p-paginator-page,
@@ -437,7 +448,7 @@ body .p-paginator .p-paginator-first,
 body .p-paginator .p-paginator-prev,
 body .p-paginator .p-paginator-next,
 body .p-paginator .p-paginator-last {
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-sm);
 }
 
 body .p-carousel .p-carousel-indicators .p-carousel-indicator.p-highlight button {
@@ -459,7 +470,7 @@ body .p-toast .p-toast-message {
 }
 
 body .p-tag {
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-sm);
   font-weight: 600;
 }
 
@@ -496,6 +507,7 @@ body .p-slidemenu {
 .page-title {
   font-size: var(--text-2xl);
   margin-bottom: var(--space-2);
+  text-transform: uppercase;
 }
 
 .page-subtitle {
@@ -592,8 +604,7 @@ body .p-slidemenu {
 }
 
 /* ---------------------------------------------------------------------------
-   Editorial patterns — eyebrow labels and the left-aligned section head.
-   Use these instead of centered headings; asymmetry reads as designed.
+   Catalogue patterns — utility labels and ruled section headers.
    --------------------------------------------------------------------------- */
 .eyebrow {
   display: inline-flex;
@@ -609,8 +620,8 @@ body .p-slidemenu {
 
 .eyebrow::before {
   content: "";
-  width: 1.5rem;
-  height: 1px;
+  width: 1rem;
+  height: 2px;
   background: var(--color-accent);
 }
 
@@ -620,6 +631,8 @@ body .p-slidemenu {
   justify-content: space-between;
   gap: var(--space-4);
   margin-bottom: var(--space-8);
+  padding-bottom: var(--space-4);
+  border-bottom: 1px solid var(--color-border-strong);
 }
 
 .section-head h2 {
@@ -692,7 +705,7 @@ body .p-slidemenu {
   animation: heart-pop 360ms var(--ease-out);
 }
 
-/* Counter badges on header icons — clay, mono, optically positioned. */
+/* Counter badges on header icons. */
 body .p-badge {
   background: var(--color-accent);
   color: #fff;
@@ -705,7 +718,7 @@ body .p-badge {
   border-radius: var(--radius-full);
 }
 
-/* Toasts — surface-elevated, warm border, no harsh semantic fills. */
+/* Toasts — controlled surface elevation, with semantic icons. */
 body .p-toast .p-toast-message {
   background: var(--color-surface-elevated);
   border: 1px solid var(--color-border);

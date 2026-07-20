@@ -3,28 +3,56 @@
   top: 0;
   z-index: 1000;
   width: 100%;
-  background: rgba(251, 250, 247, 0.92);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border-bottom: 1px solid var(--color-border);
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--color-border-strong);
 }
 
-/* Slim utility strip above the nav — sets the tone before anything else. */
 .announce-bar {
   background: var(--color-ink);
   color: var(--color-text-on-ink-muted);
-  text-align: center;
   font-family: var(--font-mono);
-  font-size: 0.7rem;
-  letter-spacing: 0.12em;
+  font-size: 0.66rem;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
+}
+
+.announce-inner {
+  width: 100%;
+  max-width: var(--layout-max-width);
+  min-height: 1.8rem;
+  margin: 0 auto;
   padding: var(--space-1) var(--space-4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+
+  i {
+    margin-right: var(--space-2);
+    color: #78a3ff;
+  }
+
+  @media (min-width: 768px) {
+    justify-content: space-between;
+    padding-inline: var(--space-8);
+  }
+}
+
+.announce-meta {
+  display: none;
+
+  @media (min-width: 768px) {
+    display: inline-flex;
+    gap: var(--space-3);
+  }
 }
 
 .header-inner {
   max-width: var(--layout-max-width);
+  height: 4.75rem;
   margin: 0 auto;
-  height: 4.5rem;
   padding: 0 var(--space-4);
   display: flex;
   align-items: center;
@@ -39,18 +67,20 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 2.5rem;
-  height: 2.5rem;
-  border-radius: var(--radius-md);
+  width: 2.75rem;
+  height: 2.75rem;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
   color: var(--color-text-primary);
   cursor: pointer;
 
   i {
-    font-size: 1.4rem;
+    font-size: 1.25rem;
   }
 
   &:hover {
     background: var(--color-accent-dim);
+    border-color: var(--color-accent);
   }
 }
 
@@ -60,45 +90,75 @@
   gap: var(--space-3);
   text-decoration: none;
   cursor: pointer;
+}
 
-  .brand-mark {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 2.5rem;
-    height: 2.5rem;
-    border-radius: var(--radius-md);
-    background: var(--color-accent);
-    color: #fff;
+.brand-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.45rem;
+  height: 2.45rem;
+  background: var(--color-ink);
+  border-left: 4px solid var(--color-accent);
+  color: #fff;
+  font-family: var(--font-display);
+  font-size: 1.55rem;
+  font-weight: 700;
+  line-height: 1;
+}
 
-    i {
-      font-size: 1.2rem;
-    }
-  }
+.brand-copy {
+  display: flex;
+  flex-direction: column;
+  line-height: 1;
+}
 
-  .brand-name {
-    font-family: var(--font-display);
-    font-weight: 800;
-    font-size: 1.45rem;
-    letter-spacing: -0.02em;
-    color: var(--color-text-primary);
-  }
+.brand-name {
+  font-family: var(--font-display);
+  font-size: 1.55rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-text-primary);
+}
+
+.brand-descriptor {
+  margin-top: 0.18rem;
+  font-family: var(--font-mono);
+  font-size: 0.52rem;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--color-text-secondary);
 }
 
 .nav-links {
   display: flex;
-  align-items: center;
-  gap: var(--space-1);
-  margin-left: var(--space-4);
+  align-self: stretch;
+  align-items: stretch;
+  gap: 0;
+  margin-left: var(--space-8);
 
   a {
-    text-decoration: none;
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    padding: 0 var(--space-4);
     color: var(--color-text-secondary);
-    font-weight: 500;
-    padding: var(--space-2) var(--space-4);
-    border-radius: var(--radius-full);
+    text-decoration: none;
+    font-size: var(--text-sm);
+    font-weight: 600;
     transition: color var(--duration-base) var(--ease-out),
       background var(--duration-base) var(--ease-out);
+
+    &::after {
+      content: "";
+      position: absolute;
+      right: var(--space-4);
+      bottom: -1px;
+      left: var(--space-4);
+      height: 3px;
+      background: transparent;
+    }
 
     &:hover {
       color: var(--color-text-primary);
@@ -107,8 +167,10 @@
 
     &.active {
       color: var(--color-accent-strong);
-      background: var(--color-accent-dim);
-      font-weight: 600;
+
+      &::after {
+        background: var(--color-accent);
+      }
     }
   }
 }
@@ -124,7 +186,7 @@
 
   input {
     width: 100%;
-    border-radius: var(--radius-full);
+    border-radius: var(--radius-sm);
     padding-left: 2.5rem;
     background: var(--color-surface-raised, var(--color-surface));
     border: 1px solid var(--color-border);
@@ -150,7 +212,7 @@
   gap: var(--space-2);
   padding: var(--space-2) var(--space-4) var(--space-3);
   border-top: 1px solid var(--color-border);
-  background: rgba(251, 250, 247, 0.98);
+  background: rgba(255, 255, 255, 0.98);
   animation: slideDown var(--duration-base) var(--ease-out);
 
   .search-wrap {
@@ -164,7 +226,7 @@
   justify-content: center;
   width: 2.5rem;
   height: 2.5rem;
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-sm);
   background: var(--color-accent);
   color: #fff;
   border: none;
@@ -204,20 +266,28 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 2.75rem;
+  gap: var(--space-2);
+  min-width: 2.75rem;
   height: 2.75rem;
-  border-radius: var(--radius-full);
+  padding: 0 var(--space-3);
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
   color: var(--color-text-primary);
   text-decoration: none;
-  transition: background var(--duration-base) var(--ease-out);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  transition: background var(--duration-base) var(--ease-out),
+    border-color var(--duration-base) var(--ease-out),
+    color var(--duration-base) var(--ease-out);
 
   i {
-    font-size: 1.3rem;
+    font-size: 1.1rem;
   }
 
   &:hover,
   &.active {
     background: var(--color-accent-dim);
+    border-color: var(--color-accent);
     color: var(--color-accent-strong);
   }
 }
@@ -230,5 +300,11 @@
   .brand {
     flex-grow: 1;
     justify-content: center;
+  }
+}
+
+@media (max-width: 420px) {
+  .brand-descriptor {
+    display: none;
   }
 }

@@ -1,5 +1,5 @@
 <p-toast position="bottom-left"></p-toast>
-<p-breadcrumb [home]="home" [model]="items" class="mb-3"></p-breadcrumb>
+<p-breadcrumb *ngIf="product" [home]="home" [model]="items" class="mb-3"></p-breadcrumb>
 
 <div *ngIf="product; else loading" class="details-layout component-enter">
   <!-- Gallery -->

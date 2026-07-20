@@ -11,7 +11,7 @@
     align-items: center;
     gap: var(--space-2);
     padding: var(--space-2) var(--space-4);
-    border-radius: var(--radius-full);
+    border-radius: var(--radius-sm);
     background: var(--color-success-dim);
     color: var(--color-success);
     font-weight: 500;
@@ -62,7 +62,7 @@
     border-color var(--duration-base) var(--ease-out);
 
   &:hover {
-    box-shadow: var(--shadow-md);
+    box-shadow: inset 4px 0 0 var(--color-accent), var(--shadow-md);
     border-color: var(--color-accent);
   }
 
@@ -176,7 +176,7 @@
     justify-content: center;
     width: 2rem;
     height: 2rem;
-    border-radius: var(--radius-full);
+    border-radius: var(--radius-sm);
     border: 1px solid var(--color-border);
     background: var(--color-surface-elevated);
     color: var(--color-text-primary);
@@ -215,7 +215,7 @@
   width: 2rem;
   height: 2rem;
   border: none;
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-sm);
   background: transparent;
   color: var(--color-text-secondary);
   cursor: pointer;
@@ -242,6 +242,7 @@
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-sm);
   padding: var(--space-6);
+  box-shadow: inset 0 3px 0 var(--color-ink), var(--shadow-sm);
 
   @media (min-width: 992px) {
     position: sticky;

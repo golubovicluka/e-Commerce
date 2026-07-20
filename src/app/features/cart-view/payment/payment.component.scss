@@ -39,7 +39,7 @@
   &.is-selected {
     border-color: var(--color-accent);
     background: var(--color-accent-dim);
-    box-shadow: var(--shadow-sm);
+    box-shadow: inset 3px 0 0 var(--color-accent);
 
     .method-icon {
       color: var(--color-accent-strong);

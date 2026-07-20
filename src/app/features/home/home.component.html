@@ -1,50 +1,73 @@
-<!-- Hero — editorial split: statement copy + ink product stage -->
 <p-toast position="bottom-right"></p-toast>
+
+<!-- Technical dossier hero: the single expressive moment in the system. -->
 <section class="hero stagger">
   <div class="hero-copy">
-    <span class="eyebrow">The 2026 lineup &mdash; in stock</span>
+    <span class="eyebrow">Technology catalog &middot; Serbia</span>
     <h1 class="hero-title">
-      Serious tech.<br />
-      <span class="hero-title-accent">Honest prices.</span>
+      Technology built<br />
+      for <span class="hero-title-accent">serious work.</span>
     </h1>
     <p class="hero-lede">
-      Flagship laptops, tablets and phones &mdash; free delivery,
-      installments up to 36 months, no surprises.
+      Proven laptops, tablets and phones with transparent pricing,
+      dependable delivery and support after purchase.
     </p>
     <div class="hero-ctas">
-      <p-button label="Shop the latest" [routerLink]="['/products/search']"></p-button>
-      <a class="link-arrow" [routerLink]="['/categories']">Browse categories <i class="pi pi-arrow-right"></i></a>
+      <p-button label="Explore the catalog" icon="pi pi-arrow-right" iconPos="right"
+        [routerLink]="['/products/search']"></p-button>
+      <a class="link-arrow" [routerLink]="['/categories']">View departments <i class="pi pi-arrow-right"></i></a>
     </div>
-    <ul class="hero-trust">
-      <li><i class="pi pi-check-circle"></i> Free shipping</li>
-      <li><i class="pi pi-check-circle"></i> 12&ndash;36 month installments</li>
-      <li><i class="pi pi-check-circle"></i> 2-year warranty</li>
+    <ul class="service-grid" aria-label="Shoply service standards">
+      <li>
+        <span>Delivery</span>
+        <strong>Included</strong>
+      </li>
+      <li>
+        <span>Payment</span>
+        <strong>Up to 36 months</strong>
+      </li>
+      <li>
+        <span>Warranty</span>
+        <strong>2 years</strong>
+      </li>
     </ul>
   </div>
 
   <a class="hero-stage" (click)="redirect(macbookId)" tabindex="0" role="link"
     (keyup.enter)="redirect(macbookId)" [attr.aria-label]="macbookName + ' — view product'">
-    <span class="stage-watermark" aria-hidden="true">M1</span>
-    <span class="stage-chip">Featured</span>
+    <span class="stage-watermark" aria-hidden="true">PRO</span>
+    <span class="stage-topline">
+      <span>Featured system</span>
+      <span>Catalog / 2026</span>
+    </span>
     <span class="stage-plinth">
       <img class="stage-img" [alt]="macbookName" [src]="macbookImg || null"
         (error)="onHeroImageError($event, macbookName)" />
     </span>
     <span class="stage-caption">
-      <span class="stage-name">{{ macbookName }}</span>
-      <span class="stage-sub">{{ macbookSub }}</span>
-      <span class="stage-cta">Shop now <i class="pi pi-arrow-right"></i></span>
+      <span class="stage-copy">
+        <span class="stage-kicker">Mobile workstation</span>
+        <span class="stage-name">{{ macbookName }}</span>
+        <span class="stage-sub">{{ macbookSub }}</span>
+        <span class="stage-cta">View product <i class="pi pi-arrow-right"></i></span>
+      </span>
+      <span class="stage-specs" aria-label="Featured product specifications">
+        <span><strong>M1</strong><small>Platform</small></span>
+        <span><strong>13&Prime;</strong><small>Display</small></span>
+        <span><strong>24 mo</strong><small>Warranty</small></span>
+      </span>
     </span>
   </a>
 </section>
 
-<!-- Secondary feature tiles -->
-<section class="hero-tiles stagger">
+<section class="hero-tiles stagger" aria-label="Featured departments">
   <a class="tile" (click)="redirect(ipadId)" tabindex="0" role="link" (keyup.enter)="redirect(ipadId)"
     [attr.aria-label]="ipadName + ' — view product'">
-    <img class="tile-img" [alt]="ipadName" [src]="ipadImg || null" (error)="onHeroImageError($event, ipadName)" />
+    <span class="tile-media">
+      <img class="tile-img" [alt]="ipadName" [src]="ipadImg || null" (error)="onHeroImageError($event, ipadName)" />
+    </span>
     <span class="tile-body">
-      <span class="tile-kicker">Tablets</span>
+      <span class="tile-kicker">Portable systems</span>
       <span class="tile-name">{{ ipadName }}</span>
       <span class="tile-sub">{{ ipadSub }}</span>
     </span>
@@ -53,10 +76,12 @@
 
   <a class="tile" (click)="redirect(iphoneId)" tabindex="0" role="link" (keyup.enter)="redirect(iphoneId)"
     [attr.aria-label]="iphoneName + ' — view product'">
-    <img class="tile-img" [alt]="iphoneName" [src]="iphoneImg || null"
-      (error)="onHeroImageError($event, iphoneName)" />
+    <span class="tile-media">
+      <img class="tile-img" [alt]="iphoneName" [src]="iphoneImg || null"
+        (error)="onHeroImageError($event, iphoneName)" />
+    </span>
     <span class="tile-body">
-      <span class="tile-kicker">Phones</span>
+      <span class="tile-kicker">Mobile computing</span>
       <span class="tile-name">{{ iphoneName }}</span>
       <span class="tile-sub">{{ iphoneSub }}</span>
     </span>
@@ -64,14 +89,13 @@
   </a>
 </section>
 
-<!-- Latest products carousel -->
 <section class="carousel-section" *ngIf="suggestedProductsLoadState === 'ready'">
   <div class="section-head">
     <div>
-      <span class="eyebrow">Just in</span>
-      <h2>The latest drops</h2>
+      <span class="eyebrow">Recently added</span>
+      <h2>New to the catalog</h2>
     </div>
-    <a class="link-arrow" [routerLink]="['/products/search']">View all <i class="pi pi-arrow-right"></i></a>
+    <a class="link-arrow" [routerLink]="['/products/search']">View all products <i class="pi pi-arrow-right"></i></a>
   </div>
   <p-carousel [value]="suggestedProducts" [numVisible]="4" [numScroll]="1" [circular]="true"
     [responsiveOptions]="carouselResponsiveOptions" class="carousel-container">
@@ -88,8 +112,8 @@
 <section class="carousel-section" *ngIf="suggestedProductsLoadState === 'loading'">
   <div class="section-head">
     <div>
-      <span class="eyebrow">Just in</span>
-      <h2>The latest drops</h2>
+      <span class="eyebrow">Recently added</span>
+      <h2>New to the catalog</h2>
     </div>
   </div>
   <div class="carousel-skeletons">
@@ -100,8 +124,8 @@
 <section class="carousel-section" *ngIf="suggestedProductsLoadState === 'error'">
   <div class="section-head">
     <div>
-      <span class="eyebrow">Just in</span>
-      <h2>The latest drops</h2>
+      <span class="eyebrow">Catalog update</span>
+      <h2>New to the catalog</h2>
     </div>
   </div>
   <div class="empty-state component-enter">
@@ -113,22 +137,18 @@
   </div>
 </section>
 
-<!-- Newsletter — the page's second ink moment, closing the loop with the hero -->
 <section class="newsletter">
   <div class="newsletter-copy">
-    <span class="eyebrow newsletter-eyebrow">Newsletter</span>
-    <h2>Get first dibs.</h2>
-    <p>
-      New arrivals and genuine price drops, straight to your inbox.
-      One email a week, no noise.
-    </p>
+    <span class="eyebrow newsletter-eyebrow">Shoply brief</span>
+    <h2>Make the next upgrade count.</h2>
+    <p>One concise weekly briefing with new inventory and verified price changes.</p>
   </div>
   <div class="newsletter-form">
     <div class="newsletter-row">
-      <input name="email" type="email" pInputText placeholder="you@example.com" aria-label="Email address"
+      <input name="email" type="email" pInputText placeholder="Business or personal email" aria-label="Email address"
         [(ngModel)]="newsletterEmail" [disabled]="newsletterSubmitted" />
-      <p-button (click)="submitForm()" label="Sign up" styleClass="btn-on-ink"></p-button>
+      <p-button (click)="submitForm()" label="Subscribe" styleClass="btn-on-ink"></p-button>
     </div>
-    <span class="newsletter-note">Unsubscribe anytime. We never share your address.</span>
+    <span class="newsletter-note">Weekly only. Unsubscribe at any time.</span>
   </div>
 </section>

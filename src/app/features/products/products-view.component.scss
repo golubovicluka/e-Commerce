@@ -2,7 +2,9 @@
 :host {
   display: block;
 
-  @media (min-width: 1240px) {
+  /* Only widen once the viewport can actually contain the breakout. Applying
+     the negative margin at laptop widths clipped the filter rail off-screen. */
+  @media (min-width: 1480px) {
     width: calc(100% + var(--layout-catalog-max-width) - var(--layout-max-width));
     max-width: min(var(--layout-catalog-max-width), calc(100vw - 2 * var(--space-8)));
     margin-inline: calc((var(--layout-max-width) - var(--layout-catalog-max-width)) / 2);
@@ -59,7 +61,7 @@
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   padding: var(--space-4);
-  box-shadow: var(--shadow-sm);
+  box-shadow: inset 0 3px 0 var(--color-ink), var(--shadow-sm);
 
   @media (max-width: 991px) {
     display: none;
@@ -171,7 +173,7 @@
   align-items: center;
   gap: var(--space-2);
   padding: var(--space-2) var(--space-4);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-sm);
   border: 1px solid var(--color-border);
   background: var(--color-surface);
   color: var(--color-text-primary);

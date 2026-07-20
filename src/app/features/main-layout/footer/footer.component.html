@@ -1,27 +1,47 @@
 <footer class="footer">
   <div class="footer-inner">
     <div class="footer-brand">
-      <span (click)="toHome()" class="brand-name">Shoply</span>
-      <p class="footer-tagline">Quality tech, fair prices, delivered to your door.</p>
+      <button type="button" class="footer-wordmark" (click)="toHome()">
+        <span class="brand-mark" aria-hidden="true">S</span>
+        <span>Shoply</span>
+      </button>
+      <p class="footer-tagline">Reliable technology, transparent pricing and dependable service across Serbia.</p>
     </div>
 
-    <nav class="footer-links">
-      <a [routerLink]="['home']">Home</a>
-      <a [routerLink]="['products/search']">Products</a>
-      <a [routerLink]="['categories']">Categories</a>
-    </nav>
+    <div class="footer-column">
+      <span class="footer-label">Catalog</span>
+      <nav class="footer-links" aria-label="Footer navigation">
+        <a [routerLink]="['/home']">Home</a>
+        <a [routerLink]="['/products/search']">All products</a>
+        <a [routerLink]="['/categories']">Departments</a>
+      </nav>
+    </div>
 
-    <div class="footer-social">
-      <button class="social-btn" aria-label="LinkedIn"
-        (click)="openLink('https://rs.linkedin.com/in/lukagolubovic?trk=public_profile_browsemap')">
-        <i class="pi pi-linkedin"></i>
-      </button>
-      <button class="social-btn" aria-label="GitHub" (click)="openLink('https://github.com/golubovicluka')">
-        <i class="pi pi-github"></i>
-      </button>
+    <div class="footer-column service-column">
+      <span class="footer-label">Service standard</span>
+      <ul class="service-list">
+        <li><i class="pi pi-truck"></i> Free delivery</li>
+        <li><i class="pi pi-shield"></i> 2-year warranty</li>
+        <li><i class="pi pi-replay"></i> 14-day returns</li>
+      </ul>
+    </div>
+
+    <div class="footer-column">
+      <span class="footer-label">Connect</span>
+      <div class="footer-social">
+        <button class="social-btn" aria-label="LinkedIn"
+          (click)="openLink('https://rs.linkedin.com/in/lukagolubovic?trk=public_profile_browsemap')">
+          <i class="pi pi-linkedin"></i><span>LinkedIn</span>
+        </button>
+        <button class="social-btn" aria-label="GitHub" (click)="openLink('https://github.com/golubovicluka')">
+          <i class="pi pi-github"></i><span>GitHub</span>
+        </button>
+      </div>
     </div>
   </div>
+
   <div class="footer-bottom">
-    <span>© 2026 Shoply. All rights reserved.</span>
+    <span>&copy; 2026 Shoply. All rights reserved.</span>
+    <span class="footer-location">Technology retail / Belgrade, Serbia</span>
   </div>
 </footer>

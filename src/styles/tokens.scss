@@ -1,78 +1,61 @@
 /* =============================================================================
-   Design Tokens — single source of truth for all visual values.
-   Consume these via var(--token); never hardcode hex, magic numbers, or fonts
-   in component styles. See CLAUDE.md › Frontend Design Standards.
+   Shoply design tokens
 
-   Aesthetic direction: a warm, paper-toned neutral palette with a single clay
-   accent used sparingly. Deliberately not the purple-on-white AI default, and
-   deliberately not Inter/Roboto/Arial.
+   Direction: a precise enterprise electronics catalogue. Cool technical
+   neutrals, graphite structure and one cobalt action colour replace the former
+   warm editorial palette. Corners stay intentionally tight throughout.
    ============================================================================= */
 
 :root {
-  /* ---------------------------------------------------------------------------
-     Backgrounds & surfaces  (3-level warm neutral elevation)
-     --------------------------------------------------------------------------- */
-  --color-bg: #f0eee8;                 /* page background — warm paper        */
-  --color-surface: #fbfaf7;            /* card / panel — sits above bg        */
-  --color-surface-elevated: #ffffff;   /* modal / dropdown + shimmer highlight */
-  --color-border: #e4e1d8;             /* subtle warm divider                 */
+  /* Surfaces */
+  --color-bg: #edf1f5;
+  --color-surface: #ffffff;
+  --color-surface-elevated: #f7f9fb;
+  --color-surface-muted: #e4eaf0;
+  --color-border: #c9d2dc;
+  --color-border-strong: #9eabb8;
 
-  /* ---------------------------------------------------------------------------
-     Text
-     --------------------------------------------------------------------------- */
-  --color-text-primary: #1d1b16;       /* warm near-black                     */
-  --color-text-secondary: #6f6a5e;     /* warm muted grey                     */
+  /* Type */
+  --color-text-primary: #101820;
+  --color-text-secondary: #596777;
 
-  /* ---------------------------------------------------------------------------
-     Ink — inverted warm-dark surface, reserved for the highest-impact moments
-     (hero product stage, newsletter band). One ink moment per page, max.
-     --------------------------------------------------------------------------- */
-  --color-ink: #211e18;                /* inverted panel                      */
-  --color-ink-soft: #2d2920;           /* raised surface on ink               */
-  --color-ink-border: #3b362a;         /* hairline on ink                     */
-  --color-text-on-ink: #f4f1e8;        /* paper-toned, not pure white         */
-  --color-text-on-ink-muted: #aaa294;  /* shade of the panel, not grey        */
+  /* Graphite panels */
+  --color-ink: #0b1728;
+  --color-ink-soft: #14253c;
+  --color-ink-border: #2b3c52;
+  --color-text-on-ink: #f7f9fb;
+  --color-text-on-ink-muted: #aebaca;
 
-  /* ---------------------------------------------------------------------------
-     Accent — one color, used sparingly (CTAs, focus, active nav)
-     --------------------------------------------------------------------------- */
-  --color-accent: #d9622b;             /* clay / vermilion                    */
-  --color-accent-strong: #b94e1f;      /* hover / pressed accent              */
-  --color-accent-dim: rgba(217, 98, 43, 0.14); /* ~10% accent for focus rings */
+  /* Cobalt action colour */
+  --color-accent: #165dff;
+  --color-accent-strong: #0a3fc2;
+  --color-accent-dim: rgba(22, 93, 255, 0.1);
 
-  /* ---------------------------------------------------------------------------
-     Semantic — paired with icon/text in UI, never color alone
-     --------------------------------------------------------------------------- */
-  --color-danger: #c8453b;
-  --color-danger-dim: rgba(200, 69, 59, 0.12);
-  --color-success: #2f8559;
-  --color-success-dim: rgba(47, 133, 89, 0.12);
-  --color-warning: #c98a12;
-  --color-warning-dim: rgba(201, 138, 18, 0.14);
+  /* Semantic colours */
+  --color-danger: #b42318;
+  --color-danger-dim: rgba(180, 35, 24, 0.1);
+  --color-success: #147a52;
+  --color-success-dim: rgba(20, 122, 82, 0.1);
+  --color-warning: #a15c00;
+  --color-warning-dim: rgba(161, 92, 0, 0.1);
 
-  /* ---------------------------------------------------------------------------
-     Typography — font families
-     Display: Syne · Body: DM Sans · Data/code: JetBrains Mono
-     --------------------------------------------------------------------------- */
-  --font-display: "Syne", "Segoe UI", system-ui, sans-serif;
-  --font-body: "DM Sans", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  --font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", "Cascadia Code", Menlo, monospace;
+  /* Barlow Condensed brings a technical catalogue voice to headings; Plex is
+     optimised for dense UI copy and product data. */
+  --font-display: "Barlow Condensed", "Arial Narrow", sans-serif;
+  --font-body: "IBM Plex Sans", "Segoe UI", sans-serif;
+  --font-mono: "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
 
-  /* ---------------------------------------------------------------------------
-     Fluid type scale — clamp(min, preferred, max), mobile-first
-     --------------------------------------------------------------------------- */
-  --text-xs: clamp(0.75rem, 0.73rem + 0.10vw, 0.8125rem);    /* 12 → 13 */
-  --text-sm: clamp(0.875rem, 0.85rem + 0.12vw, 0.9375rem);   /* 14 → 15 */
-  --text-base: clamp(1rem, 0.97rem + 0.18vw, 1.0625rem);     /* 16 → 17 */
-  --text-lg: clamp(1.125rem, 1.07rem + 0.30vw, 1.3125rem);   /* 18 → 21 */
-  --text-xl: clamp(1.375rem, 1.27rem + 0.55vw, 1.625rem);    /* 22 → 26 */
-  --text-2xl: clamp(1.75rem, 1.54rem + 1.05vw, 2.25rem);     /* 28 → 36 */
-  --text-3xl: clamp(2.25rem, 1.88rem + 1.85vw, 3.25rem);     /* 36 → 52 */
-  --text-display: clamp(2.75rem, 1.95rem + 4vw, 5rem);        /* 44 → 80 — hero only */
+  /* Fluid type scale */
+  --text-xs: clamp(0.72rem, 0.7rem + 0.08vw, 0.78rem);
+  --text-sm: clamp(0.84rem, 0.81rem + 0.12vw, 0.92rem);
+  --text-base: clamp(0.98rem, 0.94rem + 0.16vw, 1.05rem);
+  --text-lg: clamp(1.12rem, 1.05rem + 0.28vw, 1.28rem);
+  --text-xl: clamp(1.38rem, 1.25rem + 0.52vw, 1.7rem);
+  --text-2xl: clamp(1.9rem, 1.6rem + 1.1vw, 2.55rem);
+  --text-3xl: clamp(2.5rem, 2rem + 2vw, 3.8rem);
+  --text-display: clamp(3.25rem, 2.2rem + 4.4vw, 6.25rem);
 
-  /* ---------------------------------------------------------------------------
-     Spacing — 4px grid
-     --------------------------------------------------------------------------- */
+  /* 4px spacing grid */
   --space-1: 0.25rem;
   --space-2: 0.5rem;
   --space-3: 0.75rem;
@@ -84,38 +67,28 @@
   --space-24: 6rem;
   --space-32: 8rem;
 
-  /* ---------------------------------------------------------------------------
-     Border radius
-     --------------------------------------------------------------------------- */
-  --radius-sm: 4px;
-  --radius-md: 8px;
-  --radius-lg: 16px;
-  --radius-xl: 24px;
+  /* Tight industrial geometry. Full is only for true circles and status dots. */
+  --radius-sm: 1px;
+  --radius-md: 2px;
+  --radius-lg: 3px;
+  --radius-xl: 4px;
   --radius-full: 9999px;
 
-  /* ---------------------------------------------------------------------------
-     Shadows — warm-tinted (based on text-primary rgb), layered for realism
-     --------------------------------------------------------------------------- */
-  --shadow-sm: 0 1px 2px rgba(29, 27, 22, 0.06), 0 1px 1px rgba(29, 27, 22, 0.04);
-  --shadow-md: 0 4px 12px rgba(29, 27, 22, 0.08), 0 2px 4px rgba(29, 27, 22, 0.05);
-  --shadow-lg: 0 18px 44px rgba(29, 27, 22, 0.13), 0 6px 14px rgba(29, 27, 22, 0.07);
-  --shadow-glow: 0 0 0 1px rgba(217, 98, 43, 0.20), 0 10px 30px rgba(217, 98, 43, 0.26);
+  /* Low, controlled elevation */
+  --shadow-sm: 0 1px 2px rgba(11, 23, 40, 0.05);
+  --shadow-md: 0 7px 18px rgba(11, 23, 40, 0.09);
+  --shadow-lg: 0 18px 44px rgba(11, 23, 40, 0.16);
+  --shadow-glow: 0 0 0 1px rgba(22, 93, 255, 0.2), 0 10px 28px rgba(22, 93, 255, 0.16);
 
-  /* ---------------------------------------------------------------------------
-     Animation
-     --------------------------------------------------------------------------- */
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-in: cubic-bezier(0.4, 0, 1, 1);
   --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
   --duration-fast: 120ms;
-  --duration-base: 200ms;
-  --duration-slow: 400ms;
-  --duration-enter: 500ms;
+  --duration-base: 180ms;
+  --duration-slow: 360ms;
+  --duration-enter: 460ms;
 
-  /* ---------------------------------------------------------------------------
-     Layout & convenience composites
-     --------------------------------------------------------------------------- */
-  --layout-max-width: 1200px;
-  --layout-catalog-max-width: 1440px;
-  --focus-ring: 0 0 0 3px var(--color-accent-dim); /* see :focus-visible in styles.scss */
+  --layout-max-width: 1280px;
+  --layout-catalog-max-width: 1480px;
+  --focus-ring: 0 0 0 3px rgba(22, 93, 255, 0.22);
 }
