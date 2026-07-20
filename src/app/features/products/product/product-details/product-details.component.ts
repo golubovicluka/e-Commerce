@@ -1,8 +1,9 @@
-import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, NavigationExtras, Router } from '@angular/router';
-import { Location } from '@angular/common';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+import { Location, DecimalPipe } from '@angular/common';
 import { ProductsService } from '../../products.service';
-import { MenuItem, MessageService } from 'primeng/api';
+import { NotificationService } from 'src/app/shared/notification.service';
+import { NavigationItem } from 'src/app/shared/navigation-item';
 import { WishlistService } from 'src/app/shared/wishlist.service';
 import { Product } from '../../Product';
 import { CartService } from 'src/app/shared/cart.service';
@@ -13,11 +14,17 @@ import {
   MONTHLY_PAYMENT_OPTIONS,
   MonthlyPaymentOption,
 } from 'src/app/shared/pricing';
+import { FormsModule } from '@angular/forms';
+import { ProductComponent } from '../product.component';
+import { take } from 'rxjs';
+import { BreadcrumbComponent } from 'src/app/shared/breadcrumb/breadcrumb.component';
 
 @Component({
-  selector: 'app-product-details',
-  templateUrl: './product-details.component.html',
-  styleUrls: ['./product-details.component.scss']
+    selector: 'app-product-details',
+    templateUrl: './product-details.component.html',
+    styleUrls: ['./product-details.component.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    imports: [BreadcrumbComponent, FormsModule, ProductComponent, DecimalPipe]
 })
 export class ProductDetailsComponent implements OnInit {
   images!: string[];
@@ -29,44 +36,10 @@ export class ProductDetailsComponent implements OnInit {
 
   suggestedProducts!: any[];
 
-  public items!: MenuItem[];
-  home!: MenuItem;
-
-  galleryResponsiveOptions = [
-    {
-      breakpoint: '1024px',
-      numVisible: 3
-    },
-    {
-      breakpoint: '768px',
-      numVisible: 2
-    },
-    {
-      breakpoint: '560px',
-      numVisible: 1
-    }
-  ];
-
-  carouselResponsiveOptions = [
-    {
-      breakpoint: '1024px',
-      numVisible: 3,
-      numScroll: 3
-    },
-    {
-      breakpoint: '768px',
-      numVisible: 1,
-      numScroll: 1
-    },
-    {
-      breakpoint: '560px',
-      numVisible: 1,
-      numScroll: 1
-    }
-  ];
+  public items!: NavigationItem[];
+  home!: NavigationItem;
 
   inWishlist!: boolean;
-  displayCustom!: boolean;
 
   activeIndex: number = 0;
 
@@ -78,69 +51,48 @@ export class ProductDetailsComponent implements OnInit {
     private _productService: ProductsService,
     private _wishlistService: WishlistService,
     private _cartService: CartService,
-    private _messageService: MessageService,
-    private _productImageService: ProductImageService
+    private _messageService: NotificationService,
+    private _productImageService: ProductImageService,
+    private changeDetectorRef: ChangeDetectorRef,
   ) {
     const navigation = this.router.getCurrentNavigation();
     const state = navigation?.extras.state as { product: any };
     if (state?.product) {
-      this.id = state?.product.id;
-      this.inWishlist = this.checkInWishlist(this.id)
-      this.product = state?.product;
-      this.images = this._productImageService.normalizeImages(state?.product.images, state?.product.name);
-      this.product.images = this.images;
-
-      // Suggested products
-      const productCategory = state?.product.category?.name;
-      this._productService.getProductsByCategory(productCategory).subscribe((suggestedProducts: any) => {
-        // TODO: filter out the currently selected item and remove it from suggestions list
-        this.suggestedProducts = suggestedProducts.data.product
-          .filter((suggestedProduct: Product) => suggestedProduct.id !== this.id)
-          .map((suggestedProduct: Product) => ({
-            ...suggestedProduct,
-            images: this._productImageService.normalizeImages(suggestedProduct.images, suggestedProduct.name)
-          }));
-        // Undefined when user reload the page or goes directly to this route
-      })
+      this.applyProduct(state.product);
+      this.loadSuggestedProducts(state.product.category?.name);
     }
   }
 
   ngOnInit() {
-    this.id = this.activatedRoute.snapshot.params['id'];
+    this.id = Number(this.activatedRoute.snapshot.params['id']);
 
     // If user navigated manually to the route
     if (!this.product) {
-      this._productService.getProductById(this.id).subscribe((product: any) => {
-        this.product = product.data.product[0];
-        this.images = this._productImageService.normalizeImages(product.data.product[0].images, product.data.product[0].name);
-        this.product.images = this.images;
-        this.setBreadcrumbItems();
-        this.inWishlist = this.checkInWishlist(this.id);
-
-        // Suggested products
-        const productCategory = product.data.product[0].category?.name;
-        this._productService.getProductsByCategory(productCategory).subscribe((suggestedProducts: any) => {
-          this.suggestedProducts = suggestedProducts.data.product
-          .filter((suggestedProduct: Product) => suggestedProduct.id !== this.id)
-          .map((suggestedProduct: Product) => ({
-            ...suggestedProduct,
-            images: this._productImageService.normalizeImages(suggestedProduct.images, suggestedProduct.name)
-          }));
-        })
-      })
+      this._productService.getProductById(this.id).pipe(take(1)).subscribe({
+        next: (response: any) => {
+          const product = response.data.product[0];
+          if (!product) {
+            this.router.navigate(['/404']);
+            return;
+          }
+          this.applyProduct(product);
+          this.loadSuggestedProducts(product.category?.name);
+        },
+        error: () => {
+          this._messageService.add({
+            severity: 'error',
+            summary: 'Product unavailable',
+            detail: 'We could not load this product. Please try again later.',
+          });
+          this.changeDetectorRef.markForCheck();
+        },
+      });
       this.inWishlist = this.checkInWishlist(this.id);
     }
 
     // Breadcrumbs setup
     this.setBreadcrumbItems();
     this.home = { icon: 'pi pi-home', routerLink: '/home' };
-  }
-
-  getNumVisible(): number {
-    const width = window.innerWidth;
-    if (width <= 560) return 1;
-    if (width <= 768) return 2;
-    return 3;
   }
 
   navigateBack() {
@@ -164,13 +116,6 @@ export class ProductDetailsComponent implements OnInit {
     }
   }
 
-  // TODO: fix add and remove from wishlist
-  addToWishlist(product: Product) {
-  }
-
-  removeFromWishlist(product: Product) {
-  }
-
   addToCart(product: Product) {
     this._cartService.addToCart(product);
   }
@@ -189,27 +134,6 @@ export class ProductDetailsComponent implements OnInit {
 
   checkIfInWishlist(product: Product) {
     return this._wishlistService.inWishlist(product.id);
-  }
-
-  // Move to service
-  openProductDetails(id: number) {
-    const product = {
-      name: this.product.name,
-      description: this.product.description,
-      subcategory: this.product.subcategory,
-      images: this.product.images,
-      EAN: this.product.EAN,
-      id,
-      inStock: this.product.inStock,
-      price: this.product.price
-    }
-
-    const navigationExtras: NavigationExtras = {
-      state: {
-        product
-      }
-    }
-    this.router.navigate(['/product', id], navigationExtras);
   }
 
   getInstallmentAmount = getInstallmentAmount;
@@ -234,13 +158,9 @@ export class ProductDetailsComponent implements OnInit {
       return;
     }
 
-    this.id = newProduct.id;
-    this.inWishlist = this.checkIfInWishlist(newProduct);
-    this.product = newProduct;
-    this.images = this._productImageService.normalizeImages(newProduct.images, newProduct.name);
-    this.product.images = this.images;
-    this.setBreadcrumbItems();
+    this.applyProduct(newProduct);
     this.router.navigate(['/product', newProduct.id]);
+    this.scrollToTop();
   }
 
   buyProduct(product: Product) {
@@ -250,7 +170,6 @@ export class ProductDetailsComponent implements OnInit {
 
   imageClick(index: number) {
     this.activeIndex = index;
-    this.displayCustom = true;
   }
 
   onGalleryImageError(event: Event, imageIndex: number): void {
@@ -262,4 +181,41 @@ export class ProductDetailsComponent implements OnInit {
   }
 
   protected readonly scrollY = scrollY;
+
+  private applyProduct(product: Product): void {
+    this.id = product.id;
+    this.product = { ...product };
+    this.images = this._productImageService.normalizeImages(product.images, product.name);
+    this.product.images = this.images;
+    this.inWishlist = this.checkInWishlist(this.id);
+    this.setBreadcrumbItems();
+    this.changeDetectorRef.markForCheck();
+  }
+
+  private loadSuggestedProducts(category?: string): void {
+    if (!category) {
+      this.suggestedProducts = [];
+      this.changeDetectorRef.markForCheck();
+      return;
+    }
+
+    this._productService.getProductsByCategory(category).pipe(take(1)).subscribe({
+      next: (response: any) => {
+        this.suggestedProducts = response.data.product
+          .filter((suggestedProduct: Product) => suggestedProduct.id !== this.id)
+          .map((suggestedProduct: Product) => ({
+            ...suggestedProduct,
+            images: this._productImageService.normalizeImages(
+              suggestedProduct.images,
+              suggestedProduct.name,
+            ),
+          }));
+        this.changeDetectorRef.markForCheck();
+      },
+      error: () => {
+        this.suggestedProducts = [];
+        this.changeDetectorRef.markForCheck();
+      },
+    });
+  }
 }

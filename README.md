@@ -2,13 +2,13 @@
 
 # Shoply
 
-Welcome to **Shoply**, an advanced Angular-based ecommerce application designed to provide a seamless shopping experience. This platform enables users to explore a wide range of products with powerful filtering, sorting, and viewing options. Whether you're searching for specific items or browsing through categories, Shoply ensures a user-friendly and efficient shopping journey.
+**Shoply** is an Angular 22 storefront for browsing a Hasura-backed technology catalog. It supports server-side search, filtering, sorting and pagination, plus browser-persisted cart and wishlist flows.
 
 ## Key Features
 
 - **Product Catalog**: Browse an extensive range of products, categorized for easy navigation.
 - **Product Details**: Access comprehensive information about each product, including images, descriptions, and prices.
-- **Sorting and Pagination**: Organize products by price, popularity, and other criteria, with convenient pagination controls.
+- **Sorting and Pagination**: Organize products by price with server-side pagination.
 - **Suggested Products**: Discover related products tailored to your preferences.
 - **Advanced Filtering**: Narrow down your search by category, price range, and other attributes.
 - **Search Functionality**: Quickly find products using a robust search feature. 🔍
@@ -16,13 +16,15 @@ Welcome to **Shoply**, an advanced Angular-based ecommerce application designed 
 - **Price Range Slider**: Adjust your budget with a responsive price range slider.
 - **Shopping Cart & Checkout**: Manage your cart, review your order, and proceed to payment with ease. 🛒
 - **Local Storage Integration**: Save wishlist items and cart contents in local storage, ensuring that your selections persist even after refreshing the page.
-- **End-to-End Testing**: Ensure quality and reliability with comprehensive tests using Cypress.
+- **Automated Testing**: Fast component and service tests with Vitest, plus Cypress browser flows.
 
 ## Tech Stack
 
-- **Client:** Angular, PrimeNG, PrimeFlex, Apollo Client
+- **Client:** Angular 22 standalone components, signals, lightweight native UI, PrimeFlex, Apollo Client 4
 - **Server:** Hasura GraphQL
-- **Tests:** Cypress
+- **Tests:** Vitest and Cypress
+
+All page routes are lazy loaded. Catalog-only Apollo providers are also loaded on demand, keeping GraphQL code out of the initial application shell.
 
 ## Running End-to-End Tests
 
@@ -31,6 +33,8 @@ To execute the end-to-end tests, navigate to the project root directory and run:
 ```bash
 npx cypress open
 ```
+
+Start the app at `http://localhost:4200` before running Cypress.
 
 ## Running the Application Locally
 
@@ -49,22 +53,33 @@ npx cypress open
 3. **Install Dependencies**
 
    ```bash
-   npm install
+   npm ci
    ```
 
 4. **Start the Angular Development Server**
 
    ```bash
-   ng serve
+   npm start
    ```
 
    The application will be available at `http://localhost:4200`.
 
+## Quality Checks
+
+Use Node 24.15.0 (the version in `.nvmrc`), then run:
+
+```bash
+npm run lint
+npm run test:ci
+npm run build
+```
+
+The production browser bundle is written to `dist/project/browser`.
+
    ---
 ## Note
 
-This project was created before the "chatgpt era" so I used it mostly to learn and experiment best practices in Angular at the time
-All the recent commits you see will be adding unit and e2e tests
+This project started as an Angular learning exercise and is now maintained on the current Angular architecture.
    ---
 
 ## Author

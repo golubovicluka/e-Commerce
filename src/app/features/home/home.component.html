@@ -1,5 +1,3 @@
-<p-toast position="bottom-right"></p-toast>
-
 <!-- Technical dossier hero: the single expressive moment in the system. -->
 <section class="hero stagger">
   <div class="hero-copy">
@@ -13,8 +11,9 @@
       dependable delivery and support after purchase.
     </p>
     <div class="hero-ctas">
-      <p-button label="Explore the catalog" icon="pi pi-arrow-right" iconPos="right"
-        [routerLink]="['/products/search']"></p-button>
+      <a class="p-button" [routerLink]="['/products/search']">
+        Explore the catalog <i class="pi pi-arrow-right" aria-hidden="true"></i>
+      </a>
       <a class="link-arrow" [routerLink]="['/categories']">View departments <i class="pi pi-arrow-right"></i></a>
     </div>
     <ul class="service-grid" aria-label="Shoply service standards">
@@ -42,7 +41,7 @@
     </span>
     <span class="stage-plinth">
       <img class="stage-img" [alt]="macbookName" [src]="macbookImg || null"
-        (error)="onHeroImageError($event, macbookName)" />
+        fetchpriority="high" decoding="async" (error)="onHeroImageError($event, macbookName)" />
     </span>
     <span class="stage-caption">
       <span class="stage-copy">
@@ -64,7 +63,8 @@
   <a class="tile" (click)="redirect(ipadId)" tabindex="0" role="link" (keyup.enter)="redirect(ipadId)"
     [attr.aria-label]="ipadName + ' — view product'">
     <span class="tile-media">
-      <img class="tile-img" [alt]="ipadName" [src]="ipadImg || null" (error)="onHeroImageError($event, ipadName)" />
+      <img class="tile-img" [alt]="ipadName" [src]="ipadImg || null" loading="lazy" decoding="async"
+        (error)="onHeroImageError($event, ipadName)" />
     </span>
     <span class="tile-body">
       <span class="tile-kicker">Portable systems</span>
@@ -78,7 +78,7 @@
     [attr.aria-label]="iphoneName + ' — view product'">
     <span class="tile-media">
       <img class="tile-img" [alt]="iphoneName" [src]="iphoneImg || null"
-        (error)="onHeroImageError($event, iphoneName)" />
+        loading="lazy" decoding="async" (error)="onHeroImageError($event, iphoneName)" />
     </span>
     <span class="tile-body">
       <span class="tile-kicker">Mobile computing</span>
@@ -89,53 +89,71 @@
   </a>
 </section>
 
-<section class="carousel-section" *ngIf="suggestedProductsLoadState === 'ready'">
-  <div class="section-head">
-    <div>
-      <span class="eyebrow">Recently added</span>
-      <h2>New to the catalog</h2>
-    </div>
-    <a class="link-arrow" [routerLink]="['/products/search']">View all products <i class="pi pi-arrow-right"></i></a>
-  </div>
-  <p-carousel [value]="suggestedProducts" [numVisible]="4" [numScroll]="1" [circular]="true"
-    [responsiveOptions]="carouselResponsiveOptions" class="carousel-container">
-    <ng-template let-product pTemplate="item">
-      <div class="carousel-item">
-        <app-suggested-product (openProductDetails)="redirect($event)" [inStock]="product.inStock" [id]="product.id"
-          [name]="product.name" [description]="product.description" [price]="product.price"
-          [image]="product.images[0]"></app-suggested-product>
+@if (suggestedProductsLoadState === 'ready') {
+  @defer (on viewport; prefetch on idle) {
+    <section class="carousel-section">
+      <div class="section-head">
+        <div>
+          <span class="eyebrow">Recently added</span>
+          <h2>New to the catalog</h2>
+        </div>
+        <a class="link-arrow" [routerLink]="['/products/search']">View all products <i class="pi pi-arrow-right"></i></a>
       </div>
-    </ng-template>
-  </p-carousel>
-</section>
+      <div class="carousel-container product-strip">
+        @for (product of suggestedProducts; track product.id) {
+          <div class="carousel-item">
+            <app-suggested-product (openProductDetails)="redirect($event)" [inStock]="product.inStock" [id]="product.id"
+              [name]="product.name" [description]="product.description" [price]="product.price"
+            [image]="product.images[0]"></app-suggested-product>
+          </div>
+        }
+      </div>
+    </section>
+  } @placeholder {
+    <section class="carousel-section" aria-label="Loading recently added products">
+      <div class="carousel-skeletons">
+        @for (s of [1, 2, 3, 4]; track s) {
+          <div class="skeleton carousel-skeleton"></div>
+        }
+      </div>
+    </section>
+  }
+}
 
-<section class="carousel-section" *ngIf="suggestedProductsLoadState === 'loading'">
-  <div class="section-head">
-    <div>
-      <span class="eyebrow">Recently added</span>
-      <h2>New to the catalog</h2>
+@if (suggestedProductsLoadState === 'loading') {
+  <section class="carousel-section">
+    <div class="section-head">
+      <div>
+        <span class="eyebrow">Recently added</span>
+        <h2>New to the catalog</h2>
+      </div>
     </div>
-  </div>
-  <div class="carousel-skeletons">
-    <div class="skeleton carousel-skeleton" *ngFor="let s of [1, 2, 3, 4]"></div>
-  </div>
-</section>
+    <div class="carousel-skeletons">
+      @for (s of [1, 2, 3, 4]; track s) {
+        <div class="skeleton carousel-skeleton"></div>
+      }
+    </div>
+  </section>
+}
 
-<section class="carousel-section" *ngIf="suggestedProductsLoadState === 'error'">
-  <div class="section-head">
-    <div>
-      <span class="eyebrow">Catalog update</span>
-      <h2>New to the catalog</h2>
+@if (suggestedProductsLoadState === 'error') {
+  <section class="carousel-section">
+    <div class="section-head">
+      <div>
+        <span class="eyebrow">Catalog update</span>
+        <h2>New to the catalog</h2>
+      </div>
     </div>
-  </div>
-  <div class="empty-state component-enter">
-    <i class="pi pi-exclamation-circle"></i>
-    <h3>Could not load latest products</h3>
-    <p>The catalog is temporarily unavailable. Please try again later.</p>
-    <button class="p-button-outlined" type="button" pButton pRipple [routerLink]="['/products/search']"
-      label="Browse catalog"></button>
-  </div>
-</section>
+    <div class="empty-state component-enter">
+      <i class="pi pi-exclamation-circle"></i>
+      <h3>Could not load latest products</h3>
+      <p>The catalog is temporarily unavailable. Please try again later.</p>
+      <a class="p-button p-button-outlined" [routerLink]="['/products/search']">
+        Browse catalog
+      </a>
+    </div>
+  </section>
+}
 
 <section class="newsletter">
   <div class="newsletter-copy">
@@ -145,9 +163,9 @@
   </div>
   <div class="newsletter-form">
     <div class="newsletter-row">
-      <input name="email" type="email" pInputText placeholder="Business or personal email" aria-label="Email address"
+      <input name="email" class="p-inputtext" type="email" placeholder="Business or personal email" aria-label="Email address"
         [(ngModel)]="newsletterEmail" [disabled]="newsletterSubmitted" />
-      <p-button (click)="submitForm()" label="Subscribe" styleClass="btn-on-ink"></p-button>
+      <button type="button" class="p-button btn-on-ink" (click)="submitForm()">Subscribe</button>
     </div>
     <span class="newsletter-note">Weekly only. Unsubscribe at any time.</span>
   </div>

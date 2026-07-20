@@ -1,43 +1,47 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { Subscription } from 'rxjs';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { WishlistService } from '../../shared/wishlist.service';
 import { Product } from '../products/Product';
-import { MenuItem, MessageService } from 'primeng/api';
+import { NavigationItem } from 'src/app/shared/navigation-item';
+import { NotificationService } from 'src/app/shared/notification.service';
 import { CartService } from 'src/app/shared/cart.service';
+import { ProductComponent } from '../products/product/product.component';
+import { RouterLink } from '@angular/router';
+import { BreadcrumbComponent } from 'src/app/shared/breadcrumb/breadcrumb.component';
 
 @Component({
-  selector: 'app-wishlist-view',
-  templateUrl: './wishlist-view.component.html',
-  styleUrls: ['./wishlist-view.component.scss']
+    selector: 'app-wishlist-view',
+    templateUrl: './wishlist-view.component.html',
+    styleUrls: ['./wishlist-view.component.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    imports: [BreadcrumbComponent, ProductComponent, RouterLink]
 })
-export class WishlistViewComponent implements OnInit, OnDestroy {
-  wishlistItems: Product[] = [];
+export class WishlistViewComponent implements OnInit {
 
-  public items!: MenuItem[];
-  home!: MenuItem;
+  public items!: NavigationItem[];
+  home!: NavigationItem;
 
-  private wishlistSubscription!: Subscription;
+  private readonly wishlistItemsState = toSignal(
+    this._wishlistService.getWishListItems(),
+    { initialValue: [] },
+  );
 
   constructor(
     private _wishlistService: WishlistService,
-    private _messageService: MessageService,
+    private _messageService: NotificationService,
     private _cartService: CartService
   ) { }
 
-  ngOnInit(): void {
-    this.wishlistSubscription = this._wishlistService.getWishListItems().subscribe((data) => {
-      this.wishlistItems = data;
-    });
+  get wishlistItems(): Product[] {
+    return this.wishlistItemsState();
+  }
 
+  ngOnInit(): void {
     this.items = [
       { label: 'Products', routerLink: '/products/search' },
       { label: 'Wishlist', routerLink: '/wishlist' },
     ];
     this.home = { icon: 'pi pi-home', routerLink: '/home' };
-  }
-
-  ngOnDestroy(): void {
-    this.wishlistSubscription?.unsubscribe();
   }
 
   isInWishlist(id: number): boolean {

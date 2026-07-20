@@ -1,7 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { RouterTestingModule } from '@angular/router/testing';
-import { PrimeNGConfig } from 'primeng/api';
 import { AppComponent } from './app.component';
 
 /**
@@ -12,41 +11,30 @@ import { AppComponent } from './app.component';
  * run. The assertions below match what the component actually does.
  */
 describe('AppComponent', () => {
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [RouterTestingModule],
-      declarations: [AppComponent],
-      schemas: [NO_ERRORS_SCHEMA],
-    }).compileComponents();
-  });
+    beforeEach(async () => {
+        await TestBed.configureTestingModule({
+    imports: [RouterTestingModule, AppComponent],
+    schemas: [NO_ERRORS_SCHEMA],
+}).compileComponents();
+    });
 
-  it('should create the app', () => {
-    const app = TestBed.createComponent(AppComponent).componentInstance;
-    expect(app).toBeTruthy();
-  });
+    it('should create the app', () => {
+        const app = TestBed.createComponent(AppComponent).componentInstance;
+        expect(app).toBeTruthy();
+    });
 
-  it(`should have as title 'Webshop'`, () => {
-    const app = TestBed.createComponent(AppComponent).componentInstance;
-    expect(app.title).toEqual('Webshop');
-  });
+    it(`should have as title 'Webshop'`, () => {
+        const app = TestBed.createComponent(AppComponent).componentInstance;
+        expect(app.title).toEqual('Webshop');
+    });
 
-  it('enables PrimeNG ripple on init', () => {
-    const config = TestBed.inject(PrimeNGConfig);
-    config.ripple = false;
+    it('renders the header, router outlet and footer shell', () => {
+        const fixture = TestBed.createComponent(AppComponent);
+        fixture.detectChanges();
+        const compiled = fixture.nativeElement as HTMLElement;
 
-    const app = TestBed.createComponent(AppComponent).componentInstance;
-    app.ngOnInit();
-
-    expect(config.ripple).toBeTrue();
-  });
-
-  it('renders the header, router outlet and footer shell', () => {
-    const fixture = TestBed.createComponent(AppComponent);
-    fixture.detectChanges();
-    const compiled = fixture.nativeElement as HTMLElement;
-
-    expect(compiled.querySelector('app-header')).not.toBeNull();
-    expect(compiled.querySelector('router-outlet')).not.toBeNull();
-    expect(compiled.querySelector('app-footer')).not.toBeNull();
-  });
+        expect(compiled.querySelector('app-header')).not.toBeNull();
+        expect(compiled.querySelector('router-outlet')).not.toBeNull();
+        expect(compiled.querySelector('app-footer')).not.toBeNull();
+    });
 });

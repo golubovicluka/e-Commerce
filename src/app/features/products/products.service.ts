@@ -33,9 +33,7 @@ export interface ProductQueryOptions {
   offset: number;
 }
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable()
 export class ProductsService {
   categoryFilter$ = new Subject<string>();
   categoryFilter = this.categoryFilter$.asObservable();
@@ -56,7 +54,7 @@ export class ProductsService {
    * and sort instead of a separate unbounded query per filter.
    */
   getProductsPage(options: ProductQueryOptions) {
-    return this.apollo.watchQuery({
+    return this.apollo.query({
       query: gql`
         query GetProductsPage($where: product_bool_exp, $orderBy: [product_order_by!], $limit: Int!, $offset: Int!) {
           product(where: $where, order_by: $orderBy, limit: $limit, offset: $offset) {
@@ -76,7 +74,7 @@ export class ProductsService {
         limit: options.limit,
         offset: options.offset,
       },
-    }).valueChanges;
+    });
   }
 
   /**
@@ -85,7 +83,7 @@ export class ProductsService {
    * memory (the old approach sorted the full result set client-side).
    */
   getPriceBounds(where: any = {}) {
-    return this.apollo.watchQuery({
+    return this.apollo.query({
       query: gql`
         query GetPriceBounds($where: product_bool_exp) {
           product_aggregate(where: $where) {
@@ -101,13 +99,13 @@ export class ProductsService {
         }
       `,
       variables: { where },
-    }).valueChanges;
+    });
   }
 
   // Get all products (including sortBy and category)
   getProducts(sortBy?: string, category?: string) {
     if (category && sortBy) {
-      return this.apollo.watchQuery({
+      return this.apollo.query({
         query: gql`
           query GetProducts($category: String!, $sortBy: order_by!) {
             product(where: {category: {name: {_eq: $category}}}, order_by: {price: $sortBy}) {
@@ -117,9 +115,9 @@ export class ProductsService {
           ${PRODUCT_FIELDS}
         `,
         variables: { category, sortBy }
-      }).valueChanges;
+      });
     } else if (category) {
-      return this.apollo.watchQuery({
+      return this.apollo.query({
         query: gql`
           query GetProductsByCategory($category: String!) {
             product(where: {category: {name: {_eq: $category}}}) {
@@ -129,9 +127,9 @@ export class ProductsService {
           ${PRODUCT_FIELDS}
         `,
         variables: { category }
-      }).valueChanges;
+      });
     } else if (sortBy) {
-      return this.apollo.watchQuery({
+      return this.apollo.query({
         query: gql`
           query GetProductsSorted($sortBy: order_by!) {
             product(order_by: {price: $sortBy}) {
@@ -141,14 +139,14 @@ export class ProductsService {
           ${PRODUCT_FIELDS}
         `,
         variables: { sortBy }
-      }).valueChanges;
+      });
     } else {
       return this.getProductsDefault();
     }
   }
 
   getProductsDefault() {
-    return this.apollo.watchQuery({
+    return this.apollo.query({
       query: gql`
         query GetProductsDefault {
           product {
@@ -157,11 +155,11 @@ export class ProductsService {
         }
         ${PRODUCT_FIELDS}
       `
-    }).valueChanges;
+    });
   }
 
   getProductsByPrice(priceFrom: number, priceTo: number) {
-    return this.apollo.watchQuery({
+    return this.apollo.query({
       query: gql`
         query GetProductsByPrice($priceFrom: numeric!, $priceTo: numeric!) {
           product(where: {price: {_gte: $priceFrom, _lte: $priceTo}}) {
@@ -174,11 +172,11 @@ export class ProductsService {
         priceFrom,
         priceTo
       }
-    }).valueChanges;
+    });
   }
 
   searchProducts(searchInput: string) {
-    return this.apollo.watchQuery({
+    return this.apollo.query({
       query: gql`
         query SearchProducts($searchInput: String!) {
           product(where: { name: { _ilike: $searchInput } }) {
@@ -190,11 +188,11 @@ export class ProductsService {
       variables: {
         searchInput: `%${searchInput}%`
       }
-    }).valueChanges;
+    });
   }
 
   getProductsByIds(ids: number[]) {
-    return this.apollo.watchQuery({
+    return this.apollo.query({
       query: gql`
         query GetProductsByIds($ids: [Int!]!) {
           product(where: { id: { _in: $ids } }) {
@@ -204,11 +202,11 @@ export class ProductsService {
         ${PRODUCT_FIELDS}
       `,
       variables: { ids }
-    }).valueChanges;
+    });
   }
 
   getProductById(id: number) {
-    return this.apollo.watchQuery({
+    return this.apollo.query({
       query: gql`
         query GetProductById($id: Int!) {
           product(where: { id: { _eq: $id } }) {
@@ -220,11 +218,11 @@ export class ProductsService {
       variables: {
         id
       }
-    }).valueChanges;
+    });
   }
 
   getProductsByCategory(category: string) {
-    return this.apollo.watchQuery({
+    return this.apollo.query({
       query: gql`
         query GetProductsByCategory($category: String!) {
           product(where: {category: {name: {_eq: $category}}}) {
@@ -236,7 +234,7 @@ export class ProductsService {
       variables: {
         category
       }
-    }).valueChanges;
+    });
   }
 
   getFilteredProducts(filter: string[]) {
@@ -244,7 +242,7 @@ export class ProductsService {
       return this.getProductsDefault();
     }
 
-    return this.apollo.watchQuery({
+    return this.apollo.query({
       query: gql`
         query GetFilteredProducts($filter: [String!]!) {
           product(where: {subcategory: {name: {_in: $filter}}}) {
@@ -256,12 +254,12 @@ export class ProductsService {
       variables: {
         filter
       }
-    }).valueChanges;
+    });
   }
 
   // Get categories and subcategories for filter component
   getProductCategories() {
-    return this.apollo.watchQuery({
+    return this.apollo.query({
       query: gql`
         query GetProductCategories {
           category {
@@ -275,11 +273,11 @@ export class ProductsService {
           }
         }
       `
-    }).valueChanges;
+    });
   }
 
   getSuggestedProducts() {
-    return this.apollo.watchQuery({
+    return this.apollo.query({
       query: gql`
         query GetSuggestedProducts {
           product(limit: 10, order_by: { id: desc }) {
@@ -288,7 +286,7 @@ export class ProductsService {
         }
         ${PRODUCT_FIELDS}
       `
-    }).valueChanges;
+    });
   }
 
   // Legacy methods for backward compatibility

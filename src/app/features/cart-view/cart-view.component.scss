@@ -40,9 +40,41 @@
 
 .checkout-flow {
   min-width: 0;
+}
 
-  ::ng-deep .p-steps {
-    margin-bottom: var(--space-6);
+.checkout-steps {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-2);
+  margin: 0 0 var(--space-6);
+  padding: 0;
+  list-style: none;
+
+  a {
+    display: flex;
+    gap: var(--space-2);
+    align-items: center;
+    color: var(--color-text-secondary);
+    text-decoration: none;
+  }
+
+  span {
+    display: grid;
+    width: 2rem;
+    height: 2rem;
+    place-items: center;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-full);
+  }
+
+  .is-active a {
+    color: var(--color-accent);
+  }
+
+  .is-active span {
+    border-color: var(--color-accent);
+    background: var(--color-accent);
+    color: #fff;
   }
 }
 
@@ -198,6 +230,13 @@
       cursor: not-allowed;
     }
   }
+}
+
+.quantity-input {
+  width: 3.5rem;
+  min-height: 2rem;
+  border: 1px solid var(--color-border);
+  text-align: center;
 }
 
 ::ng-deep #integeronly {

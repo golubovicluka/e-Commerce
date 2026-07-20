@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { computed, Injectable, signal } from '@angular/core';
 import { BehaviorSubject, combineLatest, map, Observable } from 'rxjs';
 import { Product, parseStoredProducts } from '../features/products/Product';
 
@@ -17,17 +17,32 @@ const QUANTITIES_KEY = 'cartQuantities';
 export class CartService {
   private cartItems$ = new BehaviorSubject<Product[]>([]);
   private quantities$ = new BehaviorSubject<number[]>([]);
+  private readonly cartItemsState = signal<Product[]>([]);
+  private readonly quantitiesState = signal<number[]>([]);
   cartItems = this.cartItems$.asObservable();
+  readonly cartItemsSignal = this.cartItemsState.asReadonly();
+  readonly cartLinesSignal = computed(() =>
+    this.cartItemsState().map((product, index) => {
+      const quantity = this.quantitiesState()[index] ?? 1;
+      return { product, quantity, lineTotal: product.price * quantity };
+    }),
+  );
+  readonly totalPriceSignal = computed(() =>
+    this.cartLinesSignal().reduce((total, line) => total + line.lineTotal, 0),
+  );
+  readonly numberOfItemsSignal = computed(() => this.cartItemsState().length);
 
   constructor() {
     try {
       const cart = parseStoredProducts(localStorage.getItem(CART_KEY));
-      this.cartItems$.next(cart);
+      this.setCartItems(cart);
       this.quantities$.next(this.loadQuantities(cart.length));
+      this.quantitiesState.set(this.quantities$.value);
     } catch (error) {
       console.error('Failed to load cart items from localStorage:', error);
-      this.cartItems$.next([]);
+      this.setCartItems([]);
       this.quantities$.next([]);
+      this.quantitiesState.set([]);
     }
   }
 
@@ -46,7 +61,7 @@ export class CartService {
     try {
       localStorage.setItem(CART_KEY, JSON.stringify(currentItems));
       this.persistQuantities(currentQuantities);
-      this.cartItems$.next(currentItems);
+      this.setCartItems(currentItems);
     } catch (error) {
       console.error('Failed to save cart items to localStorage:', error);
     }
@@ -68,7 +83,7 @@ export class CartService {
     try {
       localStorage.setItem(CART_KEY, JSON.stringify(newItems));
       this.persistQuantities(newQuantities);
-      this.cartItems$.next(newItems);
+      this.setCartItems(newItems);
     } catch (error) {
       console.error('Failed to save cart items to localStorage:', error);
     }
@@ -158,8 +173,14 @@ export class CartService {
     try {
       localStorage.setItem(QUANTITIES_KEY, JSON.stringify(quantities));
       this.quantities$.next(quantities);
+      this.quantitiesState.set(quantities);
     } catch (error) {
       console.error('Failed to save cart quantities to localStorage:', error);
     }
+  }
+
+  private setCartItems(items: Product[]): void {
+    this.cartItems$.next(items);
+    this.cartItemsState.set(items);
   }
 }

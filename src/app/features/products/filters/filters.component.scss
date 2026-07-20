@@ -1,11 +1,25 @@
-:host ::ng-deep {
-  .p-accordion .p-accordion-header .p-accordion-header-link {
-    padding: var(--space-3) var(--space-4);
-    font-size: var(--text-sm);
-  }
+.filter-accordion {
+  display: grid;
+  gap: var(--space-2);
+}
 
-  label {
-    cursor: pointer;
-    font-size: var(--text-sm);
-  }
+details {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+summary {
+  padding: var(--space-3) var(--space-4);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.filter-options {
+  padding: 0 var(--space-4) var(--space-3);
+}
+
+label {
+  cursor: pointer;
+  font-size: var(--text-sm);
 }

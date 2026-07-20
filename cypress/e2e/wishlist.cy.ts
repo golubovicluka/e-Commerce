@@ -364,14 +364,12 @@ describe('Wishlist Functionality', () => {
       // Get product info from list
       cy.get('[data-cy="product-card"]').first().within(() => {
         cy.get('[data-cy="product-name"]').invoke('text').then((productName) => {
-          cy.get('[data-cy="product-price"]').invoke('text').then((productPrice) => {
-            // Go to wishlist
-            cy.visit('/wishlist');
+          // Go to wishlist
+          cy.visit('/wishlist');
 
-            // Verify same info
-            cy.get('[data-cy="wishlist-item"]').first().within(() => {
-              cy.get('[data-cy="item-name"]').should('contain', productName.trim());
-            });
+          // Verify same info
+          cy.get('[data-cy="wishlist-item"]').first().within(() => {
+            cy.get('[data-cy="item-name"]').should('contain', productName.trim());
           });
         });
       });

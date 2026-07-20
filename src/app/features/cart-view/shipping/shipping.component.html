@@ -7,49 +7,50 @@
   <div class="formgrid grid">
     <div class="field col-12 md:col-6">
       <label for="ship-name">First name</label>
-      <input id="ship-name" class="w-full" type="text" pInputText autocomplete="given-name" [(ngModel)]="name" />
+      <input id="ship-name" class="p-inputtext w-full" type="text" autocomplete="given-name" [(ngModel)]="name" />
     </div>
     <div class="field col-12 md:col-6">
       <label for="ship-lastname">Last name</label>
-      <input id="ship-lastname" class="w-full" type="text" pInputText autocomplete="family-name"
+      <input id="ship-lastname" class="p-inputtext w-full" type="text" autocomplete="family-name"
         [(ngModel)]="lastName" />
     </div>
     <div class="field col-12 md:col-8">
       <label for="ship-address">Street address</label>
-      <input id="ship-address" class="w-full" type="text" pInputText autocomplete="street-address"
+      <input id="ship-address" class="p-inputtext w-full" type="text" autocomplete="street-address"
         [(ngModel)]="address" />
     </div>
     <div class="field col-12 md:col-4">
       <label for="ship-apartment">Apartment <span class="optional">(optional)</span></label>
-      <input id="ship-apartment" class="w-full" type="text" pInputText [(ngModel)]="apartmentNumber" />
+      <input id="ship-apartment" class="p-inputtext w-full" type="text" [(ngModel)]="apartmentNumber" />
     </div>
     <div class="field col-12 md:col-4">
       <label for="ship-postal">Postal code</label>
-      <input id="ship-postal" class="w-full" type="text" pInputText autocomplete="postal-code" inputmode="numeric"
+      <input id="ship-postal" class="p-inputtext w-full" type="text" autocomplete="postal-code" inputmode="numeric"
         [(ngModel)]="postalCode" />
     </div>
     <div class="field col-12 md:col-8">
       <label for="ship-city">City</label>
-      <input id="ship-city" class="w-full" type="text" pInputText autocomplete="address-level2" [(ngModel)]="city" />
+      <input id="ship-city" class="p-inputtext w-full" type="text" autocomplete="address-level2" [(ngModel)]="city" />
     </div>
     <div class="field col-12 md:col-6">
       <label for="ship-phone">Phone number</label>
-      <input id="ship-phone" class="w-full" type="tel" pInputText autocomplete="tel" [(ngModel)]="phoneNumber" />
+      <input id="ship-phone" class="p-inputtext w-full" type="tel" autocomplete="tel" [(ngModel)]="phoneNumber" />
     </div>
     <div class="field col-12">
       <label for="ship-notes">Delivery notes <span class="optional">(optional)</span></label>
-      <textarea id="ship-notes" class="w-full" placeholder="Door code, floor, preferred time window…" rows="4"
-        pInputTextarea [(ngModel)]="additionalInformation"></textarea>
+      <textarea id="ship-notes" class="p-inputtext w-full" placeholder="Door code, floor, preferred time window…"
+        rows="4" [(ngModel)]="additionalInformation"></textarea>
     </div>
   </div>
 
   <label class="save-details" for="saveDetails">
-    <p-checkbox name="saveDetails" value="formDetails" [inputId]="saveFormDetails"></p-checkbox>
+    <input name="saveDetails" type="checkbox" [id]="saveFormDetails" [(ngModel)]="saveDetails">
     <span>Save these details for faster checkout next time</span>
   </label>
 
   <div class="panel-actions">
-    <p-button [routerLink]="['/cart/overview']" label="Continue to overview" icon="pi pi-arrow-right"
-      iconPos="right"></p-button>
+    <a class="p-button" [routerLink]="['/cart/overview']">
+      Continue to overview <i class="pi pi-arrow-right" aria-hidden="true"></i>
+    </a>
   </div>
 </div>

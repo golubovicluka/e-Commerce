@@ -3,7 +3,7 @@
   <span class="badge-new">New</span>
 
   <div class="img-wrap">
-    <img [src]="resolvedImage" (error)="onImageError($event)" [alt]="name">
+    <img [src]="resolvedImage" loading="lazy" decoding="async" (error)="onImageError($event)" [alt]="name">
   </div>
 
   <h3 class="product-name">{{ name }}</h3>
@@ -11,13 +11,14 @@
 
   <div class="card-foot">
     <span class="product-price font-mono">{{ price | number }} <span class="currency">RSD</span></span>
-    <span *ngIf="inStock > 0; else notAvailable" class="stock stock--in">
-      <span class="stock-dot"></span> In stock
-    </span>
-    <ng-template #notAvailable>
+    @if (inStock > 0) {
+      <span class="stock stock--in">
+        <span class="stock-dot"></span> In stock
+      </span>
+    } @else {
       <span class="stock stock--out">
         <span class="stock-dot"></span> Sold out
       </span>
-    </ng-template>
+    }
   </div>
 </article>

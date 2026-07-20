@@ -11,11 +11,7 @@
   }
 }
 
-:host ::ng-deep .p-dataview .p-dataview-content {
-  background: transparent;
-}
-
-:host ::ng-deep .p-dataview-grid .grid > div {
+:host .catalog-view .grid > div {
   display: flex;
   min-width: 0;
 
@@ -156,16 +152,59 @@
 }
 
 /* Compact the price inputs so the pair fits the filter rail. */
-:host ::ng-deep .price-inputs .p-inputnumber-input {
+.price-inputs .p-inputtext {
   width: 100%;
   min-width: 0;
   font-size: var(--text-sm);
   padding: var(--space-2) var(--space-3);
 }
 
-:host ::ng-deep .price-inputs .p-inputnumber {
+.price-inputs .p-inputtext {
   width: 100%;
   min-width: 0;
+}
+
+.native-range {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.native-range input {
+  width: 100%;
+  accent-color: var(--color-accent);
+}
+
+.filter-skeleton {
+  height: 3rem;
+  margin-bottom: var(--space-2);
+}
+
+.catalog-view {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.sort-select {
+  min-width: 13rem;
+}
+
+.product-skeleton-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+  gap: var(--space-4);
+}
+
+.product-skeleton {
+  min-height: 24rem;
+}
+
+.catalog-pagination {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  align-items: center;
+  justify-content: center;
+  padding-top: var(--space-6);
 }
 
 .filters-toggle {

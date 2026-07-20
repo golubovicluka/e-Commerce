@@ -400,9 +400,7 @@ describe('Shopping Cart and Checkout', () => {
   describe('Cart Calculations', () => {
     it('should calculate correct subtotal', () => {
       cy.get('[data-cy="product-card"]').first().within(() => {
-        cy.get('[data-cy="product-price"]').invoke('text').then((price) => {
-          cy.get('[data-cy="add-to-cart-btn"]').click();
-        });
+        cy.get('[data-cy="add-to-cart-btn"]').click();
       });
 
       cy.wait(500);

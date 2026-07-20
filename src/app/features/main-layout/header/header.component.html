@@ -6,11 +6,10 @@
     </div>
   </div>
   <div class="header-inner">
-    <button #btn class="p-link menu-toggle lg:hidden" (click)="menu.toggle($event)" aria-label="Open menu">
+    <button class="p-link menu-toggle lg:hidden" type="button" (click)="toggleMobileMenu()"
+      [attr.aria-expanded]="mobileMenuOpen" aria-controls="mobile-navigation" aria-label="Open menu">
       <i class="pi pi-bars"></i>
     </button>
-
-    <p-slideMenu #menu [model]="items" [popup]="true" [viewportHeight]="320"></p-slideMenu>
 
     <a [routerLink]="['/home']" class="brand">
       <span class="brand-mark" aria-hidden="true">S</span>
@@ -31,13 +30,12 @@
         <i class="pi pi-search" aria-hidden="true"></i>
         <input
           type="search"
-          pInputText
           [(ngModel)]="searchQuery"
           name="search"
           placeholder="Search products…"
           aria-label="Search products"
           autocomplete="off"
-        />
+          />
       </span>
     </form>
 
@@ -48,43 +46,68 @@
         (click)="toggleMobileSearch()"
         [attr.aria-expanded]="mobileSearchOpen"
         aria-label="Toggle search"
-      >
+        >
         <i class="pi pi-search"></i>
       </button>
       <a [routerLink]="['/wishlist']" routerLinkActive="active" class="icon-link" aria-label="Wishlist">
-        <i class="pi pi-heart" *ngIf="wishListItems !== '0'" pBadge [value]="wishListItems"></i>
-        <i class="pi pi-heart" *ngIf="wishListItems === '0'"></i>
+        @if (wishListItems !== '0') {
+          <span class="icon-with-count">
+            <i class="pi pi-heart"></i>
+            <span class="icon-count" aria-hidden="true">{{ wishListItems }}</span>
+          </span>
+        }
+        @if (wishListItems === '0') {
+          <i class="pi pi-heart"></i>
+        }
         <span>Wishlist</span>
       </a>
       <a [routerLink]="['/cart']" routerLinkActive="active" class="icon-link" aria-label="Cart">
-        <i class="pi pi-shopping-cart" *ngIf="cartItems !== '0'" pBadge [value]="cartItems"></i>
-        <i class="pi pi-shopping-cart" *ngIf="cartItems === '0'"></i>
+        @if (cartItems !== '0') {
+          <span class="icon-with-count">
+            <i class="pi pi-shopping-cart"></i>
+            <span class="icon-count" aria-hidden="true">{{ cartItems }}</span>
+          </span>
+        }
+        @if (cartItems === '0') {
+          <i class="pi pi-shopping-cart"></i>
+        }
         <span class="hidden sm:inline">Cart</span>
       </a>
     </div>
   </div>
 
-  <form
-  class="mobile-search-bar md:hidden"
-  *ngIf="mobileSearchOpen"
-  (ngSubmit)="onSearch()"
-  role="search"
-  >
-    <span class="p-input-icon-left search-wrap">
-      <i class="pi pi-search" aria-hidden="true"></i>
-      <input
-        type="search"
-        pInputText
-        [(ngModel)]="searchQuery"
-        name="mobileSearch"
-        placeholder="Search products…"
-        aria-label="Search products"
-        autocomplete="off"
-        #mobileSearchInput
-      />
-    </span>
-    <button type="submit" class="search-submit" aria-label="Submit search">
-      <i class="pi pi-arrow-right"></i>
-    </button>
-  </form>
+  @if (mobileSearchOpen) {
+    <form
+      class="mobile-search-bar md:hidden"
+      (ngSubmit)="onSearch()"
+      role="search"
+      >
+      <span class="p-input-icon-left search-wrap">
+        <i class="pi pi-search" aria-hidden="true"></i>
+        <input
+          type="search"
+          [(ngModel)]="searchQuery"
+          name="mobileSearch"
+          placeholder="Search products…"
+          aria-label="Search products"
+          autocomplete="off"
+          #mobileSearchInput
+          />
+      </span>
+      <button type="submit" class="search-submit" aria-label="Submit search">
+        <i class="pi pi-arrow-right"></i>
+      </button>
+    </form>
+  }
+
+  @if (mobileMenuOpen) {
+    <nav id="mobile-navigation" class="mobile-navigation lg:hidden" aria-label="Mobile navigation">
+      @for (item of items; track item.label) {
+        <a [routerLink]="item.routerLink" routerLinkActive="active" (click)="mobileMenuOpen = false">
+          <i [class]="item.icon" aria-hidden="true"></i>
+          {{ item.label }}
+        </a>
+      }
+    </nav>
+  }
 </header>

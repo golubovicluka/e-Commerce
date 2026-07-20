@@ -1,7 +1,8 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
+import { Component, OnDestroy, OnInit, ChangeDetectionStrategy, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { ActivatedRoute, NavigationEnd, Router, RouterOutlet, RouterLink } from '@angular/router';
 
-import { MenuItem } from 'primeng/api';
+import { NavigationItem } from 'src/app/shared/navigation-item';
 import { filter, Observable, Subscription } from 'rxjs';
 import { CartLine, CartService } from 'src/app/shared/cart.service';
 import {
@@ -13,29 +14,37 @@ import {
 import { ProductImageService } from 'src/app/shared/product-image.service';
 
 import { Product } from '../products/Product';
+import { FormsModule } from '@angular/forms';
+import { DecimalPipe } from '@angular/common';
+import { BreadcrumbComponent } from 'src/app/shared/breadcrumb/breadcrumb.component';
 
 @Component({
-  selector: 'app-cart-view',
-  templateUrl: './cart-view.component.html',
-  styleUrls: ['./cart-view.component.scss'],
+    selector: 'app-cart-view',
+    templateUrl: './cart-view.component.html',
+    styleUrls: ['./cart-view.component.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    imports: [BreadcrumbComponent, FormsModule, RouterOutlet, RouterLink, DecimalPipe]
 })
 export class CartViewComponent implements OnInit, OnDestroy {
-  cartLines$!: Observable<CartLine[]>;
-  totalPrice$!: Observable<number>;
+  readonly cartLines$: Observable<CartLine[]> = this._cartService.getCartLines();
+  readonly totalPrice$: Observable<number> = this._cartService.getTotalPrice();
+  readonly cartLines = toSignal(this.cartLines$, { initialValue: [] });
+  readonly totalPrice = toSignal(this.totalPrice$, { initialValue: 0 });
+  private readonly cartItemsState = toSignal(this._cartService.getCartItems(), {
+    initialValue: [],
+  });
 
-  numberOfItems!: number;
-  checkoutActive = false;
-  activeIndex = 0;
+  private readonly checkoutActiveState = signal(false);
+  private readonly activeIndexState = signal(0);
 
   selectedMonthlyPayment: MonthlyPaymentOption = DEFAULT_MONTHLY_PAYMENT;
   monthlyPaymentOptions = MONTHLY_PAYMENT_OPTIONS;
 
-  stepperItems!: MenuItem[];
+  stepperItems!: NavigationItem[];
 
-  private productsSubscription!: Subscription;
   private routerSubscription!: Subscription;
-  public items!: MenuItem[];
-  home!: MenuItem;
+  public items!: NavigationItem[];
+  home!: NavigationItem;
 
   constructor(
     private _cartService: CartService,
@@ -44,21 +53,32 @@ export class CartViewComponent implements OnInit, OnDestroy {
     private _productImageService: ProductImageService
   ) {}
 
+  get numberOfItems(): number {
+    return this.cartItemsState().length;
+  }
+
+  get checkoutActive(): boolean {
+    return this.checkoutActiveState();
+  }
+
+  set checkoutActive(value: boolean) {
+    this.checkoutActiveState.set(value);
+  }
+
+  get activeIndex(): number {
+    return this.activeIndexState();
+  }
+
+  set activeIndex(value: number) {
+    this.activeIndexState.set(value);
+  }
+
   ngOnInit() {
     this.stepperItems = [
       { label: 'Shipping', routerLink: 'shipping' },
       { label: 'Overview', routerLink: 'overview' },
       { label: 'Payment', routerLink: 'payment' },
     ];
-
-    this.cartLines$ = this._cartService.getCartLines();
-    this.totalPrice$ = this._cartService.getTotalPrice();
-
-    this.productsSubscription = this._cartService
-      .getCartItems()
-      .subscribe((products) => {
-        this.numberOfItems = products.length;
-      });
 
     this.updateCheckoutState();
     this.routerSubscription = this.router.events
@@ -81,7 +101,6 @@ export class CartViewComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    this.productsSubscription?.unsubscribe();
     this.routerSubscription?.unsubscribe();
   }
 

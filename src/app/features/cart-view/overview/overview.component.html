@@ -5,13 +5,17 @@
   </div>
 
   <div class="overview-list">
-    <div class="overview-row" *ngFor="let line of cartLines$ | async">
-      <span class="row-name">
-        {{ line.product.name }}
-        <span class="row-qty" *ngIf="line.quantity > 1">&times; {{ line.quantity }}</span>
-      </span>
-      <span class="row-price font-mono">{{ line.lineTotal | number }} RSD</span>
-    </div>
+    @for (line of cartLines$ | async; track line) {
+      <div class="overview-row">
+        <span class="row-name">
+          {{ line.product.name }}
+          @if (line.quantity > 1) {
+            <span class="row-qty">&times; {{ line.quantity }}</span>
+          }
+        </span>
+        <span class="row-price font-mono">{{ line.lineTotal | number }} RSD</span>
+      </div>
+    }
     <div class="overview-row overview-row--shipping">
       <span class="row-name">Shipping</span>
       <span class="row-free">Free</span>
@@ -23,9 +27,11 @@
   </div>
 
   <div class="panel-actions">
-    <p-button [routerLink]="['/cart/shipping']" label="Back" icon="pi pi-arrow-left"
-      styleClass="p-button-outlined"></p-button>
-    <p-button [routerLink]="['/cart/payment']" label="Continue to payment" icon="pi pi-arrow-right"
-      iconPos="right"></p-button>
+    <a class="p-button p-button-outlined" [routerLink]="['/cart/shipping']">
+      <i class="pi pi-arrow-left" aria-hidden="true"></i> Back
+    </a>
+    <a class="p-button" [routerLink]="['/cart/payment']">
+      Continue to payment <i class="pi pi-arrow-right" aria-hidden="true"></i>
+    </a>
   </div>
 </div>

@@ -1,23 +1,35 @@
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { computed, Component, ElementRef, OnInit, ViewChild, ChangeDetectionStrategy } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { WishlistService } from '../../../shared/wishlist.service';
-import { Product } from '../../products/Product';
 import { CartService } from 'src/app/shared/cart.service';
-import { Router } from '@angular/router';
-import { MenuItem } from 'primeng/api';
+import { Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { FormsModule } from '@angular/forms';
+import { NavigationItem } from 'src/app/shared/navigation-item';
 
 @Component({
-  selector: 'app-header',
-  templateUrl: './header.component.html',
-  styleUrls: ['./header.component.scss']
+    selector: 'app-header',
+    templateUrl: './header.component.html',
+    styleUrls: ['./header.component.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    imports: [RouterLink, RouterLinkActive, FormsModule]
 })
 export class HeaderComponent implements OnInit {
-  wishListItems!: string;
-  cartItems: string = "0";
-  items: MenuItem[] = [];
+  items: NavigationItem[] = [];
   searchQuery = '';
   mobileSearchOpen = false;
+  mobileMenuOpen = false;
 
   @ViewChild('mobileSearchInput') mobileSearchInput?: ElementRef<HTMLInputElement>;
+
+  private readonly wishlistItemsState = toSignal(
+    this._wishlistService.getWishListItems(),
+    { initialValue: [] },
+  );
+  private readonly cartItemsState = toSignal(this._cartService.getCartItems(), {
+    initialValue: [],
+  });
+  private readonly wishlistCount = computed(() => this.wishlistItemsState().length.toString());
+  private readonly cartCount = computed(() => this.cartItemsState().length.toString());
 
   constructor(
     private _wishlistService: WishlistService,
@@ -25,15 +37,15 @@ export class HeaderComponent implements OnInit {
     private router: Router
   ) { }
 
+  get wishListItems(): string {
+    return this.wishlistCount();
+  }
+
+  get cartItems(): string {
+    return this.cartCount();
+  }
+
   ngOnInit() {
-    this._wishlistService.getWishListItems().subscribe((data: Product[]) => {
-      this.wishListItems = data.length.toString();
-    });
-
-    this._cartService.getCartItems().subscribe((data: Product[]) => {
-      this.cartItems = data.length.toString();
-    })
-
     this.items = [
       {
         label: 'Home',
@@ -74,8 +86,12 @@ export class HeaderComponent implements OnInit {
   toggleMobileSearch(): void {
     this.mobileSearchOpen = !this.mobileSearchOpen;
     if (this.mobileSearchOpen) {
-      setTimeout(() => this.mobileSearchInput?.nativeElement.focus(), 50);
+      requestAnimationFrame(() => this.mobileSearchInput?.nativeElement.focus());
     }
+  }
+
+  toggleMobileMenu(): void {
+    this.mobileMenuOpen = !this.mobileMenuOpen;
   }
 
   isActiveRoute(route: string): boolean {

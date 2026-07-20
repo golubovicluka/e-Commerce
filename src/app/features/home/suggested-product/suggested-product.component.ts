@@ -1,10 +1,13 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, ChangeDetectionStrategy } from '@angular/core';
 import { ProductImageService } from 'src/app/shared/product-image.service';
+import { DecimalPipe } from '@angular/common';
 
 @Component({
-  selector: 'app-suggested-product',
-  templateUrl: './suggested-product.component.html',
-  styleUrls: ['./suggested-product.component.scss']
+    selector: 'app-suggested-product',
+    templateUrl: './suggested-product.component.html',
+    styleUrls: ['./suggested-product.component.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    imports: [DecimalPipe]
 })
 export class SuggestedProductComponent {
   Math = Math;

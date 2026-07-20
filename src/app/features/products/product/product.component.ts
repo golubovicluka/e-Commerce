@@ -1,17 +1,20 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, ChangeDetectionStrategy } from '@angular/core';
 import { Router, NavigationExtras, ActivatedRoute } from '@angular/router';
-import { MessageService } from 'primeng/api';
+import { NotificationService } from 'src/app/shared/notification.service';
 import { Product, Subcategory, Category } from '../Product';
 import { WishlistService } from 'src/app/shared/wishlist.service';
 import { CartService } from 'src/app/shared/cart.service';
 import { ProductImageService } from 'src/app/shared/product-image.service';
 import { getInstallmentAmount } from 'src/app/shared/pricing';
+import { DecimalPipe } from '@angular/common';
 
 
 @Component({
-  selector: 'app-product',
-  templateUrl: './product.component.html',
-  styleUrls: ['./product.component.scss']
+    selector: 'app-product',
+    templateUrl: './product.component.html',
+    styleUrls: ['./product.component.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    imports: [DecimalPipe]
 })
 export class ProductComponent implements OnInit {
   @Input() name!: string;
@@ -42,7 +45,7 @@ export class ProductComponent implements OnInit {
 
 
   constructor(
-    private _messageService: MessageService,
+    private _messageService: NotificationService,
     private router: Router,
     private route: ActivatedRoute,
     private _wishlistService: WishlistService,

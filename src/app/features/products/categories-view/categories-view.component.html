@@ -1,4 +1,4 @@
-<p-breadcrumb [home]="home" [model]="items"></p-breadcrumb>
+<app-breadcrumb [home]="home" [items]="items"></app-breadcrumb>
 
 <div class="section-head">
   <div>
@@ -8,13 +8,17 @@
   </div>
 </div>
 
-<div *ngIf="categories; else loading" class="categories-grid stagger">
-  <app-category *ngFor="let category of categories" (applyCategoryFilter)="openProductsPage($event)"
-    [name]="category.name" [id]="category.id"></app-category>
-</div>
-
-<ng-template #loading>
-  <div class="categories-grid">
-    <div class="skeleton category-skeleton" *ngFor="let s of [1, 2, 3, 4, 5, 6]"></div>
+@if (categories) {
+  <div class="categories-grid stagger">
+    @for (category of categories; track category) {
+      <app-category (applyCategoryFilter)="openProductsPage($event)"
+      [name]="category.name" [id]="category.id"></app-category>
+    }
   </div>
-</ng-template>
+} @else {
+  <div class="categories-grid">
+    @for (s of [1, 2, 3, 4, 5, 6]; track s) {
+      <div class="skeleton category-skeleton"></div>
+    }
+  </div>
+}

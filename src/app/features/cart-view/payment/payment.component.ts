@@ -1,12 +1,17 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 
 import { Observable } from 'rxjs';
 import { CartService } from 'src/app/shared/cart.service';
+import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
+import { AsyncPipe, DecimalPipe } from '@angular/common';
 
 @Component({
-  selector: 'app-payment',
-  templateUrl: './payment.component.html',
-  styleUrls: ['./payment.component.scss']
+    selector: 'app-payment',
+    templateUrl: './payment.component.html',
+    styleUrls: ['./payment.component.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    imports: [FormsModule, RouterLink, AsyncPipe, DecimalPipe]
 })
 export class PaymentComponent {
 

@@ -9,29 +9,31 @@ import { NotFoundComponent } from './not-found.component';
  * (NullInjectorError). Inject a spy and cover the single navigation method.
  */
 describe('NotFoundComponent', () => {
-  let component: NotFoundComponent;
-  let fixture: ComponentFixture<NotFoundComponent>;
-  let router: jasmine.SpyObj<Router>;
+    let component: NotFoundComponent;
+    let fixture: ComponentFixture<NotFoundComponent>;
+    let router: any;
 
-  beforeEach(async () => {
-    router = jasmine.createSpyObj('Router', ['navigate']);
+    beforeEach(async () => {
+        router = {
+            navigate: vi.fn().mockName("Router.navigate")
+        };
 
-    await TestBed.configureTestingModule({
-      declarations: [NotFoundComponent],
-      providers: [{ provide: Router, useValue: router }],
-      schemas: [NO_ERRORS_SCHEMA],
-    }).compileComponents();
+        await TestBed.configureTestingModule({
+    imports: [NotFoundComponent],
+    providers: [{ provide: Router, useValue: router }],
+    schemas: [NO_ERRORS_SCHEMA],
+}).compileComponents();
 
-    fixture = TestBed.createComponent(NotFoundComponent);
-    component = fixture.componentInstance;
-  });
+        fixture = TestBed.createComponent(NotFoundComponent);
+        component = fixture.componentInstance;
+    });
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
+    it('should create', () => {
+        expect(component).toBeTruthy();
+    });
 
-  it('toHome navigates back to the home route', () => {
-    component.toHome();
-    expect(router.navigate).toHaveBeenCalledWith(['/home']);
-  });
+    it('toHome navigates back to the home route', () => {
+        component.toHome();
+        expect(router.navigate).toHaveBeenCalledWith(['/home']);
+    });
 });

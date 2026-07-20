@@ -1,12 +1,13 @@
-<p-toast position="bottom-left"></p-toast>
-<p-breadcrumb [home]="home" [model]="items" styleClass="w-full"></p-breadcrumb>
+<app-breadcrumb [home]="home" [items]="items" class="w-full"></app-breadcrumb>
 
 <div class="section-head">
   <div>
     <span class="eyebrow">Catalog</span>
     <h1 class="page-title">All products</h1>
   </div>
-  <span class="results-count font-mono" *ngIf="!isLoading">{{ totalRecords | number }} products</span>
+  @if (!isLoading) {
+    <span class="results-count font-mono">{{ totalRecords | number }} products</span>
+  }
 </div>
 
 <div class="products-layout">
@@ -16,99 +17,132 @@
     (click)="filtersOpen = !filtersOpen"
     [attr.aria-expanded]="filtersOpen"
     aria-controls="catalog-filters"
-  >
+    >
     <i class="pi" [ngClass]="filtersOpen ? 'pi-times' : 'pi-sliders-h'"></i>
     {{ filtersOpen ? 'Close filters' : 'Filters' }}
   </button>
 
-  <aside
-    id="catalog-filters"
-    class="filters-panel"
-    [class.filters-panel--open]="filtersOpen"
-    *ngIf="!isLoading; else loadingFilters"
-  >
-    <h3 class="filters-title">Category</h3>
-    <app-filters (filtersObject)="applyFilters($event)" [categories]="categories"></app-filters>
-
-    <h3 class="filters-title price-title">Price</h3>
-    <div class="price-filter">
-      <div class="price-inputs">
-        <p-inputNumber class="w-full" [(ngModel)]="rangeValues[0]" (ngModelChange)="onPriceChange($event)"
-          mode="currency" inputId="currency" currency="RSD" locale="en-US">
-        </p-inputNumber>
-        <span class="price-dash" aria-hidden="true">&ndash;</span>
-        <p-inputNumber class="w-full" [(ngModel)]="rangeValues[1]" (ngModelChange)="onPriceChange($event)"
-          mode="currency" inputId="currency" currency="RSD" locale="en-US">
-        </p-inputNumber>
+  @if (!isLoading) {
+    <aside
+      id="catalog-filters"
+      class="filters-panel"
+      [class.filters-panel--open]="filtersOpen"
+      >
+      <h3 class="filters-title">Category</h3>
+      <app-filters (filtersObject)="applyFilters($event)" [categories]="categories"></app-filters>
+      <h3 class="filters-title price-title">Price</h3>
+      <div class="price-filter">
+        <div class="price-inputs">
+          <input class="p-inputtext w-full" type="number" aria-label="Minimum price"
+            [(ngModel)]="rangeValues[0]" (ngModelChange)="onPriceChange($event)">
+          <span class="price-dash" aria-hidden="true">&ndash;</span>
+          <input class="p-inputtext w-full" type="number" aria-label="Maximum price"
+            [(ngModel)]="rangeValues[1]" (ngModelChange)="onPriceChange($event)">
+        </div>
+        <div class="native-range" aria-label="Price range">
+          <input type="range" [min]="lowestPrice" [max]="highestPrice" [(ngModel)]="rangeValues[0]"
+            (change)="handlePriceFilter({ values: rangeValues })" aria-label="Minimum price slider">
+          <input type="range" [min]="lowestPrice" [max]="highestPrice" [(ngModel)]="rangeValues[1]"
+            (change)="handlePriceFilter({ values: rangeValues })" aria-label="Maximum price slider">
+        </div>
+        <span class="price-label font-mono">
+          {{ (rangeValues[0] | number) + ' – ' + (rangeValues[1] | number) }} RSD
+        </span>
       </div>
-      <p-slider [(ngModel)]="rangeValues" [range]="true" [min]="lowestPrice" [max]="highestPrice" [animate]="true"
-        (onSlideEnd)="handlePriceFilter($event)" class="w-full"></p-slider>
-      <span class="price-label font-mono">
-        {{ (rangeValues[0] | number) + ' – ' + (rangeValues[1] | number) }} RSD
-      </span>
-    </div>
-  </aside>
-  <ng-template #loadingFilters>
+    </aside>
+  } @else {
     <div class="filters-panel">
-      <p-skeleton height="3rem" width="100%" styleClass="mb-2"></p-skeleton>
-      <p-skeleton height="4rem" width="100%" styleClass="mb-2"></p-skeleton>
-      <p-skeleton height="3.5rem" width="100%" styleClass="mb-2"></p-skeleton>
-      <p-skeleton height="3.5rem" width="100%" styleClass="mb-4"></p-skeleton>
-      <p-skeleton height="2.5rem" width="100%" styleClass="mb-2"></p-skeleton>
-      <p-skeleton height="2.5rem" width="100%" styleClass="mb-3"></p-skeleton>
-      <p-skeleton width="100%" styleClass="mb-5"></p-skeleton>
-      <p-skeleton width="100%" styleClass="mb-2"></p-skeleton>
+      @for (s of [1, 2, 3, 4, 5, 6]; track s) {
+        <div class="skeleton filter-skeleton"></div>
+      }
     </div>
-  </ng-template>
+  }
 
   <!-- Products section -->
   <div class="products-results">
-    <div class="empty-state component-enter catalog-error" *ngIf="catalogError && !isLoading">
-      <i class="pi pi-exclamation-circle"></i>
-      <h3>Catalog unavailable</h3>
-      <p>{{ catalogError }}</p>
-      <button class="p-button-outlined" type="button" pButton pRipple (click)="retryCatalogLoad()" label="Try again"></button>
-    </div>
-    <p-dataView *ngIf="!catalogError" [value]="products" [lazy]="true" [paginator]="true" [rows]="rows" [totalRecords]="totalRecords"
-      [first]="first" [trackBy]="trackByProductId" (onLazyLoad)="loadData($event)"
-      [loading]="isLoading" [rowsPerPageOptions]="[10,20,30]" paginatorPosition="bottom">
-      <ng-template pTemplate="header">
+    @if (catalogError && !isLoading) {
+      <div class="empty-state component-enter catalog-error">
+        <i class="pi pi-exclamation-circle"></i>
+        <h3>Catalog unavailable</h3>
+        <p>{{ catalogError }}</p>
+        <button class="p-button p-button-outlined" type="button" (click)="retryCatalogLoad()">Try again</button>
+      </div>
+    }
+    @if (!catalogError) {
+      <div class="catalog-view">
         <div class="results-toolbar">
           <span class="p-input-icon-left search-field">
             <i class="pi pi-search"></i>
-            <input class="w-full" type="text" pInputText (ngModelChange)="onChanges($event)"
+            <input class="p-inputtext w-full" type="search" (ngModelChange)="onChanges($event)"
               [(ngModel)]="searchInput" placeholder="Search products" aria-label="Search products">
           </span>
           <div class="toolbar-controls">
-            <p-dropdown [options]="sortOptions" [(ngModel)]="sortKey" placeholder="Sort by"
-              (onChange)="onSortChange($event)" [style]="{'min-width':'13em'}"></p-dropdown>
-            <p-dataViewLayoutOptions class="hidden sm:block"></p-dataViewLayoutOptions>
+            <select class="p-inputtext sort-select" [(ngModel)]="sortKey"
+              (ngModelChange)="onSortChange({ value: $event })" aria-label="Sort products">
+              @for (option of sortOptions; track option.value) {
+                <option [ngValue]="option.value">{{ option.label }}</option>
+              }
+            </select>
+            <div class="hidden sm:flex" role="group" aria-label="Product layout">
+              <button type="button" class="p-button p-button-text" [class.p-button-outlined]="layout !== 'list'"
+                [attr.aria-pressed]="layout === 'list'" (click)="layout = 'list'" aria-label="List view">
+                <i class="pi pi-bars"></i>
+              </button>
+              <button type="button" class="p-button p-button-text" [class.p-button-outlined]="layout !== 'grid'"
+                [attr.aria-pressed]="layout === 'grid'" (click)="layout = 'grid'" aria-label="Grid view">
+                <i class="pi pi-th-large"></i>
+              </button>
+            </div>
           </div>
         </div>
-      </ng-template>
-
-      <!-- List view -->
-      <ng-template let-product pTemplate="listItem">
-        <div class="w-full list-row">
-          <app-product (addedToCart)="addToCart($event)" (removedFromCart)="removeFromCart($event)"
-            (addedToWishList)="addToWishList($event)" [isListView]="true" [categoryId]="product.categoryId"
-            [subcategoryId]="product.subcategoryId" (removedFromWishList)="removedFromWishList($event)"
-            [name]="product.name" [category]="product.category" [subcategory]="product.subcategory" [id]="product.id"
-            [images]="product.images" [inStock]="product.inStock" [price]="product.price"
+        @if (isLoading) {
+          <div class="product-skeleton-grid">
+            @for (s of [1, 2, 3, 4, 5, 6]; track s) {
+              <div class="skeleton product-skeleton"></div>
+            }
+          </div>
+        } @else if (layout === 'list') {
+          @for (product of products; track product.id) {
+            <div class="w-full list-row">
+            <app-product (addedToCart)="addToCart($event)" (removedFromCart)="removeFromCart($event)"
+              (addedToWishList)="addToWishList($event)" [isListView]="true" [categoryId]="product.categoryId"
+              [subcategoryId]="product.subcategoryId" (removedFromWishList)="removedFromWishList($event)"
+              [name]="product.name" [category]="product.category" [subcategory]="product.subcategory" [id]="product.id"
+              [images]="product.images" [inStock]="product.inStock" [price]="product.price"
             [description]="product.description" [EAN]="product.EAN"></app-product>
-        </div>
-      </ng-template>
-
-      <!-- Grid view -->
-      <ng-template let-product pTemplate="gridItem">
-        <div class="w-full sm:w-6 md:w-4 lg:w-4 xl:w-3 p-2">
-          <app-product (addedToCart)="addToCart($event)" (addedToWishList)="addToWishList($event)"
-            [isListView]="false" [categoryId]="product.categoryId" [subcategoryId]="product.subcategoryId"
-            (removedFromWishList)="removedFromWishList($event)" [name]="product.name" [category]="product.category"
-            [subcategory]="product.subcategory" [id]="product.id" [images]="product.images" [inStock]="product.inStock"
+            </div>
+          }
+        } @else {
+          <div class="grid">
+          @for (product of products; track product.id) {
+            <div class="w-full sm:w-6 md:w-4 lg:w-4 xl:w-3 p-2">
+            <app-product (addedToCart)="addToCart($event)" (addedToWishList)="addToWishList($event)"
+              [isListView]="false" [categoryId]="product.categoryId" [subcategoryId]="product.subcategoryId"
+              (removedFromWishList)="removedFromWishList($event)" [name]="product.name" [category]="product.category"
+              [subcategory]="product.subcategory" [id]="product.id" [images]="product.images" [inStock]="product.inStock"
             [price]="product.price" [description]="product.description" [EAN]="product.EAN"></app-product>
-        </div>
-      </ng-template>
-    </p-dataView>
+            </div>
+          }
+          </div>
+        }
+        @if (!isLoading && totalRecords > 0) {
+          <nav class="catalog-pagination" aria-label="Catalog pages">
+            <button type="button" class="p-button p-button-outlined" (click)="previousPage()"
+              [disabled]="first === 0">Previous</button>
+            <span>Page {{ currentPage }} of {{ totalPages }}</span>
+            <label>
+              <span class="sr-only">Products per page</span>
+              <select class="p-inputtext" [ngModel]="rows" (ngModelChange)="onRowsChange($event)">
+                @for (option of [10, 20, 30]; track option) {
+                  <option [ngValue]="option">{{ option }} per page</option>
+                }
+              </select>
+            </label>
+            <button type="button" class="p-button p-button-outlined" (click)="nextPage()"
+              [disabled]="currentPage >= totalPages">Next</button>
+          </nav>
+        }
+      </div>
+    }
   </div>
 </div>

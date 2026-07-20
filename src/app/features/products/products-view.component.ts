@@ -1,20 +1,32 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  OnDestroy,
+  OnInit,
+} from '@angular/core';
 import { Subject } from 'rxjs';
 import { catchError, debounceTime, distinctUntilChanged, map, switchMap, take, tap } from 'rxjs/operators';
 import { of } from 'rxjs';
 import { Product } from './Product';
 import { ProductsService } from './products.service';
 import { SubscriptionContainer } from './SubscriptionContainer';
-import { MessageService } from 'primeng/api';
 import { WishlistService } from '../../shared/wishlist.service';
-import { MenuItem } from 'primeng/api';
+import { NavigationItem } from 'src/app/shared/navigation-item';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CartService } from 'src/app/shared/cart.service';
+import { NgClass, DecimalPipe } from '@angular/common';
+import { FiltersComponent } from './filters/filters.component';
+import { FormsModule } from '@angular/forms';
+import { ProductComponent } from './product/product.component';
+import { BreadcrumbComponent } from 'src/app/shared/breadcrumb/breadcrumb.component';
 
 @Component({
-  selector: 'app-products-view',
-  templateUrl: './products-view.component.html',
-  styleUrls: ['./products-view.component.scss'],
+    selector: 'app-products-view',
+    templateUrl: './products-view.component.html',
+    styleUrls: ['./products-view.component.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    imports: [BreadcrumbComponent, NgClass, FiltersComponent, FormsModule, ProductComponent, DecimalPipe]
 })
 export class ProductsViewComponent implements OnInit, OnDestroy {
   // Current page of products (server-side paginated — never the whole table).
@@ -51,17 +63,18 @@ export class ProductsViewComponent implements OnInit, OnDestroy {
   private priceChanges$ = new Subject<void>();
   private pageRequests$ = new Subject<void>();
 
-  public items!: MenuItem[];
-  home!: MenuItem;
+  public items!: NavigationItem[];
+  home!: NavigationItem;
   filtersOpen = false;
+  layout: 'list' | 'grid' = 'grid';
 
   constructor(
     private _productService: ProductsService,
-    private _messageService: MessageService,
     private _wishlistService: WishlistService,
     private _cartService: CartService,
     private router: Router,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private changeDetectorRef: ChangeDetectorRef,
   ) {
     const navigation = this.router.getCurrentNavigation();
     const state = navigation?.extras.state as { filters: any };
@@ -82,13 +95,14 @@ export class ProductsViewComponent implements OnInit, OnDestroy {
         this.categoriesFilter = category;
         this.loadPriceBounds();
         this.resetToFirstPage();
+        this.changeDetectorRef.markForCheck();
       })
     );
 
     // Single product-loading pipeline. `switchMap` cancels any in-flight
-    // request when a new one starts, so only ONE watched query is ever active.
-    // This replaces the previous pattern of creating a brand-new watchQuery
-    // subscription on every keystroke/filter/sort interaction (a steady leak).
+    // request when a new one starts, so only one finite query is ever active.
+    // This replaces the previous pattern of creating a long-lived watched query
+    // on every keystroke/filter/sort interaction.
     this.subs.add(
       this.pageRequests$
         .pipe(
@@ -122,6 +136,7 @@ export class ProductsViewComponent implements OnInit, OnDestroy {
             this.numberOfProducts = this.totalRecords;
           }
           this.isLoading = false;
+          this.changeDetectorRef.markForCheck();
         })
     );
 
@@ -136,6 +151,7 @@ export class ProductsViewComponent implements OnInit, OnDestroy {
         .subscribe((term) => {
           this.searchInput = term;
           this.resetToFirstPage();
+          this.changeDetectorRef.markForCheck();
         })
     );
 
@@ -145,6 +161,7 @@ export class ProductsViewComponent implements OnInit, OnDestroy {
         this.priceFrom = this.rangeValues[0];
         this.priceTo = this.rangeValues[1];
         this.resetToFirstPage();
+        this.changeDetectorRef.markForCheck();
       })
     );
 
@@ -155,6 +172,7 @@ export class ProductsViewComponent implements OnInit, OnDestroy {
     this.subs.add(
       this._productService.getProductCategories().subscribe((categories: any) => {
         this.categories = categories.data.category;
+        this.changeDetectorRef.markForCheck();
       })
     );
 
@@ -173,9 +191,12 @@ export class ProductsViewComponent implements OnInit, OnDestroy {
         if (query !== this.searchInput) {
           this.searchInput = query;
           this.resetToFirstPage();
+          this.changeDetectorRef.markForCheck();
         }
       })
     );
+
+    this.fetchPage();
   }
 
   /** Builds one Hasura `where` expression from all active filters (AND-combined). */
@@ -209,6 +230,7 @@ export class ProductsViewComponent implements OnInit, OnDestroy {
         if (this.priceFrom == null && this.priceTo == null) {
           this.rangeValues = [this.lowestPrice, this.highestPrice];
         }
+        this.changeDetectorRef.markForCheck();
       })
     );
   }
@@ -239,6 +261,31 @@ export class ProductsViewComponent implements OnInit, OnDestroy {
     this.first = event.first ?? 0;
     this.rows = event.rows ?? this.rows;
     this.fetchPage();
+  }
+
+  get currentPage(): number {
+    return Math.floor(this.first / this.rows) + 1;
+  }
+
+  get totalPages(): number {
+    return Math.max(1, Math.ceil(this.totalRecords / this.rows));
+  }
+
+  previousPage(): void {
+    if (this.first === 0) return;
+    this.first = Math.max(0, this.first - this.rows);
+    this.fetchPage();
+  }
+
+  nextPage(): void {
+    if (this.currentPage >= this.totalPages) return;
+    this.first += this.rows;
+    this.fetchPage();
+  }
+
+  onRowsChange(rows: number): void {
+    this.rows = Number(rows);
+    this.resetToFirstPage();
   }
 
   onChanges(searchInput: string) {

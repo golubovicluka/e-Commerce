@@ -1,52 +1,55 @@
-<p-toast position="bottom-left"></p-toast>
-<p-breadcrumb *ngIf="product" [home]="home" [model]="items" class="mb-3"></p-breadcrumb>
+@if (product) {
+  <app-breadcrumb [home]="home" [items]="items" class="mb-3"></app-breadcrumb>
+}
 
-<div *ngIf="product; else loading" class="details-layout component-enter">
-  <!-- Gallery -->
-  <div class="gallery-pane">
-    <p-galleria [value]="images" [(activeIndex)]="activeIndex" [containerStyle]="{'width': '100%'}"
-      [showThumbnails]="false" [showIndicators]="false" class="custom-galleria">
-      <ng-template pTemplate="item" let-item>
-        <div class="product-gallery-container">
-          <div class="thumbnails-wrapper" *ngIf="images.length > 1">
+@if (product) {
+  <div class="details-layout component-enter">
+    <!-- Gallery -->
+    <div class="gallery-pane">
+      <div class="product-gallery-container">
+        @if (images.length > 1) {
+          <div class="thumbnails-wrapper">
             <div class="thumbnails-container">
-              <div *ngFor="let image of images; let index = index" class="thumbnail-item"
-                [ngClass]="{'active': activeIndex === index}" (click)="imageClick(index)">
-                <img [src]="image" (error)="onGalleryImageError($event, index)" [alt]="product?.name + ' photo ' + (index + 1)">
-              </div>
+              @for (image of images; track image; let index = $index) {
+                <button class="thumbnail-item" type="button" [class.active]="activeIndex === index"
+                  (click)="imageClick(index)">
+                  <img [src]="image" loading="lazy" decoding="async"
+                    (error)="onGalleryImageError($event, index)"
+                    [alt]="product.name + ' photo ' + (index + 1)">
+                </button>
+              }
             </div>
           </div>
-
-          <div class="main-image-wrapper">
-            <p-image [src]="item" [preview]="true" imageClass="w-full h-auto max-w-full border-round"
-              [style]="{'max-height': '450px'}">
-            </p-image>
-          </div>
+        }
+        <div class="main-image-wrapper">
+          <img class="w-full h-auto max-w-full border-round" [src]="images[activeIndex]"
+            decoding="async" (error)="onGalleryImageError($event, activeIndex)" [alt]="product.name">
         </div>
-      </ng-template>
-    </p-galleria>
-  </div>
-
-  <!-- Buy panel -->
-  <div class="buy-pane">
-    <span class="eyebrow">
-      {{ product.category?.name }}<ng-container *ngIf="product.subcategory?.name"> &rsaquo;
-        {{ product.subcategory?.name }}</ng-container>
+      </div>
+    </div>
+    <!-- Buy panel -->
+    <div class="buy-pane">
+      <span class="eyebrow">
+        {{ product.category?.name }}@if (product.subcategory?.name) {
+        &rsaquo;
+        {{ product.subcategory?.name }}
+      }
     </span>
     <h1 class="detail-name">{{ product?.name }}</h1>
-
     <div class="meta-row">
       <span class="stock-pill" [class.stock-pill--in]="product.inStock > 0"
         [class.stock-pill--out]="product.inStock === 0">
         <span class="stock-dot"></span>
-        <ng-container *ngIf="product.inStock > 0">In stock &mdash; ships tomorrow</ng-container>
-        <ng-container *ngIf="product.inStock === 0">Out of stock</ng-container>
+        @if (product.inStock > 0) {
+          In stock &mdash; ships tomorrow
+        }
+        @if (product.inStock === 0) {
+          Out of stock
+        }
       </span>
       <span class="meta-ean font-mono">EAN {{ product.EAN }}</span>
     </div>
-
     <p class="detail-desc">{{ product.description }}</p>
-
     <div class="price-block">
       <div class="price-main">
         <span class="detail-price font-mono">{{ product.price | number }} <span class="currency">RSD</span></span>
@@ -56,24 +59,31 @@
         <span class="installment-text">
           or {{ selectedMonthlyPayment.name }} &times;
           <strong class="font-mono">{{ getInstallmentAmount(product.price, selectedMonthlyPayment.name) | number }}
-            RSD</strong>&nbsp;/&nbsp;month
+          RSD</strong>&nbsp;/&nbsp;month
         </span>
-        <p-dropdown pTooltip="Number of monthly installments" tooltipEvent="focus" [options]="monthlyPaymentOptions"
-          [(ngModel)]="selectedMonthlyPayment" optionLabel="name"></p-dropdown>
+        <select class="p-inputtext" aria-label="Number of monthly installments"
+          [(ngModel)]="selectedMonthlyPayment">
+          @for (option of monthlyPaymentOptions; track option.name) {
+            <option [ngValue]="option">{{ option.name }}</option>
+          }
+        </select>
       </div>
     </div>
-
     <div class="cta-row">
-      <button (click)="buyProduct(product)" class="buy-btn" type="button" pButton pRipple label="Buy now"
-        icon="pi pi-shopping-cart" [disabled]="product.inStock === 0"></button>
+      <button (click)="buyProduct(product)" class="p-button buy-btn" type="button"
+        [disabled]="product.inStock === 0">
+        <i class="pi pi-shopping-cart" aria-hidden="true"></i>
+        <span>Buy now</span>
+      </button>
       <button class="favorite-btn-lg" type="button" (click)="addProductToWishList(product)"
         [class.is-active]="inWishlist"
         [attr.aria-label]="inWishlist ? 'Remove from wishlist' : 'Add to wishlist'">
         <i [class]="inWishlist ? 'pi pi-heart-fill' : 'pi pi-heart'"></i>
       </button>
     </div>
-    <span class="notify-link cursor-pointer" *ngIf="product.inStock === 0">Notify me when it's back</span>
-
+    @if (product.inStock === 0) {
+      <span class="notify-link cursor-pointer">Notify me when it's back</span>
+    }
     <ul class="detail-perks">
       <li><i class="pi pi-truck"></i> Free shipping, 1&ndash;3 business days</li>
       <li><i class="pi pi-shield"></i> 2-year warranty</li>
@@ -81,8 +91,7 @@
     </ul>
   </div>
 </div>
-
-<ng-template #loading>
+} @else {
   <div class="details-skeleton">
     <div class="skeleton skeleton-gallery"></div>
     <div class="skeleton-panel">
@@ -94,27 +103,29 @@
       <div class="skeleton skeleton-cta"></div>
     </div>
   </div>
-</ng-template>
+}
+
 
 <!-- Suggested products -->
-<section class="suggested-section" *ngIf="suggestedProducts && suggestedProducts.length">
-  <div class="section-head">
-    <div>
-      <span class="eyebrow">Keep browsing</span>
-      <h2>More from {{ product.category?.name }}</h2>
-    </div>
-  </div>
-  <p-carousel [value]="suggestedProducts" [numVisible]="3" [numScroll]="1" [circular]="false"
-    [responsiveOptions]="carouselResponsiveOptions" styleClass="w-full">
-    <ng-template let-product pTemplate="item">
-      <div class="suggested-item">
-        <app-product class="w-full" (addedToCart)="addToCart($event)" (replaceCurrentProduct)="replaceProduct($event)"
-          (removedFromCart)="removeFromCart($event)" (removedFromWishList)="removedFromWishList($event)"
-          (addedToWishList)="addToWishList($event)" [name]="product.name" [subcategory]="product.subcategory"
-          [id]="product.id" [images]="product.images" [inStock]="product.inStock" [price]="product.price"
-          [category]="product.category" [description]="product.description" [EAN]="product.EAN">
-        </app-product>
+@if (suggestedProducts && suggestedProducts.length) {
+  <section class="suggested-section">
+    <div class="section-head">
+      <div>
+        <span class="eyebrow">Keep browsing</span>
+        <h2>More from {{ product.category?.name }}</h2>
       </div>
-    </ng-template>
-  </p-carousel>
-</section>
+    </div>
+    <div class="product-strip w-full">
+      @for (product of suggestedProducts; track product.id) {
+        <div class="suggested-item">
+          <app-product class="w-full" (addedToCart)="addToCart($event)" (replaceCurrentProduct)="replaceProduct($event)"
+            (removedFromCart)="removeFromCart($event)" (removedFromWishList)="removedFromWishList($event)"
+            (addedToWishList)="addToWishList($event)" [name]="product.name" [subcategory]="product.subcategory"
+            [id]="product.id" [images]="product.images" [inStock]="product.inStock" [price]="product.price"
+            [category]="product.category" [description]="product.description" [EAN]="product.EAN">
+          </app-product>
+        </div>
+      }
+    </div>
+  </section>
+}

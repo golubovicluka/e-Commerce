@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, signal } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { Product, parseStoredProducts } from '../features/products/Product';
 
@@ -7,14 +7,16 @@ import { Product, parseStoredProducts } from '../features/products/Product';
 })
 export class WishlistService {
   private wishListItems$ = new BehaviorSubject<Product[]>([]);
+  private readonly wishListItemsState = signal<Product[]>([]);
   wishListItemsObservable = this.wishListItems$.asObservable();
+  readonly wishListItemsSignal = this.wishListItemsState.asReadonly();
 
   constructor() {
     try {
-      this.wishListItems$.next(parseStoredProducts(localStorage.getItem('wishlist')));
+      this.setWishlistItems(parseStoredProducts(localStorage.getItem('wishlist')));
     } catch (error) {
       console.error('Failed to load wishlist items from localStorage:', error);
-      this.wishListItems$.next([]);
+      this.setWishlistItems([]);
     }
   }
 
@@ -31,7 +33,7 @@ export class WishlistService {
 
     try {
       localStorage.setItem('wishlist', JSON.stringify(currentItems));
-      this.wishListItems$.next(currentItems);
+      this.setWishlistItems(currentItems);
     } catch (error) {
       console.error('Failed to save wishlist items to localStorage:', error);
     }
@@ -42,10 +44,14 @@ export class WishlistService {
 
     try {
       localStorage.setItem('wishlist', JSON.stringify(currentItems));
-      this.wishListItems$.next(currentItems);
+      this.setWishlistItems(currentItems);
     } catch (error) {
       console.error('Failed to save wishlist items to localStorage:', error);
     }
   }
-}
 
+  private setWishlistItems(items: Product[]): void {
+    this.wishListItems$.next(items);
+    this.wishListItemsState.set(items);
+  }
+}

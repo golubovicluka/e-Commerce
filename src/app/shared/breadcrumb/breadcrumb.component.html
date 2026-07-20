@@ -1,0 +1,17 @@
+<nav class="breadcrumb" aria-label="Breadcrumb">
+  <ol>
+    @if (home) {
+      <li>
+        <a [routerLink]="home.routerLink" [attr.aria-label]="home.label ?? 'Home'">
+          <i [class]="home.icon" aria-hidden="true"></i>
+        </a>
+      </li>
+    }
+    @for (item of items; track item.label) {
+      <li>
+        <i class="pi pi-angle-right" aria-hidden="true"></i>
+        <a [routerLink]="item.routerLink">{{ item.label }}</a>
+      </li>
+    }
+  </ol>
+</nav>

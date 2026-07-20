@@ -1,8 +1,7 @@
-<p-toast position="bottom-center"></p-toast>
-<p-breadcrumb [home]="home" [model]="items" class="mb-4"></p-breadcrumb>
+<app-breadcrumb [home]="home" [items]="items" class="mb-4"></app-breadcrumb>
 
 <!-- Cart header -->
-<ng-container *ngIf="numberOfItems && !checkoutActive">
+@if (numberOfItems && !checkoutActive) {
   <div class="section-head cart-head">
     <div>
       <span class="eyebrow">Checkout</span>
@@ -12,107 +11,127 @@
       <i class="pi pi-check-circle"></i> Free shipping on all orders
     </span>
   </div>
-</ng-container>
+}
 
 <!-- Cart Items and Order Summary -->
-<div *ngIf="numberOfItems" class="cart-layout component-enter">
-
-  <!-- Cart Items List -->
-  <div *ngIf="!checkoutActive" class="cart-items stagger">
-    <div class="cart-item-card" *ngFor="let line of cartLines$ | async; trackBy: trackByProductId">
-      <div class="item-media" (click)="openProductDetails(line.product.id)">
-        <img [src]="getProductImage(line.product)" (error)="onProductImageError($event, line.product.name)"
-          [alt]="line.product.name">
+@if (numberOfItems) {
+  <div class="cart-layout component-enter">
+    <!-- Cart Items List -->
+    @if (!checkoutActive) {
+      <div class="cart-items stagger">
+        @for (line of cartLines(); track line.product.id) {
+          <div class="cart-item-card">
+            <div class="item-media" (click)="openProductDetails(line.product.id)"
+              (keyup.enter)="openProductDetails(line.product.id)" role="link" tabindex="0">
+              <img [src]="getProductImage(line.product)" (error)="onProductImageError($event, line.product.name)"
+                [alt]="line.product.name" loading="lazy" decoding="async">
+            </div>
+            <div class="item-info">
+              <h3 class="item-name" (click)="openProductDetails(line.product.id)"
+                (keyup.enter)="openProductDetails(line.product.id)" role="link" tabindex="0">
+                {{ line.product.name }}
+              </h3>
+              <span class="item-price font-mono">{{ line.product.price | number }} <span class="currency">RSD</span></span>
+              @if (line.product.inStock > 1) {
+                <span class="item-stock">
+                  <span class="stock-dot"></span> {{ line.product.inStock }} in stock
+                </span>
+              }
+              @if (line.product.inStock === 1) {
+                <span class="item-stock item-stock--low">
+                  <i class="pi pi-info-circle"></i> Only 1 left
+                </span>
+              }
+            </div>
+            <div class="item-actions">
+              <div class="qty-controls" role="group" [attr.aria-label]="'Quantity of ' + line.product.name">
+                <button class="qty-btn" type="button" aria-label="Decrease quantity"
+                  (click)="decrementProductCount(line.product.id, line.quantity)" [disabled]="line.quantity <= 1">
+                  <i class="pi pi-minus"></i>
+                </button>
+                <input class="quantity-input" type="number" [min]="1" [max]="line.product.inStock"
+                  [id]="'qty-' + line.product.id" [ngModel]="line.quantity"
+                  (ngModelChange)="onQuantityChange(line.product.id, $event)">
+                <button class="qty-btn" type="button" aria-label="Increase quantity"
+                  (click)="incrementProductCount(line.product.id, line.product.inStock, line.quantity)"
+                  [disabled]="line.quantity >= line.product.inStock">
+                  <i class="pi pi-plus"></i>
+                </button>
+              </div>
+              <span class="line-total font-mono">{{ line.lineTotal | number }} <span class="currency">RSD</span></span>
+            </div>
+            <button class="remove-btn" type="button" (click)="removeFromCart(line.product)"
+              [attr.aria-label]="'Remove ' + line.product.name + ' from cart'">
+              <i class="pi pi-times"></i>
+            </button>
+          </div>
+        }
       </div>
-
-      <div class="item-info">
-        <h3 class="item-name" (click)="openProductDetails(line.product.id)">{{ line.product.name }}</h3>
-        <span class="item-price font-mono">{{ line.product.price | number }} <span class="currency">RSD</span></span>
-        <span *ngIf="line.product.inStock > 1" class="item-stock">
-          <span class="stock-dot"></span> {{ line.product.inStock }} in stock
-        </span>
-        <span *ngIf="line.product.inStock === 1" class="item-stock item-stock--low">
-          <i class="pi pi-info-circle"></i> Only 1 left
-        </span>
+    }
+    <!-- Checkout Stepper -->
+    @if (checkoutActive) {
+      <div class="checkout-flow">
+        <ol class="checkout-steps" aria-label="Checkout progress">
+          @for (step of stepperItems; track step.label; let index = $index) {
+            <li [class.is-active]="activeIndex === index">
+              <a [routerLink]="step.routerLink" (click)="onActiveIndexChange(index)">
+                <span>{{ index + 1 }}</span>{{ step.label }}
+              </a>
+            </li>
+          }
+        </ol>
+        <router-outlet></router-outlet>
       </div>
-
-      <div class="item-actions">
-        <div class="qty-controls" role="group" [attr.aria-label]="'Quantity of ' + line.product.name">
-          <button class="qty-btn" type="button" aria-label="Decrease quantity"
-            (click)="decrementProductCount(line.product.id, line.quantity)" [disabled]="line.quantity <= 1">
-            <i class="pi pi-minus"></i>
-          </button>
-          <p-inputNumber [min]="1" [max]="line.product.inStock" [inputId]="'qty-' + line.product.id"
-            [ngModel]="line.quantity" (ngModelChange)="onQuantityChange(line.product.id, $event)">
-          </p-inputNumber>
-          <button class="qty-btn" type="button" aria-label="Increase quantity"
-            (click)="incrementProductCount(line.product.id, line.product.inStock, line.quantity)"
-            [disabled]="line.quantity >= line.product.inStock">
-            <i class="pi pi-plus"></i>
-          </button>
+    }
+    <!-- Order Summary -->
+    @if (totalPrice(); as total) {
+      <aside class="order-summary-panel">
+        <h3 class="summary-title">Order summary</h3>
+        <div class="summary-rows">
+          <div class="summary-row">
+            <span>Subtotal ({{ numberOfItems }} {{ numberOfItems === 1 ? 'item' : 'items' }})</span>
+            <span class="font-mono">{{ total | number }} <span class="currency">RSD</span></span>
+          </div>
+          <div class="summary-row">
+            <span>Shipping</span>
+            <span class="shipping-free">Free</span>
+          </div>
         </div>
-        <span class="line-total font-mono">{{ line.lineTotal | number }} <span class="currency">RSD</span></span>
-      </div>
-
-      <button class="remove-btn" type="button" (click)="removeFromCart(line.product)"
-        [attr.aria-label]="'Remove ' + line.product.name + ' from cart'">
-        <i class="pi pi-times"></i>
-      </button>
+        <div class="summary-total">
+          <span>Total</span>
+          <span class="total-amount font-mono">{{ total | number }} <span class="currency">RSD</span></span>
+        </div>
+        <div class="installment-row">
+          <span class="installment-text">
+            or {{ selectedMonthlyPayment.name }} &times;
+            <strong class="font-mono">{{ getInstallmentAmount(total, selectedMonthlyPayment.name) | number }}
+              <span class="currency">RSD</span></strong>&nbsp;/&nbsp;mo
+            </span>
+            <select class="p-inputtext" aria-label="Number of monthly installments"
+              [(ngModel)]="selectedMonthlyPayment">
+              @for (option of monthlyPaymentOptions; track option.name) {
+                <option [ngValue]="option">{{ option.name }}</option>
+              }
+            </select>
+          </div>
+          <button (click)="openShippingView()" class="p-button summary-cta" type="button"
+          >{{ checkoutCtaLabel }}</button>
+          <span class="summary-note">
+            <i class="pi pi-lock"></i> Secure checkout &middot; 14-day returns
+          </span>
+        </aside>
+      }
     </div>
-  </div>
+  }
 
-  <!-- Checkout Stepper -->
-  <div *ngIf="checkoutActive" class="checkout-flow">
-    <p-steps [model]="stepperItems" [readonly]="false" [activeIndex]="activeIndex"
-      (activeIndexChange)="onActiveIndexChange($event)"></p-steps>
-    <router-outlet></router-outlet>
-  </div>
-
-  <!-- Order Summary -->
-  <aside class="order-summary-panel" *ngIf="totalPrice$ | async as total">
-    <h3 class="summary-title">Order summary</h3>
-
-    <div class="summary-rows">
-      <div class="summary-row">
-        <span>Subtotal ({{ numberOfItems }} {{ numberOfItems === 1 ? 'item' : 'items' }})</span>
-        <span class="font-mono">{{ total | number }} <span class="currency">RSD</span></span>
-      </div>
-      <div class="summary-row">
-        <span>Shipping</span>
-        <span class="shipping-free">Free</span>
-      </div>
+  <!-- When Cart is Empty -->
+  @if (!numberOfItems) {
+    <div class="empty-state component-enter">
+      <i class="pi pi-shopping-cart"></i>
+      <h3>Your cart is empty</h3>
+      <p>Looks like you haven't added anything yet.</p>
+      <a class="p-button p-button-outlined" [routerLink]="['/products/search']">
+        Find a product
+      </a>
     </div>
-
-    <div class="summary-total">
-      <span>Total</span>
-      <span class="total-amount font-mono">{{ total | number }} <span class="currency">RSD</span></span>
-    </div>
-
-    <div class="installment-row">
-      <span class="installment-text">
-        or {{ selectedMonthlyPayment.name }} &times;
-        <strong class="font-mono">{{ getInstallmentAmount(total, selectedMonthlyPayment.name) | number }}
-          <span class="currency">RSD</span></strong>&nbsp;/&nbsp;mo
-      </span>
-      <p-dropdown tooltipEvent="focus" [options]="monthlyPaymentOptions" [(ngModel)]="selectedMonthlyPayment"
-        optionLabel="name"></p-dropdown>
-    </div>
-
-    <button (click)="openShippingView()" class="summary-cta" type="button" pButton pRipple
-      [label]="checkoutCtaLabel"></button>
-    <span class="summary-note">
-      <i class="pi pi-lock"></i> Secure checkout &middot; 14-day returns
-    </span>
-  </aside>
-</div>
-
-<!-- When Cart is Empty -->
-<ng-container *ngIf="!numberOfItems">
-  <div class="empty-state component-enter">
-    <i class="pi pi-shopping-cart"></i>
-    <h3>Your cart is empty</h3>
-    <p>Looks like you haven't added anything yet.</p>
-    <button class="p-button-outlined" type="button" pButton pRipple [routerLink]="['/products/search']"
-      label="Find a product"></button>
-  </div>
-</ng-container>
+  }

@@ -1,0 +1,21 @@
+<div class="toast-region" aria-live="polite" aria-atomic="false">
+  @for (notification of notificationService.notifications(); track notification.id) {
+    <div class="toast-message" [class]="'toast-message toast-message--' + notification.severity" role="status">
+      <i
+        class="pi"
+        [class.pi-check-circle]="notification.severity === 'success'"
+        [class.pi-info-circle]="notification.severity === 'info'"
+        [class.pi-exclamation-triangle]="notification.severity === 'warn'"
+        [class.pi-times-circle]="notification.severity === 'error'"
+        aria-hidden="true"
+      ></i>
+      <span>
+        <strong>{{ notification.summary }}</strong>
+        <small>{{ notification.detail }}</small>
+      </span>
+      <button type="button" (click)="notificationService.dismiss(notification.id)" aria-label="Dismiss notification">
+        <i class="pi pi-times" aria-hidden="true"></i>
+      </button>
+    </div>
+  }
+</div>

@@ -1,4 +1,5 @@
-<div class="category-tile" (click)="openProductsPage(name)"
+<div class="category-tile" (click)="openProductsPage(name)" (keyup.enter)="openProductsPage(name)"
+  role="link" tabindex="0"
   [ngStyle]="{'background-image': 'url(' + getCategoryImage(name) + ')'}">
   <div class="category-overlay">
     <span class="category-name">{{name}}</span>

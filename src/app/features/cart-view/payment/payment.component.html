@@ -1,82 +1,85 @@
 <div class="checkout-panel component-enter">
-    <div class="panel-head">
-        <span class="eyebrow">Step 3 of 3</span>
-        <h3 class="panel-title">How would you like to pay?</h3>
+  <div class="panel-head">
+    <span class="eyebrow">Step 3 of 3</span>
+    <h3 class="panel-title">How would you like to pay?</h3>
+  </div>
+
+  <!-- Payment method tiles -->
+  <div class="method-grid" role="radiogroup" aria-label="Payment method">
+    <label class="method-tile" [class.is-selected]="selectedPaymentMethod === 'creditCard'" for="creditCard">
+      <input name="paymentMethod" type="radio" value="creditCard" [(ngModel)]="selectedPaymentMethod"
+        id="creditCard">
+      <i class="pi pi-credit-card method-icon" aria-hidden="true"></i>
+      <span class="method-name">Credit card</span>
+      <span class="method-desc">Visa, Mastercard, Dina</span>
+    </label>
+
+    <label class="method-tile" [class.is-selected]="selectedPaymentMethod === 'paypal'" for="paypal">
+      <input name="paymentMethod" type="radio" value="paypal" [(ngModel)]="selectedPaymentMethod" id="paypal">
+      <i class="pi pi-paypal method-icon" aria-hidden="true"></i>
+      <span class="method-name">PayPal</span>
+      <span class="method-desc">Pay with your PayPal balance</span>
+    </label>
+
+    <label class="method-tile" [class.is-selected]="selectedPaymentMethod === 'bankTransfer'" for="bankTransfer">
+      <input name="paymentMethod" type="radio" value="bankTransfer" [(ngModel)]="selectedPaymentMethod"
+        id="bankTransfer">
+      <i class="pi pi-building method-icon" aria-hidden="true"></i>
+      <span class="method-name">Bank transfer</span>
+      <span class="method-desc">Pay on delivery of the invoice</span>
+    </label>
+  </div>
+
+  <!-- Card form -->
+  @if (selectedPaymentMethod === 'creditCard') {
+    <div class="formgrid grid card-form">
+      <div class="field col-12">
+        <label for="pay-card-number">Card number</label>
+        <input id="pay-card-number" class="p-inputtext w-full font-mono" type="text" inputmode="numeric"
+          autocomplete="cc-number" placeholder="0000 0000 0000 0000" [(ngModel)]="cardNumber" />
+      </div>
+      <div class="field col-12 md:col-6">
+        <label for="pay-card-holder">Name on card</label>
+        <input id="pay-card-holder" class="p-inputtext w-full" type="text" autocomplete="cc-name"
+          [(ngModel)]="cardHolderName" />
+      </div>
+      <div class="field col-6 md:col-3">
+        <label for="pay-expiry">Expiry</label>
+        <input id="pay-expiry" class="p-inputtext w-full font-mono" type="text" autocomplete="cc-exp"
+          placeholder="MM/YY" [(ngModel)]="expiryDate" />
+      </div>
+      <div class="field col-6 md:col-3">
+        <label for="pay-cvv">CVV</label>
+        <input id="pay-cvv" class="p-inputtext w-full font-mono" type="password" autocomplete="cc-csc"
+          inputmode="numeric" maxlength="4" placeholder="123" [(ngModel)]="cvv" />
+      </div>
     </div>
+  }
 
-    <!-- Payment method tiles -->
-    <div class="method-grid" role="radiogroup" aria-label="Payment method">
-        <label class="method-tile" [class.is-selected]="selectedPaymentMethod === 'creditCard'" for="creditCard">
-            <p-radioButton name="paymentMethod" value="creditCard" [(ngModel)]="selectedPaymentMethod"
-                inputId="creditCard"></p-radioButton>
-            <i class="pi pi-credit-card method-icon" aria-hidden="true"></i>
-            <span class="method-name">Credit card</span>
-            <span class="method-desc">Visa, Mastercard, Dina</span>
-        </label>
-
-        <label class="method-tile" [class.is-selected]="selectedPaymentMethod === 'paypal'" for="paypal">
-            <p-radioButton name="paymentMethod" value="paypal" [(ngModel)]="selectedPaymentMethod"
-                inputId="paypal"></p-radioButton>
-            <i class="pi pi-paypal method-icon" aria-hidden="true"></i>
-            <span class="method-name">PayPal</span>
-            <span class="method-desc">Pay with your PayPal balance</span>
-        </label>
-
-        <label class="method-tile" [class.is-selected]="selectedPaymentMethod === 'bankTransfer'" for="bankTransfer">
-            <p-radioButton name="paymentMethod" value="bankTransfer" [(ngModel)]="selectedPaymentMethod"
-                inputId="bankTransfer"></p-radioButton>
-            <i class="pi pi-building method-icon" aria-hidden="true"></i>
-            <span class="method-name">Bank transfer</span>
-            <span class="method-desc">Pay on delivery of the invoice</span>
-        </label>
-    </div>
-
-    <!-- Card form -->
-    <div *ngIf="selectedPaymentMethod === 'creditCard'" class="formgrid grid card-form">
-        <div class="field col-12">
-            <label for="pay-card-number">Card number</label>
-            <input id="pay-card-number" class="w-full font-mono" type="text" pInputText inputmode="numeric"
-                autocomplete="cc-number" placeholder="0000 0000 0000 0000" [(ngModel)]="cardNumber" />
-        </div>
-        <div class="field col-12 md:col-6">
-            <label for="pay-card-holder">Name on card</label>
-            <input id="pay-card-holder" class="w-full" type="text" pInputText autocomplete="cc-name"
-                [(ngModel)]="cardHolderName" />
-        </div>
-        <div class="field col-6 md:col-3">
-            <label for="pay-expiry">Expiry</label>
-            <input id="pay-expiry" class="w-full font-mono" type="text" pInputText autocomplete="cc-exp"
-                placeholder="MM/YY" [(ngModel)]="expiryDate" />
-        </div>
-        <div class="field col-6 md:col-3">
-            <label for="pay-cvv">CVV</label>
-            <input id="pay-cvv" class="w-full font-mono" type="password" pInputText autocomplete="cc-csc"
-                inputmode="numeric" maxlength="4" placeholder="123" [(ngModel)]="cvv" />
-        </div>
-    </div>
-
-    <!-- Order summary -->
-    <ng-container *ngIf="total$ | async as total">
+  <!-- Order summary -->
+  @if (total$ | async; as total) {
     <div class="order-summary">
-        <div class="summary-row">
-            <span>Subtotal</span>
-            <span class="font-mono">{{ total | number }} <span class="currency">RSD</span></span>
-        </div>
-        <div class="summary-row">
-            <span>Shipping</span>
-            <span class="row-free">Free</span>
-        </div>
-        <div class="summary-total">
-            <span>Total</span>
-            <span class="font-mono">{{ total | number }} <span class="currency">RSD</span></span>
-        </div>
+      <div class="summary-row">
+        <span>Subtotal</span>
+        <span class="font-mono">{{ total | number }} <span class="currency">RSD</span></span>
+      </div>
+      <div class="summary-row">
+        <span>Shipping</span>
+        <span class="row-free">Free</span>
+      </div>
+      <div class="summary-total">
+        <span>Total</span>
+        <span class="font-mono">{{ total | number }} <span class="currency">RSD</span></span>
+      </div>
     </div>
-
     <div class="panel-actions">
-        <p-button [routerLink]="['/cart/overview']" label="Back" icon="pi pi-arrow-left"
-            styleClass="p-button-outlined"></p-button>
-        <p-button [label]="'Pay ' + (total | number) + ' RSD'" icon="pi pi-lock" (click)="completePayment()"></p-button>
+      <a class="p-button p-button-outlined" [routerLink]="['/cart/overview']">
+        <i class="pi pi-arrow-left" aria-hidden="true"></i> Back
+      </a>
+      <button type="button" class="p-button" (click)="completePayment()">
+        <i class="pi pi-lock" aria-hidden="true"></i> Pay {{ total | number }} RSD
+      </button>
     </div>
-    </ng-container>
-    <span class="secure-note"><i class="pi pi-lock"></i> Payments are encrypted and processed securely.</span>
+  }
+  <span class="secure-note"><i class="pi pi-lock"></i> Payments are encrypted and processed securely.</span>
 </div>

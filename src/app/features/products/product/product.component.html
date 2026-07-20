@@ -1,72 +1,93 @@
 <!-- Grid view -->
-<article *ngIf="!isListView; else listView" class="product-card">
-  <button class="favorite-btn" type="button" (click)="addRemoveItemWishlist(product)"
-    [attr.aria-label]="inWishlist ? 'Remove ' + name + ' from wishlist' : 'Add ' + name + ' to wishlist'"
-    [class.is-active]="inWishlist">
-    <i [class]="inWishlist ? 'pi pi-heart-fill' : 'pi pi-heart'"></i>
-  </button>
-
-  <div class="card-media" (click)="openProductDetails(id)">
-    <img [src]="primaryImageSrc" [alt]="name" (error)="onImageError($event)">
-  </div>
-
-  <div class="card-body">
-    <span class="card-kicker" *ngIf="subcategory?.name">{{ subcategory?.name }}</span>
-    <h3 class="card-name" (click)="openProductDetails(id)">{{ name }}</h3>
-    <p class="card-desc" [pTooltip]="description.length > 80 ? description : ''" tooltipPosition="top">
-      {{ description }}
-    </p>
-
-    <div class="card-foot">
-      <div class="price-stock">
-        <span class="card-price font-mono">{{ price | number }} <span class="currency">RSD</span></span>
-        <span class="stock" [class.stock--in]="inStock > 0" [class.stock--out]="inStock === 0">
-          <span class="stock-dot"></span>
-          <ng-container *ngIf="inStock > 0">{{ inStock }} in stock</ng-container>
-          <ng-container *ngIf="inStock === 0">Sold out</ng-container>
-        </span>
-      </div>
-      <p-button (click)="addRemoveCartItem(product)" [disabled]="product.inStock === 0" icon="pi pi-cart-plus"
-        [pTooltip]="inCart ? 'Remove from cart' : 'Add to cart'" tooltipPosition="top"
-        [styleClass]="inCart ? 'p-button-rounded' : 'p-button-rounded p-button-outlined'"></p-button>
-    </div>
-  </div>
-</article>
-
-<!-- List view -->
-<ng-template #listView>
-  <article class="list-card">
-    <button *ngIf="!wishlistView" class="favorite-btn" type="button" (click)="addRemoveItemWishlist(product)"
+@if (!isListView) {
+  <article class="product-card">
+    <button class="favorite-btn" type="button" (click)="addRemoveItemWishlist(product)"
       [attr.aria-label]="inWishlist ? 'Remove ' + name + ' from wishlist' : 'Add ' + name + ' to wishlist'"
       [class.is-active]="inWishlist">
       <i [class]="inWishlist ? 'pi pi-heart-fill' : 'pi pi-heart'"></i>
     </button>
-
-    <div class="list-media" (click)="openProductDetails(id)">
-      <img [src]="primaryImageSrc" [alt]="name" (error)="onImageError($event)">
+    <div class="card-media" (click)="openProductDetails(id)" (keyup.enter)="openProductDetails(id)"
+      role="link" tabindex="0">
+      <img [src]="primaryImageSrc" [alt]="name" loading="lazy" decoding="async"
+        (error)="onImageError($event)">
     </div>
-
-    <div class="list-info">
-      <span class="card-kicker">
-        {{ category?.name }}<ng-container *ngIf="subcategory?.name"> &rsaquo; {{ subcategory?.name }}</ng-container>
-      </span>
-      <h3 class="card-name" (click)="openProductDetails(id)">{{ name }}</h3>
-      <p class="card-desc card-desc--list">{{ description }}</p>
-      <span class="list-ean font-mono">EAN {{ EAN }}</span>
-    </div>
-
-    <div class="list-buy">
-      <span class="card-price card-price--lg font-mono">{{ price | number }} <span class="currency">RSD</span></span>
-      <span class="installment">or 12 &times; {{ getInstallmentAmount(price, 12) | number }} RSD&nbsp;/&nbsp;mo</span>
-      <span class="stock" [class.stock--in]="inStock > 0" [class.stock--out]="inStock === 0">
-        <span class="stock-dot"></span>
-        <ng-container *ngIf="inStock > 1">{{ inStock }} in stock</ng-container>
-        <ng-container *ngIf="inStock === 1">Last one in stock</ng-container>
-        <ng-container *ngIf="inStock === 0">Sold out</ng-container>
-      </span>
-      <p-button (click)="product.inStock > 0 && addRemoveCartItem(product)" [disabled]="product.inStock === 0"
-        icon="pi pi-cart-plus" [label]="inCart ? 'In cart' : 'Add to cart'"
-        [styleClass]="inCart ? '' : 'p-button-outlined'"></p-button>
+    <div class="card-body">
+      @if (subcategory?.name) {
+        <span class="card-kicker">{{ subcategory?.name }}</span>
+      }
+      <h3 class="card-name" (click)="openProductDetails(id)" (keyup.enter)="openProductDetails(id)"
+        role="link" tabindex="0">{{ name }}</h3>
+      <p class="card-desc" [attr.title]="description.length > 80 ? description : null">
+        {{ description }}
+      </p>
+      <div class="card-foot">
+        <div class="price-stock">
+          <span class="card-price font-mono">{{ price | number }} <span class="currency">RSD</span></span>
+          <span class="stock" [class.stock--in]="inStock > 0" [class.stock--out]="inStock === 0">
+            <span class="stock-dot"></span>
+            @if (inStock > 0) {
+              {{ inStock }} in stock
+            }
+            @if (inStock === 0) {
+              Sold out
+            }
+          </span>
+        </div>
+        <button type="button" class="p-button p-button-rounded" [class.p-button-outlined]="!inCart"
+          (click)="addRemoveCartItem(product)" [disabled]="product.inStock === 0"
+          [attr.aria-label]="inCart ? 'Remove from cart' : 'Add to cart'">
+          <i class="pi pi-cart-plus" aria-hidden="true"></i>
+        </button>
+      </div>
     </div>
   </article>
-</ng-template>
+} @else {
+  <article class="list-card">
+    @if (!wishlistView) {
+      <button class="favorite-btn" type="button" (click)="addRemoveItemWishlist(product)"
+        [attr.aria-label]="inWishlist ? 'Remove ' + name + ' from wishlist' : 'Add ' + name + ' to wishlist'"
+        [class.is-active]="inWishlist">
+        <i [class]="inWishlist ? 'pi pi-heart-fill' : 'pi pi-heart'"></i>
+      </button>
+    }
+    <div class="list-media" (click)="openProductDetails(id)" (keyup.enter)="openProductDetails(id)"
+      role="link" tabindex="0">
+      <img [src]="primaryImageSrc" [alt]="name" loading="lazy" decoding="async"
+        (error)="onImageError($event)">
+    </div>
+    <div class="list-info">
+      <span class="card-kicker">
+        {{ category?.name }}@if (subcategory?.name) {
+        &rsaquo; {{ subcategory?.name }}
+      }
+    </span>
+    <h3 class="card-name" (click)="openProductDetails(id)" (keyup.enter)="openProductDetails(id)"
+      role="link" tabindex="0">{{ name }}</h3>
+    <p class="card-desc card-desc--list">{{ description }}</p>
+    <span class="list-ean font-mono">EAN {{ EAN }}</span>
+  </div>
+  <div class="list-buy">
+    <span class="card-price card-price--lg font-mono">{{ price | number }} <span class="currency">RSD</span></span>
+    <span class="installment">or 12 &times; {{ getInstallmentAmount(price, 12) | number }} RSD&nbsp;/&nbsp;mo</span>
+    <span class="stock" [class.stock--in]="inStock > 0" [class.stock--out]="inStock === 0">
+      <span class="stock-dot"></span>
+      @if (inStock > 1) {
+        {{ inStock }} in stock
+      }
+      @if (inStock === 1) {
+        Last one in stock
+      }
+      @if (inStock === 0) {
+        Sold out
+      }
+    </span>
+    <button type="button" class="p-button" [class.p-button-outlined]="!inCart"
+      (click)="product.inStock > 0 && addRemoveCartItem(product)" [disabled]="product.inStock === 0">
+      <i class="pi pi-cart-plus" aria-hidden="true"></i>
+      {{ inCart ? 'In cart' : 'Add to cart' }}
+    </button>
+  </div>
+</article>
+}
+
+<!-- List view -->

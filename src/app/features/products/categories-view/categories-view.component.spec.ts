@@ -13,46 +13,47 @@ import { mockCategoriesWithSubcategories } from 'src/app/testing/mock-data';
  * cover ngOnInit and the navigation/filter handoff.
  */
 describe('CategoriesViewComponent', () => {
-  let component: CategoriesViewComponent;
-  let fixture: ComponentFixture<CategoriesViewComponent>;
-  let products: jasmine.SpyObj<ProductsService>;
-  let router: jasmine.SpyObj<Router>;
+    let component: CategoriesViewComponent;
+    let fixture: ComponentFixture<CategoriesViewComponent>;
+    let products: any;
+    let router: any;
 
-  beforeEach(async () => {
-    products = jasmine.createSpyObj('ProductsService', ['getProductCategories', 'setCategoryFilter']);
-    products.getProductCategories.and.returnValue(
-      of({ data: { category: mockCategoriesWithSubcategories } }) as any
-    );
-    router = jasmine.createSpyObj('Router', ['navigate']);
+    beforeEach(async () => {
+        products = {
+            getProductCategories: vi.fn().mockName("ProductsService.getProductCategories"),
+            setCategoryFilter: vi.fn().mockName("ProductsService.setCategoryFilter")
+        };
+        products.getProductCategories.mockReturnValue(of({ data: { category: mockCategoriesWithSubcategories } }) as any);
+        router = {
+            navigate: vi.fn().mockName("Router.navigate")
+        };
 
-    await TestBed.configureTestingModule({
-      declarations: [CategoriesViewComponent],
-      providers: [
+        await TestBed.configureTestingModule({
+    imports: [CategoriesViewComponent],
+    providers: [
         { provide: ProductsService, useValue: products },
         { provide: Router, useValue: router },
-      ],
-      schemas: [NO_ERRORS_SCHEMA],
-    }).compileComponents();
+    ],
+    schemas: [NO_ERRORS_SCHEMA],
+}).compileComponents();
 
-    fixture = TestBed.createComponent(CategoriesViewComponent);
-    component = fixture.componentInstance;
-  });
+        fixture = TestBed.createComponent(CategoriesViewComponent);
+        component = fixture.componentInstance;
+    });
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
+    it('should create', () => {
+        expect(component).toBeTruthy();
+    });
 
-  it('ngOnInit loads categories from the service', () => {
-    component.ngOnInit();
-    expect(component.categories).toEqual(mockCategoriesWithSubcategories);
-  });
+    it('ngOnInit loads categories from the service', () => {
+        component.ngOnInit();
+        expect(component.categories).toEqual(mockCategoriesWithSubcategories);
+    });
 
-  it('openProductsPage sets the category filter and navigates with state', () => {
-    component.openProductsPage('Electronics');
-    expect(products.setCategoryFilter).toHaveBeenCalledOnceWith('Electronics');
-    expect(router.navigate).toHaveBeenCalledWith(
-      ['/products/search'],
-      jasmine.objectContaining({ state: { filters: 'Electronics' } })
-    );
-  });
+    it('openProductsPage sets the category filter and navigates with state', () => {
+        component.openProductsPage('Electronics');
+        expect(products.setCategoryFilter).toHaveBeenCalledTimes(1);
+        expect(products.setCategoryFilter).toHaveBeenCalledWith('Electronics');
+        expect(router.navigate).toHaveBeenCalledWith(['/products/search'], expect.objectContaining({ state: { filters: 'Electronics' } }));
+    });
 });

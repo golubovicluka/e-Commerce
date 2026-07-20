@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Location } from '@angular/common';
-import { MessageService } from 'primeng/api';
+import { NotificationService } from 'src/app/shared/notification.service';
 
 import { ProductDetailsComponent } from './product-details.component';
 import { ProductsService } from '../../products.service';
@@ -19,35 +19,43 @@ import { mockProducts } from 'src/app/testing/mock-data';
  * cart handoffs, and back-navigation.
  */
 describe('ProductDetailsComponent', () => {
-  let component: ProductDetailsComponent;
-  let fixture: ComponentFixture<ProductDetailsComponent>;
-  let cart: jasmine.SpyObj<CartService>;
-  let location: jasmine.SpyObj<Location>;
-  let router: jasmine.SpyObj<Router>;
+    let component: ProductDetailsComponent;
+    let fixture: ComponentFixture<ProductDetailsComponent>;
+    let cart: any;
+    let location: any;
+    let router: any;
 
-  beforeEach(async () => {
-    const products = jasmine.createSpyObj('ProductsService', [
-      'getProductById',
-      'getProductsByCategory',
-    ]);
-    const wishlist = jasmine.createSpyObj('WishlistService', [
-      'inWishlist',
-      'addWishListItem',
-      'removeWishListItem',
-    ]);
-    cart = jasmine.createSpyObj('CartService', ['addToCart', 'removeFromCart']);
-    const images = jasmine.createSpyObj('ProductImageService', [
-      'normalizeImages',
-      'resolvePrimaryImage',
-      'handleImageError',
-    ]);
-    location = jasmine.createSpyObj('Location', ['back']);
-    router = jasmine.createSpyObj('Router', ['navigate', 'getCurrentNavigation']);
-    router.getCurrentNavigation.and.returnValue(null);
+    beforeEach(async () => {
+        const products = {
+            getProductById: vi.fn().mockName("ProductsService.getProductById"),
+            getProductsByCategory: vi.fn().mockName("ProductsService.getProductsByCategory")
+        };
+        const wishlist = {
+            inWishlist: vi.fn().mockName("WishlistService.inWishlist"),
+            addWishListItem: vi.fn().mockName("WishlistService.addWishListItem"),
+            removeWishListItem: vi.fn().mockName("WishlistService.removeWishListItem")
+        };
+        cart = {
+            addToCart: vi.fn().mockName("CartService.addToCart"),
+            removeFromCart: vi.fn().mockName("CartService.removeFromCart")
+        };
+        const images = {
+            normalizeImages: vi.fn().mockName("ProductImageService.normalizeImages"),
+            resolvePrimaryImage: vi.fn().mockName("ProductImageService.resolvePrimaryImage"),
+            handleImageError: vi.fn().mockName("ProductImageService.handleImageError")
+        };
+        location = {
+            back: vi.fn().mockName("Location.back")
+        };
+        router = {
+            navigate: vi.fn().mockName("Router.navigate"),
+            getCurrentNavigation: vi.fn().mockName("Router.getCurrentNavigation")
+        };
+        router.getCurrentNavigation.mockReturnValue(null);
 
-    await TestBed.configureTestingModule({
-      declarations: [ProductDetailsComponent],
-      providers: [
+        await TestBed.configureTestingModule({
+    imports: [ProductDetailsComponent],
+    providers: [
         { provide: ProductsService, useValue: products },
         { provide: WishlistService, useValue: wishlist },
         { provide: CartService, useValue: cart },
@@ -55,34 +63,36 @@ describe('ProductDetailsComponent', () => {
         { provide: Location, useValue: location },
         { provide: Router, useValue: router },
         { provide: ActivatedRoute, useValue: { snapshot: { params: { id: 1 } } } },
-        MessageService,
-      ],
-      schemas: [NO_ERRORS_SCHEMA],
-    }).compileComponents();
+        NotificationService,
+    ],
+    schemas: [NO_ERRORS_SCHEMA],
+}).compileComponents();
 
-    fixture = TestBed.createComponent(ProductDetailsComponent);
-    component = fixture.componentInstance;
-  });
+        fixture = TestBed.createComponent(ProductDetailsComponent);
+        component = fixture.componentInstance;
+    });
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
+    it('should create', () => {
+        expect(component).toBeTruthy();
+    });
 
-  it('getInstallmentAmount floors price / months', () => {
-    expect(component.getInstallmentAmount(1200, 12)).toBe(100);
-    expect(component.getInstallmentAmount(1000, 24)).toBe(41); // 41.6 -> 41
-  });
+    it('getInstallmentAmount floors price / months', () => {
+        expect(component.getInstallmentAmount(1200, 12)).toBe(100);
+        expect(component.getInstallmentAmount(1000, 24)).toBe(41); // 41.6 -> 41
+    });
 
-  it('navigateBack uses Location.back', () => {
-    component.navigateBack();
-    expect(location.back).toHaveBeenCalled();
-  });
+    it('navigateBack uses Location.back', () => {
+        component.navigateBack();
+        expect(location.back).toHaveBeenCalled();
+    });
 
-  it('addToCart / removeFromCart delegate to CartService', () => {
-    component.addToCart(mockProducts[0]);
-    expect(cart.addToCart).toHaveBeenCalledOnceWith(mockProducts[0]);
+    it('addToCart / removeFromCart delegate to CartService', () => {
+        component.addToCart(mockProducts[0]);
+        expect(cart.addToCart).toHaveBeenCalledTimes(1);
+        expect(cart.addToCart).toHaveBeenCalledWith(mockProducts[0]);
 
-    component.removeFromCart(mockProducts[0]);
-    expect(cart.removeFromCart).toHaveBeenCalledOnceWith(mockProducts[0]);
-  });
+        component.removeFromCart(mockProducts[0]);
+        expect(cart.removeFromCart).toHaveBeenCalledTimes(1);
+        expect(cart.removeFromCart).toHaveBeenCalledWith(mockProducts[0]);
+    });
 });

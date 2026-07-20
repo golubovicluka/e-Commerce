@@ -1,28 +1,40 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { map } from 'rxjs';
 import { ProductsService } from '../products.service';
-import { MenuItem } from 'primeng/api';
+import { NavigationItem } from 'src/app/shared/navigation-item';
 import { NavigationExtras, Router } from '@angular/router';
+import { CategoryComponent } from './category/category.component';
+import { BreadcrumbComponent } from 'src/app/shared/breadcrumb/breadcrumb.component';
 
 @Component({
-  selector: 'app-categories-view',
-  templateUrl: './categories-view.component.html',
-  styleUrls: ['./categories-view.component.scss']
+    selector: 'app-categories-view',
+    templateUrl: './categories-view.component.html',
+    styleUrls: ['./categories-view.component.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    imports: [BreadcrumbComponent, CategoryComponent]
 })
 export class CategoriesViewComponent implements OnInit {
-  categories!: any[];
+  private readonly categoriesState = toSignal(
+    this._productsService
+      .getProductCategories()
+      .pipe(map((response: any) => response.data.category as any[])),
+    { initialValue: undefined },
+  );
 
-  public items!: MenuItem[];
-  home!: MenuItem;
+  public items!: NavigationItem[];
+  home!: NavigationItem;
 
   constructor(
     private _productsService: ProductsService,
     private router: Router
   ) { }
 
+  get categories(): any[] | undefined {
+    return this.categoriesState();
+  }
+
   ngOnInit(): void {
-    this._productsService.getProductCategories().subscribe((categories: any) => {
-      this.categories = categories.data.category;
-    });
     this.items = [
       { label: 'Categories', routerLink: '/categories' },
     ];
