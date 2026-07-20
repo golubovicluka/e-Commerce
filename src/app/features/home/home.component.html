@@ -65,7 +65,7 @@
 </section>
 
 <!-- Latest products carousel -->
-<section class="carousel-section" *ngIf="suggestedProducts; else loading">
+<section class="carousel-section" *ngIf="suggestedProductsLoadState === 'ready'">
   <div class="section-head">
     <div>
       <span class="eyebrow">Just in</span>
@@ -85,19 +85,33 @@
   </p-carousel>
 </section>
 
-<ng-template #loading>
-  <section class="carousel-section">
-    <div class="section-head">
-      <div>
-        <span class="eyebrow">Just in</span>
-        <h2>The latest drops</h2>
-      </div>
+<section class="carousel-section" *ngIf="suggestedProductsLoadState === 'loading'">
+  <div class="section-head">
+    <div>
+      <span class="eyebrow">Just in</span>
+      <h2>The latest drops</h2>
     </div>
-    <div class="carousel-skeletons">
-      <div class="skeleton carousel-skeleton" *ngFor="let s of [1, 2, 3, 4]"></div>
+  </div>
+  <div class="carousel-skeletons">
+    <div class="skeleton carousel-skeleton" *ngFor="let s of [1, 2, 3, 4]"></div>
+  </div>
+</section>
+
+<section class="carousel-section" *ngIf="suggestedProductsLoadState === 'error'">
+  <div class="section-head">
+    <div>
+      <span class="eyebrow">Just in</span>
+      <h2>The latest drops</h2>
     </div>
-  </section>
-</ng-template>
+  </div>
+  <div class="empty-state component-enter">
+    <i class="pi pi-exclamation-circle"></i>
+    <h3>Could not load latest products</h3>
+    <p>The catalog is temporarily unavailable. Please try again later.</p>
+    <button class="p-button-outlined" type="button" pButton pRipple [routerLink]="['/products/search']"
+      label="Browse catalog"></button>
+  </div>
+</section>
 
 <!-- Newsletter — the page's second ink moment, closing the loop with the hero -->
 <section class="newsletter">

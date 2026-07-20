@@ -7,7 +7,7 @@
       <i class="pi pi-bars"></i>
     </button>
 
-    <p-slideMenu #menu [model]="items" [popup]="true" [viewportHeight]="250"></p-slideMenu>
+    <p-slideMenu #menu [model]="items" [popup]="true" [viewportHeight]="320"></p-slideMenu>
 
     <a [routerLink]="['/home']" class="brand">
       <span class="brand-mark"><i class="pi pi-shopping-bag"></i></span>
@@ -20,9 +20,32 @@
       <a [routerLink]="['/categories']" routerLinkActive="active">Categories</a>
     </nav>
 
+    <form class="header-search hidden md:flex" (ngSubmit)="onSearch()" role="search">
+      <span class="p-input-icon-left search-wrap">
+        <i class="pi pi-search" aria-hidden="true"></i>
+        <input
+          type="search"
+          pInputText
+          [(ngModel)]="searchQuery"
+          name="search"
+          placeholder="Search products…"
+          aria-label="Search products"
+          autocomplete="off"
+        />
+      </span>
+    </form>
+
     <div class="header-actions">
-      <a [routerLink]="['/wishlist']" routerLinkActive="active" class="icon-link hidden lg:inline-flex"
-        aria-label="Wishlist">
+      <button
+        type="button"
+        class="icon-link md:hidden search-toggle"
+        (click)="toggleMobileSearch()"
+        [attr.aria-expanded]="mobileSearchOpen"
+        aria-label="Toggle search"
+      >
+        <i class="pi pi-search"></i>
+      </button>
+      <a [routerLink]="['/wishlist']" routerLinkActive="active" class="icon-link" aria-label="Wishlist">
         <i class="pi pi-heart" *ngIf="wishListItems !== '0'" pBadge [value]="wishListItems"></i>
         <i class="pi pi-heart" *ngIf="wishListItems === '0'"></i>
       </a>
@@ -32,4 +55,28 @@
       </a>
     </div>
   </div>
+
+  <form
+  class="mobile-search-bar md:hidden"
+  *ngIf="mobileSearchOpen"
+  (ngSubmit)="onSearch()"
+  role="search"
+  >
+    <span class="p-input-icon-left search-wrap">
+      <i class="pi pi-search" aria-hidden="true"></i>
+      <input
+        type="search"
+        pInputText
+        [(ngModel)]="searchQuery"
+        name="mobileSearch"
+        placeholder="Search products…"
+        aria-label="Search products"
+        autocomplete="off"
+        #mobileSearchInput
+      />
+    </span>
+    <button type="submit" class="search-submit" aria-label="Submit search">
+      <i class="pi pi-arrow-right"></i>
+    </button>
+  </form>
 </header>

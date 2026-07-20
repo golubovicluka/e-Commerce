@@ -27,6 +27,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   ipadSub = 'Apple Pencil hover, ProRes capture, Wi‑Fi 6E.';
 
   suggestedProducts!: any;
+  suggestedProductsLoadState: 'loading' | 'ready' | 'error' = 'loading';
   suggestedProductsSubscription!: Subscription;
   featuredProductsSubscription!: Subscription;
 
@@ -64,11 +65,17 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.setFeaturedFallback('iphone');
     this.loadFeaturedProducts();
 
-    this.suggestedProductsSubscription = this._productService.getSuggestedProducts().subscribe((products: any) => {
-      this.suggestedProducts = products.data.product.map((product: any) => ({
-        ...product,
-        images: this._productImageService.normalizeImages(product.images, product.name)
-      }));
+    this.suggestedProductsSubscription = this._productService.getSuggestedProducts().subscribe({
+      next: (products: any) => {
+        this.suggestedProducts = products.data.product.map((product: any) => ({
+          ...product,
+          images: this._productImageService.normalizeImages(product.images, product.name)
+        }));
+        this.suggestedProductsLoadState = 'ready';
+      },
+      error: () => {
+        this.suggestedProductsLoadState = 'error';
+      },
     });
   }
 

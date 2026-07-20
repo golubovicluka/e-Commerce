@@ -10,7 +10,23 @@
 </div>
 
 <div class="products-layout">
-  <aside class="filters-panel" *ngIf="!isLoading; else loadingFilters">
+  <button
+    type="button"
+    class="filters-toggle lg:hidden"
+    (click)="filtersOpen = !filtersOpen"
+    [attr.aria-expanded]="filtersOpen"
+    aria-controls="catalog-filters"
+  >
+    <i class="pi" [ngClass]="filtersOpen ? 'pi-times' : 'pi-sliders-h'"></i>
+    {{ filtersOpen ? 'Close filters' : 'Filters' }}
+  </button>
+
+  <aside
+    id="catalog-filters"
+    class="filters-panel"
+    [class.filters-panel--open]="filtersOpen"
+    *ngIf="!isLoading; else loadingFilters"
+  >
     <h3 class="filters-title">Category</h3>
     <app-filters (filtersObject)="applyFilters($event)" [categories]="categories"></app-filters>
 
@@ -47,7 +63,13 @@
 
   <!-- Products section -->
   <div class="products-results">
-    <p-dataView [value]="products" [lazy]="true" [paginator]="true" [rows]="rows" [totalRecords]="totalRecords"
+    <div class="empty-state component-enter catalog-error" *ngIf="catalogError && !isLoading">
+      <i class="pi pi-exclamation-circle"></i>
+      <h3>Catalog unavailable</h3>
+      <p>{{ catalogError }}</p>
+      <button class="p-button-outlined" type="button" pButton pRipple (click)="retryCatalogLoad()" label="Try again"></button>
+    </div>
+    <p-dataView *ngIf="!catalogError" [value]="products" [lazy]="true" [paginator]="true" [rows]="rows" [totalRecords]="totalRecords"
       [first]="first" [trackBy]="trackByProductId" (onLazyLoad)="loadData($event)"
       [loading]="isLoading" [rowsPerPageOptions]="[10,20,30]" paginatorPosition="bottom">
       <ng-template pTemplate="header">
