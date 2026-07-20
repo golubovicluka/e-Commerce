@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { NO_ERRORS_SCHEMA } from '@angular/core';
+import { NO_ERRORS_SCHEMA, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import { HeaderComponent } from './header.component';
@@ -23,10 +23,12 @@ describe('HeaderComponent', () => {
 
     beforeEach(async () => {
         wishlist = {
-            getWishListItems: vi.fn().mockName("WishlistService.getWishListItems")
+            getWishListItems: vi.fn().mockName("WishlistService.getWishListItems"),
+            wishListItemsSignal: signal([mockProducts[0]]),
         };
         cart = {
-            getCartItems: vi.fn().mockName("CartService.getCartItems")
+            getCartItems: vi.fn().mockName("CartService.getCartItems"),
+            numberOfItemsSignal: signal(2),
         };
         wishlist.getWishListItems.mockReturnValue(of([mockProducts[0]]));
         cart.getCartItems.mockReturnValue(of([mockProducts[0], mockProducts[1]]));

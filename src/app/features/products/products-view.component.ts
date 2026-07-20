@@ -62,6 +62,7 @@ export class ProductsViewComponent implements OnInit, OnDestroy {
   private searchTerms$ = new Subject<string>();
   private priceChanges$ = new Subject<void>();
   private pageRequests$ = new Subject<void>();
+  private initialCatalogRequestComplete = false;
 
   public items!: NavigationItem[];
   home!: NavigationItem;
@@ -190,12 +191,19 @@ export class ProductsViewComponent implements OnInit, OnDestroy {
         const query = (params['q'] ?? '').trim();
         if (query !== this.searchInput) {
           this.searchInput = query;
-          this.resetToFirstPage();
+          this.first = 0;
+          // ActivatedRoute emits its current parameters synchronously when the
+          // subscription is created. The single fetch below includes that
+          // value; only later URL changes should enqueue another request.
+          if (this.initialCatalogRequestComplete) {
+            this.fetchPage();
+          }
           this.changeDetectorRef.markForCheck();
         }
       })
     );
 
+    this.initialCatalogRequestComplete = true;
     this.fetchPage();
   }
 

@@ -26,6 +26,8 @@
 
 All page routes are lazy loaded. Catalog-only Apollo providers are also loaded on demand, keeping GraphQL code out of the initial application shell.
 
+The project intentionally uses native standalone UI controls and the MIT-licensed PrimeIcons 7 release. PrimeUI 2026 packages require a per-developer license key, so they are not part of the deployable bundle.
+
 ## Running End-to-End Tests
 
 To execute the end-to-end tests, navigate to the project root directory and run:

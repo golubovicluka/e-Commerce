@@ -5,7 +5,7 @@
   </div>
 
   <div class="overview-list">
-    @for (line of cartLines$ | async; track line) {
+    @for (line of cartLines(); track line.product.id) {
       <div class="overview-row">
         <span class="row-name">
           {{ line.product.name }}
@@ -22,7 +22,7 @@
     </div>
     <div class="overview-total">
       <span>Total</span>
-      <span class="font-mono">{{ total$ | async | number }} RSD</span>
+      <span class="font-mono">{{ total() | number }} RSD</span>
     </div>
   </div>
 

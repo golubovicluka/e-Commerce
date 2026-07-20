@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { BehaviorSubject, of, Subject } from 'rxjs';
 
 import { ProductsViewComponent } from './products-view.component';
 import { ProductsService } from './products.service';
@@ -22,15 +23,28 @@ describe('ProductsViewComponent', () => {
     let wishlist: any;
     let cart: any;
     let router: any;
+    let products: any;
+    let queryParams: BehaviorSubject<Record<string, string>>;
 
     beforeEach(async () => {
-        const products = {
+        products = {
             getProducts: vi.fn().mockName("ProductsService.getProducts"),
             getProductCategories: vi.fn().mockName("ProductsService.getProductCategories"),
             searchProducts: vi.fn().mockName("ProductsService.searchProducts"),
             getFilteredProducts: vi.fn().mockName("ProductsService.getFilteredProducts"),
-            getProductsByPrice: vi.fn().mockName("ProductsService.getProductsByPrice")
+            getProductsByPrice: vi.fn().mockName("ProductsService.getProductsByPrice"),
+            getProductsPage: vi.fn().mockName("ProductsService.getProductsPage"),
+            getPriceBounds: vi.fn().mockName("ProductsService.getPriceBounds"),
+            categoryFilter: new Subject<string>(),
         };
+        products.getProductsPage.mockReturnValue(of({
+            data: { product: [], product_aggregate: { aggregate: { count: 0 } } },
+        }));
+        products.getPriceBounds.mockReturnValue(of({
+            data: { product_aggregate: { aggregate: { min: { price: 0 }, max: { price: 0 } } } },
+        }));
+        products.getProductCategories.mockReturnValue(of({ data: { category: [] } }));
+        queryParams = new BehaviorSubject<Record<string, string>>({ q: 'phone' });
         wishlist = {
             addWishListItem: vi.fn().mockName("WishlistService.addWishListItem"),
             removeWishListItem: vi.fn().mockName("WishlistService.removeWishListItem")
@@ -52,7 +66,10 @@ describe('ProductsViewComponent', () => {
         { provide: WishlistService, useValue: wishlist },
         { provide: CartService, useValue: cart },
         { provide: Router, useValue: router },
-        { provide: ActivatedRoute, useValue: { snapshot: { params: {} } } },
+        {
+            provide: ActivatedRoute,
+            useValue: { snapshot: { params: {} }, queryParams },
+        },
     ],
     schemas: [NO_ERRORS_SCHEMA],
 }).compileComponents();
@@ -92,5 +109,14 @@ describe('ProductsViewComponent', () => {
     it('openProductDetails navigates to the product route', () => {
         component.openProductDetails(9);
         expect(router.navigate).toHaveBeenCalledWith(['/product', 9]);
+    });
+
+    it('loads a query-param search exactly once during initialization', () => {
+        component.ngOnInit();
+
+        expect(products.getProductsPage).toHaveBeenCalledTimes(1);
+        expect(products.getProductsPage).toHaveBeenLastCalledWith(
+            expect.objectContaining({ where: { name: { _ilike: '%phone%' } } }),
+        );
     });
 });

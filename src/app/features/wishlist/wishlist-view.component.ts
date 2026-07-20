@@ -1,5 +1,4 @@
 import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { WishlistService } from '../../shared/wishlist.service';
 import { Product } from '../products/Product';
 import { NavigationItem } from 'src/app/shared/navigation-item';
@@ -21,11 +20,6 @@ export class WishlistViewComponent implements OnInit {
   public items!: NavigationItem[];
   home!: NavigationItem;
 
-  private readonly wishlistItemsState = toSignal(
-    this._wishlistService.getWishListItems(),
-    { initialValue: [] },
-  );
-
   constructor(
     private _wishlistService: WishlistService,
     private _messageService: NotificationService,
@@ -33,7 +27,7 @@ export class WishlistViewComponent implements OnInit {
   ) { }
 
   get wishlistItems(): Product[] {
-    return this.wishlistItemsState();
+    return this._wishlistService.wishListItemsSignal();
   }
 
   ngOnInit(): void {

@@ -1,5 +1,4 @@
 import { computed, Component, ElementRef, OnInit, ViewChild, ChangeDetectionStrategy } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { WishlistService } from '../../../shared/wishlist.service';
 import { CartService } from 'src/app/shared/cart.service';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
@@ -21,15 +20,12 @@ export class HeaderComponent implements OnInit {
 
   @ViewChild('mobileSearchInput') mobileSearchInput?: ElementRef<HTMLInputElement>;
 
-  private readonly wishlistItemsState = toSignal(
-    this._wishlistService.getWishListItems(),
-    { initialValue: [] },
+  private readonly wishlistCount = computed(
+    () => this._wishlistService.wishListItemsSignal().length.toString(),
   );
-  private readonly cartItemsState = toSignal(this._cartService.getCartItems(), {
-    initialValue: [],
-  });
-  private readonly wishlistCount = computed(() => this.wishlistItemsState().length.toString());
-  private readonly cartCount = computed(() => this.cartItemsState().length.toString());
+  private readonly cartCount = computed(
+    () => this._cartService.numberOfItemsSignal().toString(),
+  );
 
   constructor(
     private _wishlistService: WishlistService,

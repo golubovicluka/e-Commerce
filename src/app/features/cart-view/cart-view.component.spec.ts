@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { NO_ERRORS_SCHEMA } from '@angular/core';
+import { NO_ERRORS_SCHEMA, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subject } from 'rxjs';
 
@@ -30,7 +30,10 @@ describe('CartViewComponent', () => {
             getTotalPrice: vi.fn().mockName("CartService.getTotalPrice"),
             getProductIndex: vi.fn().mockName("CartService.getProductIndex"),
             setQuantityAtIndex: vi.fn().mockName("CartService.setQuantityAtIndex"),
-            removeFromCart: vi.fn().mockName("CartService.removeFromCart")
+            removeFromCart: vi.fn().mockName("CartService.removeFromCart"),
+            cartLinesSignal: signal([]),
+            totalPriceSignal: signal(0),
+            numberOfItemsSignal: signal(0),
         };
         cart.getCartItems.mockReturnValue(of([]));
         cart.getCartLines.mockReturnValue(of([]));

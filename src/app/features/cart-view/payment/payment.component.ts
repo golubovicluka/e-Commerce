@@ -4,19 +4,20 @@ import { Observable } from 'rxjs';
 import { CartService } from 'src/app/shared/cart.service';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { AsyncPipe, DecimalPipe } from '@angular/common';
+import { DecimalPipe } from '@angular/common';
 
 @Component({
     selector: 'app-payment',
     templateUrl: './payment.component.html',
     styleUrls: ['./payment.component.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush,
-    imports: [FormsModule, RouterLink, AsyncPipe, DecimalPipe]
+    imports: [FormsModule, RouterLink, DecimalPipe]
 })
 export class PaymentComponent {
 
   selectedPaymentMethod: string = 'creditCard';
   total$: Observable<number>;
+  readonly total = this._cartService.totalPriceSignal;
 
   cardNumber: string = '';
   cardHolderName: string = '';

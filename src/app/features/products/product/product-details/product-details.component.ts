@@ -95,6 +95,14 @@ export class ProductDetailsComponent implements OnInit {
     this.home = { icon: 'pi pi-home', routerLink: '/home' };
   }
 
+  /** Kept as part of the component's public API for existing integrations. */
+  getNumVisible(): number {
+    const width = window.innerWidth;
+    if (width <= 560) return 1;
+    if (width <= 768) return 2;
+    return 3;
+  }
+
   navigateBack() {
     this._location.back();
   }
@@ -116,6 +124,14 @@ export class ProductDetailsComponent implements OnInit {
     }
   }
 
+  addToWishlist(product: Product) {
+    this.addToWishList(product);
+  }
+
+  removeFromWishlist(product: Product) {
+    this.removedFromWishList(product);
+  }
+
   addToCart(product: Product) {
     this._cartService.addToCart(product);
   }
@@ -134,6 +150,10 @@ export class ProductDetailsComponent implements OnInit {
 
   checkIfInWishlist(product: Product) {
     return this._wishlistService.inWishlist(product.id);
+  }
+
+  openProductDetails(id: number) {
+    this.router.navigate(['/product', id]);
   }
 
   getInstallmentAmount = getInstallmentAmount;

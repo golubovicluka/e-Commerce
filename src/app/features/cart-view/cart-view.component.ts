@@ -1,5 +1,4 @@
 import { Component, OnDestroy, OnInit, ChangeDetectionStrategy, signal } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, NavigationEnd, Router, RouterOutlet, RouterLink } from '@angular/router';
 
 import { NavigationItem } from 'src/app/shared/navigation-item';
@@ -28,11 +27,8 @@ import { BreadcrumbComponent } from 'src/app/shared/breadcrumb/breadcrumb.compon
 export class CartViewComponent implements OnInit, OnDestroy {
   readonly cartLines$: Observable<CartLine[]> = this._cartService.getCartLines();
   readonly totalPrice$: Observable<number> = this._cartService.getTotalPrice();
-  readonly cartLines = toSignal(this.cartLines$, { initialValue: [] });
-  readonly totalPrice = toSignal(this.totalPrice$, { initialValue: 0 });
-  private readonly cartItemsState = toSignal(this._cartService.getCartItems(), {
-    initialValue: [],
-  });
+  readonly cartLines = this._cartService.cartLinesSignal;
+  readonly totalPrice = this._cartService.totalPriceSignal;
 
   private readonly checkoutActiveState = signal(false);
   private readonly activeIndexState = signal(0);
@@ -54,7 +50,7 @@ export class CartViewComponent implements OnInit, OnDestroy {
   ) {}
 
   get numberOfItems(): number {
-    return this.cartItemsState().length;
+    return this._cartService.numberOfItemsSignal();
   }
 
   get checkoutActive(): boolean {

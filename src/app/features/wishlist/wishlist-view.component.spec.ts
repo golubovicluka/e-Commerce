@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { NO_ERRORS_SCHEMA } from '@angular/core';
+import { NO_ERRORS_SCHEMA, signal } from '@angular/core';
 import { NotificationService } from 'src/app/shared/notification.service';
 import { of } from 'rxjs';
 
@@ -18,7 +18,8 @@ describe('WishlistViewComponent', () => {
         wishlist = {
             getWishListItems: vi.fn().mockName("WishlistService.getWishListItems"),
             removeWishListItem: vi.fn().mockName("WishlistService.removeWishListItem"),
-            inWishlist: vi.fn().mockName("WishlistService.inWishlist")
+            inWishlist: vi.fn().mockName("WishlistService.inWishlist"),
+            wishListItemsSignal: signal([mockProducts[0], mockProducts[1]]),
         };
         cart = {
             addToCart: vi.fn().mockName("CartService.addToCart"),

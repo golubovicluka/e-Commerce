@@ -28,8 +28,9 @@ See `README.md` for clone/install/serve steps. Quick reference:
 
 - **Node:** Use Node 24.15.0 from `.nvmrc`; Angular 22 requires Node `^22.22.3`, `^24.15.0`, or `>=26`.
 - **Hasura auth:** The browser sends **no** authorization header. Catalog queries rely on a read-only Hasura `anonymous` role configured on the backend. Until that role is enabled, direct `curl` and the live app receive `access-denied` — see `SECURITY.md` for the required Hasura Cloud setup (not a client bug).
-- **Unit tests:** `npm run test:ci` runs 177 specs in Vitest.
+- **Unit tests:** `npm run test:ci` runs 181 specs in Vitest.
 - **Cypress:** `cypress.config.ts` has no `baseUrl`. Several specs use `[data-cy="..."]` attributes not present in `src/`. `home.cy.ts` references a removed Login nav link.
+- **UI licensing:** Native standalone controls replaced PrimeNG. PrimeIcons stays on the MIT-licensed v7 major; v8 and PrimeNG 22 require a PrimeUI developer license key.
 - **No git hooks:** No Husky/pre-commit; nothing extra to run before commits.
 
 ### Cloud Agent workflow

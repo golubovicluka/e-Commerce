@@ -1,15 +1,15 @@
 import { Injectable, signal } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { map, Observable, startWith, Subject } from 'rxjs';
 import { Product, parseStoredProducts } from '../features/products/Product';
 
 @Injectable({
   providedIn: 'root'
 })
 export class WishlistService {
-  private wishListItems$ = new BehaviorSubject<Product[]>([]);
   private readonly wishListItemsState = signal<Product[]>([]);
-  wishListItemsObservable = this.wishListItems$.asObservable();
+  private readonly wishlistChanges$ = new Subject<void>();
   readonly wishListItemsSignal = this.wishListItemsState.asReadonly();
+  readonly wishListItemsObservable = this.getWishListItems();
 
   constructor() {
     try {
@@ -21,15 +21,18 @@ export class WishlistService {
   }
 
   getWishListItems(): Observable<Product[]> {
-    return this.wishListItemsObservable;
+    return this.wishlistChanges$.pipe(
+      startWith(undefined),
+      map(() => this.wishListItemsState()),
+    );
   }
 
   inWishlist(id: number): boolean {
-    return this.wishListItems$.value.some(product => product.id === id);
+    return this.wishListItemsState().some(product => product.id === id);
   }
 
   addWishListItem(item: Product): void {
-    const currentItems = [...this.wishListItems$.value, item];
+    const currentItems = [...this.wishListItemsState(), item];
 
     try {
       localStorage.setItem('wishlist', JSON.stringify(currentItems));
@@ -40,7 +43,7 @@ export class WishlistService {
   }
 
   removeWishListItem(item: Product): void {
-    const currentItems = this.wishListItems$.value.filter(product => product.id !== item.id);
+    const currentItems = this.wishListItemsState().filter(product => product.id !== item.id);
 
     try {
       localStorage.setItem('wishlist', JSON.stringify(currentItems));
@@ -51,7 +54,7 @@ export class WishlistService {
   }
 
   private setWishlistItems(items: Product[]): void {
-    this.wishListItems$.next(items);
     this.wishListItemsState.set(items);
+    this.wishlistChanges$.next();
   }
 }

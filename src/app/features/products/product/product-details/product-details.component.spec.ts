@@ -95,4 +95,9 @@ describe('ProductDetailsComponent', () => {
         expect(cart.removeFromCart).toHaveBeenCalledTimes(1);
         expect(cart.removeFromCart).toHaveBeenCalledWith(mockProducts[0]);
     });
+
+    it('keeps the existing public navigation API', () => {
+        component.openProductDetails(42);
+        expect(router.navigate).toHaveBeenCalledWith(['/product', 42]);
+    });
 });
