@@ -71,6 +71,10 @@ describe('Catalog discovery', () => {
     cy.wait('@gqlGetProductsByCategory');
     cy.location('pathname').should('eq', '/product/1');
     cy.contains('h1', 'MacBook Pro M1').should('be.visible');
+    cy.get('p-gallery.product-image-viewer').should('be.visible');
+    cy.get('.p-gallery-thumbnail-item').should('have.length', 2);
+    cy.get('button[aria-label="Next product image"]').click();
+    cy.contains('.viewer-counter', '2 / 2').should('be.visible');
 
     cy.get('button[aria-label="Add to wishlist"]').click();
     cy.contains('[role="status"]', 'Added to wishlist').should('be.visible');
