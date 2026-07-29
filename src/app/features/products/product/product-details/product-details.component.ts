@@ -216,6 +216,7 @@ export class ProductDetailsComponent implements OnInit {
     this.product = { ...product };
     this.images = this._productImageService.normalizeImages(product.images, product.name);
     this.product.images = this.images;
+    this.activeIndex = 0;
     this.inWishlist = this.checkInWishlist(this.id);
     this.setBreadcrumbItems();
     this.changeDetectorRef.markForCheck();
