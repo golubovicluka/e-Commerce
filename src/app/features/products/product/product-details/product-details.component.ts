@@ -18,13 +18,14 @@ import { FormsModule } from '@angular/forms';
 import { ProductComponent } from '../product.component';
 import { take } from 'rxjs';
 import { BreadcrumbComponent } from 'src/app/shared/breadcrumb/breadcrumb.component';
+import { GalleryModule } from 'primeng/gallery';
 
 @Component({
     selector: 'app-product-details',
     templateUrl: './product-details.component.html',
     styleUrls: ['./product-details.component.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush,
-    imports: [BreadcrumbComponent, FormsModule, ProductComponent, DecimalPipe]
+    imports: [BreadcrumbComponent, FormsModule, ProductComponent, DecimalPipe, GalleryModule]
 })
 export class ProductDetailsComponent implements OnInit {
   images!: string[];
