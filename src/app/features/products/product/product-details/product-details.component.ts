@@ -190,14 +190,22 @@ export class ProductDetailsComponent implements OnInit {
   }
 
   imageClick(index: number) {
-    this.activeIndex = index;
+    if (index >= 0 && index < this.images.length) {
+      this.activeIndex = index;
+    }
   }
 
   onGalleryImageError(event: Event, imageIndex: number): void {
     const imageElement = event.target as HTMLImageElement | null;
     this._productImageService.handleImageError(event, this.product?.name);
     if (imageElement?.src) {
-      this.images[imageIndex] = imageElement.src;
+      this.images = this.images.map((image, index) =>
+        index === imageIndex ? imageElement.src : image
+      );
+      if (this.product) {
+        this.product = { ...this.product, images: this.images };
+      }
+      this.changeDetectorRef.markForCheck();
     }
   }
 
