@@ -29,4 +29,7 @@ export default {
   },
   setupFilesAfterEnv: ['<rootDir>/setup-jest.ts'],
   testMatch: ['<rootDir>/src/**/*.spec.ts'],
+  transformIgnorePatterns: [
+    'node_modules/(?!(.*\\.mjs$|@angular/common/locales/.*\\.js$|@noble/(ed25519|hashes)/.*\\.js$))',
+  ],
 };
