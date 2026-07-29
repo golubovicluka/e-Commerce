@@ -4,6 +4,8 @@ import {
   provideZoneChangeDetection,
 } from '@angular/core';
 import { provideRouter, withInMemoryScrolling } from '@angular/router';
+import Aura from '@primeuix/themes/aura';
+import { providePrimeNG } from 'primeng/config';
 
 import { routes } from './app.routes';
 
@@ -15,5 +17,15 @@ export const appConfig: ApplicationConfig = {
       withInMemoryScrolling({ scrollPositionRestoration: 'enabled' }),
     ),
     provideHttpClient(),
+    // PrimeNG 22 also requires a valid `license` value here before deployment.
+    // Obtain a Community or Commercial developer key from PrimeUI; never invent one.
+    providePrimeNG({
+      theme: {
+        preset: Aura,
+        options: {
+          darkModeSelector: false,
+        },
+      },
+    }),
   ],
 };
