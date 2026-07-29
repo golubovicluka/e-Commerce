@@ -154,20 +154,21 @@ $md: 768px;
       padding: var(--space-1);
     }
 
-    .thumbnail-item {
-      flex: 0 0 auto;
-      width: 70px;
-      height: 70px;
-      padding: .3rem;
-      border: 1px solid var(--color-border);
+    .p-gallery-thumbnail-item {
+      width: 4rem;
+      height: 4rem;
+      padding: var(--space-1);
+      border: 1px solid var(--color-ink-border);
       border-radius: var(--radius-md);
-      cursor: pointer;
       background: var(--color-surface-elevated);
-      transition: border-color var(--duration-base) var(--ease-out),
-        transform var(--duration-base) var(--ease-out);
+      outline: none;
 
-      &:hover,
-      &.active {
+      &:hover {
+        border-color: var(--color-text-on-ink-muted);
+        outline: none;
+      }
+
+      &[data-active] {
         border-color: var(--color-accent);
         transform: scale(1.03);
       }
