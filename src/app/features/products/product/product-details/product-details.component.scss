@@ -170,19 +170,30 @@ $md: 768px;
 
       &[data-active] {
         border-color: var(--color-accent);
-        transform: scale(1.03);
+        box-shadow: 0 0 0 2px var(--color-accent);
+        outline: none;
+        scale: 1;
+      }
+    }
+
+    .viewer-thumbnail {
+      width: 100%;
+      height: 100%;
+      border-radius: var(--radius-sm);
+      object-fit: cover;
+    }
+
+    .viewer-exit-fullscreen {
+      display: none;
+    }
+
+    [data-action="fullscreen"][data-fullscreen] {
+      .viewer-enter-fullscreen {
+        display: none;
       }
 
-      img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        border-radius: var(--radius-sm);
-      }
-
-      @media screen and (max-width: $sm) {
-        width: 56px;
-        height: 56px;
+      .viewer-exit-fullscreen {
+        display: inline-block;
       }
     }
 
