@@ -6,20 +6,17 @@
   <div class="details-layout component-enter">
     <!-- Gallery -->
     <div class="gallery-pane">
-      <div class="product-gallery-container">
+      <p-gallery class="product-image-viewer" [(activeIndex)]="activeIndex"
+        [attr.aria-label]="product.name + ' image viewer'">
+        <p-gallery-backdrop></p-gallery-backdrop>
+
         @if (images.length > 1) {
-          <div class="thumbnails-wrapper">
-            <div class="thumbnails-container">
-              @for (image of images; track image; let index = $index) {
-                <button class="thumbnail-item" type="button" [class.active]="activeIndex === index"
-                  (click)="imageClick(index)">
-                  <img [src]="image" loading="lazy" decoding="async"
-                    (error)="onGalleryImageError($event, index)"
-                    [alt]="product.name + ' photo ' + (index + 1)">
-                </button>
-              }
-            </div>
-          </div>
+          <button pGalleryPrev class="viewer-nav" type="button" aria-label="Previous product image">
+            <i class="pi pi-chevron-left" aria-hidden="true"></i>
+          </button>
+          <button pGalleryNext class="viewer-nav" type="button" aria-label="Next product image">
+            <i class="pi pi-chevron-right" aria-hidden="true"></i>
+          </button>
         }
         <div class="main-image-wrapper">
           <img class="w-full h-auto max-w-full border-round" [src]="images[activeIndex]"
