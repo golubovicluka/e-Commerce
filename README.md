@@ -20,13 +20,13 @@
 
 ## Tech Stack
 
-- **Client:** Angular 22 standalone components, signals, lightweight native UI, PrimeFlex, Apollo Client 4
+- **Client:** Angular 22 standalone components, signals, PrimeNG 22 Gallery, PrimeFlex, Apollo Client 4
 - **Server:** Hasura GraphQL
 - **Tests:** Jest and Cypress
 
 All page routes are lazy loaded. Catalog-only Apollo providers are also loaded on demand, keeping GraphQL code out of the initial application shell.
 
-The project intentionally uses native standalone UI controls and the MIT-licensed PrimeIcons 7 release. PrimeUI 2026 packages require a per-developer license key, so they are not part of the deployable bundle.
+The product-details page uses the PrimeNG 22 Gallery image viewer. PrimeNG 22 requires a valid per-developer PrimeUI Community or Commercial license key before deployment. PrimeIcons remains on the MIT-licensed v7 CSS release because the Gallery integration does not require a v8 upgrade.
 
 ## Running End-to-End Tests
 
