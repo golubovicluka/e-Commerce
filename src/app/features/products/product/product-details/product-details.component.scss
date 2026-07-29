@@ -71,15 +71,87 @@ $md: 768px;
       font-size: var(--text-xs);
     }
 
-    .thumbnails-container {
+    .viewer-actions {
       display: flex;
-      gap: .5rem;
-      overflow-x: auto;
+      align-items: center;
+      gap: var(--space-1);
+      margin-left: auto;
+    }
 
-      @media screen and (min-width: $md) {
-        flex-direction: column;
-        gap: .75rem;
+    .p-gallery-action,
+    .p-gallery-next,
+    .p-gallery-prev {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 2.5rem;
+      height: 2.5rem;
+      min-height: 2.5rem;
+      padding: 0;
+      border: 1px solid transparent;
+      border-radius: var(--radius-md);
+      background: rgba(247, 249, 251, 0.08);
+      color: var(--color-text-on-ink);
+      cursor: pointer;
+      transition: background var(--duration-base) var(--ease-out),
+        border-color var(--duration-base) var(--ease-out),
+        transform var(--duration-fast) var(--ease-out);
+
+      &:hover {
+        background: rgba(247, 249, 251, 0.16);
+        border-color: var(--color-ink-border);
       }
+
+      &:active {
+        transform: scale(0.94);
+      }
+    }
+
+    .p-gallery-next,
+    .p-gallery-prev {
+      top: 50%;
+      width: 2.75rem;
+      height: 3.5rem;
+      background: rgba(11, 23, 40, 0.72);
+      border-color: var(--color-ink-border);
+      backdrop-filter: blur(10px);
+    }
+
+    .p-gallery-prev {
+      left: var(--space-3);
+    }
+
+    .p-gallery-next {
+      right: var(--space-3);
+    }
+
+    .p-gallery-content {
+      min-height: 0;
+      margin: var(--space-2) var(--space-12);
+      overflow: hidden;
+    }
+
+    .p-gallery-item {
+      overflow: hidden;
+    }
+
+    .viewer-image {
+      display: block;
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+      filter: drop-shadow(0 18px 30px rgba(0, 0, 0, 0.24));
+    }
+
+    .p-gallery-footer {
+      min-height: 5.75rem;
+      padding: var(--space-2) var(--space-4);
+      background: rgba(11, 23, 40, 0.94);
+      border-color: var(--color-ink-border);
+    }
+
+    .p-gallery-thumbnail-content {
+      padding: var(--space-1);
     }
 
     .thumbnail-item {
