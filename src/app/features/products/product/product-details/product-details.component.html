@@ -6,26 +6,68 @@
   <div class="details-layout component-enter">
     <!-- Gallery -->
     <div class="gallery-pane">
-      <div class="product-gallery-container">
+      <p-gallery class="product-image-viewer" [(activeIndex)]="activeIndex"
+        [attr.aria-label]="product.name + ' image viewer'">
+        <p-gallery-backdrop></p-gallery-backdrop>
+
         @if (images.length > 1) {
-          <div class="thumbnails-wrapper">
-            <div class="thumbnails-container">
-              @for (image of images; track image; let index = $index) {
-                <button class="thumbnail-item" type="button" [class.active]="activeIndex === index"
-                  (click)="imageClick(index)">
-                  <img [src]="image" loading="lazy" decoding="async"
-                    (error)="onGalleryImageError($event, index)"
-                    [alt]="product.name + ' photo ' + (index + 1)">
-                </button>
-              }
-            </div>
-          </div>
+          <button pGalleryPrev class="viewer-nav" type="button" aria-label="Previous product image">
+            <i class="pi pi-chevron-left" aria-hidden="true"></i>
+          </button>
+          <button pGalleryNext class="viewer-nav" type="button" aria-label="Next product image">
+            <i class="pi pi-chevron-right" aria-hidden="true"></i>
+          </button>
         }
-        <div class="main-image-wrapper">
-          <img class="w-full h-auto max-w-full border-round" [src]="images[activeIndex]"
-            decoding="async" (error)="onGalleryImageError($event, activeIndex)" [alt]="product.name">
-        </div>
-      </div>
+
+        <p-gallery-header class="viewer-toolbar">
+          <span class="viewer-counter font-mono" aria-live="polite">
+            {{ activeIndex + 1 }} / {{ images.length }}
+          </span>
+          <span class="viewer-hint">Click the image to zoom</span>
+          <span class="viewer-actions">
+            <button pGalleryRotateLeft type="button" aria-label="Rotate image left" title="Rotate left">
+              <i class="pi pi-replay" aria-hidden="true"></i>
+            </button>
+            <button pGalleryZoomOut type="button" aria-label="Zoom out" title="Zoom out">
+              <i class="pi pi-search-minus" aria-hidden="true"></i>
+            </button>
+            <button pGalleryZoomIn type="button" aria-label="Zoom in" title="Zoom in">
+              <i class="pi pi-search-plus" aria-hidden="true"></i>
+            </button>
+            <button pGalleryFullScreen type="button" aria-label="Toggle fullscreen image viewer"
+              title="Toggle fullscreen">
+              <i class="pi pi-window-maximize viewer-enter-fullscreen" aria-hidden="true"></i>
+              <i class="pi pi-window-minimize viewer-exit-fullscreen" aria-hidden="true"></i>
+            </button>
+          </span>
+        </p-gallery-header>
+
+        <p-gallery-content>
+          @for (image of images; track $index; let index = $index) {
+            <p-gallery-item [zoomedScale]="2.5">
+              <img class="viewer-image" [src]="image" decoding="async" [attr.loading]="index === 0 ? 'eager' : 'lazy'"
+                [attr.draggable]="false" (error)="onGalleryImageError($event, index)"
+                [alt]="product.name + ' photo ' + (index + 1)">
+            </p-gallery-item>
+          }
+        </p-gallery-content>
+
+        @if (images.length > 1) {
+          <p-gallery-footer>
+            <p-gallery-thumbnail [slidesPerPage]="images.length" [spacing]="12">
+              <p-gallery-thumbnail-content>
+                @for (image of images; track $index; let index = $index) {
+                  <p-gallery-thumbnail-item [index]="index">
+                    <img class="viewer-thumbnail" [src]="image" loading="lazy" decoding="async"
+                      [attr.draggable]="false" (error)="onGalleryImageError($event, index)"
+                      [alt]="'Show ' + product.name + ' photo ' + (index + 1)">
+                  </p-gallery-thumbnail-item>
+                }
+              </p-gallery-thumbnail-content>
+            </p-gallery-thumbnail>
+          </p-gallery-footer>
+        }
+      </p-gallery>
     </div>
     <!-- Buy panel -->
     <div class="buy-pane">

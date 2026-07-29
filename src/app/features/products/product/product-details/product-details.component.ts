@@ -18,13 +18,14 @@ import { FormsModule } from '@angular/forms';
 import { ProductComponent } from '../product.component';
 import { take } from 'rxjs';
 import { BreadcrumbComponent } from 'src/app/shared/breadcrumb/breadcrumb.component';
+import { GalleryModule } from 'primeng/gallery';
 
 @Component({
     selector: 'app-product-details',
     templateUrl: './product-details.component.html',
     styleUrls: ['./product-details.component.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush,
-    imports: [BreadcrumbComponent, FormsModule, ProductComponent, DecimalPipe]
+    imports: [BreadcrumbComponent, FormsModule, ProductComponent, DecimalPipe, GalleryModule]
 })
 export class ProductDetailsComponent implements OnInit {
   images!: string[];
@@ -189,14 +190,22 @@ export class ProductDetailsComponent implements OnInit {
   }
 
   imageClick(index: number) {
-    this.activeIndex = index;
+    if (index >= 0 && index < this.images.length) {
+      this.activeIndex = index;
+    }
   }
 
   onGalleryImageError(event: Event, imageIndex: number): void {
     const imageElement = event.target as HTMLImageElement | null;
     this._productImageService.handleImageError(event, this.product?.name);
     if (imageElement?.src) {
-      this.images[imageIndex] = imageElement.src;
+      this.images = this.images.map((image, index) =>
+        index === imageIndex ? imageElement.src : image
+      );
+      if (this.product) {
+        this.product = { ...this.product, images: this.images };
+      }
+      this.changeDetectorRef.markForCheck();
     }
   }
 
@@ -207,6 +216,7 @@ export class ProductDetailsComponent implements OnInit {
     this.product = { ...product };
     this.images = this._productImageService.normalizeImages(product.images, product.name);
     this.product.images = this.images;
+    this.activeIndex = 0;
     this.inWishlist = this.checkInWishlist(this.id);
     this.setBreadcrumbItems();
     this.changeDetectorRef.markForCheck();

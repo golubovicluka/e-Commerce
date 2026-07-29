@@ -48,8 +48,9 @@ live data depends on this backend step.
 
 ## Tracked follow-ups
 
-- **Dependency upgrades:** the app is on end-of-life Angular 15 / PrimeNG 15 with
-  known high-severity advisories. A major-version migration is tracked separately.
+- **PrimeUI licensing:** the app uses Angular 22 with PrimeNG 22 for the product
+  image viewer. Configure a valid PrimeUI Community or Commercial developer
+  license key before deploying the PrimeNG bundle.
 - **Authentication / authorization:** there is currently no user auth. If
   authenticated features (orders, accounts, writes) are added, introduce JWT/session
   auth with per-role Hasura permissions and Angular route guards. Tracked separately.
