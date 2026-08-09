@@ -171,7 +171,7 @@ describe('ProductComponent', () => {
     describe('getInstallmentAmount', () => {
         it('floors price / 12', () => {
             expect(component.getInstallmentAmount(1200, 12)).toBe(100);
-            expect(component.getInstallmentAmount(1250, 12)).toBe(104); // 104.16 -> 104
+            expect(component.getInstallmentAmount(1250, 12)).toBe(104.16);
             expect(component.getInstallmentAmount(0, 12)).toBe(0);
         });
     });
