@@ -6,14 +6,14 @@
 .cart-head {
   margin: var(--space-2) 0 var(--space-6);
 
-  .free-shipping {
+  .cart-storage-note {
     display: inline-flex;
     align-items: center;
     gap: var(--space-2);
     padding: var(--space-2) var(--space-4);
     border-radius: var(--radius-sm);
-    background: var(--color-success-dim);
-    color: var(--color-success);
+    background: var(--color-accent-dim);
+    color: var(--color-accent-strong);
     font-weight: 500;
     font-size: var(--text-sm);
     white-space: nowrap;
@@ -114,6 +114,7 @@
   border-radius: var(--radius-md);
   padding: var(--space-2);
   cursor: pointer;
+  text-decoration: none;
 
   img {
     max-width: 100%;
@@ -137,6 +138,10 @@
   }
 }
 
+.item-heading {
+  font-size: inherit;
+}
+
 .item-name {
   font-family: var(--font-body);
   font-weight: 700;
@@ -144,6 +149,8 @@
   letter-spacing: 0;
   line-height: 1.35;
   cursor: pointer;
+  color: var(--color-text-primary);
+  text-decoration: none;
   transition: color var(--duration-base) var(--ease-out);
 
   &:hover {
@@ -206,8 +213,8 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 2rem;
-    height: 2rem;
+    width: 2.75rem;
+    height: 2.75rem;
     border-radius: var(--radius-sm);
     border: 1px solid var(--color-border);
     background: var(--color-surface-elevated);
@@ -234,14 +241,9 @@
 
 .quantity-input {
   width: 3.5rem;
-  min-height: 2rem;
+  min-height: 2.75rem;
   border: 1px solid var(--color-border);
   text-align: center;
-}
-
-::ng-deep #integeronly {
-  width: 3.5rem !important;
-  text-align: center !important;
 }
 
 .remove-btn {
@@ -251,8 +253,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 2rem;
-  height: 2rem;
+  width: 2.75rem;
+  height: 2.75rem;
   border: none;
   border-radius: var(--radius-sm);
   background: transparent;
@@ -308,8 +310,8 @@
   color: var(--color-text-secondary);
 }
 
-.shipping-free {
-  color: var(--color-success);
+.shipping-pending {
+  color: var(--color-text-secondary);
   font-weight: 600;
 }
 

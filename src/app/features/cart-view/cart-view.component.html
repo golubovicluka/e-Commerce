@@ -7,8 +7,8 @@
       <span class="eyebrow">Checkout</span>
       <h1 class="page-title">Your cart</h1>
     </div>
-    <span class="free-shipping">
-      <i class="pi pi-check-circle"></i> Free shipping on all orders
+    <span class="cart-storage-note">
+      <i class="pi pi-save" aria-hidden="true"></i> Saved in this browser
     </span>
   </div>
 }
@@ -21,25 +21,24 @@
       <div class="cart-items stagger">
         @for (line of cartLines(); track line.product.id) {
           <div class="cart-item-card">
-            <div class="item-media" (click)="openProductDetails(line.product.id)"
-              (keyup.enter)="openProductDetails(line.product.id)" role="link" tabindex="0">
+            <a class="item-media" [routerLink]="['/product', line.product.id]"
+              [attr.aria-label]="'View ' + line.product.name + ' details'">
               <img [src]="getProductImage(line.product)" (error)="onProductImageError($event, line.product.name)"
                 [alt]="line.product.name" loading="lazy" decoding="async">
-            </div>
+            </a>
             <div class="item-info">
-              <h3 class="item-name" (click)="openProductDetails(line.product.id)"
-                (keyup.enter)="openProductDetails(line.product.id)" role="link" tabindex="0">
-                {{ line.product.name }}
-              </h3>
+              <h2 class="item-heading">
+                <a class="item-name" [routerLink]="['/product', line.product.id]">{{ line.product.name }}</a>
+              </h2>
               <span class="item-price font-mono">{{ line.product.price | number }} <span class="currency">RSD</span></span>
               @if (line.product.inStock > 1) {
                 <span class="item-stock">
-                  <span class="stock-dot"></span> {{ line.product.inStock }} in stock
+                  <span class="stock-dot" aria-hidden="true"></span> {{ line.product.inStock }} in stock
                 </span>
               }
               @if (line.product.inStock === 1) {
                 <span class="item-stock item-stock--low">
-                  <i class="pi pi-info-circle"></i> Only 1 left
+                  <i class="pi pi-info-circle" aria-hidden="true"></i> Only 1 left
                 </span>
               }
             </div>
@@ -47,22 +46,23 @@
               <div class="qty-controls" role="group" [attr.aria-label]="'Quantity of ' + line.product.name">
                 <button class="qty-btn" type="button" aria-label="Decrease quantity"
                   (click)="decrementProductCount(line.product.id, line.quantity)" [disabled]="line.quantity <= 1">
-                  <i class="pi pi-minus"></i>
+                  <i class="pi pi-minus" aria-hidden="true"></i>
                 </button>
                 <input class="quantity-input" type="number" [min]="1" [max]="line.product.inStock"
                   [id]="'qty-' + line.product.id" [ngModel]="line.quantity"
+                  [attr.aria-label]="'Quantity of ' + line.product.name"
                   (ngModelChange)="onQuantityChange(line.product.id, $event)">
                 <button class="qty-btn" type="button" aria-label="Increase quantity"
                   (click)="incrementProductCount(line.product.id, line.product.inStock, line.quantity)"
                   [disabled]="line.quantity >= line.product.inStock">
-                  <i class="pi pi-plus"></i>
+                  <i class="pi pi-plus" aria-hidden="true"></i>
                 </button>
               </div>
               <span class="line-total font-mono">{{ line.lineTotal | number }} <span class="currency">RSD</span></span>
             </div>
             <button class="remove-btn" type="button" (click)="removeFromCart(line.product)"
               [attr.aria-label]="'Remove ' + line.product.name + ' from cart'">
-              <i class="pi pi-times"></i>
+              <i class="pi pi-times" aria-hidden="true"></i>
             </button>
           </div>
         }
@@ -74,7 +74,7 @@
         <ol class="checkout-steps" aria-label="Checkout progress">
           @for (step of stepperItems; track step.label; let index = $index) {
             <li [class.is-active]="activeIndex === index">
-              <a [routerLink]="step.routerLink" (click)="onActiveIndexChange(index)">
+              <a [routerLink]="step.routerLink" [attr.aria-current]="activeIndex === index ? 'step' : null">
                 <span>{{ index + 1 }}</span>{{ step.label }}
               </a>
             </li>
@@ -94,17 +94,17 @@
           </div>
           <div class="summary-row">
             <span>Shipping</span>
-            <span class="shipping-free">Free</span>
+            <span class="shipping-pending">Not calculated</span>
           </div>
         </div>
         <div class="summary-total">
-          <span>Total</span>
+          <span>Demo subtotal</span>
           <span class="total-amount font-mono">{{ total | number }} <span class="currency">RSD</span></span>
         </div>
         <div class="installment-row">
           <span class="installment-text">
-            or {{ selectedMonthlyPayment.name }} &times;
-            <strong class="font-mono">{{ getInstallmentAmount(total, selectedMonthlyPayment.name) | number }}
+            Illustrative: {{ selectedMonthlyPayment.name }} &times;
+            <strong class="font-mono">{{ getInstallmentAmount(total, selectedMonthlyPayment.name) | number:'1.2-2' }}
               <span class="currency">RSD</span></strong>&nbsp;/&nbsp;mo
             </span>
             <select class="p-inputtext" aria-label="Number of monthly installments"
@@ -117,7 +117,7 @@
           <button (click)="openShippingView()" class="p-button summary-cta" type="button"
           >{{ checkoutCtaLabel }}</button>
           <span class="summary-note">
-            <i class="pi pi-lock"></i> Secure checkout &middot; 14-day returns
+            <i class="pi pi-info-circle" aria-hidden="true"></i> Demo checkout &middot; no order or payment is submitted
           </span>
         </aside>
       }
@@ -127,8 +127,8 @@
   <!-- When Cart is Empty -->
   @if (!numberOfItems) {
     <div class="empty-state component-enter">
-      <i class="pi pi-shopping-cart"></i>
-      <h3>Your cart is empty</h3>
+      <i class="pi pi-shopping-cart" aria-hidden="true"></i>
+      <h1>Your cart is empty</h1>
       <p>Looks like you haven't added anything yet.</p>
       <a class="p-button p-button-outlined" [routerLink]="['/products/search']">
         Find a product

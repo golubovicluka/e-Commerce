@@ -12,5 +12,5 @@ import { NavigationItem } from '../navigation-item';
 })
 export class BreadcrumbComponent {
   @Input() home?: NavigationItem;
-  @Input() items: NavigationItem[] = [];
+  @Input() items: readonly NavigationItem[] = [];
 }

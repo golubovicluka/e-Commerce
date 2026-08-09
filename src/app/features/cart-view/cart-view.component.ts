@@ -1,9 +1,19 @@
-import { Component, OnDestroy, OnInit, ChangeDetectionStrategy, signal } from '@angular/core';
-import { ActivatedRoute, NavigationEnd, Router, RouterOutlet, RouterLink } from '@angular/router';
-
+import { DecimalPipe } from '@angular/common';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  inject,
+  OnInit,
+  signal,
+} from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { FormsModule } from '@angular/forms';
+import { ActivatedRoute, NavigationEnd, Router, RouterLink, RouterOutlet } from '@angular/router';
+import { filter } from 'rxjs';
+import { BreadcrumbComponent } from 'src/app/shared/breadcrumb/breadcrumb.component';
+import { CartService } from 'src/app/shared/cart.service';
 import { NavigationItem } from 'src/app/shared/navigation-item';
-import { filter, Observable, Subscription } from 'rxjs';
-import { CartLine, CartService } from 'src/app/shared/cart.service';
 import {
   DEFAULT_MONTHLY_PAYMENT,
   getInstallmentAmount,
@@ -11,150 +21,111 @@ import {
   MonthlyPaymentOption,
 } from 'src/app/shared/pricing';
 import { ProductImageService } from 'src/app/shared/product-image.service';
-
 import { Product } from '../products/Product';
-import { FormsModule } from '@angular/forms';
-import { DecimalPipe } from '@angular/common';
-import { BreadcrumbComponent } from 'src/app/shared/breadcrumb/breadcrumb.component';
 
 @Component({
-    selector: 'app-cart-view',
-    templateUrl: './cart-view.component.html',
-    styleUrls: ['./cart-view.component.scss'],
-    changeDetection: ChangeDetectionStrategy.OnPush,
-    imports: [BreadcrumbComponent, FormsModule, RouterOutlet, RouterLink, DecimalPipe]
+  selector: 'app-cart-view',
+  templateUrl: './cart-view.component.html',
+  styleUrls: ['./cart-view.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [BreadcrumbComponent, FormsModule, RouterOutlet, RouterLink, DecimalPipe],
 })
-export class CartViewComponent implements OnInit, OnDestroy {
-  readonly cartLines$: Observable<CartLine[]> = this._cartService.getCartLines();
-  readonly totalPrice$: Observable<number> = this._cartService.getTotalPrice();
-  readonly cartLines = this._cartService.cartLinesSignal;
-  readonly totalPrice = this._cartService.totalPriceSignal;
-
+export class CartViewComponent implements OnInit {
+  private readonly destroyRef = inject(DestroyRef);
   private readonly checkoutActiveState = signal(false);
   private readonly activeIndexState = signal(0);
 
+  readonly cartLines = this.cartService.cartLinesSignal;
+  readonly totalPrice = this.cartService.totalPriceSignal;
+  readonly monthlyPaymentOptions = MONTHLY_PAYMENT_OPTIONS;
+  readonly stepperItems: readonly NavigationItem[] = [
+    { label: 'Shipping', routerLink: 'shipping' },
+    { label: 'Overview', routerLink: 'overview' },
+    { label: 'Payment', routerLink: 'payment' },
+  ];
+  readonly items: readonly NavigationItem[] = [
+    { label: 'Products', routerLink: '/products/search' },
+    { label: 'Cart', routerLink: '/cart' },
+  ];
+  readonly home: NavigationItem = { icon: 'pi pi-home', routerLink: '/home' };
+  readonly getInstallmentAmount = getInstallmentAmount;
+
   selectedMonthlyPayment: MonthlyPaymentOption = DEFAULT_MONTHLY_PAYMENT;
-  monthlyPaymentOptions = MONTHLY_PAYMENT_OPTIONS;
-
-  stepperItems!: NavigationItem[];
-
-  private routerSubscription!: Subscription;
-  public items!: NavigationItem[];
-  home!: NavigationItem;
 
   constructor(
-    private _cartService: CartService,
-    private router: Router,
-    private route: ActivatedRoute,
-    private _productImageService: ProductImageService
+    private readonly cartService: CartService,
+    private readonly router: Router,
+    private readonly route: ActivatedRoute,
+    private readonly productImageService: ProductImageService,
   ) {}
 
   get numberOfItems(): number {
-    return this._cartService.numberOfItemsSignal();
+    return this.cartService.numberOfItemsSignal();
   }
 
   get checkoutActive(): boolean {
     return this.checkoutActiveState();
   }
 
-  set checkoutActive(value: boolean) {
-    this.checkoutActiveState.set(value);
-  }
-
   get activeIndex(): number {
     return this.activeIndexState();
   }
 
-  set activeIndex(value: number) {
-    this.activeIndexState.set(value);
+  get checkoutCtaLabel(): 'Preview shipping details' | 'Back to cart' {
+    return this.checkoutActive ? 'Back to cart' : 'Preview shipping details';
   }
 
-  ngOnInit() {
-    this.stepperItems = [
-      { label: 'Shipping', routerLink: 'shipping' },
-      { label: 'Overview', routerLink: 'overview' },
-      { label: 'Payment', routerLink: 'payment' },
-    ];
-
+  ngOnInit(): void {
     this.updateCheckoutState();
-    this.routerSubscription = this.router.events
-      .pipe(filter((event): event is NavigationEnd => event instanceof NavigationEnd))
+    this.router.events
+      .pipe(
+        filter((event): event is NavigationEnd => event instanceof NavigationEnd),
+        takeUntilDestroyed(this.destroyRef),
+      )
       .subscribe(() => this.updateCheckoutState());
-
-    this.items = [
-      { label: 'Products', routerLink: '/products/search' },
-      { label: 'Cart', routerLink: '/cart' },
-    ];
-    this.home = { icon: 'pi pi-home', routerLink: '/home' };
   }
 
-  get checkoutCtaLabel(): 'Proceed with shipping' | 'Back to cart view' {
-    return this.checkoutActive ? 'Back to cart view' : 'Proceed with shipping';
-  }
-
-  onActiveIndexChange(index: number) {
-    this.activeIndex = index;
-  }
-
-  ngOnDestroy() {
-    this.routerSubscription?.unsubscribe();
-  }
-
-  incrementProductCount(productId: number, itemsInStock: number, quantity: number) {
+  incrementProductCount(productId: number, itemsInStock: number, quantity: number): void {
     if (quantity < itemsInStock) {
-      this._cartService.setQuantity(productId, quantity + 1);
+      this.cartService.setQuantity(productId, quantity + 1);
     }
   }
 
-  decrementProductCount(productId: number, quantity: number) {
+  decrementProductCount(productId: number, quantity: number): void {
     if (quantity > 1) {
-      this._cartService.setQuantity(productId, quantity - 1);
+      this.cartService.setQuantity(productId, quantity - 1);
     }
   }
 
   onQuantityChange(productId: number, quantity: number): void {
-    this._cartService.setQuantity(productId, quantity);
+    this.cartService.setQuantity(productId, quantity);
   }
 
-  openShippingView() {
-    if (this.checkoutActive) {
-      this.router.navigate(['/cart']);
-      return;
-    }
-    this.router.navigate(['/cart/shipping']);
+  openShippingView(): void {
+    void this.router.navigate([this.checkoutActive ? '/cart' : '/cart/shipping']);
   }
 
-  getInstallmentAmount = getInstallmentAmount;
-
-  removeFromCart(product: Product) {
-    this._cartService.removeFromCart(product);
-  }
-
-  openProductDetails(id: number) {
-    this.router.navigate(['/product', id]);
+  removeFromCart(product: Product): void {
+    this.cartService.removeFromCart(product);
   }
 
   getProductImage(product: Product): string {
-    return this._productImageService.resolvePrimaryImage(product.images, product.name);
+    return this.productImageService.resolvePrimaryImage(product.images, product.name);
   }
 
   onProductImageError(event: Event, productName: string): void {
-    this._productImageService.handleImageError(event, productName);
-  }
-
-  trackByProductId(_index: number, line: CartLine): number {
-    return line.product.id;
+    this.productImageService.handleImageError(event, productName);
   }
 
   private updateCheckoutState(): void {
     const childPath = this.route.firstChild?.snapshot.url[0]?.path;
-    this.checkoutActive = !!childPath;
+    this.checkoutActiveState.set(Boolean(childPath));
 
     const stepByPath: Record<string, number> = {
       shipping: 0,
       overview: 1,
       payment: 2,
     };
-    this.activeIndex = childPath ? stepByPath[childPath] ?? 0 : 0;
+    this.activeIndexState.set(childPath ? (stepByPath[childPath] ?? 0) : 0);
   }
 }

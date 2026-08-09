@@ -1,165 +1,144 @@
+import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { NO_ERRORS_SCHEMA, signal } from '@angular/core';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { Subject } from 'rxjs';
-
-import { CartViewComponent } from './cart-view.component';
 import { CartService } from 'src/app/shared/cart.service';
 import { ProductImageService } from 'src/app/shared/product-image.service';
-import { of } from 'rxjs';
+import { createMockProduct } from 'src/app/testing/mock-data';
+import { CartViewComponent } from './cart-view.component';
 
 describe('CartViewComponent', () => {
-    let component: CartViewComponent;
-    let fixture: ComponentFixture<CartViewComponent>;
-    let cart: any;
-    let router: any;
-    let images: any;
-    let route: {
-        firstChild: {
-            snapshot: {
-                url: {
-                    path: string;
-                }[];
-            };
-        } | null;
+  let component: CartViewComponent;
+  let fixture: ComponentFixture<CartViewComponent>;
+  let cart: {
+    setQuantity: jest.Mock;
+    removeFromCart: jest.Mock;
+    cartLinesSignal: ReturnType<typeof signal>;
+    totalPriceSignal: ReturnType<typeof signal>;
+    numberOfItemsSignal: ReturnType<typeof signal>;
+  };
+  let router: { navigate: jest.Mock; events: Subject<unknown> };
+  let images: { resolvePrimaryImage: jest.Mock; handleImageError: jest.Mock };
+  let route: {
+    firstChild: { snapshot: { url: Array<{ path: string }> } } | null;
+  };
+
+  beforeEach(async () => {
+    cart = {
+      setQuantity: jest.fn(() => true),
+      removeFromCart: jest.fn(() => true),
+      cartLinesSignal: signal([]),
+      totalPriceSignal: signal(0),
+      numberOfItemsSignal: signal(0),
     };
+    router = { navigate: jest.fn(), events: new Subject() };
+    images = {
+      resolvePrimaryImage: jest.fn(() => 'resolved.jpg'),
+      handleImageError: jest.fn(),
+    };
+    route = { firstChild: null };
 
-    beforeEach(async () => {
-        cart = {
-            getCartItems: jest.fn().mockName("CartService.getCartItems"),
-            getCartLines: jest.fn().mockName("CartService.getCartLines"),
-            getTotalPrice: jest.fn().mockName("CartService.getTotalPrice"),
-            setQuantity: jest.fn().mockName("CartService.setQuantity"),
-            removeFromCart: jest.fn().mockName("CartService.removeFromCart"),
-            cartLinesSignal: signal([]),
-            totalPriceSignal: signal(0),
-            numberOfItemsSignal: signal(0),
-        };
-        cart.getCartItems.mockReturnValue(of([]));
-        cart.getCartLines.mockReturnValue(of([]));
-        cart.getTotalPrice.mockReturnValue(of(0));
-        router = {
-            navigate: jest.fn().mockName("Router.navigate"),
-            events: new Subject()
-        };
-        images = {
-            resolvePrimaryImage: jest.fn().mockName('ProductImageService.resolvePrimaryImage'),
-            handleImageError: jest.fn().mockName('ProductImageService.handleImageError'),
-        };
-        route = { firstChild: null };
-
-        await TestBed.configureTestingModule({
-    imports: [CartViewComponent],
-    providers: [
+    await TestBed.configureTestingModule({
+      imports: [CartViewComponent],
+      providers: [
         { provide: CartService, useValue: cart },
         { provide: Router, useValue: router },
         { provide: ActivatedRoute, useValue: route },
-        {
-            provide: ProductImageService,
-            useValue: images,
-        },
-    ],
-    schemas: [NO_ERRORS_SCHEMA],
-}).compileComponents();
+        { provide: ProductImageService, useValue: images },
+      ],
+    }).compileComponents();
 
-        fixture = TestBed.createComponent(CartViewComponent);
-        component = fixture.componentInstance;
-        component.ngOnInit();
-    });
+    fixture = TestBed.createComponent(CartViewComponent);
+    component = fixture.componentInstance;
+    component.ngOnInit();
+  });
 
-    it('should create', () => {
-        expect(component).toBeTruthy();
-    });
+  function navigateTo(childPath: string | null): void {
+    route.firstChild = childPath ? { snapshot: { url: [{ path: childPath }] } } : null;
+    router.events.next(new NavigationEnd(1, childPath ? `/cart/${childPath}` : '/cart', '/cart'));
+  }
 
-    it('openShippingView navigates to shipping when checkout is inactive', () => {
-        component.checkoutActive = false;
-        component.openShippingView();
-        expect(router.navigate).toHaveBeenCalledWith(['/cart/shipping']);
-    });
+  it('exposes derived cart state and static checkout metadata', () => {
+    cart.numberOfItemsSignal.set(3);
 
-    it('openShippingView navigates back to cart when checkout is active', () => {
-        component.checkoutActive = true;
-        component.openShippingView();
-        expect(router.navigate).toHaveBeenCalledWith(['/cart']);
-    });
+    expect(component.numberOfItems).toBe(3);
+    expect(component.cartLines()).toEqual([]);
+    expect(component.totalPrice()).toBe(0);
+    expect(component.stepperItems).toHaveLength(3);
+    expect(component.monthlyPaymentOptions.length).toBeGreaterThan(0);
+  });
 
-    it('checkoutCtaLabel reflects checkout state', () => {
-        component.checkoutActive = false;
-        expect(component.checkoutCtaLabel).toBe('Proceed with shipping');
-        component.checkoutActive = true;
-        expect(component.checkoutCtaLabel).toBe('Back to cart view');
-    });
+  it('opens shipping from the cart and returns from an active checkout', () => {
+    component.openShippingView();
+    expect(router.navigate).toHaveBeenCalledWith(['/cart/shipping']);
 
-    it('exposes the cart item count and updates the active step', () => {
-        cart.numberOfItemsSignal.set(3);
-        component.onActiveIndexChange(2);
+    navigateTo('shipping');
+    component.openShippingView();
+    expect(router.navigate).toHaveBeenLastCalledWith(['/cart']);
+  });
 
-        expect(component.numberOfItems).toBe(3);
-        expect(component.activeIndex).toBe(2);
-    });
+  it('describes the current checkout call to action', () => {
+    expect(component.checkoutCtaLabel).toBe('Preview shipping details');
+    navigateTo('shipping');
+    expect(component.checkoutCtaLabel).toBe('Back to cart');
+  });
 
-    it('increments only in-stock products with a valid cart row', () => {
-        component.incrementProductCount(7, 5, 2);
-        expect(cart.setQuantity).toHaveBeenCalledWith(7, 3);
+  it('increments only below stock and decrements only above one', () => {
+    component.incrementProductCount(7, 5, 2);
+    expect(cart.setQuantity).toHaveBeenCalledWith(7, 3);
 
-        cart.setQuantity.mockClear();
-        component.incrementProductCount(7, 2, 2);
-        expect(cart.setQuantity).not.toHaveBeenCalled();
-    });
+    cart.setQuantity.mockClear();
+    component.incrementProductCount(7, 2, 2);
+    expect(cart.setQuantity).not.toHaveBeenCalled();
 
-    it('decrements quantities above one when the cart row exists', () => {
-        component.decrementProductCount(7, 3);
-        expect(cart.setQuantity).toHaveBeenCalledWith(7, 2);
+    component.decrementProductCount(7, 3);
+    expect(cart.setQuantity).toHaveBeenCalledWith(7, 2);
 
-        cart.setQuantity.mockClear();
-        component.decrementProductCount(7, 1);
-        expect(cart.setQuantity).not.toHaveBeenCalled();
-    });
+    cart.setQuantity.mockClear();
+    component.decrementProductCount(7, 1);
+    expect(cart.setQuantity).not.toHaveBeenCalled();
+  });
 
-    it('delegates direct quantity changes by stable product id', () => {
-        component.onQuantityChange(7, 4);
-        expect(cart.setQuantity).toHaveBeenCalledWith(7, 4);
-    });
+  it('delegates direct quantity changes by stable product id', () => {
+    component.onQuantityChange(7, 4);
+    expect(cart.setQuantity).toHaveBeenCalledWith(7, 4);
+  });
 
-    it('updates checkout state from child-route navigation', () => {
-        route.firstChild = { snapshot: { url: [{ path: 'overview' }] } };
-        router.events.next(new NavigationEnd(1, '/cart/overview', '/cart/overview'));
-        expect(component.checkoutActive).toBe(true);
-        expect(component.activeIndex).toBe(1);
+  it('maps known, unknown, and empty child routes to checkout progress', () => {
+    navigateTo('overview');
+    expect(component.checkoutActive).toBe(true);
+    expect(component.activeIndex).toBe(1);
 
-        route.firstChild = { snapshot: { url: [{ path: 'unknown' }] } };
-        router.events.next(new NavigationEnd(2, '/cart/unknown', '/cart/unknown'));
-        expect(component.activeIndex).toBe(0);
+    navigateTo('payment');
+    expect(component.activeIndex).toBe(2);
 
-        route.firstChild = null;
-        router.events.next(new NavigationEnd(3, '/cart', '/cart'));
-        expect(component.checkoutActive).toBe(false);
-    });
+    navigateTo('unknown');
+    expect(component.activeIndex).toBe(0);
 
-    it('delegates cart, product navigation, and image behavior', () => {
-        const product = { id: 7, name: 'Phone', images: ['phone.jpg'] } as any;
-        images.resolvePrimaryImage.mockReturnValue('resolved.jpg');
-        const event = { target: {} } as Event;
+    navigateTo(null);
+    expect(component.checkoutActive).toBe(false);
+    expect(component.activeIndex).toBe(0);
+  });
 
-        component.removeFromCart(product);
-        component.openProductDetails(7);
+  it('delegates removal and product image behavior', () => {
+    const product = createMockProduct({ id: 7, name: 'Phone', images: ['phone.jpg'] });
+    const event = new Event('error');
 
-        expect(cart.removeFromCart).toHaveBeenCalledWith(product);
-        expect(router.navigate).toHaveBeenCalledWith(['/product', 7]);
-        expect(component.getProductImage(product)).toBe('resolved.jpg');
-        component.onProductImageError(event, 'Phone');
-        expect(images.handleImageError).toHaveBeenCalledWith(event, 'Phone');
-        expect(component.trackByProductId(0, { product, quantity: 1, lineTotal: 1 })).toBe(7);
-    });
+    component.removeFromCart(product);
+    expect(cart.removeFromCart).toHaveBeenCalledWith(product);
+    expect(component.getProductImage(product)).toBe('resolved.jpg');
+    expect(images.resolvePrimaryImage).toHaveBeenCalledWith(['phone.jpg'], 'Phone');
 
-    it('unsubscribes from router events when destroyed', () => {
-        const unsubscribe = jest.spyOn((component as any).routerSubscription, 'unsubscribe');
-        component.ngOnDestroy();
-        expect(unsubscribe).toHaveBeenCalled();
-    });
+    component.onProductImageError(event, 'Phone');
+    expect(images.handleImageError).toHaveBeenCalledWith(event, 'Phone');
+  });
 
-    it('can be destroyed before the router subscription is initialized', () => {
-        (component as any).routerSubscription = undefined;
-        expect(() => component.ngOnDestroy()).not.toThrow();
-    });
+  it('stops reacting to router events after destruction', () => {
+    navigateTo('overview');
+    fixture.destroy();
+
+    navigateTo('payment');
+
+    expect(component.activeIndex).toBe(1);
+  });
 });
