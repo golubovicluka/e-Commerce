@@ -1,56 +1,81 @@
-<div class="checkout-panel component-enter">
+<form class="checkout-panel component-enter" novalidate (submit)="continueToOverview($event)">
   <div class="panel-head">
     <span class="eyebrow">Step 1 of 3</span>
-    <h3 class="panel-title">Where should we deliver?</h3>
+    <h2 class="panel-title">Where should we deliver?</h2>
+    <p class="panel-intro">This information stays in memory for the current demo session and is not submitted.</p>
   </div>
 
   <div class="formgrid grid">
     <div class="field col-12 md:col-6">
       <label for="ship-name">First name</label>
-      <input id="ship-name" class="p-inputtext w-full" type="text" autocomplete="given-name" [(ngModel)]="name" />
+      <input id="ship-name" class="p-inputtext w-full" type="text" autocomplete="given-name"
+        [formField]="shippingForm.firstName" aria-describedby="ship-name-error">
+      @if (shippingForm.firstName().touched() && shippingForm.firstName().invalid()) {
+        <p id="ship-name-error" class="field-error">{{ shippingForm.firstName().errors()[0].message }}</p>
+      }
     </div>
     <div class="field col-12 md:col-6">
       <label for="ship-lastname">Last name</label>
       <input id="ship-lastname" class="p-inputtext w-full" type="text" autocomplete="family-name"
-        [(ngModel)]="lastName" />
+        [formField]="shippingForm.lastName" aria-describedby="ship-lastname-error">
+      @if (shippingForm.lastName().touched() && shippingForm.lastName().invalid()) {
+        <p id="ship-lastname-error" class="field-error">{{ shippingForm.lastName().errors()[0].message }}</p>
+      }
     </div>
     <div class="field col-12 md:col-8">
       <label for="ship-address">Street address</label>
       <input id="ship-address" class="p-inputtext w-full" type="text" autocomplete="street-address"
-        [(ngModel)]="address" />
+        [formField]="shippingForm.address" aria-describedby="ship-address-error">
+      @if (shippingForm.address().touched() && shippingForm.address().invalid()) {
+        <p id="ship-address-error" class="field-error">{{ shippingForm.address().errors()[0].message }}</p>
+      }
     </div>
     <div class="field col-12 md:col-4">
       <label for="ship-apartment">Apartment <span class="optional">(optional)</span></label>
-      <input id="ship-apartment" class="p-inputtext w-full" type="text" [(ngModel)]="apartmentNumber" />
+      <input id="ship-apartment" class="p-inputtext w-full" type="text" autocomplete="address-line2"
+        [formField]="shippingForm.apartment" aria-describedby="ship-apartment-error">
+      @if (shippingForm.apartment().touched() && shippingForm.apartment().invalid()) {
+        <p id="ship-apartment-error" class="field-error">{{ shippingForm.apartment().errors()[0].message }}</p>
+      }
     </div>
     <div class="field col-12 md:col-4">
       <label for="ship-postal">Postal code</label>
-      <input id="ship-postal" class="p-inputtext w-full" type="text" autocomplete="postal-code" inputmode="numeric"
-        [(ngModel)]="postalCode" />
+      <input id="ship-postal" class="p-inputtext w-full" type="text" autocomplete="postal-code"
+        inputmode="numeric" [formField]="shippingForm.postalCode" aria-describedby="ship-postal-error">
+      @if (shippingForm.postalCode().touched() && shippingForm.postalCode().invalid()) {
+        <p id="ship-postal-error" class="field-error">{{ shippingForm.postalCode().errors()[0].message }}</p>
+      }
     </div>
     <div class="field col-12 md:col-8">
       <label for="ship-city">City</label>
-      <input id="ship-city" class="p-inputtext w-full" type="text" autocomplete="address-level2" [(ngModel)]="city" />
+      <input id="ship-city" class="p-inputtext w-full" type="text" autocomplete="address-level2"
+        [formField]="shippingForm.city" aria-describedby="ship-city-error">
+      @if (shippingForm.city().touched() && shippingForm.city().invalid()) {
+        <p id="ship-city-error" class="field-error">{{ shippingForm.city().errors()[0].message }}</p>
+      }
     </div>
     <div class="field col-12 md:col-6">
       <label for="ship-phone">Phone number</label>
-      <input id="ship-phone" class="p-inputtext w-full" type="tel" autocomplete="tel" [(ngModel)]="phoneNumber" />
+      <input id="ship-phone" class="p-inputtext w-full" type="tel" autocomplete="tel"
+        [formField]="shippingForm.phone" aria-describedby="ship-phone-error">
+      @if (shippingForm.phone().touched() && shippingForm.phone().invalid()) {
+        <p id="ship-phone-error" class="field-error">{{ shippingForm.phone().errors()[0].message }}</p>
+      }
     </div>
     <div class="field col-12">
       <label for="ship-notes">Delivery notes <span class="optional">(optional)</span></label>
-      <textarea id="ship-notes" class="p-inputtext w-full" placeholder="Door code, floor, preferred time window…"
-        rows="4" [(ngModel)]="additionalInformation"></textarea>
+      <textarea id="ship-notes" class="p-inputtext w-full"
+        placeholder="Door code, floor, preferred time window…" rows="4"
+        [formField]="shippingForm.deliveryNotes" aria-describedby="ship-notes-error"></textarea>
+      @if (shippingForm.deliveryNotes().touched() && shippingForm.deliveryNotes().invalid()) {
+        <p id="ship-notes-error" class="field-error">{{ shippingForm.deliveryNotes().errors()[0].message }}</p>
+      }
     </div>
   </div>
 
-  <label class="save-details" for="saveDetails">
-    <input name="saveDetails" type="checkbox" [id]="saveFormDetails" [(ngModel)]="saveDetails">
-    <span>Save these details for faster checkout next time</span>
-  </label>
-
   <div class="panel-actions">
-    <a class="p-button" [routerLink]="['/cart/overview']">
+    <button class="p-button" type="submit" [disabled]="shippingForm().submitting()">
       Continue to overview <i class="pi pi-arrow-right" aria-hidden="true"></i>
-    </a>
+    </button>
   </div>
-</div>
+</form>

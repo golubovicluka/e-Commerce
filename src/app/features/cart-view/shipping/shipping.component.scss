@@ -1,9 +1,12 @@
-/* Panel shell + field labels come from the global .checkout-panel styles. */
-.save-details {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-  font-size: var(--text-sm);
+/* Panel shell + field labels come from the global checkout styles. */
+.panel-intro {
+  max-width: 58ch;
   color: var(--color-text-secondary);
-  cursor: pointer;
+  font-size: var(--text-sm);
+}
+
+.field-error {
+  margin-top: var(--space-1);
+  color: var(--color-danger);
+  font-size: var(--text-xs);
 }
