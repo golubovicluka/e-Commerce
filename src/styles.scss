@@ -3,6 +3,7 @@
    ============================================================================= */
 
 @use "styles/tokens";
+@use "styles/product-gallery";
 
 *,
 *::before,
@@ -25,7 +26,10 @@ body {
   line-height: 1.6;
   color: var(--color-text-primary);
   background-color: var(--color-bg);
-  background-image: linear-gradient(rgba(11, 23, 40, 0.025) 1px, transparent 1px);
+  background-image: linear-gradient(
+    color-mix(in oklch, var(--color-ink) 3%, transparent) 1px,
+    transparent 1px
+  );
   background-size: 100% 4rem;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -200,7 +204,7 @@ body .p-component {
 
 :root {
   --primary-color: var(--color-accent);
-  --primary-color-text: #ffffff;
+  --primary-color-text: var(--color-text-on-ink);
   --surface-ground: var(--color-bg);
   --surface-card: var(--color-surface);
   --surface-overlay: var(--color-surface-elevated);
@@ -209,7 +213,7 @@ body .p-component {
   --text-color-secondary: var(--color-text-secondary);
   --border-radius: var(--radius-md);
   --focus-ring: 0 0 0 3px var(--color-accent-dim);
-  --maskbg: rgba(11, 23, 40, 0.52);
+  --maskbg: color-mix(in oklch, var(--color-ink) 52%, transparent);
 }
 
 /* --- Buttons ---------------------------------------------------------------- */
@@ -220,7 +224,7 @@ body .p-button {
   gap: var(--space-2);
   background: var(--color-accent);
   border: 1px solid var(--color-accent);
-  color: #fff;
+  color: var(--color-text-on-ink);
   border-radius: var(--radius-sm);
   font-weight: 600;
   min-height: 2.75rem;
@@ -244,7 +248,7 @@ body .p-button:enabled:hover {
 body a.p-button:hover {
   background: var(--color-accent-strong);
   border-color: var(--color-accent-strong);
-  color: #fff;
+  color: var(--color-text-on-ink);
   transform: translateY(-1px);
 }
 
@@ -388,7 +392,7 @@ body .p-radiobutton .p-radiobutton-box.p-highlight {
 }
 
 body .p-radiobutton .p-radiobutton-box.p-highlight .p-radiobutton-icon {
-  background-color: #fff;
+  background-color: var(--color-text-on-ink);
 }
 
 body .p-slider .p-slider-range {
@@ -471,7 +475,7 @@ body .p-paginator {
 body .p-paginator .p-paginator-pages .p-paginator-page.p-highlight {
   background: var(--color-accent);
   border-color: var(--color-accent);
-  color: #fff;
+  color: var(--color-text-on-ink);
   border-radius: var(--radius-sm);
 }
 
@@ -489,7 +493,7 @@ body .p-carousel .p-carousel-indicators .p-carousel-indicator.p-highlight button
 
 body .p-steps .p-steps-item.p-highlight .p-steps-number {
   background: var(--color-accent);
-  color: #fff;
+  color: var(--color-text-on-ink);
 }
 
 body .p-steps .p-steps-item .p-menuitem-link {
@@ -740,7 +744,7 @@ body .p-slidemenu {
 /* Counter badges on header icons. */
 body .p-badge {
   background: var(--color-accent);
-  color: #fff;
+  color: var(--color-text-on-ink);
   font-family: var(--font-mono);
   font-size: 0.66rem;
   font-weight: 500;

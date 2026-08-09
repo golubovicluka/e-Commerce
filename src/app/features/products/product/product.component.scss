@@ -147,7 +147,7 @@
     border-color var(--duration-base) var(--ease-out);
 
   &:hover {
-    box-shadow: inset 0 3px 0 var(--color-accent), var(--shadow-md);
+    box-shadow: var(--shadow-md);
     border-color: var(--color-accent);
     transform: translateY(-2px);
   }
