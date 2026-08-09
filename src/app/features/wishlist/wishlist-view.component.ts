@@ -2,8 +2,7 @@ import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { WishlistService } from '../../shared/wishlist.service';
 import { Product } from '../products/Product';
 import { NavigationItem } from 'src/app/shared/navigation-item';
-import { NotificationService } from 'src/app/shared/notification.service';
-import { CartService } from 'src/app/shared/cart.service';
+import { ProductActionsService } from 'src/app/shared/product-actions.service';
 import { ProductComponent } from '../products/product/product.component';
 import { RouterLink } from '@angular/router';
 import { BreadcrumbComponent } from 'src/app/shared/breadcrumb/breadcrumb.component';
@@ -22,8 +21,7 @@ export class WishlistViewComponent implements OnInit {
 
   constructor(
     private _wishlistService: WishlistService,
-    private _messageService: NotificationService,
-    private _cartService: CartService
+    private readonly productActions: ProductActionsService,
   ) { }
 
   get wishlistItems(): Product[] {
@@ -38,21 +36,8 @@ export class WishlistViewComponent implements OnInit {
     this.home = { icon: 'pi pi-home', routerLink: '/home' };
   }
 
-  isInWishlist(id: number): boolean {
-    return this._wishlistService.inWishlist(id);
-  }
-
-  addToCart(product: Product) {
-    this._cartService.addToCart(product);
-  }
-
-  removeFromCart(product: Product) {
-    this._cartService.removeFromCart(product);
-  }
-
   removeFromWishlist(product: Product) {
-    this._messageService.add({ severity: 'info', summary: 'Removed', detail: 'Removed from wishlist' });
-    this._wishlistService.removeWishListItem(product);
+    this.productActions.toggleWishlist(product);
   }
 
   trackByProductId(_index: number, product: Product): number {

@@ -12,8 +12,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 2.5rem;
-  height: 2.5rem;
+  width: 2.75rem;
+  height: 2.75rem;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-sm);
   background: var(--color-surface-elevated);
@@ -56,12 +56,15 @@
 }
 
 .card-name {
+  display: inline;
   font-family: var(--font-body);
   font-weight: 700;
   font-size: var(--text-base);
   letter-spacing: 0;
   line-height: 1.35;
+  color: var(--color-text-primary);
   cursor: pointer;
+  text-decoration: none;
   transition: color var(--duration-base) var(--ease-out);
 
   &:hover {
@@ -217,7 +220,7 @@
     border-color var(--duration-base) var(--ease-out);
 
   &:hover {
-    box-shadow: inset 4px 0 0 var(--color-accent), var(--shadow-md);
+    box-shadow: var(--shadow-md);
     border-color: var(--color-accent);
   }
 
@@ -298,7 +301,7 @@
     color: var(--color-text-secondary);
   }
 
-  ::ng-deep .p-button {
+  .p-button {
     margin-top: var(--space-2);
   }
 }

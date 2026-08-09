@@ -1,93 +1,87 @@
-<!-- Grid view -->
-@if (!isListView) {
-  <article class="product-card">
-    <button class="favorite-btn" type="button" (click)="addRemoveItemWishlist(product)"
-      [attr.aria-label]="inWishlist ? 'Remove ' + name + ' from wishlist' : 'Add ' + name + ' to wishlist'"
-      [class.is-active]="inWishlist">
-      <i [class]="inWishlist ? 'pi pi-heart-fill' : 'pi pi-heart'"></i>
-    </button>
-    <div class="card-media" (click)="openProductDetails(id)" (keyup.enter)="openProductDetails(id)"
-      role="link" tabindex="0">
-      <img [src]="primaryImageSrc" [alt]="name" loading="lazy" decoding="async"
-        (error)="onImageError($event)">
-    </div>
-    <div class="card-body">
-      @if (subcategory?.name) {
-        <span class="card-kicker">{{ subcategory?.name }}</span>
-      }
-      <h3 class="card-name" (click)="openProductDetails(id)" (keyup.enter)="openProductDetails(id)"
-        role="link" tabindex="0">{{ name }}</h3>
-      <p class="card-desc" [attr.title]="description.length > 80 ? description : null">
-        {{ description }}
-      </p>
-      <div class="card-foot">
-        <div class="price-stock">
-          <span class="card-price font-mono">{{ price | number }} <span class="currency">RSD</span></span>
-          <span class="stock" [class.stock--in]="inStock > 0" [class.stock--out]="inStock === 0">
-            <span class="stock-dot"></span>
-            @if (inStock > 0) {
-              {{ inStock }} in stock
-            }
-            @if (inStock === 0) {
-              Sold out
-            }
-          </span>
+@if (viewProduct(); as item) {
+  @if (!isListView()) {
+    <article class="product-card">
+      <button class="favorite-btn" type="button" (click)="toggleWishlist()"
+        [attr.aria-label]="inWishlist() ? 'Remove ' + item.name + ' from wishlist' : 'Add ' + item.name + ' to wishlist'"
+        [class.is-active]="inWishlist()">
+        <i [class]="inWishlist() ? 'pi pi-heart-fill' : 'pi pi-heart'" aria-hidden="true"></i>
+      </button>
+      <a class="card-media" [routerLink]="['/product', item.id]"
+        [attr.aria-label]="'View ' + item.name + ' details'">
+        <img [src]="primaryImageSrc()" [alt]="item.name" loading="lazy" decoding="async"
+          (error)="onImageError($event)">
+      </a>
+      <div class="card-body">
+        @if (item.subcategory?.name) {
+          <span class="card-kicker">{{ item.subcategory?.name }}</span>
+        }
+        <h3><a class="card-name" [routerLink]="['/product', item.id]">{{ item.name }}</a></h3>
+        <p class="card-desc" [attr.title]="item.description.length > 80 ? item.description : null">
+          {{ item.description }}
+        </p>
+        <div class="card-foot">
+          <div class="price-stock">
+            <span class="card-price font-mono">{{ item.price | number }} <span class="currency">RSD</span></span>
+            <span class="stock" [class.stock--in]="item.inStock > 0" [class.stock--out]="item.inStock === 0">
+              <span class="stock-dot" aria-hidden="true"></span>
+              @if (item.inStock > 0) {
+                {{ item.inStock }} in stock
+              } @else {
+                Sold out
+              }
+            </span>
+          </div>
+          <button type="button" class="p-button p-button-rounded" [class.p-button-outlined]="!inCart()"
+            (click)="toggleCart()" [disabled]="item.inStock === 0"
+            [attr.aria-label]="inCart() ? 'Remove ' + item.name + ' from cart' : 'Add ' + item.name + ' to cart'">
+            <i class="pi pi-cart-plus" aria-hidden="true"></i>
+          </button>
         </div>
-        <button type="button" class="p-button p-button-rounded" [class.p-button-outlined]="!inCart"
-          (click)="addRemoveCartItem(product)" [disabled]="product.inStock === 0"
-          [attr.aria-label]="inCart ? 'Remove from cart' : 'Add to cart'">
+      </div>
+    </article>
+  } @else {
+    <article class="list-card">
+      @if (!wishlistView()) {
+        <button class="favorite-btn" type="button" (click)="toggleWishlist()"
+          [attr.aria-label]="inWishlist() ? 'Remove ' + item.name + ' from wishlist' : 'Add ' + item.name + ' to wishlist'"
+          [class.is-active]="inWishlist()">
+          <i [class]="inWishlist() ? 'pi pi-heart-fill' : 'pi pi-heart'" aria-hidden="true"></i>
+        </button>
+      }
+      <a class="list-media" [routerLink]="['/product', item.id]"
+        [attr.aria-label]="'View ' + item.name + ' details'">
+        <img [src]="primaryImageSrc()" [alt]="item.name" loading="lazy" decoding="async"
+          (error)="onImageError($event)">
+      </a>
+      <div class="list-info">
+        <span class="card-kicker">
+          {{ item.category?.name }}@if (item.subcategory?.name) {
+            &rsaquo; {{ item.subcategory?.name }}
+          }
+        </span>
+        <h3><a class="card-name" [routerLink]="['/product', item.id]">{{ item.name }}</a></h3>
+        <p class="card-desc card-desc--list">{{ item.description }}</p>
+        <span class="list-ean font-mono">EAN {{ item.EAN }}</span>
+      </div>
+      <div class="list-buy">
+        <span class="card-price card-price--lg font-mono">{{ item.price | number }} <span class="currency">RSD</span></span>
+        <span class="installment">from 12 &times; {{ getInstallmentAmount(item.price, 12) | number:'1.2-2' }} RSD&nbsp;/&nbsp;mo</span>
+        <span class="stock" [class.stock--in]="item.inStock > 0" [class.stock--out]="item.inStock === 0">
+          <span class="stock-dot" aria-hidden="true"></span>
+          @if (item.inStock > 1) {
+            {{ item.inStock }} in stock
+          } @else if (item.inStock === 1) {
+            Last one in stock
+          } @else {
+            Sold out
+          }
+        </span>
+        <button type="button" class="p-button" [class.p-button-outlined]="!inCart()"
+          (click)="toggleCart()" [disabled]="item.inStock === 0">
           <i class="pi pi-cart-plus" aria-hidden="true"></i>
+          {{ inCart() ? 'In cart' : 'Add to cart' }}
         </button>
       </div>
-    </div>
-  </article>
-} @else {
-  <article class="list-card">
-    @if (!wishlistView) {
-      <button class="favorite-btn" type="button" (click)="addRemoveItemWishlist(product)"
-        [attr.aria-label]="inWishlist ? 'Remove ' + name + ' from wishlist' : 'Add ' + name + ' to wishlist'"
-        [class.is-active]="inWishlist">
-        <i [class]="inWishlist ? 'pi pi-heart-fill' : 'pi pi-heart'"></i>
-      </button>
-    }
-    <div class="list-media" (click)="openProductDetails(id)" (keyup.enter)="openProductDetails(id)"
-      role="link" tabindex="0">
-      <img [src]="primaryImageSrc" [alt]="name" loading="lazy" decoding="async"
-        (error)="onImageError($event)">
-    </div>
-    <div class="list-info">
-      <span class="card-kicker">
-        {{ category?.name }}@if (subcategory?.name) {
-        &rsaquo; {{ subcategory?.name }}
-      }
-    </span>
-    <h3 class="card-name" (click)="openProductDetails(id)" (keyup.enter)="openProductDetails(id)"
-      role="link" tabindex="0">{{ name }}</h3>
-    <p class="card-desc card-desc--list">{{ description }}</p>
-    <span class="list-ean font-mono">EAN {{ EAN }}</span>
-  </div>
-  <div class="list-buy">
-    <span class="card-price card-price--lg font-mono">{{ price | number }} <span class="currency">RSD</span></span>
-    <span class="installment">or 12 &times; {{ getInstallmentAmount(price, 12) | number }} RSD&nbsp;/&nbsp;mo</span>
-    <span class="stock" [class.stock--in]="inStock > 0" [class.stock--out]="inStock === 0">
-      <span class="stock-dot"></span>
-      @if (inStock > 1) {
-        {{ inStock }} in stock
-      }
-      @if (inStock === 1) {
-        Last one in stock
-      }
-      @if (inStock === 0) {
-        Sold out
-      }
-    </span>
-    <button type="button" class="p-button" [class.p-button-outlined]="!inCart"
-      (click)="product.inStock > 0 && addRemoveCartItem(product)" [disabled]="product.inStock === 0">
-      <i class="pi pi-cart-plus" aria-hidden="true"></i>
-      {{ inCart ? 'In cart' : 'Add to cart' }}
-    </button>
-  </div>
-</article>
+    </article>
+  }
 }
-
-<!-- List view -->

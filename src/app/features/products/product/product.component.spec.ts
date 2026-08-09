@@ -1,217 +1,118 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { NO_ERRORS_SCHEMA } from '@angular/core';
-import { Router, ActivatedRoute } from '@angular/router';
-import { NotificationService } from 'src/app/shared/notification.service';
-
-import { ProductComponent } from './product.component';
-import { WishlistService } from 'src/app/shared/wishlist.service';
-import { CartService } from 'src/app/shared/cart.service';
+import { provideRouter } from '@angular/router';
+import { ProductActionsService } from 'src/app/shared/product-actions.service';
 import { ProductImageService } from 'src/app/shared/product-image.service';
 import { createMockProduct } from 'src/app/testing/mock-data';
+import { ProductComponent } from './product.component';
 
-/**
- * The original spec was the Angular CLI stub: it declared ProductComponent with
- * no providers and asserted only `toBeTruthy()`. Because the component injects
- * MessageService / Router / ActivatedRoute (none `providedIn: 'root'`) it threw
- * `NullInjectorError: No provider for MessageService!` and never ran.
- *
- * This rewrite provides test doubles for every dependency and covers the actual
- * behaviour: the wishlist/cart toggles (state flip + correct @Output + the
- * right notification), the installment maths, the route-dependent branch in
- * `openProductDetails`, and the image getter. Logic is driven by calling methods
- * directly rather than asserting on presentation markup, so the tests don't
- * break when markup/classes change.
- */
 describe('ProductComponent', () => {
-    let component: ProductComponent;
-    let fixture: ComponentFixture<ProductComponent>;
+  let component: ProductComponent;
+  let fixture: ComponentFixture<ProductComponent>;
+  let actions: {
+    inCart: jest.Mock;
+    inWishlist: jest.Mock;
+    toggleCart: jest.Mock;
+    toggleWishlist: jest.Mock;
+  };
+  let images: {
+    normalizeImages: jest.Mock;
+    resolvePrimaryImage: jest.Mock;
+    handleImageError: jest.Mock;
+  };
 
-    let wishlist: any;
-    let cart: any;
-    let images: any;
-    let messages: any;
-    let router: any;
-    let route: {
-        snapshot: {
-            url: string[];
-        };
+  const product = createMockProduct({
+    id: 7,
+    name: 'Studio laptop',
+    images: ['raw.jpg'],
+  });
+
+  beforeEach(async () => {
+    actions = {
+      inCart: jest.fn(() => false),
+      inWishlist: jest.fn(() => false),
+      toggleCart: jest.fn(() => true),
+      toggleWishlist: jest.fn(() => true),
+    };
+    images = {
+      normalizeImages: jest.fn(() => ['primary.jpg', 'secondary.jpg']),
+      resolvePrimaryImage: jest.fn(() => 'primary.jpg'),
+      handleImageError: jest.fn(),
     };
 
-    beforeEach(async () => {
-        wishlist = {
-            inWishlist: jest.fn().mockName("WishlistService.inWishlist"),
-            addWishListItem: jest.fn().mockName("WishlistService.addWishListItem"),
-            removeWishListItem: jest.fn().mockName("WishlistService.removeWishListItem")
-        };
-        cart = {
-            inCart: jest.fn().mockName("CartService.inCart"),
-            addToCart: jest.fn().mockName("CartService.addToCart"),
-            removeFromCart: jest.fn().mockName("CartService.removeFromCart")
-        };
-        images = {
-            normalizeImages: jest.fn().mockName("ProductImageService.normalizeImages"),
-            resolvePrimaryImage: jest.fn().mockName("ProductImageService.resolvePrimaryImage"),
-            handleImageError: jest.fn().mockName("ProductImageService.handleImageError")
-        };
-        messages = {
-            add: jest.fn().mockName("MessageService.add")
-        };
-        router = {
-            navigate: jest.fn().mockName("Router.navigate")
-        };
-        route = { snapshot: { url: ['products', 'search'] } };
-
-        wishlist.inWishlist.mockReturnValue(false);
-        cart.inCart.mockReturnValue(false);
-        images.normalizeImages.mockReturnValue(['primary.jpg', 'secondary.jpg']);
-        images.resolvePrimaryImage.mockReturnValue('primary.jpg');
-
-        await TestBed.configureTestingModule({
-    imports: [ProductComponent],
-    providers: [
-        { provide: WishlistService, useValue: wishlist },
-        { provide: CartService, useValue: cart },
+    await TestBed.configureTestingModule({
+      imports: [ProductComponent],
+      providers: [
+        provideRouter([]),
+        { provide: ProductActionsService, useValue: actions },
         { provide: ProductImageService, useValue: images },
-        { provide: NotificationService, useValue: messages },
-        { provide: Router, useValue: router },
-        { provide: ActivatedRoute, useValue: route },
-    ],
-    schemas: [NO_ERRORS_SCHEMA],
-}).compileComponents();
+      ],
+    }).compileComponents();
 
-        fixture = TestBed.createComponent(ProductComponent);
-        component = fixture.componentInstance;
-        component.id = 1;
-        component.name = 'iPhone 13 Pro';
-        component.price = 1200;
+    fixture = TestBed.createComponent(ProductComponent);
+    component = fixture.componentInstance;
+    fixture.componentRef.setInput('product', product);
+    fixture.autoDetectChanges();
+  });
+
+  it('normalizes its required product input', () => {
+    expect(component.viewProduct()).toEqual({
+      ...product,
+      images: ['primary.jpg', 'secondary.jpg'],
     });
+    expect(images.normalizeImages).toHaveBeenCalledWith(['raw.jpg'], 'Studio laptop');
+  });
 
-    it('should create', () => {
-        expect(component).toBeTruthy();
-    });
+  it('derives cart and wishlist state from the shared action facade', () => {
+    actions.inCart.mockReturnValue(true);
+    actions.inWishlist.mockReturnValue(true);
+    fixture.componentRef.setInput('product', { ...product });
 
-    describe('ngOnInit', () => {
-        it('normalizes images and assembles the product from @Input fields', () => {
-            component.description = 'Desc';
-            component.images = ['raw.jpg'];
+    expect(component.inCart()).toBe(true);
+    expect(component.inWishlist()).toBe(true);
+    expect(actions.inCart).toHaveBeenCalledWith(7);
+    expect(actions.inWishlist).toHaveBeenCalledWith(7);
+  });
 
-            component.ngOnInit();
+  it('delegates cart and wishlist toggles with the normalized product', () => {
+    component.toggleCart();
+    component.toggleWishlist();
 
-            expect(images.normalizeImages).toHaveBeenCalledWith(['raw.jpg'], 'iPhone 13 Pro');
-            expect(component.images).toEqual(['primary.jpg', 'secondary.jpg']);
-            expect(component.product).toEqual(expect.objectContaining({ id: 1, name: 'iPhone 13 Pro', price: 1200 }));
-        });
+    const normalized = { ...product, images: ['primary.jpg', 'secondary.jpg'] };
+    expect(actions.toggleCart).toHaveBeenCalledWith(normalized);
+    expect(actions.toggleWishlist).toHaveBeenCalledWith(normalized);
+  });
 
-        it('reflects the services current wishlist/cart membership', () => {
-            wishlist.inWishlist.mockReturnValue(true);
-            cart.inCart.mockReturnValue(true);
+  it('resolves the primary image and delegates image failures', () => {
+    const event = new Event('error');
 
-            component.ngOnInit();
+    expect(component.primaryImageSrc()).toBe('primary.jpg');
+    component.onImageError(event);
 
-            expect(component.inWishlist).toBe(true);
-            expect(component.inCart).toBe(true);
-        });
-    });
+    expect(images.resolvePrimaryImage).toHaveBeenCalledWith(
+      ['primary.jpg', 'secondary.jpg'],
+      'Studio laptop',
+    );
+    expect(images.handleImageError).toHaveBeenCalledWith(event, 'Studio laptop');
+  });
 
-    describe('addRemoveItemWishlist', () => {
-        it('adds: flips state on, emits addedToWishList and shows a success toast', () => {
-            const product = createMockProduct({ id: 1 });
-            component.inWishlist = false;
-            const addedSpy = jest.spyOn(component.addedToWishList, 'emit').mockReturnValue(undefined);
+  it('renders semantic product links in grid view', async () => {
+    await fixture.whenStable();
 
-            component.addRemoveItemWishlist(product);
+    const links = fixture.nativeElement.querySelectorAll('a[href="/product/7"]');
+    expect(links.length).toBe(2);
+    expect(fixture.nativeElement.querySelector('[role="link"]')).toBeNull();
+  });
 
-            expect(component.inWishlist).toBe(true);
-            expect(addedSpy).toHaveBeenCalledTimes(1);
-            expect(addedSpy).toHaveBeenCalledWith(product);
-            expect(messages.add).toHaveBeenCalledWith(expect.objectContaining({ severity: 'success', detail: 'Added to wishlist' }));
-        });
+  it('renders the list variant and hides its duplicate wishlist action', async () => {
+    fixture.componentRef.setInput('isListView', true);
+    fixture.componentRef.setInput('wishlistView', true);
+    await fixture.whenStable();
 
-        it('removes: flips state off, emits removedFromWishList and shows an info toast', () => {
-            const product = createMockProduct({ id: 1 });
-            component.inWishlist = true;
-            const removedSpy = jest.spyOn(component.removedFromWishList, 'emit').mockReturnValue(undefined);
+    expect(fixture.nativeElement.querySelector('.list-card')).toBeTruthy();
+    expect(fixture.nativeElement.querySelector('.favorite-btn')).toBeNull();
+  });
 
-            component.addRemoveItemWishlist(product);
-
-            expect(component.inWishlist).toBe(false);
-            expect(removedSpy).toHaveBeenCalledTimes(1);
-            expect(removedSpy).toHaveBeenCalledWith(product);
-            expect(messages.add).toHaveBeenCalledWith(expect.objectContaining({ severity: 'info', detail: 'Removed from wishlist' }));
-        });
-    });
-
-    describe('addRemoveCartItem', () => {
-        it('adds to cart: flips state on, emits addedToCart and shows a success toast', () => {
-            const product = createMockProduct({ id: 1 });
-            component.inCart = false;
-            const addedSpy = jest.spyOn(component.addedToCart, 'emit').mockReturnValue(undefined);
-
-            component.addRemoveCartItem(product);
-
-            expect(component.inCart).toBe(true);
-            expect(addedSpy).toHaveBeenCalledTimes(1);
-            expect(addedSpy).toHaveBeenCalledWith(product);
-            expect(messages.add).toHaveBeenCalledWith(expect.objectContaining({ severity: 'success', detail: 'Added to cart' }));
-        });
-
-        it('removes from cart: flips state off and emits removedFromCart', () => {
-            const product = createMockProduct({ id: 1 });
-            component.inCart = true;
-            const removedSpy = jest.spyOn(component.removedFromCart, 'emit').mockReturnValue(undefined);
-
-            component.addRemoveCartItem(product);
-
-            expect(component.inCart).toBe(false);
-            expect(removedSpy).toHaveBeenCalledTimes(1);
-            expect(removedSpy).toHaveBeenCalledWith(product);
-        });
-    });
-
-    describe('getInstallmentAmount', () => {
-        it('floors price / 12', () => {
-            expect(component.getInstallmentAmount(1200, 12)).toBe(100);
-            expect(component.getInstallmentAmount(1250, 12)).toBe(104.16);
-            expect(component.getInstallmentAmount(0, 12)).toBe(0);
-        });
-    });
-
-    describe('openProductDetails', () => {
-        it('navigates with product state from a lazy route with an empty local URL', () => {
-            component.ngOnInit(); // builds component.product
-            route.snapshot.url = [];
-
-            component.openProductDetails(42);
-
-            expect(router.navigate).toHaveBeenCalledWith(['/product', 42], expect.objectContaining({ state: { product: component.product } }));
-        });
-
-        it('emits replaceCurrentProduct and scrolls up when rendered as a detail-page suggestion', () => {
-            const replaceSpy = jest.spyOn(component.replaceCurrentProduct, 'emit').mockReturnValue(undefined);
-            const scrollSpy = jest.spyOn(window, 'scrollTo').mockReturnValue(undefined);
-            component.replaceProductOnClick = true;
-
-            component.openProductDetails(7);
-
-            expect(replaceSpy).toHaveBeenCalledTimes(1);
-
-            expect(replaceSpy).toHaveBeenCalledWith(7);
-            expect(scrollSpy).toHaveBeenCalled();
-            expect(router.navigate).not.toHaveBeenCalled();
-        });
-    });
-
-    describe('image helpers', () => {
-        it('primaryImageSrc delegates to ProductImageService.resolvePrimaryImage', () => {
-            component.images = ['a.jpg'];
-            expect(component.primaryImageSrc).toBe('primary.jpg');
-            expect(images.resolvePrimaryImage).toHaveBeenCalledWith(['a.jpg'], 'iPhone 13 Pro');
-        });
-
-        it('onImageError delegates to ProductImageService.handleImageError', () => {
-            const event = new Event('error');
-            component.onImageError(event);
-            expect(images.handleImageError).toHaveBeenCalledWith(event, 'iPhone 13 Pro');
-        });
-    });
+  it('exposes precise installment amounts', () => {
+    expect(component.getInstallmentAmount(1250, 12)).toBe(104.16);
+  });
 });

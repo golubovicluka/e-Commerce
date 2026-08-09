@@ -11,10 +11,8 @@ import { of } from 'rxjs';
 import { Product } from './Product';
 import { ProductsService } from './products.service';
 import { SubscriptionContainer } from './SubscriptionContainer';
-import { WishlistService } from '../../shared/wishlist.service';
 import { NavigationItem } from 'src/app/shared/navigation-item';
 import { ActivatedRoute, Router } from '@angular/router';
-import { CartService } from 'src/app/shared/cart.service';
 import { NgClass, DecimalPipe } from '@angular/common';
 import { FiltersComponent } from './filters/filters.component';
 import { FormsModule } from '@angular/forms';
@@ -71,8 +69,6 @@ export class ProductsViewComponent implements OnInit, OnDestroy {
 
   constructor(
     private _productService: ProductsService,
-    private _wishlistService: WishlistService,
-    private _cartService: CartService,
     private router: Router,
     private route: ActivatedRoute,
     private changeDetectorRef: ChangeDetectorRef,
@@ -318,26 +314,6 @@ export class ProductsViewComponent implements OnInit, OnDestroy {
 
   onPriceChange(_event: any) {
     this.priceChanges$.next();
-  }
-
-  addToWishList(product: Product) {
-    this._wishlistService.addWishListItem(product);
-  }
-
-  removedFromWishList(product: Product) {
-    this._wishlistService.removeWishListItem(product);
-  }
-
-  openProductDetails(id: number) {
-    this.router.navigate(['/product', id]);
-  }
-
-  addToCart(product: Product) {
-    this._cartService.addToCart(product);
-  }
-
-  removeFromCart(product: Product) {
-    this._cartService.removeFromCart(product);
   }
 
   ngOnDestroy() {

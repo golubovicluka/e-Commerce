@@ -23,17 +23,16 @@ import {
   tap,
 } from 'rxjs';
 import { BreadcrumbComponent } from 'src/app/shared/breadcrumb/breadcrumb.component';
-import { CartService } from 'src/app/shared/cart.service';
 import { NavigationItem } from 'src/app/shared/navigation-item';
 import { NotificationService } from 'src/app/shared/notification.service';
 import { ProductImageService } from 'src/app/shared/product-image.service';
+import { ProductActionsService } from 'src/app/shared/product-actions.service';
 import {
   DEFAULT_MONTHLY_PAYMENT,
   getInstallmentAmount,
   MONTHLY_PAYMENT_OPTIONS,
   MonthlyPaymentOption,
 } from 'src/app/shared/pricing';
-import { WishlistService } from 'src/app/shared/wishlist.service';
 import { Product } from '../../Product';
 import { ProductsService } from '../../products.service';
 import { ProductComponent } from '../product.component';
@@ -82,8 +81,7 @@ export class ProductDetailsComponent implements OnInit {
     private readonly activatedRoute: ActivatedRoute,
     private readonly router: Router,
     private readonly productsService: ProductsService,
-    private readonly wishlistService: WishlistService,
-    private readonly cartService: CartService,
+    private readonly productActions: ProductActionsService,
     private readonly notificationService: NotificationService,
     private readonly productImageService: ProductImageService,
     private readonly changeDetectorRef: ChangeDetectorRef,
@@ -127,66 +125,15 @@ export class ProductDetailsComponent implements OnInit {
   }
 
   addProductToWishList(product: Product): void {
-    const removing = this.wishlistService.inWishlist(product.id);
-    const succeeded = removing
-      ? this.wishlistService.removeWishListItem(product)
-      : this.wishlistService.addWishListItem(product);
-
-    if (!succeeded) {
-      this.notificationService.add({
-        severity: 'error',
-        summary: 'Could not update wishlist',
-        detail: 'Your browser could not save this change. Please try again.',
-      });
-      return;
+    if (this.productActions.toggleWishlist(product)) {
+      this.inWishlist = this.productActions.inWishlist(product.id);
     }
-
-    this.inWishlist = !removing;
-    this.notificationService.add({
-      severity: removing ? 'info' : 'success',
-      summary: removing ? 'Removed' : 'Added',
-      detail: removing ? 'Removed from wishlist' : 'Added to wishlist',
-    });
-  }
-
-  addToCart(product: Product): void {
-    this.cartService.addToCart(product);
-  }
-
-  removeFromCart(product: Product): void {
-    this.cartService.removeFromCart(product);
-  }
-
-  addToWishList(product: Product): void {
-    this.wishlistService.addWishListItem(product);
-  }
-
-  removedFromWishList(product: Product): void {
-    this.wishlistService.removeWishListItem(product);
   }
 
   getInstallmentAmount = getInstallmentAmount;
 
-  scrollToTop(): void {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }
-
-  replaceProduct(id: number): void {
-    if (!this.suggestedProducts.some((product) => product.id === id)) {
-      return;
-    }
-
-    void this.router.navigate(['/product', id]);
-    this.scrollToTop();
-  }
-
   buyProduct(product: Product): void {
-    if (!this.cartService.addToCart(product)) {
-      this.notificationService.add({
-        severity: 'warn',
-        summary: 'Could not add product',
-        detail: 'The selected quantity is unavailable or the cart could not be saved.',
-      });
+    if (!this.productActions.addToCart(product)) {
       return;
     }
 
@@ -273,7 +220,7 @@ export class ProductDetailsComponent implements OnInit {
     this.images = this.productImageService.normalizeImages(product.images, product.name);
     this.product = { ...product, images: this.images };
     this.activeIndex = 0;
-    this.inWishlist = this.wishlistService.inWishlist(this.id);
+    this.inWishlist = this.productActions.inWishlist(this.id);
     this.loadState = 'ready';
     this.setBreadcrumbItems();
 

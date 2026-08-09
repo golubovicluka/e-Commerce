@@ -19,12 +19,7 @@
           [attr.aria-label]="'Remove ' + product.name + ' from wishlist'">
           <i class="pi pi-times"></i>
         </button>
-        <app-product (addedToCart)="addToCart($event)" (removedFromCart)="removeFromCart($event)"
-          [isListView]="true" [categoryId]="product.categoryId" [subcategoryId]="product.subcategoryId"
-          [wishlistView]="true" [name]="product.name"
-          [category]="product.category" [subcategory]="product.subcategory" [id]="product.id" [images]="product.images"
-          [inStock]="product.inStock" [price]="product.price" [description]="product.description"
-        [EAN]="product.EAN"></app-product>
+        <app-product [product]="product" [isListView]="true" [wishlistView]="true"></app-product>
       </div>
     }
   </div>

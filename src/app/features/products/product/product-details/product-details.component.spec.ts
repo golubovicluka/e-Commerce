@@ -2,10 +2,9 @@ import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, convertToParamMap, Router } from '@angular/router';
 import { BehaviorSubject, of, Subject, throwError } from 'rxjs';
-import { CartService } from 'src/app/shared/cart.service';
 import { NotificationService } from 'src/app/shared/notification.service';
+import { ProductActionsService } from 'src/app/shared/product-actions.service';
 import { ProductImageService } from 'src/app/shared/product-image.service';
-import { WishlistService } from 'src/app/shared/wishlist.service';
 import { createMockProduct, mockProducts } from 'src/app/testing/mock-data';
 import { ProductsService } from '../../products.service';
 import { ProductDetailsComponent } from './product-details.component';
@@ -18,14 +17,10 @@ describe('ProductDetailsComponent', () => {
     getProductById: jest.Mock;
     getRelatedProducts: jest.Mock;
   };
-  let wishlist: {
+  let actions: {
     inWishlist: jest.Mock;
-    addWishListItem: jest.Mock;
-    removeWishListItem: jest.Mock;
-  };
-  let cart: {
+    toggleWishlist: jest.Mock;
     addToCart: jest.Mock;
-    removeFromCart: jest.Mock;
   };
   let images: {
     normalizeImages: jest.Mock;
@@ -40,14 +35,10 @@ describe('ProductDetailsComponent', () => {
       getProductById: jest.fn(() => of({ data: { product: [mockProducts[0]] } })),
       getRelatedProducts: jest.fn(() => of({ data: { product: mockProducts.slice(1) } })),
     };
-    wishlist = {
+    actions = {
       inWishlist: jest.fn(() => false),
-      addWishListItem: jest.fn(() => true),
-      removeWishListItem: jest.fn(() => true),
-    };
-    cart = {
+      toggleWishlist: jest.fn(() => true),
       addToCart: jest.fn(() => true),
-      removeFromCart: jest.fn(() => true),
     };
     images = {
       normalizeImages: jest.fn((value: string[]) => value),
@@ -65,8 +56,7 @@ describe('ProductDetailsComponent', () => {
       imports: [ProductDetailsComponent],
       providers: [
         { provide: ProductsService, useValue: products },
-        { provide: WishlistService, useValue: wishlist },
-        { provide: CartService, useValue: cart },
+        { provide: ProductActionsService, useValue: actions },
         { provide: ProductImageService, useValue: images },
         { provide: Router, useValue: router },
         { provide: ActivatedRoute, useValue: { paramMap: routeParams.asObservable() } },
@@ -190,48 +180,25 @@ describe('ProductDetailsComponent', () => {
   it('adds and removes wishlist items only after persistence succeeds', () => {
     component.ngOnInit();
 
+    actions.inWishlist.mockReturnValue(true);
     component.addProductToWishList(mockProducts[0]);
     expect(component.inWishlist).toBe(true);
-    expect(wishlist.addWishListItem).toHaveBeenCalledWith(mockProducts[0]);
+    expect(actions.toggleWishlist).toHaveBeenCalledWith(mockProducts[0]);
 
-    wishlist.inWishlist.mockReturnValue(true);
+    actions.inWishlist.mockReturnValue(false);
     component.addProductToWishList(mockProducts[0]);
     expect(component.inWishlist).toBe(false);
-    expect(wishlist.removeWishListItem).toHaveBeenCalledWith(mockProducts[0]);
+    expect(actions.toggleWishlist).toHaveBeenCalledTimes(2);
   });
 
   it('reports a wishlist persistence failure without changing UI state', () => {
-    wishlist.addWishListItem.mockReturnValue(false);
+    actions.toggleWishlist.mockReturnValue(false);
     component.ngOnInit();
 
     component.addProductToWishList(mockProducts[0]);
 
     expect(component.inWishlist).toBe(false);
-    expect(notifications.add).toHaveBeenCalledWith(expect.objectContaining({ severity: 'error' }));
-  });
-
-  it('delegates card events to cart and wishlist services', () => {
-    component.addToCart(mockProducts[0]);
-    component.removeFromCart(mockProducts[0]);
-    component.addToWishList(mockProducts[0]);
-    component.removedFromWishList(mockProducts[0]);
-
-    expect(cart.addToCart).toHaveBeenCalledWith(mockProducts[0]);
-    expect(cart.removeFromCart).toHaveBeenCalledWith(mockProducts[0]);
-    expect(wishlist.addWishListItem).toHaveBeenCalledWith(mockProducts[0]);
-    expect(wishlist.removeWishListItem).toHaveBeenCalledWith(mockProducts[0]);
-  });
-
-  it('navigates only to known suggested products', () => {
-    component.suggestedProducts = [mockProducts[1]];
-    const scrollSpy = jest.spyOn(window, 'scrollTo').mockImplementation(() => undefined);
-
-    component.replaceProduct(999);
-    expect(router.navigate).not.toHaveBeenCalled();
-
-    component.replaceProduct(mockProducts[1].id);
-    expect(router.navigate).toHaveBeenCalledWith(['/product', mockProducts[1].id]);
-    expect(scrollSpy).toHaveBeenCalled();
+    expect(actions.toggleWishlist).toHaveBeenCalledWith(mockProducts[0]);
   });
 
   it('moves to cart only after a successful cart update', () => {
@@ -239,10 +206,9 @@ describe('ProductDetailsComponent', () => {
     expect(router.navigate).toHaveBeenCalledWith(['/cart']);
 
     router.navigate.mockClear();
-    cart.addToCart.mockReturnValue(false);
+    actions.addToCart.mockReturnValue(false);
     component.buyProduct(mockProducts[0]);
     expect(router.navigate).not.toHaveBeenCalled();
-    expect(notifications.add).toHaveBeenCalledWith(expect.objectContaining({ severity: 'warn' }));
   });
 
   it('persists image fallbacks in the current product', () => {

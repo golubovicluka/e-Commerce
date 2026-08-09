@@ -5,8 +5,7 @@ import { BehaviorSubject, of, Subject, throwError } from 'rxjs';
 
 import { ProductsViewComponent } from './products-view.component';
 import { ProductsService } from './products.service';
-import { WishlistService } from '../../shared/wishlist.service';
-import { CartService } from 'src/app/shared/cart.service';
+import { ProductActionsService } from 'src/app/shared/product-actions.service';
 import { mockProducts } from 'src/app/testing/mock-data';
 
 /**
@@ -20,8 +19,6 @@ import { mockProducts } from 'src/app/testing/mock-data';
 describe('ProductsViewComponent', () => {
     let component: ProductsViewComponent;
     let fixture: ComponentFixture<ProductsViewComponent>;
-    let wishlist: any;
-    let cart: any;
     let router: any;
     let products: any;
     let queryParams: BehaviorSubject<Record<string, string>>;
@@ -45,14 +42,6 @@ describe('ProductsViewComponent', () => {
         }));
         products.getProductCategories.mockReturnValue(of({ data: { category: [] } }));
         queryParams = new BehaviorSubject<Record<string, string>>({ q: 'phone' });
-        wishlist = {
-            addWishListItem: jest.fn().mockName("WishlistService.addWishListItem"),
-            removeWishListItem: jest.fn().mockName("WishlistService.removeWishListItem")
-        };
-        cart = {
-            addToCart: jest.fn().mockName("CartService.addToCart"),
-            removeFromCart: jest.fn().mockName("CartService.removeFromCart")
-        };
         router = {
             navigate: jest.fn().mockName("Router.navigate"),
             getCurrentNavigation: jest.fn().mockName("Router.getCurrentNavigation")
@@ -63,8 +52,15 @@ describe('ProductsViewComponent', () => {
     imports: [ProductsViewComponent],
     providers: [
         { provide: ProductsService, useValue: products },
-        { provide: WishlistService, useValue: wishlist },
-        { provide: CartService, useValue: cart },
+        {
+            provide: ProductActionsService,
+            useValue: {
+                inCart: jest.fn(() => false),
+                inWishlist: jest.fn(() => false),
+                toggleCart: jest.fn(),
+                toggleWishlist: jest.fn(),
+            },
+        },
         { provide: Router, useValue: router },
         {
             provide: ActivatedRoute,
@@ -88,31 +84,6 @@ describe('ProductsViewComponent', () => {
 
     it('trackByProductId returns the product id', () => {
         expect(component.trackByProductId(0, mockProducts[2])).toBe(mockProducts[2].id);
-    });
-
-    it('addToWishList / removedFromWishList delegate to WishlistService', () => {
-        component.addToWishList(mockProducts[0]);
-        expect(wishlist.addWishListItem).toHaveBeenCalledTimes(1);
-        expect(wishlist.addWishListItem).toHaveBeenCalledWith(mockProducts[0]);
-
-        component.removedFromWishList(mockProducts[0]);
-        expect(wishlist.removeWishListItem).toHaveBeenCalledTimes(1);
-        expect(wishlist.removeWishListItem).toHaveBeenCalledWith(mockProducts[0]);
-    });
-
-    it('addToCart / removeFromCart delegate to CartService', () => {
-        component.addToCart(mockProducts[1]);
-        expect(cart.addToCart).toHaveBeenCalledTimes(1);
-        expect(cart.addToCart).toHaveBeenCalledWith(mockProducts[1]);
-
-        component.removeFromCart(mockProducts[1]);
-        expect(cart.removeFromCart).toHaveBeenCalledTimes(1);
-        expect(cart.removeFromCart).toHaveBeenCalledWith(mockProducts[1]);
-    });
-
-    it('openProductDetails navigates to the product route', () => {
-        component.openProductDetails(9);
-        expect(router.navigate).toHaveBeenCalledWith(['/product', 9]);
     });
 
     it('loads a query-param search exactly once during initialization', () => {
