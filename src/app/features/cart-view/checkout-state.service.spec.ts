@@ -53,6 +53,8 @@ describe('CheckoutStateService', () => {
   it('derives readiness reactively from the retained draft', () => {
     const service = TestBed.inject(CheckoutStateService);
     expect(service.shippingReady()).toBe(false);
+    expect(service.paymentSelection()).toEqual({ method: 'bankTransfer' });
+    expect(service.demoCompleted()).toBe(false);
 
     service.shippingDetails.set(completeDetails);
 

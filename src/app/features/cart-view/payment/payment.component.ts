@@ -1,37 +1,36 @@
-import { Component, ChangeDetectionStrategy } from '@angular/core';
-
-import { Observable } from 'rxjs';
-import { CartService } from 'src/app/shared/cart.service';
-import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
 import { DecimalPipe } from '@angular/common';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { form, FormField, required, submit } from '@angular/forms/signals';
+import { RouterLink } from '@angular/router';
+import { CartService } from 'src/app/shared/cart.service';
+import { CheckoutStateService } from '../checkout-state.service';
 
 @Component({
-    selector: 'app-payment',
-    templateUrl: './payment.component.html',
-    styleUrls: ['./payment.component.scss'],
-    changeDetection: ChangeDetectionStrategy.OnPush,
-    imports: [FormsModule, RouterLink, DecimalPipe]
+  selector: 'app-payment',
+  templateUrl: './payment.component.html',
+  styleUrls: ['./payment.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [FormField, RouterLink, DecimalPipe],
 })
 export class PaymentComponent {
+  readonly total = this.cartService.totalPriceSignal;
+  readonly shippingReady = this.checkoutState.shippingReady;
+  readonly demoCompleted = this.checkoutState.demoCompleted;
+  readonly paymentForm = form(this.checkoutState.paymentSelection, (selection) => {
+    required(selection.method, { message: 'Choose a payment preview method.' });
+  });
 
-  selectedPaymentMethod: string = 'creditCard';
-  total$: Observable<number>;
-  readonly total = this._cartService.totalPriceSignal;
+  constructor(
+    private readonly cartService: CartService,
+    readonly checkoutState: CheckoutStateService,
+  ) {}
 
-  cardNumber: string = '';
-  cardHolderName: string = '';
-  expiryDate: string = '';
-  cvv: string = '';
+  async completePayment(event: Event): Promise<void> {
+    event.preventDefault();
+    if (!this.shippingReady() || this.total() <= 0) return;
 
-  constructor(private _cartService: CartService) {
-    this.total$ = this._cartService.getTotalPrice();
+    await submit(this.paymentForm, async () => {
+      this.checkoutState.demoCompleted.set(true);
+    });
   }
-
-  completePayment(): void {
-    // Raw card details (PAN, CVV, expiry) must never be logged or handled in the
-    // client. Integrate a PCI-compliant gateway (e.g. Stripe Elements, PayPal SDK)
-    // so card data is tokenized by the processor and never touches this code.
-  }
-
 }

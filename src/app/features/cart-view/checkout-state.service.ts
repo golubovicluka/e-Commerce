@@ -14,6 +14,12 @@ export interface ShippingDetails {
   deliveryNotes: string;
 }
 
+export type DemoPaymentMethod = 'cardGateway' | 'paypalHandoff' | 'bankTransfer';
+
+export interface DemoPaymentSelection {
+  method: DemoPaymentMethod;
+}
+
 export function createEmptyShippingDetails(): ShippingDetails {
   return {
     firstName: '',
@@ -42,4 +48,6 @@ export function hasCompleteShippingDetails(details: ShippingDetails): boolean {
 export class CheckoutStateService {
   readonly shippingDetails = signal<ShippingDetails>(createEmptyShippingDetails());
   readonly shippingReady = computed(() => hasCompleteShippingDetails(this.shippingDetails()));
+  readonly paymentSelection = signal<DemoPaymentSelection>({ method: 'bankTransfer' });
+  readonly demoCompleted = signal(false);
 }

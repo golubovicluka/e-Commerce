@@ -1,85 +1,83 @@
 <div class="checkout-panel component-enter">
   <div class="panel-head">
     <span class="eyebrow">Step 3 of 3</span>
-    <h3 class="panel-title">How would you like to pay?</h3>
+    <h2 class="panel-title">Payment handoff preview</h2>
+    <p class="panel-intro">No payment processor is connected. This step never asks for card or account credentials.</p>
   </div>
 
-  <!-- Payment method tiles -->
-  <div class="method-grid" role="radiogroup" aria-label="Payment method">
-    <label class="method-tile" [class.is-selected]="selectedPaymentMethod === 'creditCard'" for="creditCard">
-      <input name="paymentMethod" type="radio" value="creditCard" [(ngModel)]="selectedPaymentMethod"
-        id="creditCard">
-      <i class="pi pi-credit-card method-icon" aria-hidden="true"></i>
-      <span class="method-name">Credit card</span>
-      <span class="method-desc">Visa, Mastercard, Dina</span>
-    </label>
-
-    <label class="method-tile" [class.is-selected]="selectedPaymentMethod === 'paypal'" for="paypal">
-      <input name="paymentMethod" type="radio" value="paypal" [(ngModel)]="selectedPaymentMethod" id="paypal">
-      <i class="pi pi-paypal method-icon" aria-hidden="true"></i>
-      <span class="method-name">PayPal</span>
-      <span class="method-desc">Pay with your PayPal balance</span>
-    </label>
-
-    <label class="method-tile" [class.is-selected]="selectedPaymentMethod === 'bankTransfer'" for="bankTransfer">
-      <input name="paymentMethod" type="radio" value="bankTransfer" [(ngModel)]="selectedPaymentMethod"
-        id="bankTransfer">
-      <i class="pi pi-building method-icon" aria-hidden="true"></i>
-      <span class="method-name">Bank transfer</span>
-      <span class="method-desc">Pay on delivery of the invoice</span>
-    </label>
-  </div>
-
-  <!-- Card form -->
-  @if (selectedPaymentMethod === 'creditCard') {
-    <div class="formgrid grid card-form">
-      <div class="field col-12">
-        <label for="pay-card-number">Card number</label>
-        <input id="pay-card-number" class="p-inputtext w-full font-mono" type="text" inputmode="numeric"
-          autocomplete="cc-number" placeholder="0000 0000 0000 0000" [(ngModel)]="cardNumber" />
-      </div>
-      <div class="field col-12 md:col-6">
-        <label for="pay-card-holder">Name on card</label>
-        <input id="pay-card-holder" class="p-inputtext w-full" type="text" autocomplete="cc-name"
-          [(ngModel)]="cardHolderName" />
-      </div>
-      <div class="field col-6 md:col-3">
-        <label for="pay-expiry">Expiry</label>
-        <input id="pay-expiry" class="p-inputtext w-full font-mono" type="text" autocomplete="cc-exp"
-          placeholder="MM/YY" [(ngModel)]="expiryDate" />
-      </div>
-      <div class="field col-6 md:col-3">
-        <label for="pay-cvv">CVV</label>
-        <input id="pay-cvv" class="p-inputtext w-full font-mono" type="password" autocomplete="cc-csc"
-          inputmode="numeric" maxlength="4" placeholder="123" [(ngModel)]="cvv" />
-      </div>
-    </div>
-  }
-
-  <!-- Order summary -->
-  @if (total(); as totalAmount) {
-    <div class="order-summary">
-      <div class="summary-row">
-        <span>Subtotal</span>
-        <span class="font-mono">{{ totalAmount | number }} <span class="currency">RSD</span></span>
-      </div>
-      <div class="summary-row">
-        <span>Shipping</span>
-        <span class="row-free">Free</span>
-      </div>
-      <div class="summary-total">
-        <span>Total</span>
-        <span class="font-mono">{{ totalAmount | number }} <span class="currency">RSD</span></span>
+  @if (!shippingReady() || total() <= 0) {
+    <div class="payment-notice" role="status">
+      <i class="pi pi-info-circle" aria-hidden="true"></i>
+      <div>
+        <h3>Checkout details are incomplete</h3>
+        <p>Add a product and complete shipping details before finishing the demo.</p>
       </div>
     </div>
     <div class="panel-actions">
-      <a class="p-button p-button-outlined" [routerLink]="['/cart/overview']">
-        <i class="pi pi-arrow-left" aria-hidden="true"></i> Back
+      <a class="p-button p-button-outlined" routerLink="/cart/shipping">
+        <i class="pi pi-arrow-left" aria-hidden="true"></i> Return to shipping
       </a>
-      <button type="button" class="p-button" (click)="completePayment()">
-        <i class="pi pi-lock" aria-hidden="true"></i> Pay {{ totalAmount | number }} RSD
-      </button>
     </div>
+  } @else if (demoCompleted()) {
+    <div class="demo-confirmation" role="status" aria-live="polite">
+      <i class="pi pi-check-circle" aria-hidden="true"></i>
+      <div>
+        <h3>Checkout demo complete</h3>
+        <p>No order was created, no payment was taken, and your cart remains available.</p>
+      </div>
+    </div>
+    <div class="panel-actions">
+      <a class="p-button p-button-outlined" routerLink="/cart">Return to cart</a>
+      <a class="p-button" routerLink="/products/search">Continue browsing</a>
+    </div>
+  } @else {
+    <form novalidate (submit)="completePayment($event)">
+      <fieldset class="method-fieldset">
+        <legend>Choose a handoff preview</legend>
+        <div class="method-grid">
+          <label class="method-tile" [class.is-selected]="paymentForm.method().value() === 'cardGateway'">
+            <input type="radio" value="cardGateway" [formField]="paymentForm.method">
+            <i class="pi pi-credit-card method-icon" aria-hidden="true"></i>
+            <span class="method-name">Card gateway</span>
+            <span class="method-desc">Preview where a tokenized provider handoff would begin.</span>
+          </label>
+
+          <label class="method-tile" [class.is-selected]="paymentForm.method().value() === 'paypalHandoff'">
+            <input type="radio" value="paypalHandoff" [formField]="paymentForm.method">
+            <i class="pi pi-paypal method-icon" aria-hidden="true"></i>
+            <span class="method-name">PayPal handoff</span>
+            <span class="method-desc">Preview a redirect to an external payment provider.</span>
+          </label>
+
+          <label class="method-tile" [class.is-selected]="paymentForm.method().value() === 'bankTransfer'">
+            <input type="radio" value="bankTransfer" [formField]="paymentForm.method">
+            <i class="pi pi-building method-icon" aria-hidden="true"></i>
+            <span class="method-name">Bank transfer</span>
+            <span class="method-desc">Preview an offline invoice instruction flow.</span>
+          </label>
+        </div>
+      </fieldset>
+
+      <div class="order-summary">
+        <div class="summary-row">
+          <span>Demo subtotal</span>
+          <span class="font-mono">{{ total() | number }} <span class="currency">RSD</span></span>
+        </div>
+        <div class="summary-row">
+          <span>Shipping</span>
+          <span>Not calculated</span>
+        </div>
+      </div>
+
+      <div class="panel-actions">
+        <a class="p-button p-button-outlined" routerLink="/cart/overview">
+          <i class="pi pi-arrow-left" aria-hidden="true"></i> Back
+        </a>
+        <button type="submit" class="p-button" [disabled]="paymentForm().submitting()">
+          Complete demo
+        </button>
+      </div>
+    </form>
+    <p class="secure-note"><i class="pi pi-info-circle" aria-hidden="true"></i> Method selection is illustrative and is not transmitted.</p>
   }
-  <span class="secure-note"><i class="pi pi-lock"></i> Payments are encrypted and processed securely.</span>
 </div>
