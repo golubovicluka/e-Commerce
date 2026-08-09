@@ -12,5 +12,5 @@ import { ToastComponent } from './shared/toast/toast.component';
     imports: [HeaderComponent, RouterOutlet, FooterComponent, ToastComponent]
 })
 export class AppComponent {
-  title = 'Webshop';
+  readonly title = 'Shoply';
 }

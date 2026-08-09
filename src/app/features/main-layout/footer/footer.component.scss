@@ -41,6 +41,7 @@
   letter-spacing: 0.04em;
   text-transform: uppercase;
   cursor: pointer;
+  text-decoration: none;
 }
 
 .brand-mark {
@@ -128,6 +129,7 @@
   color: var(--color-text-on-ink-muted);
   font-size: var(--text-sm);
   cursor: pointer;
+  text-decoration: none;
   transition: color var(--duration-base) var(--ease-out);
 
   i {

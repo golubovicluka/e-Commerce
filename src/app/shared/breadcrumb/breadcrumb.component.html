@@ -7,10 +7,14 @@
         </a>
       </li>
     }
-    @for (item of items; track item.label) {
+    @for (item of items; track item.label; let last = $last) {
       <li>
         <i class="pi pi-angle-right" aria-hidden="true"></i>
-        <a [routerLink]="item.routerLink">{{ item.label }}</a>
+        @if (last) {
+          <span aria-current="page">{{ item.label }}</span>
+        } @else {
+          <a [routerLink]="item.routerLink">{{ item.label }}</a>
+        }
       </li>
     }
   </ol>

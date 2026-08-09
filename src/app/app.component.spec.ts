@@ -23,9 +23,9 @@ describe('AppComponent', () => {
         expect(app).toBeTruthy();
     });
 
-    it(`should have as title 'Webshop'`, () => {
+    it(`should have as title 'Shoply'`, () => {
         const app = TestBed.createComponent(AppComponent).componentInstance;
-        expect(app.title).toEqual('Webshop');
+        expect(app.title).toEqual('Shoply');
     });
 
     it('renders the header, router outlet and footer shell', () => {
@@ -36,5 +36,6 @@ describe('AppComponent', () => {
         expect(compiled.querySelector('app-header')).not.toBeNull();
         expect(compiled.querySelector('router-outlet')).not.toBeNull();
         expect(compiled.querySelector('app-footer')).not.toBeNull();
+        expect(compiled.querySelector('main#main-content')?.getAttribute('tabindex')).toBe('-1');
     });
 });

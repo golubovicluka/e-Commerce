@@ -1,50 +1,36 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { NO_ERRORS_SCHEMA } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
-
+import { provideRouter } from '@angular/router';
 import { FooterComponent } from './footer.component';
 
-/**
- * The CLI stub failed at `detectChanges()` with NG0303 (`routerLink` is not a
- * known property) because no router was provided. Here we inject a Router spy,
- * suppress the router presentation details with NO_ERRORS_SCHEMA, and additionally
- * cover the two real methods.
- */
 describe('FooterComponent', () => {
-    let component: FooterComponent;
-    let fixture: ComponentFixture<FooterComponent>;
-    let router: any;
+  let fixture: ComponentFixture<FooterComponent>;
 
-    beforeEach(async () => {
-        router = {
-            navigate: jest.fn().mockName("Router.navigate")
-        };
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [FooterComponent],
+      providers: [provideRouter([])],
+    }).compileComponents();
 
-        await TestBed.configureTestingModule({
-    imports: [FooterComponent],
-    providers: [
-        { provide: Router, useValue: router },
-        { provide: ActivatedRoute, useValue: {} },
-    ],
-    schemas: [NO_ERRORS_SCHEMA],
-}).compileComponents();
+    fixture = TestBed.createComponent(FooterComponent);
+    fixture.detectChanges();
+  });
 
-        fixture = TestBed.createComponent(FooterComponent);
-        component = fixture.componentInstance;
-    });
+  it('uses real internal links for storefront navigation', () => {
+    const links = [...fixture.nativeElement.querySelectorAll('a')] as HTMLAnchorElement[];
+    expect(links.some((link) => link.getAttribute('href') === '/home')).toBe(true);
+    expect(links.some((link) => link.getAttribute('href') === '/products/search')).toBe(true);
+    expect(links.some((link) => link.getAttribute('href') === '/categories')).toBe(true);
+  });
 
-    it('should create', () => {
-        expect(component).toBeTruthy();
-    });
+  it('protects external links from opener access', () => {
+    const externalLinks = [
+      ...fixture.nativeElement.querySelectorAll('a[target="_blank"]'),
+    ] as HTMLAnchorElement[];
 
-    it('toHome navigates to /home', () => {
-        component.toHome();
-        expect(router.navigate).toHaveBeenCalledWith(['/home']);
-    });
-
-    it('openLink opens the given URL in a new window without opener access', () => {
-        const openSpy = jest.spyOn(window, 'open').mockReturnValue(null);
-        component.openLink('https://github.com/golubovicluka');
-        expect(openSpy).toHaveBeenCalledWith('https://github.com/golubovicluka', '_blank', 'noopener,noreferrer');
-    });
+    expect(externalLinks).toHaveLength(2);
+    for (const link of externalLinks) {
+      expect(link.rel).toContain('noopener');
+      expect(link.rel).toContain('noreferrer');
+    }
+  });
 });
