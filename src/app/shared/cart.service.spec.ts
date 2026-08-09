@@ -203,12 +203,12 @@ describe('CartService', () => {
     service.addToCart(createMockProduct({ inStock: 4 }));
     service.addToCart(createMockProduct({ id: 2, inStock: 8 }));
 
-    expect(service.setQuantityAtIndex(-1, 2)).toBe(false);
-    expect(service.setQuantityAtIndex(0, 1.5)).toBe(false);
-    expect(service.setQuantityAtIndex(0, Number.NaN)).toBe(false);
-    expect(service.setQuantityAtIndex(0, 99)).toBe(true);
+    expect(service.setQuantity(999, 2)).toBe(false);
+    expect(service.setQuantity(1, 1.5)).toBe(false);
+    expect(service.setQuantity(1, Number.NaN)).toBe(false);
+    expect(service.setQuantity(1, 99)).toBe(true);
     expect(service.getQuantities()).toEqual([4, 1]);
-    expect(service.setQuantityAtIndex(0, 4)).toBe(true);
+    expect(service.setQuantity(1, 4)).toBe(true);
   });
 
   it('keeps the current quantity when an update cannot be persisted', () => {
@@ -219,7 +219,7 @@ describe('CartService', () => {
     });
     jest.spyOn(console, 'error').mockImplementation(() => undefined);
 
-    expect(service.setQuantityAtIndex(0, 2)).toBe(false);
+    expect(service.setQuantity(mockProducts[0].id, 2)).toBe(false);
     expect(service.getQuantities()).toEqual([1]);
   });
 
@@ -227,7 +227,7 @@ describe('CartService', () => {
     const service = createService();
     const product = createMockProduct({ price: 25, inStock: 4 });
     service.addToCart(product);
-    service.setQuantityAtIndex(0, 3);
+    service.setQuantity(product.id, 3);
 
     const items: unknown[] = [];
     const lines: unknown[] = [];
@@ -242,8 +242,6 @@ describe('CartService', () => {
     expect(lines.at(-1)).toEqual([{ product, quantity: 3, lineTotal: 75 }]);
     expect(totals.at(-1)).toBe(75);
     expect(counts.at(-1)).toBe(3);
-    expect(service.getProductIndex(product.id)).toBe(0);
-    expect(service.getProductIndex(999)).toBe(-1);
   });
 
   it('synchronizes versioned cart changes from another tab', () => {

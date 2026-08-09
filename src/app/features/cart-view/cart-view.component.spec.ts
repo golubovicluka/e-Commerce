@@ -29,8 +29,7 @@ describe('CartViewComponent', () => {
             getCartItems: jest.fn().mockName("CartService.getCartItems"),
             getCartLines: jest.fn().mockName("CartService.getCartLines"),
             getTotalPrice: jest.fn().mockName("CartService.getTotalPrice"),
-            getProductIndex: jest.fn().mockName("CartService.getProductIndex"),
-            setQuantityAtIndex: jest.fn().mockName("CartService.setQuantityAtIndex"),
+            setQuantity: jest.fn().mockName("CartService.setQuantity"),
             removeFromCart: jest.fn().mockName("CartService.removeFromCart"),
             cartLinesSignal: signal([]),
             totalPriceSignal: signal(0),
@@ -39,7 +38,6 @@ describe('CartViewComponent', () => {
         cart.getCartItems.mockReturnValue(of([]));
         cart.getCartLines.mockReturnValue(of([]));
         cart.getTotalPrice.mockReturnValue(of(0));
-        cart.getProductIndex.mockReturnValue(0);
         router = {
             navigate: jest.fn().mockName("Router.navigate"),
             events: new Subject()
@@ -102,38 +100,25 @@ describe('CartViewComponent', () => {
 
     it('increments only in-stock products with a valid cart row', () => {
         component.incrementProductCount(7, 5, 2);
-        expect(cart.setQuantityAtIndex).toHaveBeenCalledWith(0, 3);
+        expect(cart.setQuantity).toHaveBeenCalledWith(7, 3);
 
-        cart.setQuantityAtIndex.mockClear();
+        cart.setQuantity.mockClear();
         component.incrementProductCount(7, 2, 2);
-        expect(cart.setQuantityAtIndex).not.toHaveBeenCalled();
-
-        cart.getProductIndex.mockReturnValue(-1);
-        component.incrementProductCount(7, 5, 2);
-        expect(cart.setQuantityAtIndex).not.toHaveBeenCalled();
+        expect(cart.setQuantity).not.toHaveBeenCalled();
     });
 
     it('decrements quantities above one when the cart row exists', () => {
         component.decrementProductCount(7, 3);
-        expect(cart.setQuantityAtIndex).toHaveBeenCalledWith(0, 2);
+        expect(cart.setQuantity).toHaveBeenCalledWith(7, 2);
 
-        cart.setQuantityAtIndex.mockClear();
+        cart.setQuantity.mockClear();
         component.decrementProductCount(7, 1);
-        expect(cart.setQuantityAtIndex).not.toHaveBeenCalled();
-
-        cart.getProductIndex.mockReturnValue(-1);
-        component.decrementProductCount(7, 3);
-        expect(cart.setQuantityAtIndex).not.toHaveBeenCalled();
+        expect(cart.setQuantity).not.toHaveBeenCalled();
     });
 
-    it('accepts a direct quantity change only for an existing row', () => {
+    it('delegates direct quantity changes by stable product id', () => {
         component.onQuantityChange(7, 4);
-        expect(cart.setQuantityAtIndex).toHaveBeenCalledWith(0, 4);
-
-        cart.setQuantityAtIndex.mockClear();
-        cart.getProductIndex.mockReturnValue(-1);
-        component.onQuantityChange(7, 4);
-        expect(cart.setQuantityAtIndex).not.toHaveBeenCalled();
+        expect(cart.setQuantity).toHaveBeenCalledWith(7, 4);
     });
 
     it('updates checkout state from child-route navigation', () => {

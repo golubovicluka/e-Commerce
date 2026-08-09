@@ -138,8 +138,9 @@ export class CartService {
     return this.cartState().map(({ quantity }) => quantity);
   }
 
-  setQuantityAtIndex(index: number, quantity: number): boolean {
+  setQuantity(productId: number, quantity: number): boolean {
     const currentState = this.cartState();
+    const index = currentState.findIndex(({ product }) => product.id === productId);
     const line = currentState[index];
     if (!line) {
       return false;
@@ -176,10 +177,6 @@ export class CartService {
 
   inCart(id: number): boolean {
     return this.cartState().some(({ product }) => product.id === id);
-  }
-
-  getProductIndex(productId: number): number {
-    return this.cartState().findIndex(({ product }) => product.id === productId);
   }
 
   private loadCart(): StoredCartLine[] {

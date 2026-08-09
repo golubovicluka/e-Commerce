@@ -102,27 +102,18 @@ export class CartViewComponent implements OnInit, OnDestroy {
 
   incrementProductCount(productId: number, itemsInStock: number, quantity: number) {
     if (quantity < itemsInStock) {
-      const index = this._cartService.getProductIndex(productId);
-      if (index >= 0) {
-        this._cartService.setQuantityAtIndex(index, quantity + 1);
-      }
+      this._cartService.setQuantity(productId, quantity + 1);
     }
   }
 
   decrementProductCount(productId: number, quantity: number) {
     if (quantity > 1) {
-      const index = this._cartService.getProductIndex(productId);
-      if (index >= 0) {
-        this._cartService.setQuantityAtIndex(index, quantity - 1);
-      }
+      this._cartService.setQuantity(productId, quantity - 1);
     }
   }
 
   onQuantityChange(productId: number, quantity: number): void {
-    const index = this._cartService.getProductIndex(productId);
-    if (index >= 0) {
-      this._cartService.setQuantityAtIndex(index, quantity);
-    }
+    this._cartService.setQuantity(productId, quantity);
   }
 
   openShippingView() {
