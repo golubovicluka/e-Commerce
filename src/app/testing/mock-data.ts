@@ -89,12 +89,6 @@ export const mockProducts: Product[] = [
 
 export const mockProduct: Product = mockProducts[0];
 
-export const mockProductDTO = {
-  data: {
-    product: mockProducts
-  }
-};
-
 export const mockCategoriesWithSubcategories = [
   {
     id: 1,
