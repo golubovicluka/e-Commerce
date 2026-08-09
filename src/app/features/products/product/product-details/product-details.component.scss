@@ -402,14 +402,9 @@ $md: 768px;
   }
 }
 
-.notify-link {
-  color: var(--color-accent);
-  text-decoration: underline;
+.availability-note {
+  color: var(--color-text-secondary);
   font-size: var(--text-sm);
-
-  &:hover {
-    color: var(--color-accent-strong);
-  }
 }
 
 .detail-perks {

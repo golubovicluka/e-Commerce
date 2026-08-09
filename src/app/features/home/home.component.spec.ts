@@ -1,7 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { provideRouter } from '@angular/router';
-import { NotificationService } from 'src/app/shared/notification.service';
 import { of, throwError } from 'rxjs';
 
 import { HomeComponent } from './home.component';
@@ -14,7 +13,6 @@ describe('HomeComponent', () => {
     let fixture: ComponentFixture<HomeComponent>;
     let products: any;
     let images: any;
-    let messages: any;
 
     beforeEach(async () => {
         products = {
@@ -32,9 +30,6 @@ describe('HomeComponent', () => {
         images.normalizeImages.mockReturnValue(['normalized.jpg', 'fallback.jpg']);
         images.resolvePrimaryImage.mockReturnValue('featured.jpg');
         images.getFallbackImageByName.mockReturnValue('data:image/svg+xml,fallback');
-        messages = {
-            add: jest.fn().mockName("MessageService.add")
-        };
 
         await TestBed.configureTestingModule({
     imports: [HomeComponent],
@@ -42,7 +37,6 @@ describe('HomeComponent', () => {
         { provide: ProductsService, useValue: products },
         { provide: ProductImageService, useValue: images },
         provideRouter([]),
-        { provide: NotificationService, useValue: messages },
     ],
     schemas: [NO_ERRORS_SCHEMA],
 }).compileComponents();
@@ -71,20 +65,6 @@ describe('HomeComponent', () => {
         expect(component.iphoneSub).toContain('OLED');
         expect(component.ipadImg).toBeTruthy();
         expect(component.featuredProductsLoadState).toBe('ready');
-    });
-
-    it('submitForm rejects invalid email addresses', () => {
-        component.newsletterEmail = 'not-an-email';
-        component.submitForm();
-        expect(messages.add).toHaveBeenCalledWith(expect.objectContaining({ severity: 'warn' }));
-    });
-
-    it('submitForm accepts a valid email address', () => {
-        component.newsletterEmail = 'shopper@example.com';
-        component.submitForm();
-        expect(messages.add).toHaveBeenCalledWith(expect.objectContaining({ severity: 'success' }));
-        expect(component.newsletterEmail).toBe('');
-        expect(component.newsletterSubmitted).toBe(true);
     });
 
     it('marks suggested products as failed when the catalog request errors', () => {
@@ -127,13 +107,6 @@ describe('HomeComponent', () => {
         expect(featuredComponent.ipadName).toBe('iPad');
         expect(featuredComponent.ipadSub).toContain('Apple Pencil');
         expect(featuredComponent.iphoneName).toBe('iPhone');
-    });
-
-    it('rejects a missing newsletter email', () => {
-        component.newsletterEmail = undefined as any;
-        component.submitForm();
-
-        expect(messages.add).toHaveBeenCalledWith(expect.objectContaining({ severity: 'warn' }));
     });
 
     it('delegates hero image failures to ProductImageService', () => {

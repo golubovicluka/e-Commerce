@@ -7,8 +7,8 @@
       for <span class="hero-title-accent">serious work.</span>
     </h1>
     <p class="hero-lede">
-      Proven laptops, tablets and phones with transparent pricing,
-      dependable delivery and support after purchase.
+      Browse a live technology catalog, compare RSD prices and try a complete
+      browser-based shopping flow without creating a real order.
     </p>
     <div class="hero-ctas">
       <a class="p-button" [routerLink]="['/products/search']">
@@ -18,16 +18,16 @@
     </div>
     <ul class="service-grid" aria-label="Shoply service standards">
       <li>
-        <span>Delivery</span>
-        <strong>Included</strong>
+        <span>Catalog</span>
+        <strong>Live data</strong>
       </li>
       <li>
-        <span>Payment</span>
-        <strong>Up to 36 months</strong>
+        <span>Saved items</span>
+        <strong>This browser</strong>
       </li>
       <li>
-        <span>Warranty</span>
-        <strong>2 years</strong>
+        <span>Checkout</span>
+        <strong>Preview only</strong>
       </li>
     </ul>
   </div>
@@ -37,7 +37,7 @@
     <span class="stage-watermark" aria-hidden="true">PRO</span>
     <span class="stage-topline">
       <span>Featured system</span>
-      <span>Catalog / 2026</span>
+      <span>Catalog / live record</span>
     </span>
     <span class="stage-plinth">
       <img class="stage-img" [alt]="macbookName" [src]="macbookImg || null"
@@ -45,15 +45,15 @@
     </span>
     <span class="stage-caption">
       <span class="stage-copy">
-        <span class="stage-kicker">Mobile workstation</span>
+        <span class="stage-kicker">Featured catalog record</span>
         <span class="stage-name">{{ macbookName }}</span>
         <span class="stage-sub">{{ macbookSub }}</span>
         <span class="stage-cta">View product <i class="pi pi-arrow-right" aria-hidden="true"></i></span>
       </span>
       <span class="stage-specs" aria-label="Featured product specifications">
-        <span><strong>M1</strong><small>Platform</small></span>
-        <span><strong>13&Prime;</strong><small>Display</small></span>
-        <span><strong>24 mo</strong><small>Warranty</small></span>
+        <span><strong>{{ macbookId }}</strong><small>Product ID</small></span>
+        <span><strong>RSD</strong><small>Currency</small></span>
+        <span><strong>Demo</strong><small>Checkout</small></span>
       </span>
     </span>
   </a>
@@ -153,18 +153,15 @@
   </section>
 }
 
-<section class="newsletter">
+<section class="newsletter" aria-labelledby="project-scope-title">
   <div class="newsletter-copy">
-    <span class="eyebrow newsletter-eyebrow">Shoply brief</span>
-    <h2>Make the next upgrade count.</h2>
-    <p>One concise weekly briefing with new inventory and verified price changes.</p>
+    <span class="eyebrow newsletter-eyebrow">Project scope</span>
+    <h2 id="project-scope-title">Explore the storefront end to end.</h2>
+    <p>Search the catalog, save items locally and walk through a transparent checkout preview.</p>
   </div>
-  <div class="newsletter-form">
-    <div class="newsletter-row">
-      <input name="email" class="p-inputtext" type="email" placeholder="Business or personal email" aria-label="Email address"
-        [(ngModel)]="newsletterEmail" [disabled]="newsletterSubmitted" />
-      <button type="button" class="p-button btn-on-ink" (click)="submitForm()">Subscribe</button>
-    </div>
-    <span class="newsletter-note">Weekly only. Unsubscribe at any time.</span>
+  <div class="newsletter-actions">
+    <a class="p-button btn-on-ink" routerLink="/products/search">Browse all products</a>
+    <a class="link-on-ink" routerLink="/categories">View departments</a>
+    <span class="newsletter-note">No account, newsletter, order or payment backend is connected.</span>
   </div>
 </section>

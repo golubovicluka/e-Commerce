@@ -4,8 +4,6 @@ import { take } from 'rxjs';
 import { ProductsService } from '../products/products.service';
 import { ProductImageService } from 'src/app/shared/product-image.service';
 import { SuggestedProductComponent } from './suggested-product/suggested-product.component';
-import { FormsModule } from '@angular/forms';
-import { NotificationService } from 'src/app/shared/notification.service';
 import { Product } from '../products/Product';
 
 type FeaturedSlot = 'macbook' | 'ipad' | 'iphone';
@@ -15,7 +13,7 @@ type FeaturedSlot = 'macbook' | 'ipad' | 'iphone';
     templateUrl: './home.component.html',
     styleUrls: ['./home.component.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush,
-    imports: [RouterLink, SuggestedProductComponent, FormsModule]
+    imports: [RouterLink, SuggestedProductComponent]
 })
 export class HomeComponent implements OnInit {
   private readonly featuredProducts = signal({
@@ -43,13 +41,9 @@ export class HomeComponent implements OnInit {
   macbookId = 1;
   ipadId = 13;
 
-  newsletterEmail = '';
-  newsletterSubmitted = false;
-
   constructor(
     private _productService: ProductsService,
-    private _productImageService: ProductImageService,
-    private _notificationService: NotificationService
+    private _productImageService: ProductImageService
   ) { }
 
   get iphoneImg(): string { return this.featuredProducts().iphone.image; }
@@ -171,26 +165,6 @@ export class HomeComponent implements OnInit {
       this._productImageService.getFallbackImageByName(this.iphoneName),
       this.iphoneName,
     );
-  }
-
-  submitForm(): void {
-    const email = this.newsletterEmail?.trim();
-    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      this._notificationService.add({
-        severity: 'warn',
-        summary: 'Invalid email',
-        detail: 'Please enter a valid email address.'
-      });
-      return;
-    }
-
-    this.newsletterSubmitted = true;
-    this.newsletterEmail = '';
-    this._notificationService.add({
-      severity: 'success',
-      summary: "You're on the list",
-      detail: 'Thanks for signing up — watch your inbox for new arrivals.'
-    });
   }
 
   onHeroImageError(event: Event, productName: string): void {

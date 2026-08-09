@@ -81,9 +81,9 @@
     <div class="meta-row">
       <span class="stock-pill" [class.stock-pill--in]="product.inStock > 0"
         [class.stock-pill--out]="product.inStock === 0">
-        <span class="stock-dot"></span>
+        <span class="stock-dot" aria-hidden="true"></span>
         @if (product.inStock > 0) {
-          In stock &mdash; ships tomorrow
+          {{ product.inStock }} in stock
         }
         @if (product.inStock === 0) {
           Out of stock
@@ -95,12 +95,12 @@
     <div class="price-block">
       <div class="price-main">
         <span class="detail-price font-mono">{{ product.price | number }} <span class="currency">RSD</span></span>
-        <span class="price-note">Free delivery included</span>
+        <span class="price-note">Catalog price</span>
       </div>
       <div class="installment-row">
         <span class="installment-text">
-          or {{ selectedMonthlyPayment.name }} &times;
-          <strong class="font-mono">{{ getInstallmentAmount(product.price, selectedMonthlyPayment.name) | number }}
+          Illustrative: {{ selectedMonthlyPayment.name }} &times;
+          <strong class="font-mono">{{ getInstallmentAmount(product.price, selectedMonthlyPayment.name) | number:'1.2-2' }}
           RSD</strong>&nbsp;/&nbsp;month
         </span>
         <select class="p-inputtext" aria-label="Number of monthly installments"
@@ -115,21 +115,21 @@
       <button (click)="buyProduct(product)" class="p-button buy-btn" type="button"
         [disabled]="product.inStock === 0">
         <i class="pi pi-shopping-cart" aria-hidden="true"></i>
-        <span>Buy now</span>
+        <span>Add and review cart</span>
       </button>
       <button class="favorite-btn-lg" type="button" (click)="addProductToWishList(product)"
         [class.is-active]="inWishlist"
-        [attr.aria-label]="inWishlist ? 'Remove from wishlist' : 'Add to wishlist'">
-        <i [class]="inWishlist ? 'pi pi-heart-fill' : 'pi pi-heart'"></i>
+        [attr.aria-label]="inWishlist ? 'Remove ' + product.name + ' from wishlist' : 'Add ' + product.name + ' to wishlist'">
+        <i [class]="inWishlist ? 'pi pi-heart-fill' : 'pi pi-heart'" aria-hidden="true"></i>
       </button>
     </div>
     @if (product.inStock === 0) {
-      <span class="notify-link cursor-pointer">Notify me when it's back</span>
+      <span class="availability-note">Restock alerts are not connected in this demo.</span>
     }
     <ul class="detail-perks">
-      <li><i class="pi pi-truck"></i> Free shipping, 1&ndash;3 business days</li>
-      <li><i class="pi pi-shield"></i> 2-year warranty</li>
-      <li><i class="pi pi-replay"></i> 14-day returns, no questions asked</li>
+      <li><i class="pi pi-database" aria-hidden="true"></i> Product details come from the live catalog</li>
+      <li><i class="pi pi-bookmark" aria-hidden="true"></i> Cart and wishlist stay in this browser</li>
+      <li><i class="pi pi-info-circle" aria-hidden="true"></i> Checkout is a non-transactional preview</li>
     </ul>
   </div>
 </div>
