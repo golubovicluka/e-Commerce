@@ -1,6 +1,6 @@
-import { computed, Injectable, signal } from '@angular/core';
+import { computed, DestroyRef, Injectable, signal } from '@angular/core';
 import { map, Observable, startWith, Subject } from 'rxjs';
-import { Product, parseStoredProducts } from '../features/products/Product';
+import { Product, isProduct, parseStoredProducts } from '../features/products/Product';
 
 export interface CartLine {
   product: Product;
@@ -8,90 +8,122 @@ export interface CartLine {
   lineTotal: number;
 }
 
+interface StoredCartLine {
+  product: Product;
+  quantity: number;
+}
+
+interface StoredCartV1 {
+  version: 1;
+  lines: StoredCartLine[];
+}
+
 const CART_KEY = 'cart';
-const QUANTITIES_KEY = 'cartQuantities';
+const LEGACY_QUANTITIES_KEY = 'cartQuantities';
+
+function normalizeQuantity(value: unknown, available: number): number | null {
+  if (typeof value !== 'number' || !Number.isSafeInteger(value) || value < 1) {
+    return null;
+  }
+
+  return Math.min(value, Math.max(1, available));
+}
+
+function isStoredCart(value: unknown): value is StoredCartV1 {
+  if (typeof value !== 'object' || value === null) {
+    return false;
+  }
+
+  const candidate = value as Record<string, unknown>;
+  if (candidate['version'] !== 1 || !Array.isArray(candidate['lines'])) {
+    return false;
+  }
+
+  return candidate['lines'].every((line) => {
+    if (typeof line !== 'object' || line === null) {
+      return false;
+    }
+
+    const storedLine = line as Record<string, unknown>;
+    return isProduct(storedLine['product']) && normalizeQuantity(
+      storedLine['quantity'],
+      storedLine['product'].inStock,
+    ) !== null;
+  });
+}
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class CartService {
-  private readonly cartItemsState = signal<Product[]>([]);
-  private readonly quantitiesState = signal<number[]>([]);
+  private readonly cartState = signal<StoredCartLine[]>([]);
   private readonly cartChanges$ = new Subject<void>();
 
-  readonly cartItemsSignal = this.cartItemsState.asReadonly();
-  readonly cartLinesSignal = computed(() =>
-    this.cartItemsState().map((product, index) => {
-      const quantity = this.quantitiesState()[index] ?? 1;
-      return { product, quantity, lineTotal: product.price * quantity };
-    }),
+  readonly cartItemsSignal = computed(() => this.cartState().map(({ product }) => product));
+  readonly cartLinesSignal = computed<CartLine[]>(() =>
+    this.cartState().map(({ product, quantity }) => ({
+      product,
+      quantity,
+      lineTotal: product.price * quantity,
+    })),
   );
   readonly totalPriceSignal = computed(() =>
     this.cartLinesSignal().reduce((total, line) => total + line.lineTotal, 0),
   );
-  readonly numberOfItemsSignal = computed(() => this.cartItemsState().length);
+  readonly numberOfItemsSignal = computed(() =>
+    this.cartState().reduce((total, line) => total + line.quantity, 0),
+  );
   /** Observable compatibility facade; signals remain the single source of truth. */
   readonly cartItems = this.getCartItems();
 
-  constructor() {
-    try {
-      const cart = parseStoredProducts(localStorage.getItem(CART_KEY));
-      this.cartItemsState.set(cart);
-      this.quantitiesState.set(this.loadQuantities(cart.length));
-    } catch (error) {
-      console.error('Failed to load cart items from localStorage:', error);
-      this.cartItemsState.set([]);
-      this.quantitiesState.set([]);
+  private readonly handleStorageEvent = (event: StorageEvent): void => {
+    if (event.key !== CART_KEY) {
+      return;
     }
+
+    this.setCartState(this.parseCart(event.newValue));
+  };
+
+  constructor(destroyRef: DestroyRef) {
+    this.cartState.set(this.loadCart());
+    window.addEventListener('storage', this.handleStorageEvent);
+    destroyRef.onDestroy(() => window.removeEventListener('storage', this.handleStorageEvent));
   }
 
-  addToCart(item: Product): void {
-    const currentItems = [...this.cartItemsState()];
-    const currentQuantities = [...this.quantitiesState()];
-    const existingIndex = currentItems.findIndex((product) => product.id === item.id);
-
-    if (existingIndex >= 0) {
-      currentQuantities[existingIndex] = (currentQuantities[existingIndex] ?? 1) + 1;
-    } else {
-      currentItems.push(item);
-      currentQuantities.push(1);
+  addToCart(item: Product): boolean {
+    if (item.inStock < 1) {
+      return false;
     }
 
-    try {
-      localStorage.setItem(CART_KEY, JSON.stringify(currentItems));
-      localStorage.setItem(QUANTITIES_KEY, JSON.stringify(currentQuantities));
-      this.setCartState(currentItems, currentQuantities);
-    } catch (error) {
-      console.error('Failed to save cart items to localStorage:', error);
-    }
-  }
+    const nextState = this.cartState().map((line) => ({ ...line }));
+    const existingLine = nextState.find((line) => line.product.id === item.id);
 
-  removeFromCart(item: Product): void {
-    const currentItems = this.cartItemsState();
-    const currentQuantities = this.quantitiesState();
-    const newItems: Product[] = [];
-    const newQuantities: number[] = [];
-
-    for (let i = 0; i < currentItems.length; i++) {
-      if (currentItems[i].id !== item.id) {
-        newItems.push(currentItems[i]);
-        newQuantities.push(currentQuantities[i] ?? 1);
+    if (existingLine) {
+      if (existingLine.quantity >= item.inStock) {
+        return false;
       }
+      existingLine.quantity += 1;
+      existingLine.product = item;
+    } else {
+      nextState.push({ product: item, quantity: 1 });
     }
 
-    try {
-      localStorage.setItem(CART_KEY, JSON.stringify(newItems));
-      localStorage.setItem(QUANTITIES_KEY, JSON.stringify(newQuantities));
-      this.setCartState(newItems, newQuantities);
-    } catch (error) {
-      console.error('Failed to save cart items to localStorage:', error);
+    return this.persist(nextState);
+  }
+
+  removeFromCart(item: Product): boolean {
+    const nextState = this.cartState().filter((line) => line.product.id !== item.id);
+    if (nextState.length === this.cartState().length) {
+      return false;
     }
+
+    return this.persist(nextState);
   }
 
   getCartItems(): Observable<Product[]> {
     return this.cartChanges$.pipe(
       startWith(undefined),
-      map(() => this.cartItemsState()),
+      map(() => this.cartItemsSignal()),
     );
   }
 
@@ -103,16 +135,29 @@ export class CartService {
   }
 
   getQuantities(): number[] {
-    return [...this.quantitiesState()];
+    return this.cartState().map(({ quantity }) => quantity);
   }
 
-  setQuantityAtIndex(index: number, quantity: number): void {
-    const quantities = [...this.quantitiesState()];
-    if (index < 0 || index >= quantities.length) {
-      return;
+  setQuantityAtIndex(index: number, quantity: number): boolean {
+    const currentState = this.cartState();
+    const line = currentState[index];
+    if (!line) {
+      return false;
     }
-    quantities[index] = Math.max(1, quantity);
-    this.persistQuantities(quantities);
+
+    const normalizedQuantity = normalizeQuantity(quantity, line.product.inStock);
+    if (normalizedQuantity === null) {
+      return false;
+    }
+
+    if (normalizedQuantity === line.quantity) {
+      return true;
+    }
+
+    const nextState = currentState.map((item, itemIndex) =>
+      itemIndex === index ? { ...item, quantity: normalizedQuantity } : item,
+    );
+    return this.persist(nextState);
   }
 
   getTotalPrice(): Observable<number> {
@@ -130,49 +175,109 @@ export class CartService {
   }
 
   inCart(id: number): boolean {
-    return this.cartItemsState().some(product => product.id === id);
+    return this.cartState().some(({ product }) => product.id === id);
   }
 
   getProductIndex(productId: number): number {
-    return this.cartItemsState().findIndex((product) => product.id === productId);
+    return this.cartState().findIndex(({ product }) => product.id === productId);
   }
 
-  private loadQuantities(cartLength: number): number[] {
+  private loadCart(): StoredCartLine[] {
     try {
-      const stored = localStorage.getItem(QUANTITIES_KEY);
-      if (!stored) {
-        return Array(cartLength).fill(1);
+      const storedCart = localStorage.getItem(CART_KEY);
+      const parsedCart = this.parseCart(storedCart);
+
+      if (storedCart && !this.isLegacyCart(storedCart)) {
+        return parsedCart;
       }
-      const parsed = JSON.parse(stored);
+
+      const legacyProducts = parseStoredProducts(storedCart);
+      if (legacyProducts.length === 0) {
+        return [];
+      }
+
+      const legacyQuantities = this.loadLegacyQuantities(legacyProducts);
+      const migratedState = legacyProducts.map((product, index) => ({
+        product,
+        quantity: legacyQuantities[index],
+      }));
+
+      if (this.writeStorage(migratedState)) {
+        localStorage.removeItem(LEGACY_QUANTITIES_KEY);
+      }
+      return migratedState;
+    } catch (error) {
+      console.error('Failed to load cart items from localStorage:', error);
+      return [];
+    }
+  }
+
+  private parseCart(raw: string | null): StoredCartLine[] {
+    if (!raw) {
+      return [];
+    }
+
+    try {
+      const parsed: unknown = JSON.parse(raw);
+      if (!isStoredCart(parsed)) {
+        return [];
+      }
+
+      return parsed.lines.map(({ product, quantity }) => ({
+        product,
+        quantity: normalizeQuantity(quantity, product.inStock)!,
+      }));
+    } catch {
+      return [];
+    }
+  }
+
+  private isLegacyCart(raw: string): boolean {
+    try {
+      return Array.isArray(JSON.parse(raw));
+    } catch {
+      return false;
+    }
+  }
+
+  private loadLegacyQuantities(products: Product[]): number[] {
+    try {
+      const raw = localStorage.getItem(LEGACY_QUANTITIES_KEY);
+      const parsed: unknown = raw ? JSON.parse(raw) : [];
       if (!Array.isArray(parsed)) {
-        return Array(cartLength).fill(1);
+        return products.map(() => 1);
       }
-      const quantities = parsed.map((value) =>
-        typeof value === 'number' && value >= 1 ? value : 1
+
+      return products.map((product, index) =>
+        normalizeQuantity(parsed[index], product.inStock) ?? 1,
       );
-      while (quantities.length < cartLength) {
-        quantities.push(1);
-      }
-      return quantities.slice(0, cartLength);
-    } catch (error) {
-      console.error('Failed to load cart quantities from localStorage:', error);
-      return Array(cartLength).fill(1);
+    } catch {
+      return products.map(() => 1);
     }
   }
 
-  private persistQuantities(quantities: number[]): void {
+  private persist(lines: StoredCartLine[]): boolean {
+    if (!this.writeStorage(lines)) {
+      return false;
+    }
+
+    this.setCartState(lines);
+    return true;
+  }
+
+  private writeStorage(lines: StoredCartLine[]): boolean {
+    const storedCart: StoredCartV1 = { version: 1, lines };
     try {
-      localStorage.setItem(QUANTITIES_KEY, JSON.stringify(quantities));
-      this.quantitiesState.set(quantities);
-      this.cartChanges$.next();
+      localStorage.setItem(CART_KEY, JSON.stringify(storedCart));
+      return true;
     } catch (error) {
-      console.error('Failed to save cart quantities to localStorage:', error);
+      console.error('Failed to save cart items to localStorage:', error);
+      return false;
     }
   }
 
-  private setCartState(items: Product[], quantities: number[]): void {
-    this.cartItemsState.set(items);
-    this.quantitiesState.set(quantities);
+  private setCartState(lines: StoredCartLine[]): void {
+    this.cartState.set(lines);
     this.cartChanges$.next();
   }
 }

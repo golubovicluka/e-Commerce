@@ -1,667 +1,277 @@
 import { TestBed } from '@angular/core/testing';
+import { createMockProduct, mockProducts } from '../testing/mock-data';
 import { CartService } from './cart.service';
-import { mockProducts, createMockProduct } from '../testing/mock-data';
+
+interface StorageMock extends Pick<Storage, 'getItem' | 'setItem' | 'removeItem' | 'clear'> {
+  getItem: jest.Mock<string | null, [string]>;
+  setItem: jest.Mock<void, [string, string]>;
+  removeItem: jest.Mock<void, [string]>;
+  clear: jest.Mock<void, []>;
+}
 
 describe('CartService', () => {
-    let service: CartService;
-    let localStorageSpy: any;
+  let storage: Record<string, string>;
+  let localStorageMock: StorageMock;
 
-    beforeEach(() => {
-        // Create a mock localStorage
-        const store: {
-            [key: string]: string;
-        } = {};
-        localStorageSpy = {
-            getItem: jest.fn().mockName("localStorage.getItem"),
-            setItem: jest.fn().mockName("localStorage.setItem"),
-            removeItem: jest.fn().mockName("localStorage.removeItem"),
-            clear: jest.fn().mockName("localStorage.clear")
-        };
-        localStorageSpy.getItem.mockImplementation((key: string) => store[key] || null);
-        localStorageSpy.setItem.mockImplementation((key: string, value: string) => {
-            store[key] = value;
-        });
-        localStorageSpy.removeItem.mockImplementation((key: string) => {
-            delete store[key];
-        });
-        localStorageSpy.clear.mockImplementation(() => {
-            Object.keys(store).forEach(key => delete store[key]);
-        });
+  const storedCart = (lines: Array<{ product: ReturnType<typeof createMockProduct>; quantity: number }>) =>
+    JSON.stringify({ version: 1, lines });
 
-        // Replace global localStorage with mock
-        Object.defineProperty(window, 'localStorage', {
-            value: localStorageSpy,
-            writable: true
-        });
+  const createService = (): CartService => TestBed.inject(CartService);
 
-        TestBed.configureTestingModule({
-            providers: [CartService]
-        });
+  beforeEach(() => {
+    storage = {};
+    localStorageMock = {
+      getItem: jest.fn((key: string) => storage[key] ?? null),
+      setItem: jest.fn((key: string, value: string) => {
+        storage[key] = value;
+      }),
+      removeItem: jest.fn((key: string) => {
+        delete storage[key];
+      }),
+      clear: jest.fn(() => {
+        storage = {};
+      }),
+    };
+
+    Object.defineProperty(window, 'localStorage', {
+      value: localStorageMock,
+      configurable: true,
     });
 
-    afterEach(() => {
-        localStorageSpy.clear();
+    TestBed.configureTestingModule({ providers: [CartService] });
+  });
+
+  it('starts with an empty cart and exposes empty derived state', () => {
+    const service = createService();
+
+    expect(service.cartItemsSignal()).toEqual([]);
+    expect(service.cartLinesSignal()).toEqual([]);
+    expect(service.totalPriceSignal()).toBe(0);
+    expect(service.numberOfItemsSignal()).toBe(0);
+    expect(service.getQuantities()).toEqual([]);
+  });
+
+  it('restores a versioned cart', () => {
+    const product = createMockProduct({ inStock: 5 });
+    storage['cart'] = storedCart([{ product, quantity: 3 }]);
+
+    const service = createService();
+
+    expect(service.cartLinesSignal()).toEqual([
+      { product, quantity: 3, lineTotal: product.price * 3 },
+    ]);
+  });
+
+  it.each([
+    'null',
+    JSON.stringify({ version: 2, lines: [] }),
+    JSON.stringify({ version: 1, lines: {} }),
+    JSON.stringify({ version: 1, lines: [null] }),
+    JSON.stringify({ version: 1, lines: [{ product: {}, quantity: 1 }] }),
+    storedCart([{ product: createMockProduct(), quantity: 0 }]),
+    '{broken-json',
+  ])('ignores invalid versioned storage: %s', (raw) => {
+    storage['cart'] = raw;
+
+    expect(createService().cartItemsSignal()).toEqual([]);
+  });
+
+  it('migrates the legacy products and quantities into one envelope', () => {
+    const first = createMockProduct({ id: 1, inStock: 2 });
+    const second = createMockProduct({ id: 2, inStock: 10 });
+    storage['cart'] = JSON.stringify([first, second]);
+    storage['cartQuantities'] = JSON.stringify([8, 'invalid']);
+
+    const service = createService();
+
+    expect(service.getQuantities()).toEqual([2, 1]);
+    expect(JSON.parse(storage['cart'])).toEqual({
+      version: 1,
+      lines: [
+        { product: first, quantity: 2 },
+        { product: second, quantity: 1 },
+      ],
     });
+    expect(localStorageMock.removeItem).toHaveBeenCalledWith('cartQuantities');
+  });
 
-    describe('Initialization', () => {
-        it('should be created', () => {
-            service = TestBed.inject(CartService);
-            expect(service).toBeTruthy();
-        });
+  it.each([undefined, JSON.stringify({ quantity: 2 }), '{broken-json']) (
+    'uses quantity one when legacy quantities are unavailable: %s',
+    (quantities) => {
+      storage['cart'] = JSON.stringify([mockProducts[0]]);
+      if (quantities !== undefined) {
+        storage['cartQuantities'] = quantities;
+      }
 
-        it('should initialize with empty cart when localStorage is empty', async () => {
-            service = TestBed.inject(CartService);
+      expect(createService().getQuantities()).toEqual([1]);
+    },
+  );
 
-            service.getCartItems().subscribe(items => {
-                expect(items).toEqual([]);
-                ;
-            });
-        });
-
-        it('should load cart items from localStorage on initialization', async () => {
-            const savedProducts = [mockProducts[0], mockProducts[1]];
-            localStorageSpy.getItem.mockReturnValue(JSON.stringify(savedProducts));
-
-            service = TestBed.inject(CartService);
-
-            service.getCartItems().subscribe(items => {
-                expect(items).toEqual(savedProducts);
-                expect(localStorageSpy.getItem).toHaveBeenCalledWith('cart');
-                ;
-            });
-        });
-
-        it('loads valid quantities, normalizes invalid values, and trims extras', () => {
-            const savedProducts = [mockProducts[0], mockProducts[1]];
-            localStorageSpy.getItem.mockImplementation((key: string) => {
-                if (key === 'cart') return JSON.stringify(savedProducts);
-                if (key === 'cartQuantities') return JSON.stringify([3, 0, 9]);
-                return null;
-            });
-
-            service = TestBed.inject(CartService);
-
-            expect(service.getQuantities()).toEqual([3, 1]);
-        });
-
-        it('fills missing quantities for a restored cart', () => {
-            const savedProducts = [mockProducts[0], mockProducts[1]];
-            localStorageSpy.getItem.mockImplementation((key: string) => {
-                if (key === 'cart') return JSON.stringify(savedProducts);
-                if (key === 'cartQuantities') return JSON.stringify([2]);
-                return null;
-            });
-
-            service = TestBed.inject(CartService);
-
-            expect(service.getQuantities()).toEqual([2, 1]);
-        });
-
-        it.each([null, JSON.stringify({ quantity: 2 })])(
-            'uses quantity one when stored quantities are absent or not an array',
-            (storedQuantities) => {
-                localStorageSpy.getItem.mockImplementation((key: string) => {
-                    if (key === 'cart') return JSON.stringify([mockProducts[0]]);
-                    if (key === 'cartQuantities') return storedQuantities;
-                    return null;
-                });
-
-                service = TestBed.inject(CartService);
-
-                expect(service.getQuantities()).toEqual([1]);
-            },
-        );
-
-        it('recovers from malformed stored quantities', () => {
-            jest.spyOn(console, 'error').mockReturnValue(undefined);
-            localStorageSpy.getItem.mockImplementation((key: string) => {
-                if (key === 'cart') return JSON.stringify([mockProducts[0]]);
-                if (key === 'cartQuantities') return '{broken';
-                return null;
-            });
-
-            service = TestBed.inject(CartService);
-
-            expect(service.getQuantities()).toEqual([1]);
-            expect(console.error).toHaveBeenCalled();
-        });
-
-        it('should handle corrupted localStorage data gracefully', async () => {
-            localStorageSpy.getItem.mockReturnValue('invalid json{');
-            jest.spyOn(console, 'error').mockReturnValue(undefined);
-
-            service = TestBed.inject(CartService);
-
-            service.getCartItems().subscribe(items => {
-                expect(items).toEqual([]);
-                expect(console.error).toHaveBeenCalled();
-                ;
-            });
-        });
-
-        it('should handle localStorage errors gracefully', async () => {
-            localStorageSpy.getItem.mockImplementation(() => {
-                throw new Error('Storage error');
-            });
-            jest.spyOn(console, 'error').mockReturnValue(undefined);
-
-            service = TestBed.inject(CartService);
-
-            service.getCartItems().subscribe(items => {
-                expect(items).toEqual([]);
-                expect(console.error).toHaveBeenCalled();
-                ;
-            });
-        });
+  it('keeps migrated state in memory when the migration write fails', () => {
+    storage['cart'] = JSON.stringify([mockProducts[0]]);
+    localStorageMock.setItem.mockImplementation(() => {
+      throw new Error('Storage full');
     });
+    const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined);
 
-    describe('addToCart', () => {
-        beforeEach(() => {
-            service = TestBed.inject(CartService);
-        });
+    const service = createService();
 
-        it('should add a product to cart', async () => {
-            const product = mockProducts[0];
+    expect(service.cartItemsSignal()).toEqual([mockProducts[0]]);
+    expect(localStorageMock.removeItem).not.toHaveBeenCalled();
+    expect(errorSpy).toHaveBeenCalled();
+  });
 
-            service.addToCart(product);
-
-            service.getCartItems().subscribe(items => {
-                expect(items.length).toBe(1);
-                expect(items[0]).toEqual(product);
-                ;
-            });
-        });
-
-        it('should add multiple products to cart', async () => {
-            service.addToCart(mockProducts[0]);
-            service.addToCart(mockProducts[1]);
-
-            service.getCartItems().subscribe(items => {
-                expect(items.length).toBe(2);
-                expect(items).toContainEqual(mockProducts[0]);
-                expect(items).toContainEqual(mockProducts[1]);
-                ;
-            });
-        });
-
-        it('should save cart to localStorage when adding item', () => {
-            const product = mockProducts[0];
-
-            service.addToCart(product);
-
-            expect(localStorageSpy.setItem).toHaveBeenCalledWith('cart', JSON.stringify([product]));
-        });
-
-        it('should handle localStorage save errors gracefully', async () => {
-            localStorageSpy.setItem.mockImplementation(() => {
-                throw new Error('Storage full');
-            });
-            jest.spyOn(console, 'error').mockReturnValue(undefined);
-            const product = mockProducts[0];
-
-            service.addToCart(product);
-
-            expect(console.error).toHaveBeenCalled();
-            service.getCartItems().subscribe(items => {
-                // Item should not be added if save fails
-                expect(items.length).toBe(0);
-                ;
-            });
-        });
-
-        it('should increment quantity when adding the same product again', async () => {
-            const product = mockProducts[0];
-
-            service.addToCart(product);
-            service.addToCart(product);
-
-            service.getCartItems().subscribe(items => {
-                expect(items.length).toBe(1);
-                expect(items[0]).toEqual(product);
-                ;
-            });
-        });
-
-        it('should increment persisted quantity for duplicate adds', async () => {
-            const product = createMockProduct({ price: 25.00 });
-
-            service.addToCart(product);
-            service.addToCart(product);
-            service.addToCart(product);
-
-            service.getCartLines().subscribe(lines => {
-                expect(lines.length).toBe(1);
-                expect(lines[0].quantity).toBe(3);
-                expect(lines[0].lineTotal).toBe(75.00);
-                ;
-            });
-        });
+  it('recovers when storage access throws', () => {
+    localStorageMock.getItem.mockImplementation(() => {
+      throw new Error('Storage unavailable');
     });
+    const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined);
 
-    describe('removeFromCart', () => {
-        beforeEach(() => {
-            service = TestBed.inject(CartService);
-        });
+    expect(createService().cartItemsSignal()).toEqual([]);
+    expect(errorSpy).toHaveBeenCalled();
+  });
 
-        it('should remove a product from cart', async () => {
-            const product = mockProducts[0];
-            service.addToCart(product);
-
-            service.removeFromCart(product);
-
-            service.getCartItems().subscribe(items => {
-                expect(items.length).toBe(0);
-                ;
-            });
-        });
-
-        it('should remove only the specified product', async () => {
-            service.addToCart(mockProducts[0]);
-            service.addToCart(mockProducts[1]);
-
-            service.removeFromCart(mockProducts[0]);
-
-            service.getCartItems().subscribe(items => {
-                expect(items.length).toBe(1);
-                expect(items[0]).toEqual(mockProducts[1]);
-                ;
-            });
-        });
-
-        it('should save updated cart to localStorage when removing item', () => {
-            service.addToCart(mockProducts[0]);
-            service.addToCart(mockProducts[1]);
-
-            service.removeFromCart(mockProducts[0]);
-
-            expect(localStorageSpy.setItem).toHaveBeenCalledWith('cart', JSON.stringify([mockProducts[1]]));
-        });
-
-        it('should handle localStorage save errors when removing', async () => {
-            service.addToCart(mockProducts[0]);
-            localStorageSpy.setItem.mockImplementation(() => {
-                throw new Error('Storage error');
-            });
-            jest.spyOn(console, 'error').mockReturnValue(undefined);
-
-            service.removeFromCart(mockProducts[0]);
-
-            expect(console.error).toHaveBeenCalled();
-            service.getCartItems().subscribe(items => {
-                // Item should not be removed if save fails
-                expect(items.length).toBe(1);
-                ;
-            });
-        });
-
-        it('should do nothing when removing non-existent product', async () => {
-            service.addToCart(mockProducts[0]);
-
-            service.removeFromCart(mockProducts[1]);
-
-            service.getCartItems().subscribe(items => {
-                expect(items.length).toBe(1);
-                expect(items[0]).toEqual(mockProducts[0]);
-                ;
-            });
-        });
-
-        // Edge case: removeFromCart filters by id, so a single remove drops the row
-        // even when quantity was incremented by duplicate adds.
-        it('removes the product row when removeFromCart is called once', async () => {
-            service.addToCart(mockProducts[0]);
-            service.addToCart(mockProducts[0]);
-
-            service.removeFromCart(mockProducts[0]);
-
-            service.getCartItems().subscribe(items => {
-                expect(items.length).toBe(0);
-                expect(service.inCart(mockProducts[0].id)).toBe(false);
-                ;
-            });
-        });
+  it('recovers when removing the migrated legacy key throws', () => {
+    storage['cart'] = JSON.stringify([mockProducts[0]]);
+    localStorageMock.removeItem.mockImplementation(() => {
+      throw new Error('Storage unavailable');
     });
+    const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined);
 
-    describe('getCartItems', () => {
-        beforeEach(() => {
-            service = TestBed.inject(CartService);
-        });
+    expect(createService().cartItemsSignal()).toEqual([]);
+    expect(errorSpy).toHaveBeenCalled();
+  });
 
-        it('should return an observable of cart items', async () => {
-            service.getCartItems().subscribe(items => {
-                expect(items).toEqual([]);
-                ;
-            });
-        });
+  it('adds products and increments an existing line up to available stock', () => {
+    const service = createService();
+    const firstVersion = createMockProduct({ id: 1, name: 'First', inStock: 2 });
+    const refreshedVersion = createMockProduct({ id: 1, name: 'Updated', inStock: 2 });
 
-        it('should emit updated cart items when cart changes', async () => {
-            const product = mockProducts[0];
-            let emissionCount = 0;
-
-            service.getCartItems().subscribe(items => {
-                emissionCount++;
-                if (emissionCount === 1) {
-                    expect(items).toEqual([]);
-                }
-                else if (emissionCount === 2) {
-                    expect(items).toEqual([product]);
-                    ;
-                }
-            });
-
-            service.addToCart(product);
-        });
+    expect(service.addToCart(firstVersion)).toBe(true);
+    expect(service.addToCart(refreshedVersion)).toBe(true);
+    expect(service.addToCart(refreshedVersion)).toBe(false);
+    expect(service.cartLinesSignal()[0]).toEqual({
+      product: refreshedVersion,
+      quantity: 2,
+      lineTotal: refreshedVersion.price * 2,
     });
+    expect(service.numberOfItemsSignal()).toBe(2);
+  });
 
-    describe('getTotalPrice', () => {
-        beforeEach(() => {
-            service = TestBed.inject(CartService);
-        });
+  it('does not add an out-of-stock product', () => {
+    const service = createService();
 
-        it('should return 0 for empty cart', async () => {
-            service.getTotalPrice().subscribe(total => {
-                expect(total).toBe(0);
-                ;
-            });
-        });
+    expect(service.addToCart(createMockProduct({ inStock: 0 }))).toBe(false);
+    expect(service.cartItemsSignal()).toEqual([]);
+  });
 
-        it('should calculate total price for single product', async () => {
-            const product = createMockProduct({ price: 99.99 });
-            service.addToCart(product);
-
-            service.getTotalPrice().subscribe(total => {
-                expect(total).toBe(99.99);
-                ;
-            });
-        });
-
-        it('should calculate total price for multiple products', async () => {
-            const product1 = createMockProduct({ id: 1, price: 50.00 });
-            const product2 = createMockProduct({ id: 2, price: 30.00 });
-            const product3 = createMockProduct({ id: 3, price: 20.00 });
-
-            service.addToCart(product1);
-            service.addToCart(product2);
-            service.addToCart(product3);
-
-            service.getTotalPrice().subscribe(total => {
-                expect(total).toBe(100.00);
-                ;
-            });
-        });
-
-        it('should count duplicate products in total price', async () => {
-            const product = createMockProduct({ price: 25.00 });
-
-            service.addToCart(product);
-            service.addToCart(product);
-            service.addToCart(product);
-
-            service.getTotalPrice().subscribe(total => {
-                expect(total).toBe(75.00);
-                ;
-            });
-        });
-
-        it('should update total price when items are removed', async () => {
-            const product1 = createMockProduct({ id: 1, price: 50.00 });
-            const product2 = createMockProduct({ id: 2, price: 30.00 });
-
-            service.addToCart(product1);
-            service.addToCart(product2);
-            service.removeFromCart(product1);
-
-            service.getTotalPrice().subscribe(total => {
-                expect(total).toBe(30.00);
-                ;
-            });
-        });
-
-        it('should multiply line totals by persisted quantities', async () => {
-            const product = createMockProduct({ price: 100.00 });
-            service.addToCart(product);
-            service.setQuantityAtIndex(0, 3);
-
-            service.getTotalPrice().subscribe(total => {
-                expect(total).toBe(300.00);
-                ;
-            });
-        });
+  it('does not mutate state when adding cannot be persisted', () => {
+    const service = createService();
+    localStorageMock.setItem.mockImplementation(() => {
+      throw new Error('Storage full');
     });
+    jest.spyOn(console, 'error').mockImplementation(() => undefined);
 
-    describe('getCartLines', () => {
-        beforeEach(() => {
-            service = TestBed.inject(CartService);
-        });
+    expect(service.addToCart(mockProducts[0])).toBe(false);
+    expect(service.cartItemsSignal()).toEqual([]);
+  });
 
-        it('should expose quantity and line totals for each cart row', async () => {
-            const product = createMockProduct({ price: 50.00 });
-            service.addToCart(product);
-            service.setQuantityAtIndex(0, 2);
+  it('removes an existing product and ignores a missing product', () => {
+    const service = createService();
+    service.addToCart(mockProducts[0]);
+    service.addToCart(mockProducts[1]);
 
-            service.getCartLines().subscribe(lines => {
-                expect(lines.length).toBe(1);
-                expect(lines[0].quantity).toBe(2);
-                expect(lines[0].lineTotal).toBe(100.00);
-                ;
-            });
-        });
+    expect(service.removeFromCart(mockProducts[0])).toBe(true);
+    expect(service.removeFromCart(mockProducts[0])).toBe(false);
+    expect(service.cartItemsSignal()).toEqual([mockProducts[1]]);
+  });
+
+  it('keeps a product when removal cannot be persisted', () => {
+    const service = createService();
+    service.addToCart(mockProducts[0]);
+    localStorageMock.setItem.mockImplementation(() => {
+      throw new Error('Storage unavailable');
     });
+    jest.spyOn(console, 'error').mockImplementation(() => undefined);
 
-    describe('setQuantityAtIndex', () => {
-        beforeEach(() => {
-            service = TestBed.inject(CartService);
-        });
+    expect(service.removeFromCart(mockProducts[0])).toBe(false);
+    expect(service.inCart(mockProducts[0].id)).toBe(true);
+  });
 
-        it('should persist quantities to localStorage', () => {
-            service.addToCart(mockProducts[0]);
-            service.setQuantityAtIndex(0, 4);
+  it('validates, caps, and persists quantities', () => {
+    const service = createService();
+    service.addToCart(createMockProduct({ inStock: 4 }));
+    service.addToCart(createMockProduct({ id: 2, inStock: 8 }));
 
-            expect(localStorageSpy.setItem).toHaveBeenCalledWith('cartQuantities', JSON.stringify([4]));
-            expect(service.getQuantities()).toEqual([4]);
-        });
+    expect(service.setQuantityAtIndex(-1, 2)).toBe(false);
+    expect(service.setQuantityAtIndex(0, 1.5)).toBe(false);
+    expect(service.setQuantityAtIndex(0, Number.NaN)).toBe(false);
+    expect(service.setQuantityAtIndex(0, 99)).toBe(true);
+    expect(service.getQuantities()).toEqual([4, 1]);
+    expect(service.setQuantityAtIndex(0, 4)).toBe(true);
+  });
 
-        it('should clamp quantities to at least 1', () => {
-            service.addToCart(mockProducts[0]);
-            service.setQuantityAtIndex(0, 0);
-
-            expect(service.getQuantities()).toEqual([1]);
-        });
-
-        it('ignores negative and out-of-range indexes', () => {
-            service.addToCart(mockProducts[0]);
-
-            service.setQuantityAtIndex(-1, 5);
-            service.setQuantityAtIndex(1, 5);
-
-            expect(service.getQuantities()).toEqual([1]);
-        });
-
-        it('keeps the current quantity when persistence fails', () => {
-            service.addToCart(mockProducts[0]);
-            localStorageSpy.setItem.mockImplementation(() => {
-                throw new Error('storage unavailable');
-            });
-            jest.spyOn(console, 'error').mockReturnValue(undefined);
-
-            service.setQuantityAtIndex(0, 5);
-
-            expect(service.getQuantities()).toEqual([1]);
-            expect(console.error).toHaveBeenCalled();
-        });
+  it('keeps the current quantity when an update cannot be persisted', () => {
+    const service = createService();
+    service.addToCart(mockProducts[0]);
+    localStorageMock.setItem.mockImplementation(() => {
+      throw new Error('Storage unavailable');
     });
+    jest.spyOn(console, 'error').mockImplementation(() => undefined);
 
-    describe('getProductIndex', () => {
-        it('returns the stored row index or -1', () => {
-            service = TestBed.inject(CartService);
-            service.addToCart(mockProducts[0]);
+    expect(service.setQuantityAtIndex(0, 2)).toBe(false);
+    expect(service.getQuantities()).toEqual([1]);
+  });
 
-            expect(service.getProductIndex(mockProducts[0].id)).toBe(0);
-            expect(service.getProductIndex(mockProducts[1].id)).toBe(-1);
-        });
-    });
+  it('exposes compatible observable projections', () => {
+    const service = createService();
+    const product = createMockProduct({ price: 25, inStock: 4 });
+    service.addToCart(product);
+    service.setQuantityAtIndex(0, 3);
 
-    describe('defensive quantity fallbacks', () => {
-        beforeEach(() => {
-            service = TestBed.inject(CartService);
-        });
+    const items: unknown[] = [];
+    const lines: unknown[] = [];
+    const totals: number[] = [];
+    const counts: number[] = [];
+    service.cartItems.subscribe((value) => items.push(value));
+    service.getCartLines().subscribe((value) => lines.push(value));
+    service.getTotalPrice().subscribe((value) => totals.push(value));
+    service.getNumberOfItems().subscribe((value) => counts.push(value));
 
-        it('uses quantity one when a cart line has no quantity entry', () => {
-            (service as any).cartItemsState.set([mockProducts[0]]);
-            (service as any).quantitiesState.set([]);
+    expect(items.at(-1)).toEqual([product]);
+    expect(lines.at(-1)).toEqual([{ product, quantity: 3, lineTotal: 75 }]);
+    expect(totals.at(-1)).toBe(75);
+    expect(counts.at(-1)).toBe(3);
+    expect(service.getProductIndex(product.id)).toBe(0);
+    expect(service.getProductIndex(999)).toBe(-1);
+  });
 
-            expect(service.cartLinesSignal()[0].quantity).toBe(1);
-        });
+  it('synchronizes versioned cart changes from another tab', () => {
+    const service = createService();
+    const product = createMockProduct({ id: 44 });
 
-        it('increments a duplicate from quantity one when persisted quantity is absent', () => {
-            (service as any).cartItemsState.set([mockProducts[0]]);
-            (service as any).quantitiesState.set([]);
+    window.dispatchEvent(new StorageEvent('storage', {
+      key: 'unrelated',
+      newValue: 'ignored',
+    }));
+    expect(service.cartItemsSignal()).toEqual([]);
 
-            service.addToCart(mockProducts[0]);
+    window.dispatchEvent(new StorageEvent('storage', {
+      key: 'cart',
+      newValue: storedCart([{ product, quantity: 2 }]),
+    }));
+    expect(service.cartLinesSignal()[0].quantity).toBe(2);
 
-            expect(service.getQuantities()).toEqual([2]);
-        });
+    window.dispatchEvent(new StorageEvent('storage', { key: 'cart', newValue: null }));
+    expect(service.cartItemsSignal()).toEqual([]);
+  });
 
-        it('keeps quantity one when removing another item from incomplete state', () => {
-            (service as any).cartItemsState.set([mockProducts[0]]);
-            (service as any).quantitiesState.set([]);
+  it('removes its storage listener when the injector is destroyed', () => {
+    const removeSpy = jest.spyOn(window, 'removeEventListener');
+    createService();
 
-            service.removeFromCart(mockProducts[1]);
+    TestBed.resetTestingModule();
 
-            expect(service.getQuantities()).toEqual([1]);
-        });
-    });
-
-    describe('getNumberOfItems', () => {
-        beforeEach(() => {
-            service = TestBed.inject(CartService);
-        });
-
-        it('should return 0 for empty cart', async () => {
-            service.getNumberOfItems().subscribe(count => {
-                expect(count).toBe(0);
-                ;
-            });
-        });
-
-        it('should return correct count for single item', async () => {
-            service.addToCart(mockProducts[0]);
-
-            service.getNumberOfItems().subscribe(count => {
-                expect(count).toBe(1);
-                ;
-            });
-        });
-
-        it('should return correct count for multiple items', async () => {
-            service.addToCart(mockProducts[0]);
-            service.addToCart(mockProducts[1]);
-            service.addToCart(mockProducts[2]);
-
-            service.getNumberOfItems().subscribe(count => {
-                expect(count).toBe(3);
-                ;
-            });
-        });
-
-        it('should keep a single row when the same product is added twice', async () => {
-            service.addToCart(mockProducts[0]);
-            service.addToCart(mockProducts[0]);
-
-            service.getNumberOfItems().subscribe(count => {
-                expect(count).toBe(1);
-                ;
-            });
-        });
-
-        it('should update count when items are removed', async () => {
-            service.addToCart(mockProducts[0]);
-            service.addToCart(mockProducts[1]);
-            service.removeFromCart(mockProducts[0]);
-
-            service.getNumberOfItems().subscribe(count => {
-                expect(count).toBe(1);
-                ;
-            });
-        });
-    });
-
-    describe('inCart', () => {
-        beforeEach(() => {
-            service = TestBed.inject(CartService);
-        });
-
-        it('should return false for empty cart', () => {
-            expect(service.inCart(1)).toBe(false);
-        });
-
-        it('should return true if product is in cart', () => {
-            service.addToCart(mockProducts[0]);
-
-            expect(service.inCart(mockProducts[0].id)).toBe(true);
-        });
-
-        it('should return false if product is not in cart', () => {
-            service.addToCart(mockProducts[0]);
-
-            expect(service.inCart(mockProducts[1].id)).toBe(false);
-        });
-
-        it('should return true if product is in cart multiple times', () => {
-            service.addToCart(mockProducts[0]);
-            service.addToCart(mockProducts[0]);
-
-            expect(service.inCart(mockProducts[0].id)).toBe(true);
-        });
-
-        it('should return false after product is removed from cart', () => {
-            service.addToCart(mockProducts[0]);
-            service.removeFromCart(mockProducts[0]);
-
-            expect(service.inCart(mockProducts[0].id)).toBe(false);
-        });
-    });
-
-    describe('Integration Tests', () => {
-        beforeEach(() => {
-            service = TestBed.inject(CartService);
-        });
-
-        it('should handle complex cart operations', async () => {
-            // Add multiple items
-            service.addToCart(mockProducts[0]);
-            service.addToCart(mockProducts[1]);
-            service.addToCart(mockProducts[0]); // Duplicate
-
-            // Check state
-            expect(service.inCart(mockProducts[0].id)).toBe(true);
-            expect(service.inCart(mockProducts[1].id)).toBe(true);
-
-            // Remove one item
-            service.removeFromCart(mockProducts[1]);
-
-            service.getCartItems().subscribe(items => {
-                expect(items.length).toBe(1);
-                expect(items[0].id).toBe(mockProducts[0].id);
-                expect(service.inCart(mockProducts[1].id)).toBe(false);
-                ;
-            });
-        });
-
-        it('should persist and restore cart state', async () => {
-            // Add items
-            service.addToCart(mockProducts[0]);
-            service.addToCart(mockProducts[1]);
-
-            // Simulate page reload by creating new service instance
-            const newService = new CartService();
-
-            newService.getCartItems().subscribe(items => {
-                expect(items.length).toBe(2);
-                expect(items).toContainEqual(mockProducts[0]);
-                expect(items).toContainEqual(mockProducts[1]);
-                ;
-            });
-        });
-    });
+    expect(removeSpy).toHaveBeenCalledWith('storage', expect.any(Function));
+  });
 });
