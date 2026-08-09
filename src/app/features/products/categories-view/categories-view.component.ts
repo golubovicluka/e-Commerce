@@ -1,9 +1,9 @@
 import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { map } from 'rxjs';
-import { ProductsService } from '../products.service';
+import { CatalogCategory, ProductsService } from '../products.service';
 import { NavigationItem } from 'src/app/shared/navigation-item';
-import { NavigationExtras, Router } from '@angular/router';
+import { Router } from '@angular/router';
 import { CategoryComponent } from './category/category.component';
 import { BreadcrumbComponent } from 'src/app/shared/breadcrumb/breadcrumb.component';
 
@@ -18,7 +18,7 @@ export class CategoriesViewComponent implements OnInit {
   private readonly categoriesState = toSignal(
     this._productsService
       .getProductCategories()
-      .pipe(map((response: any) => response.data.category as any[])),
+      .pipe(map((response) => response.data?.category ?? [])),
     { initialValue: undefined },
   );
 
@@ -30,7 +30,7 @@ export class CategoriesViewComponent implements OnInit {
     private router: Router
   ) { }
 
-  get categories(): any[] | undefined {
+  get categories(): CatalogCategory[] | undefined {
     return this.categoriesState();
   }
 
@@ -41,15 +41,10 @@ export class CategoriesViewComponent implements OnInit {
     this.home = { icon: 'pi pi-home', routerLink: '/home' };
   }
 
-  openProductsPage(categoryName: string) {
-    this._productsService.setCategoryFilter(categoryName);
-    const navigationExtras: NavigationExtras = {
-      state: {
-        filters: categoryName
-      }
-    }
-
-    this.router.navigate(['/products/search'], navigationExtras);
+  openProductsPage(categoryName: string): void {
+    void this.router.navigate(['/products/search'], {
+      queryParams: { category: categoryName },
+    });
   }
 
 }

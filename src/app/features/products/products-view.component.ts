@@ -12,7 +12,7 @@ import { Product } from './Product';
 import { ProductsService } from './products.service';
 import { SubscriptionContainer } from './SubscriptionContainer';
 import { NavigationItem } from 'src/app/shared/navigation-item';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { NgClass, DecimalPipe } from '@angular/common';
 import { FiltersComponent } from './filters/filters.component';
 import { FormsModule } from '@angular/forms';
@@ -52,7 +52,7 @@ export class ProductsViewComponent implements OnInit, OnDestroy {
   catalogError: string | null = null;
 
   searchInput = '';
-  categoriesFilter!: string;
+  categoriesFilter = '';
   private subcategoryFilters: string[] = [];
 
   // Streams that drive data loading. Funnelling every interaction through a
@@ -69,33 +69,11 @@ export class ProductsViewComponent implements OnInit, OnDestroy {
 
   constructor(
     private _productService: ProductsService,
-    private router: Router,
     private route: ActivatedRoute,
     private changeDetectorRef: ChangeDetectorRef,
-  ) {
-    const navigation = this.router.getCurrentNavigation();
-    const state = navigation?.extras.state as { filters: any };
-    const filters = state?.filters;
-    if (filters) {
-      this.categoriesFilter = filters;
-    }
-  }
+  ) {}
 
   ngOnInit() {
-    const historyFilters = history.state?.filters;
-    if (historyFilters && !this.categoriesFilter) {
-      this.categoriesFilter = historyFilters;
-    }
-
-    this.subs.add(
-      this._productService.categoryFilter.subscribe((category) => {
-        this.categoriesFilter = category;
-        this.loadPriceBounds();
-        this.resetToFirstPage();
-        this.changeDetectorRef.markForCheck();
-      })
-    );
-
     // Single product-loading pipeline. `switchMap` cancels any in-flight
     // request when a new one starts, so only one finite query is ever active.
     // This replaces the previous pattern of creating a long-lived watched query
@@ -185,17 +163,24 @@ export class ProductsViewComponent implements OnInit, OnDestroy {
     this.subs.add(
       this.route.queryParams.subscribe((params) => {
         const query = (params['q'] ?? '').trim();
-        if (query !== this.searchInput) {
+        const category = (params['category'] ?? '').trim();
+        const queryChanged = query !== this.searchInput;
+        const categoryChanged = category !== this.categoriesFilter;
+
+        if (queryChanged) {
           this.searchInput = query;
-          this.first = 0;
-          // ActivatedRoute emits its current parameters synchronously when the
-          // subscription is created. The single fetch below includes that
-          // value; only later URL changes should enqueue another request.
-          if (this.initialCatalogRequestComplete) {
-            this.fetchPage();
-          }
-          this.changeDetectorRef.markForCheck();
         }
+        if (categoryChanged) {
+          this.categoriesFilter = category;
+        }
+        if (!queryChanged && !categoryChanged) return;
+
+        this.first = 0;
+        if (this.initialCatalogRequestComplete) {
+          if (categoryChanged) this.loadPriceBounds();
+          this.fetchPage();
+        }
+        this.changeDetectorRef.markForCheck();
       })
     );
 

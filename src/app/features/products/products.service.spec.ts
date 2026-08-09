@@ -36,15 +36,6 @@ describe('ProductsService', () => {
     expect(service).toBeTruthy();
   });
 
-  it('emits selected categories', () => {
-    const received: string[] = [];
-    service.categoryFilter.subscribe((category) => received.push(category));
-
-    service.setCategoryFilter('Electronics');
-
-    expect(received).toEqual(['Electronics']);
-  });
-
   it('requests a default product page', () => {
     service.getProductsPage({ limit: 10, offset: 20 }).subscribe();
 

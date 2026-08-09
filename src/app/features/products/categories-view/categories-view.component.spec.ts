@@ -10,7 +10,7 @@ import { mockCategoriesWithSubcategories } from 'src/app/testing/mock-data';
 /**
  * The CLI stub threw `No provider for Apollo!` via ProductsService. We swap in a
  * ProductsService double (so no Apollo graph is needed) and a Router spy, then
- * cover ngOnInit and the navigation/filter handoff.
+ * cover ngOnInit and URL-addressable category navigation.
  */
 describe('CategoriesViewComponent', () => {
     let component: CategoriesViewComponent;
@@ -21,7 +21,6 @@ describe('CategoriesViewComponent', () => {
     beforeEach(async () => {
         products = {
             getProductCategories: jest.fn().mockName("ProductsService.getProductCategories"),
-            setCategoryFilter: jest.fn().mockName("ProductsService.setCategoryFilter")
         };
         products.getProductCategories.mockReturnValue(of({ data: { category: mockCategoriesWithSubcategories } }) as any);
         router = {
@@ -50,10 +49,19 @@ describe('CategoriesViewComponent', () => {
         expect(component.categories).toEqual(mockCategoriesWithSubcategories);
     });
 
-    it('openProductsPage sets the category filter and navigates with state', () => {
+    it('falls back to an empty category list when Apollo returns no data', async () => {
+        products.getProductCategories.mockReturnValue(of({ data: undefined }));
+        const emptyFixture = TestBed.createComponent(CategoriesViewComponent);
+
+        await emptyFixture.whenStable();
+
+        expect(emptyFixture.componentInstance.categories).toEqual([]);
+    });
+
+    it('opens a category through a shareable query parameter', () => {
         component.openProductsPage('Electronics');
-        expect(products.setCategoryFilter).toHaveBeenCalledTimes(1);
-        expect(products.setCategoryFilter).toHaveBeenCalledWith('Electronics');
-        expect(router.navigate).toHaveBeenCalledWith(['/products/search'], expect.objectContaining({ state: { filters: 'Electronics' } }));
+        expect(router.navigate).toHaveBeenCalledWith(['/products/search'], {
+            queryParams: { category: 'Electronics' },
+        });
     });
 });

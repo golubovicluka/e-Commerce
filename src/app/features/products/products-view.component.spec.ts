@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { BehaviorSubject, of, Subject, throwError } from 'rxjs';
+import { BehaviorSubject, of, throwError } from 'rxjs';
 
 import { ProductsViewComponent } from './products-view.component';
 import { ProductsService } from './products.service';
@@ -11,10 +11,7 @@ import { mockProducts } from 'src/app/testing/mock-data';
 /**
  * The CLI stub threw `No provider for Apollo!` via ProductsService. This is the
  * most logic-heavy component in the app; ngOnInit fires multiple queries and a
- * large catalog template, so the smoke test stops at construction (the
- * constructor reads `router.getCurrentNavigation()`, hence the Router spy).
- * Dependency-light behaviour — the trackBy and the wishlist/cart handoffs — is
- * covered directly.
+ * large catalog template, so dependencies are replaced with focused doubles.
  */
 describe('ProductsViewComponent', () => {
     let component: ProductsViewComponent;
@@ -32,7 +29,6 @@ describe('ProductsViewComponent', () => {
             getProductsByPrice: jest.fn().mockName("ProductsService.getProductsByPrice"),
             getProductsPage: jest.fn().mockName("ProductsService.getProductsPage"),
             getPriceBounds: jest.fn().mockName("ProductsService.getPriceBounds"),
-            categoryFilter: new Subject<string>(),
         };
         products.getProductsPage.mockReturnValue(of({
             data: { product: [], product_aggregate: { aggregate: { count: 0 } } },
@@ -44,9 +40,7 @@ describe('ProductsViewComponent', () => {
         queryParams = new BehaviorSubject<Record<string, string>>({ q: 'phone' });
         router = {
             navigate: jest.fn().mockName("Router.navigate"),
-            getCurrentNavigation: jest.fn().mockName("Router.getCurrentNavigation")
         };
-        router.getCurrentNavigation.mockReturnValue(null);
 
         await TestBed.configureTestingModule({
     imports: [ProductsViewComponent],
@@ -72,10 +66,6 @@ describe('ProductsViewComponent', () => {
 
         fixture = TestBed.createComponent(ProductsViewComponent);
         component = fixture.componentInstance;
-    });
-
-    afterEach(() => {
-        window.history.replaceState({}, '', '/');
     });
 
     it('should create', () => {
@@ -129,50 +119,16 @@ describe('ProductsViewComponent', () => {
         expect(component.isLoading).toBe(false);
     });
 
-    it('uses a navigation-state category filter', () => {
-        router.getCurrentNavigation.mockReturnValue({ extras: { state: { filters: 'Electronics' } } });
-        const stateComponent = TestBed.createComponent(ProductsViewComponent).componentInstance;
-
-        stateComponent.ngOnInit();
-
-        expect(products.getProductsPage).toHaveBeenLastCalledWith(
-            expect.objectContaining({
-                where: expect.objectContaining({ category: { name: { _eq: 'Electronics' } } }),
-            }),
-        );
-    });
-
-    it('restores a history-state category when navigation extras are unavailable', () => {
-        window.history.replaceState({ filters: 'Kitchen' }, '', '/products/search');
-        const historyComponent = TestBed.createComponent(ProductsViewComponent).componentInstance;
-
-        historyComponent.ngOnInit();
-
-        expect(products.getProductsPage).toHaveBeenLastCalledWith(
-            expect.objectContaining({
-                where: expect.objectContaining({ category: { name: { _eq: 'Kitchen' } } }),
-            }),
-        );
-    });
-
-    it('initializes when history has no state object', () => {
-        window.history.replaceState(null, '', '/products/search');
-        const noHistoryComponent = TestBed.createComponent(ProductsViewComponent).componentInstance;
-
-        expect(() => noHistoryComponent.ngOnInit()).not.toThrow();
-    });
-
-    it('reacts to category and later query-parameter changes', () => {
+    it('reacts to category and search query-parameter changes', () => {
         component.ngOnInit();
         products.getProductsPage.mockClear();
 
-        products.categoryFilter.next('Electronics');
-        queryParams.next({ q: 'tablet' });
+        queryParams.next({ q: 'tablet', category: 'Electronics' });
 
         expect(products.getPriceBounds).toHaveBeenLastCalledWith({
             category: { name: { _eq: 'Electronics' } },
         });
-        expect(products.getProductsPage).toHaveBeenCalledTimes(2);
+        expect(products.getProductsPage).toHaveBeenCalledTimes(1);
         expect(products.getProductsPage).toHaveBeenLastCalledWith(
             expect.objectContaining({
                 where: {

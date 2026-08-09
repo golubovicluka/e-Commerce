@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
 import { Apollo, gql } from 'apollo-angular';
-import { Subject } from 'rxjs';
 import { Category, Product, Subcategory } from './Product';
 
 export type SortDirection = 'asc' | 'desc';
@@ -193,14 +192,7 @@ const GET_SUGGESTED_PRODUCTS = gql`
 
 @Injectable()
 export class ProductsService {
-  private readonly categoryFilterSubject = new Subject<string>();
-  readonly categoryFilter = this.categoryFilterSubject.asObservable();
-
   constructor(private readonly apollo: Apollo) {}
-
-  setCategoryFilter(category: string): void {
-    this.categoryFilterSubject.next(category);
-  }
 
   getProductsPage(options: ProductQueryOptions) {
     return this.apollo.query<ProductsPageData>({
