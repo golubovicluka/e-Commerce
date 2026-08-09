@@ -133,6 +133,15 @@
     </ul>
   </div>
 </div>
+} @else if (loadState === 'error') {
+  <section class="empty-state details-error" role="alert">
+    <i class="pi pi-exclamation-circle" aria-hidden="true"></i>
+    <h1>Product temporarily unavailable</h1>
+    <p>We could not load this product. Check your connection and try again.</p>
+    <button type="button" class="p-button" (click)="retryProductLoad()">
+      Try again
+    </button>
+  </section>
 } @else {
   <div class="details-skeleton">
     <div class="skeleton skeleton-gallery"></div>
@@ -154,7 +163,7 @@
     <div class="section-head">
       <div>
         <span class="eyebrow">Keep browsing</span>
-        <h2>More from {{ product.category?.name }}</h2>
+        <h2>More from {{ product?.category?.name }}</h2>
       </div>
     </div>
     <div class="product-strip w-full">
