@@ -229,11 +229,10 @@ export class ProductDetailsComponent implements OnInit {
       return;
     }
 
-    this._productService.getProductsByCategory(category).pipe(take(1)).subscribe({
-      next: (response: any) => {
-        this.suggestedProducts = response.data.product
-          .filter((suggestedProduct: Product) => suggestedProduct.id !== this.id)
-          .map((suggestedProduct: Product) => ({
+    this._productService.getRelatedProducts(category, this.id).pipe(take(1)).subscribe({
+      next: (response) => {
+        this.suggestedProducts = (response.data?.product ?? [])
+          .map((suggestedProduct) => ({
             ...suggestedProduct,
             images: this._productImageService.normalizeImages(
               suggestedProduct.images,

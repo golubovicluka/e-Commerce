@@ -33,7 +33,7 @@ describe('ProductDetailsComponent', () => {
     beforeEach(async () => {
         products = {
             getProductById: jest.fn().mockName("ProductsService.getProductById"),
-            getProductsByCategory: jest.fn().mockName("ProductsService.getProductsByCategory")
+            getRelatedProducts: jest.fn().mockName("ProductsService.getRelatedProducts")
         };
         wishlist = {
             inWishlist: jest.fn().mockName("WishlistService.inWishlist"),
@@ -50,7 +50,7 @@ describe('ProductDetailsComponent', () => {
             handleImageError: jest.fn().mockName("ProductImageService.handleImageError")
         };
         products.getProductById.mockReturnValue(of({ data: { product: [mockProducts[0]] } }));
-        products.getProductsByCategory.mockReturnValue(of({ data: { product: mockProducts } }));
+        products.getRelatedProducts.mockReturnValue(of({ data: { product: mockProducts.slice(1) } }));
         wishlist.inWishlist.mockReturnValue(false);
         images.normalizeImages.mockImplementation((value: string[]) => value ?? ['fallback.jpg']);
         images.resolvePrimaryImage.mockReturnValue('resolved.jpg');
@@ -152,7 +152,7 @@ describe('ProductDetailsComponent', () => {
 
         expect(stateComponent.product.id).toBe(mockProducts[0].id);
         expect(products.getProductById).not.toHaveBeenCalled();
-        expect(products.getProductsByCategory).toHaveBeenCalled();
+        expect(products.getRelatedProducts).toHaveBeenCalledWith('Electronics', mockProducts[0].id);
     });
 
     it('uses an empty suggestion list when the product has no category', () => {
@@ -176,7 +176,7 @@ describe('ProductDetailsComponent', () => {
     });
 
     it('recovers when loading related suggestions fails', () => {
-        products.getProductsByCategory.mockReturnValue(throwError(() => new Error('offline')));
+        products.getRelatedProducts.mockReturnValue(throwError(() => new Error('offline')));
         router.getCurrentNavigation.mockReturnValue({ extras: { state: { product: mockProducts[0] } } });
 
         const stateComponent = TestBed.createComponent(ProductDetailsComponent).componentInstance;

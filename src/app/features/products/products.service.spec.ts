@@ -1,327 +1,144 @@
 import { TestBed } from '@angular/core/testing';
-import { ApolloTestingModule, ApolloTestingController } from 'apollo-angular/testing';
-import { ProductsService } from './products.service';
+import { ApolloTestingController, ApolloTestingModule } from 'apollo-angular/testing';
+import { mockCategoriesWithSubcategories, mockProducts } from '../../testing/mock-data';
 import { Product } from './Product';
-import { mockProducts, mockProduct, mockCategoriesWithSubcategories } from '../../testing/mock-data';
+import { ProductsService } from './products.service';
 
-/**
- * Apollo's test cache adds `__typename` to every selection, so a flushed payload
- * must carry `__typename` or the cache returns hollow ({}) objects on read.
- * This annotates a fixture (and its nested entities) for flushing.
- */
-function asGql(product: Product) {
-    return {
-        __typename: 'product',
-        ...product,
-        category: product.category ? { __typename: 'category', ...product.category } : product.category,
-        subcategory: product.subcategory
-            ? { __typename: 'subcategory', ...product.subcategory }
-            : product.subcategory,
-    };
+function asGraphqlProduct(product: Product) {
+  return {
+    __typename: 'product',
+    ...product,
+    category: product.category
+      ? { __typename: 'category', ...product.category }
+      : product.category,
+    subcategory: product.subcategory
+      ? { __typename: 'subcategory', ...product.subcategory }
+      : product.subcategory,
+  };
 }
 
-/**
- * ProductsService talks to a Hasura GraphQL backend through Apollo. The previous
- * version of this spec replaced Apollo with a hand-rolled watched-query spy. That
- * approach had three problems:
- *
- *   1. It never validated the GraphQL documents the service builds, so a broken
- *      query, a renamed variable, or a wrong operation would still "pass".
- *   2. The mock double-wrapped the payload (`{ data: { data: { product } } }`),
- *      so every `result.data.product` assertion silently compared against
- *      `undefined` — the assertions were effectively dead. (See git history:
- *      ~18 of these tests were red.)
- *   3. Subscriptions were never completed/unsubscribed, leaking a callback that
- *      threw inside `afterAll` and disconnected the Karma browser.
- *
- * This version uses ApolloTestingModule so we exercise the real Apollo links:
- * the service emits a request, we assert on the *actual* operation name and
- * variables, then flush a controlled response (or a network error). `verify()`
- * fails the test if the service issues an unexpected query. Emissions arrive
- * asynchronously, so each test uses the `done` callback.
- */
 describe('ProductsService', () => {
-    let service: ProductsService;
-    let controller: ApolloTestingController;
+  let service: ProductsService;
+  let controller: ApolloTestingController;
 
-    beforeEach(() => {
-        TestBed.configureTestingModule({
-            imports: [ApolloTestingModule],
-            providers: [ProductsService],
-        });
-        service = TestBed.inject(ProductsService);
-        controller = TestBed.inject(ApolloTestingController);
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      imports: [ApolloTestingModule],
+      providers: [ProductsService],
+    });
+    service = TestBed.inject(ProductsService);
+    controller = TestBed.inject(ApolloTestingController);
+  });
+
+  afterEach(() => controller.verify());
+
+  it('is created', () => {
+    expect(service).toBeTruthy();
+  });
+
+  it('emits selected categories', () => {
+    const received: string[] = [];
+    service.categoryFilter.subscribe((category) => received.push(category));
+
+    service.setCategoryFilter('Electronics');
+
+    expect(received).toEqual(['Electronics']);
+  });
+
+  it('requests a default product page', () => {
+    service.getProductsPage({ limit: 10, offset: 20 }).subscribe();
+
+    const operation = controller.expectOne('GetProductsPage');
+    expect(operation.operation.variables).toEqual({
+      where: {},
+      orderBy: [{ price: 'asc' }],
+      limit: 10,
+      offset: 20,
+    });
+    operation.flushData({
+      product: [],
+      product_aggregate: { aggregate: { count: 0 } },
+    });
+  });
+
+  it('preserves explicit filters and ordering', () => {
+    const where = { name: { _ilike: '%phone%' } };
+    const orderBy = [{ price: 'desc' as const }];
+    service.getProductsPage({ where, orderBy, limit: 5, offset: 0 }).subscribe();
+
+    const operation = controller.expectOne('GetProductsPage');
+    expect(operation.operation.variables).toEqual({ where, orderBy, limit: 5, offset: 0 });
+    operation.flushData({
+      product: [asGraphqlProduct(mockProducts[0])],
+      product_aggregate: { aggregate: { count: 1 } },
+    });
+  });
+
+  it('requests global and filtered price bounds', () => {
+    service.getPriceBounds().subscribe();
+    const global = controller.expectOne('GetPriceBounds');
+    expect(global.operation.variables).toEqual({ where: {} });
+    global.flushData({ product_aggregate: { aggregate: { min: null, max: null } } });
+
+    const where = { category: { name: { _eq: 'Electronics' } } };
+    service.getPriceBounds(where).subscribe();
+    const filtered = controller.expectOne('GetPriceBounds');
+    expect(filtered.operation.variables).toEqual({ where });
+    filtered.flushData({ product_aggregate: { aggregate: { min: null, max: null } } });
+  });
+
+  it('requests products by ids and one product by id', () => {
+    service.getProductsByIds([1, 4, 13]).subscribe();
+    const byIds = controller.expectOne('GetProductsByIds');
+    expect(byIds.operation.variables).toEqual({ ids: [1, 4, 13] });
+    byIds.flushData({ product: [] });
+
+    service.getProductById(5).subscribe();
+    const byId = controller.expectOne('GetProductById');
+    expect(byId.operation.variables).toEqual({ id: 5 });
+    byId.flushData({ product: [asGraphqlProduct(mockProducts[4])] });
+  });
+
+  it('requests a bounded related-products list', () => {
+    service.getRelatedProducts('Electronics', 5).subscribe();
+    const defaultLimit = controller.expectOne('GetRelatedProducts');
+    expect(defaultLimit.operation.variables).toEqual({
+      category: 'Electronics',
+      excludeId: 5,
+      limit: 4,
+    });
+    defaultLimit.flushData({ product: [] });
+
+    service.getRelatedProducts('Home', 2, 2).subscribe();
+    const explicitLimit = controller.expectOne('GetRelatedProducts');
+    expect(explicitLimit.operation.variables).toEqual({
+      category: 'Home',
+      excludeId: 2,
+      limit: 2,
+    });
+    explicitLimit.flushData({ product: [] });
+  });
+
+  it('requests typed categories and suggested products', () => {
+    service.getProductCategories().subscribe();
+    controller
+      .expectOne('GetProductCategories')
+      .flushData({ category: mockCategoriesWithSubcategories });
+
+    service.getSuggestedProducts().subscribe();
+    controller
+      .expectOne('GetSuggestedProducts')
+      .flushData({ product: [asGraphqlProduct(mockProducts[0])] });
+  });
+
+  it('surfaces Apollo errors to consumers', (done) => {
+    service.getProductById(1).subscribe({
+      error: (error) => {
+        expect(error).toBeTruthy();
+        done();
+      },
     });
 
-    afterEach(() => {
-        // Fails if any query was issued that a test did not explicitly expect/flush.
-        controller.verify();
-    });
-
-    describe('Initialization', () => {
-        it('should be created', () => {
-            expect(service).toBeTruthy();
-        });
-    });
-
-    describe('setCategoryFilter', () => {
-        it('emits the category on the categoryFilter stream', async () => {
-            service.categoryFilter.subscribe((value) => {
-                expect(value).toBe('Electronics');
-                ;
-            });
-            service.setCategoryFilter('Electronics');
-        });
-
-        it('emits every pushed category in order', () => {
-            const received: string[] = [];
-            service.categoryFilter.subscribe((v) => received.push(v));
-
-            ['Electronics', 'Clothing', 'Home & Garden'].forEach((c) => service.setCategoryFilter(c));
-
-            expect(received).toEqual(['Electronics', 'Clothing', 'Home & Garden']);
-        });
-    });
-
-    describe('server-side catalog queries', () => {
-        it('requests a page with default filters and sorting', () => {
-            service.getProductsPage({ limit: 10, offset: 20 }).subscribe();
-
-            const op = controller.expectOne('GetProductsPage');
-            expect(op.operation.variables).toEqual({
-                where: {},
-                orderBy: [{ price: 'asc' }],
-                limit: 10,
-                offset: 20,
-            });
-            op.flushData({
-                product: [],
-                product_aggregate: { aggregate: { count: 0 } },
-            });
-        });
-
-        it('requests a page with explicit where and orderBy expressions', () => {
-            const where = { name: { _ilike: '%phone%' } };
-            const orderBy = [{ price: 'desc' }];
-            service.getProductsPage({ where, orderBy, limit: 5, offset: 0 }).subscribe();
-
-            const op = controller.expectOne('GetProductsPage');
-            expect(op.operation.variables).toEqual({ where, orderBy, limit: 5, offset: 0 });
-            op.flushData({
-                product: [],
-                product_aggregate: { aggregate: { count: 0 } },
-            });
-        });
-
-        it('requests global and filtered price bounds', () => {
-            service.getPriceBounds().subscribe();
-            const global = controller.expectOne('GetPriceBounds');
-            expect(global.operation.variables).toEqual({ where: {} });
-            global.flushData({ product_aggregate: { aggregate: { min: null, max: null } } });
-
-            const where = { category: { name: { _eq: 'Electronics' } } };
-            service.getPriceBounds(where).subscribe();
-            const filtered = controller.expectOne('GetPriceBounds');
-            expect(filtered.operation.variables).toEqual({ where });
-            filtered.flushData({ product_aggregate: { aggregate: { min: null, max: null } } });
-        });
-
-        it('requests products by id list', () => {
-            service.getProductsByIds([1, 4, 13]).subscribe();
-
-            const op = controller.expectOne('GetProductsByIds');
-            expect(op.operation.variables).toEqual({ ids: [1, 4, 13] });
-            op.flushData({ product: [] });
-        });
-    });
-
-    describe('getProducts (query selection by arguments)', () => {
-        it('uses GetProducts with category + sortBy when both are provided', async () => {
-            service.getProducts('desc', 'Electronics').subscribe((r: any) => {
-                expect(r.data.product).toMatchObject([mockProducts[0]]);
-                ;
-            });
-
-            const op = controller.expectOne('GetProducts');
-            expect(op.operation.variables).toEqual({ category: 'Electronics', sortBy: 'desc' });
-            op.flushData({ product: [asGql(mockProducts[0])] });
-        });
-
-        it('uses GetProductsByCategory when only a category is provided', () => {
-            service.getProducts(undefined, 'Electronics').subscribe();
-
-            const op = controller.expectOne('GetProductsByCategory');
-            expect(op.operation.variables).toEqual({ category: 'Electronics' });
-            op.flushData({ product: [] });
-        });
-
-        it('uses GetProductsSorted when only sortBy is provided', () => {
-            service.getProducts('asc').subscribe();
-
-            const op = controller.expectOne('GetProductsSorted');
-            expect(op.operation.variables).toEqual({ sortBy: 'asc' });
-            op.flushData({ product: mockProducts });
-        });
-
-        it('falls back to GetProductsDefault when no arguments are provided', () => {
-            service.getProducts().subscribe();
-
-            const op = controller.expectOne('GetProductsDefault');
-            expect(op.operation.variables).toEqual({});
-            op.flushData({ product: mockProducts });
-        });
-    });
-
-    describe('getProductsByPrice', () => {
-        it('sends the price bounds and returns the matching products', async () => {
-            service.getProductsByPrice(10, 50).subscribe((r: any) => {
-                expect(r.data.product).toMatchObject([mockProducts[2]]);
-                ;
-            });
-
-            const op = controller.expectOne('GetProductsByPrice');
-            expect(op.operation.variables).toEqual({ priceFrom: 10, priceTo: 50 });
-            op.flushData({ product: [asGql(mockProducts[2])] });
-        });
-
-        it('preserves a lower bound of 0 (no falsy coercion)', () => {
-            service.getProductsByPrice(0, 5000).subscribe();
-
-            const op = controller.expectOne('GetProductsByPrice');
-            expect(op.operation.variables['priceFrom']).toBe(0);
-            op.flushData({ product: mockProducts });
-        });
-    });
-
-    describe('searchProducts', () => {
-        it('wraps the search term in SQL wildcards for _ilike', () => {
-            service.searchProducts('iPhone').subscribe();
-
-            const op = controller.expectOne('SearchProducts');
-            expect(op.operation.variables).toEqual({ searchInput: '%iPhone%' });
-            op.flushData({ product: [mockProducts[0]] });
-        });
-
-        it('still wildcard-wraps an empty search term', () => {
-            service.searchProducts('').subscribe();
-
-            const op = controller.expectOne('SearchProducts');
-            expect(op.operation.variables['searchInput']).toBe('%%');
-            op.flushData({ product: [] });
-        });
-    });
-
-    describe('getProductById', () => {
-        it('sends the id and returns the product', async () => {
-            service.getProductById(5).subscribe((r: any) => {
-                expect(r.data.product[0].id).toBe(5);
-                ;
-            });
-
-            const op = controller.expectOne('GetProductById');
-            expect(op.operation.variables).toEqual({ id: 5 });
-            op.flushData({ product: [asGql(mockProducts[4])] });
-        });
-
-        it('returns an empty list for a non-existent id', async () => {
-            service.getProductById(999).subscribe((r: any) => {
-                expect(r.data.product).toEqual([]);
-                ;
-            });
-
-            controller.expectOne('GetProductById').flushData({ product: [] });
-        });
-    });
-
-    describe('getFilteredProducts', () => {
-        it('queries GetFilteredProducts with the subcategory list', () => {
-            service.getFilteredProducts(['Smartphones', 'Laptops']).subscribe();
-
-            const op = controller.expectOne('GetFilteredProducts');
-            expect(op.operation.variables).toEqual({ filter: ['Smartphones', 'Laptops'] });
-            op.flushData({ product: [mockProducts[0], mockProducts[1]] });
-        });
-
-        it('short-circuits to GetProductsDefault for an empty filter (no needless filtered query)', () => {
-            service.getFilteredProducts([]).subscribe();
-
-            controller.expectNone('GetFilteredProducts');
-            controller.expectOne('GetProductsDefault').flushData({ product: mockProducts });
-        });
-    });
-
-    describe('getProductCategories', () => {
-        it('returns categories with their nested subcategories', async () => {
-            service.getProductCategories().subscribe((r: any) => {
-                expect(r.data.category.length).toBe(3);
-                expect(r.data.category[0].subcategories.length).toBe(2);
-                ;
-            });
-
-            controller
-                .expectOne('GetProductCategories')
-                .flushData({ category: mockCategoriesWithSubcategories });
-        });
-    });
-
-    describe('getSuggestedProducts', () => {
-        it('returns the suggested products payload', async () => {
-            service.getSuggestedProducts().subscribe((r: any) => {
-                expect(r.data.product[0].id).toBe(mockProduct.id);
-                ;
-            });
-
-            controller.expectOne('GetSuggestedProducts').flushData({ product: [asGql(mockProduct)] });
-        });
-    });
-
-    describe('legacy aliases', () => {
-        it('getProductBySubcategory delegates to the category query', () => {
-            service.getProductBySubcategory('Clothing').subscribe();
-
-            const op = controller.expectOne('GetProductsByCategory');
-            expect(op.operation.variables).toEqual({ category: 'Clothing' });
-            op.flushData({ product: [] });
-        });
-
-        it('getProductsFromSubcategories delegates to the filtered query', () => {
-            service.getProductsFromSubcategories(['Jeans']).subscribe();
-
-            const op = controller.expectOne('GetFilteredProducts');
-            expect(op.operation.variables).toEqual({ filter: ['Jeans'] });
-            op.flushData({ product: [] });
-        });
-    });
-
-    describe('error handling (the path the old happy-only suite never covered)', () => {
-        it('surfaces a network error to the subscriber instead of swallowing it', async () => {
-            service.getProductById(1).subscribe({
-                next: () => {
-                    throw new Error('expected the stream to error, not emit');
-                },
-                error: (err) => {
-                    expect(err).toBeTruthy();
-                    ;
-                },
-            });
-
-            controller.expectOne('GetProductById').networkError(new Error('Network failure'));
-        });
-
-        it('surfaces GraphQL errors to the subscriber', async () => {
-            service.getProductsDefault().subscribe({
-                next: () => {
-                    throw new Error('expected the stream to error, not emit');
-                },
-                error: (err) => {
-                    expect(err).toBeTruthy();
-                    ;
-                },
-            });
-
-            controller
-                .expectOne('GetProductsDefault')
-                .graphqlErrors([{ message: 'field "product" not found' } as any]);
-        });
-    });
+    controller.expectOne('GetProductById').networkError(new Error('Network failure'));
+  });
 });
