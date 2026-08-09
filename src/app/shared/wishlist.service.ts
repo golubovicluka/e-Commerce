@@ -1,60 +1,87 @@
-import { Injectable, signal } from '@angular/core';
+import { DestroyRef, Injectable, signal } from '@angular/core';
 import { map, Observable, startWith, Subject } from 'rxjs';
-import { Product, parseStoredProducts } from '../features/products/Product';
+import { parseStoredProducts, Product } from '../features/products/Product';
+
+const WISHLIST_KEY = 'wishlist';
+
+function uniqueProducts(products: Product[]): Product[] {
+  return [...new Map(products.map((product) => [product.id, product])).values()];
+}
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class WishlistService {
-  private readonly wishListItemsState = signal<Product[]>([]);
+  private readonly wishlistState = signal<Product[]>([]);
   private readonly wishlistChanges$ = new Subject<void>();
-  readonly wishListItemsSignal = this.wishListItemsState.asReadonly();
+
+  readonly wishListItemsSignal = this.wishlistState.asReadonly();
   readonly wishListItemsObservable = this.getWishListItems();
 
-  constructor() {
-    try {
-      this.setWishlistItems(parseStoredProducts(localStorage.getItem('wishlist')));
-    } catch (error) {
-      console.error('Failed to load wishlist items from localStorage:', error);
-      this.setWishlistItems([]);
+  private readonly handleStorageEvent = (event: StorageEvent): void => {
+    if (event.key !== WISHLIST_KEY) {
+      return;
     }
+
+    this.setWishlistItems(uniqueProducts(parseStoredProducts(event.newValue)));
+  };
+
+  constructor(destroyRef: DestroyRef) {
+    this.wishlistState.set(this.loadWishlist());
+    window.addEventListener('storage', this.handleStorageEvent);
+    destroyRef.onDestroy(() => window.removeEventListener('storage', this.handleStorageEvent));
   }
 
   getWishListItems(): Observable<Product[]> {
     return this.wishlistChanges$.pipe(
       startWith(undefined),
-      map(() => this.wishListItemsState()),
+      map(() => this.wishlistState()),
     );
   }
 
   inWishlist(id: number): boolean {
-    return this.wishListItemsState().some(product => product.id === id);
+    return this.wishlistState().some((product) => product.id === id);
   }
 
-  addWishListItem(item: Product): void {
-    const currentItems = [...this.wishListItemsState(), item];
+  addWishListItem(item: Product): boolean {
+    if (this.inWishlist(item.id)) {
+      return false;
+    }
 
+    return this.persist([...this.wishlistState(), item]);
+  }
+
+  removeWishListItem(item: Product): boolean {
+    const nextItems = this.wishlistState().filter((product) => product.id !== item.id);
+    if (nextItems.length === this.wishlistState().length) {
+      return false;
+    }
+
+    return this.persist(nextItems);
+  }
+
+  private loadWishlist(): Product[] {
     try {
-      localStorage.setItem('wishlist', JSON.stringify(currentItems));
-      this.setWishlistItems(currentItems);
+      return uniqueProducts(parseStoredProducts(localStorage.getItem(WISHLIST_KEY)));
     } catch (error) {
-      console.error('Failed to save wishlist items to localStorage:', error);
+      console.error('Failed to load wishlist items from localStorage:', error);
+      return [];
     }
   }
 
-  removeWishListItem(item: Product): void {
-    const currentItems = this.wishListItemsState().filter(product => product.id !== item.id);
-
+  private persist(items: Product[]): boolean {
     try {
-      localStorage.setItem('wishlist', JSON.stringify(currentItems));
-      this.setWishlistItems(currentItems);
+      localStorage.setItem(WISHLIST_KEY, JSON.stringify(items));
+      this.setWishlistItems(items);
+      return true;
     } catch (error) {
       console.error('Failed to save wishlist items to localStorage:', error);
+      return false;
     }
   }
 
   private setWishlistItems(items: Product[]): void {
-    this.wishListItemsState.set(items);
+    this.wishlistState.set(items);
     this.wishlistChanges$.next();
   }
 }
