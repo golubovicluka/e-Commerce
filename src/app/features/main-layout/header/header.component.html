@@ -1,14 +1,15 @@
 <header class="header">
   <div class="announce-bar">
     <div class="announce-inner">
-      <span><i class="pi pi-truck"></i> Free delivery across Serbia on every order</span>
-      <span class="announce-meta">Secure checkout <b aria-hidden="true">/</b> 14-day returns</span>
+      <span><i class="pi pi-database" aria-hidden="true"></i> Live technology catalog in RSD</span>
+      <span class="announce-meta">Local saved items <b aria-hidden="true">/</b> Checkout preview</span>
     </div>
   </div>
   <div class="header-inner">
-    <button class="p-link menu-toggle lg:hidden" type="button" (click)="toggleMobileMenu()"
-      [attr.aria-expanded]="mobileMenuOpen" aria-controls="mobile-navigation" aria-label="Open menu">
-      <i class="pi pi-bars"></i>
+    <button #mobileMenuToggle class="p-link menu-toggle lg:hidden" type="button" (click)="toggleMobileMenu()"
+      [attr.aria-expanded]="mobileMenuOpen" aria-controls="mobile-navigation"
+      [attr.aria-label]="mobileMenuOpen ? 'Close navigation menu' : 'Open navigation menu'">
+      <i [class]="mobileMenuOpen ? 'pi pi-times' : 'pi pi-bars'" aria-hidden="true"></i>
     </button>
 
     <a [routerLink]="['/home']" class="brand">
@@ -19,10 +20,10 @@
       </span>
     </a>
 
-    <nav class="hidden lg:flex nav-links">
-      <a [routerLink]="['/home']" routerLinkActive="active">Home</a>
-      <a [routerLink]="['/products/search']" routerLinkActive="active">Products</a>
-      <a [routerLink]="['/categories']" routerLinkActive="active">Categories</a>
+    <nav class="hidden lg:flex nav-links" aria-label="Primary navigation">
+      <a routerLink="/home" routerLinkActive="active" ariaCurrentWhenActive="page">Home</a>
+      <a routerLink="/products/search" routerLinkActive="active" ariaCurrentWhenActive="page">Products</a>
+      <a routerLink="/categories" routerLinkActive="active" ariaCurrentWhenActive="page">Categories</a>
     </nav>
 
     <form class="header-search hidden md:flex" (ngSubmit)="onSearch()" role="search">
@@ -41,35 +42,38 @@
 
     <div class="header-actions">
       <button
+        #mobileSearchToggle
         type="button"
         class="icon-link md:hidden search-toggle"
         (click)="toggleMobileSearch()"
         [attr.aria-expanded]="mobileSearchOpen"
-        aria-label="Toggle search"
+        [attr.aria-label]="mobileSearchOpen ? 'Close product search' : 'Open product search'"
         >
-        <i class="pi pi-search"></i>
+        <i [class]="mobileSearchOpen ? 'pi pi-times' : 'pi pi-search'" aria-hidden="true"></i>
       </button>
-      <a [routerLink]="['/wishlist']" routerLinkActive="active" class="icon-link" aria-label="Wishlist">
-        @if (wishListItems !== '0') {
+      <a routerLink="/wishlist" routerLinkActive="active" ariaCurrentWhenActive="page" class="icon-link"
+        [attr.aria-label]="'Wishlist, ' + wishListItems + (wishListItems === 1 ? ' item' : ' items')">
+        @if (wishListItems !== 0) {
           <span class="icon-with-count">
-            <i class="pi pi-heart"></i>
+            <i class="pi pi-heart" aria-hidden="true"></i>
             <span class="icon-count" aria-hidden="true">{{ wishListItems }}</span>
           </span>
         }
-        @if (wishListItems === '0') {
-          <i class="pi pi-heart"></i>
+        @if (wishListItems === 0) {
+          <i class="pi pi-heart" aria-hidden="true"></i>
         }
         <span class="hidden sm:inline">Wishlist</span>
       </a>
-      <a [routerLink]="['/cart']" routerLinkActive="active" class="icon-link" aria-label="Cart">
-        @if (cartItems !== '0') {
+      <a routerLink="/cart" routerLinkActive="active" ariaCurrentWhenActive="page" class="icon-link"
+        [attr.aria-label]="'Cart, ' + cartItems + (cartItems === 1 ? ' item' : ' items')">
+        @if (cartItems !== 0) {
           <span class="icon-with-count">
-            <i class="pi pi-shopping-cart"></i>
+            <i class="pi pi-shopping-cart" aria-hidden="true"></i>
             <span class="icon-count" aria-hidden="true">{{ cartItems }}</span>
           </span>
         }
-        @if (cartItems === '0') {
-          <i class="pi pi-shopping-cart"></i>
+        @if (cartItems === 0) {
+          <i class="pi pi-shopping-cart" aria-hidden="true"></i>
         }
         <span class="hidden sm:inline">Cart</span>
       </a>
@@ -95,15 +99,16 @@
           />
       </span>
       <button type="submit" class="search-submit" aria-label="Submit search">
-        <i class="pi pi-arrow-right"></i>
+        <i class="pi pi-arrow-right" aria-hidden="true"></i>
       </button>
     </form>
   }
 
   @if (mobileMenuOpen) {
-    <nav id="mobile-navigation" class="mobile-navigation lg:hidden" aria-label="Mobile navigation">
+    <nav #mobileNavigation id="mobile-navigation" class="mobile-navigation lg:hidden" aria-label="Mobile navigation">
       @for (item of items; track item.label) {
-        <a [routerLink]="item.routerLink" routerLinkActive="active" (click)="mobileMenuOpen = false">
+        <a [routerLink]="item.routerLink" routerLinkActive="active" ariaCurrentWhenActive="page"
+          (click)="closeMobileMenu()">
           <i [class]="item.icon" aria-hidden="true"></i>
           {{ item.label }}
         </a>
