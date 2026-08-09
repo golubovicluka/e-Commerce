@@ -1,37 +1,69 @@
 <div class="checkout-panel component-enter">
   <div class="panel-head">
     <span class="eyebrow">Step 2 of 3</span>
-    <h3 class="panel-title">Review your order</h3>
+    <h2 class="panel-title">Review your demo order</h2>
   </div>
 
-  <div class="overview-list">
-    @for (line of cartLines(); track line.product.id) {
-      <div class="overview-row">
-        <span class="row-name">
-          {{ line.product.name }}
-          @if (line.quantity > 1) {
-            <span class="row-qty">&times; {{ line.quantity }}</span>
-          }
-        </span>
-        <span class="row-price font-mono">{{ line.lineTotal | number }} RSD</span>
+  @if (cartLines().length === 0) {
+    <div class="checkout-notice" role="status">
+      <i class="pi pi-shopping-cart" aria-hidden="true"></i>
+      <div>
+        <h3>Your cart is empty</h3>
+        <p>Add a product before continuing through the checkout preview.</p>
       </div>
-    }
-    <div class="overview-row overview-row--shipping">
-      <span class="row-name">Shipping</span>
-      <span class="row-free">Free</span>
     </div>
-    <div class="overview-total">
-      <span>Total</span>
-      <span class="font-mono">{{ total() | number }} RSD</span>
+  } @else {
+    <div class="overview-list">
+      @for (line of cartLines(); track line.product.id) {
+        <div class="overview-row">
+          <span class="row-name">
+            {{ line.product.name }}
+            @if (line.quantity > 1) {
+              <span class="row-qty">&times; {{ line.quantity }}</span>
+            }
+          </span>
+          <span class="row-price font-mono">{{ line.lineTotal | number }} RSD</span>
+        </div>
+      }
+      <div class="overview-row overview-row--shipping">
+        <span class="row-name">Shipping</span>
+        <span class="row-pending">Not calculated in demo</span>
+      </div>
+      <div class="overview-total">
+        <span>Demo subtotal</span>
+        <span class="font-mono">{{ total() | number }} RSD</span>
+      </div>
     </div>
-  </div>
+  }
+
+  @if (shippingReady()) {
+    <section class="shipping-summary" aria-labelledby="shipping-summary-title">
+      <h3 id="shipping-summary-title">Delivery details</h3>
+      <p>
+        {{ shippingDetails().firstName }} {{ shippingDetails().lastName }}<br>
+        {{ shippingDetails().address }}{{ shippingDetails().apartment ? ', ' + shippingDetails().apartment : '' }}<br>
+        {{ shippingDetails().postalCode }} {{ shippingDetails().city }}
+      </p>
+      <a routerLink="/cart/shipping">Edit details</a>
+    </section>
+  } @else {
+    <div class="checkout-notice" role="status">
+      <i class="pi pi-info-circle" aria-hidden="true"></i>
+      <div>
+        <h3>Shipping details are incomplete</h3>
+        <p>Complete the validated shipping form before opening the payment preview.</p>
+      </div>
+    </div>
+  }
 
   <div class="panel-actions">
-    <a class="p-button p-button-outlined" [routerLink]="['/cart/shipping']">
+    <a class="p-button p-button-outlined" routerLink="/cart/shipping">
       <i class="pi pi-arrow-left" aria-hidden="true"></i> Back
     </a>
-    <a class="p-button" [routerLink]="['/cart/payment']">
-      Continue to payment <i class="pi pi-arrow-right" aria-hidden="true"></i>
-    </a>
+    @if (cartLines().length > 0 && shippingReady()) {
+      <a class="p-button" routerLink="/cart/payment">
+        Continue to payment preview <i class="pi pi-arrow-right" aria-hidden="true"></i>
+      </a>
+    }
   </div>
 </div>

@@ -1,25 +1,24 @@
-import { Component, ChangeDetectionStrategy } from '@angular/core';
-
-import { Observable } from 'rxjs';
-import { CartLine, CartService } from 'src/app/shared/cart.service';
-import { RouterLink } from '@angular/router';
 import { DecimalPipe } from '@angular/common';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { RouterLink } from '@angular/router';
+import { CartService } from 'src/app/shared/cart.service';
+import { CheckoutStateService } from '../checkout-state.service';
 
 @Component({
-    selector: 'app-overview',
-    templateUrl: './overview.component.html',
-    styleUrls: ['./overview.component.scss'],
-    changeDetection: ChangeDetectionStrategy.OnPush,
-    imports: [RouterLink, DecimalPipe]
+  selector: 'app-overview',
+  templateUrl: './overview.component.html',
+  styleUrls: ['./overview.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [RouterLink, DecimalPipe],
 })
 export class OverviewComponent {
-  cartLines$: Observable<CartLine[]>;
-  total$: Observable<number>;
-  readonly cartLines = this._cartService.cartLinesSignal;
-  readonly total = this._cartService.totalPriceSignal;
+  readonly cartLines = this.cartService.cartLinesSignal;
+  readonly total = this.cartService.totalPriceSignal;
+  readonly shippingDetails = this.checkoutState.shippingDetails;
+  readonly shippingReady = this.checkoutState.shippingReady;
 
-  constructor(private _cartService: CartService) {
-    this.cartLines$ = this._cartService.getCartLines();
-    this.total$ = this._cartService.getTotalPrice();
-  }
+  constructor(
+    private readonly cartService: CartService,
+    private readonly checkoutState: CheckoutStateService,
+  ) {}
 }
