@@ -12,6 +12,8 @@
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-sm);
   cursor: pointer;
+  color: var(--color-text-primary);
+  text-decoration: none;
   transition: box-shadow var(--duration-base) var(--ease-out),
     transform var(--duration-base) var(--ease-out),
     border-color var(--duration-base) var(--ease-out);

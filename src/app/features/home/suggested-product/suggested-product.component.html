@@ -1,24 +1,26 @@
-<article (click)="openDetails(id)" class="suggested-card" tabindex="0" role="link"
-  (keyup.enter)="openDetails(id)" [attr.aria-label]="name + ' — view product'">
-  <span class="badge-new">New</span>
+@if (product(); as item) {
+  <a class="suggested-card" [routerLink]="['/product', item.id]"
+    [attr.aria-label]="item.name + ' — view product'">
+    <span class="badge-new">New</span>
 
-  <div class="img-wrap">
-    <img [src]="resolvedImage" loading="lazy" decoding="async" (error)="onImageError($event)" [alt]="name">
-  </div>
+    <span class="img-wrap">
+      <img [src]="resolvedImage()" loading="lazy" decoding="async" (error)="onImageError($event)" [alt]="item.name">
+    </span>
 
-  <h3 class="product-name">{{ name }}</h3>
-  <p class="product-description">{{ description }}</p>
+    <span class="product-name">{{ item.name }}</span>
+    <span class="product-description">{{ item.description }}</span>
 
-  <div class="card-foot">
-    <span class="product-price font-mono">{{ price | number }} <span class="currency">RSD</span></span>
-    @if (inStock > 0) {
-      <span class="stock stock--in">
-        <span class="stock-dot"></span> In stock
-      </span>
-    } @else {
-      <span class="stock stock--out">
-        <span class="stock-dot"></span> Sold out
-      </span>
-    }
-  </div>
-</article>
+    <span class="card-foot">
+      <span class="product-price font-mono">{{ item.price | number }} <span class="currency">RSD</span></span>
+      @if (item.inStock > 0) {
+        <span class="stock stock--in">
+          <span class="stock-dot" aria-hidden="true"></span> In stock
+        </span>
+      } @else {
+        <span class="stock stock--out">
+          <span class="stock-dot" aria-hidden="true"></span> Sold out
+        </span>
+      }
+    </span>
+  </a>
+}

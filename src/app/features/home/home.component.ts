@@ -1,5 +1,5 @@
 import { Component, OnInit, ChangeDetectionStrategy, signal } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
+import { RouterLink } from '@angular/router';
 import { take } from 'rxjs';
 import { ProductsService } from '../products/products.service';
 import { ProductImageService } from 'src/app/shared/product-image.service';
@@ -47,7 +47,6 @@ export class HomeComponent implements OnInit {
   newsletterSubmitted = false;
 
   constructor(
-    private router: Router,
     private _productService: ProductsService,
     private _productImageService: ProductImageService,
     private _notificationService: NotificationService
@@ -192,10 +191,6 @@ export class HomeComponent implements OnInit {
       summary: "You're on the list",
       detail: 'Thanks for signing up — watch your inbox for new arrivals.'
     });
-  }
-
-  redirect(id: number): void {
-    void this.router.navigate(['/product', id]);
   }
 
   onHeroImageError(event: Event, productName: string): void {
