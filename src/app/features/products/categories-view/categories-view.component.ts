@@ -3,7 +3,6 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { map } from 'rxjs';
 import { CatalogCategory, ProductsService } from '../products.service';
 import { NavigationItem } from 'src/app/shared/navigation-item';
-import { Router } from '@angular/router';
 import { CategoryComponent } from './category/category.component';
 import { BreadcrumbComponent } from 'src/app/shared/breadcrumb/breadcrumb.component';
 
@@ -16,7 +15,7 @@ import { BreadcrumbComponent } from 'src/app/shared/breadcrumb/breadcrumb.compon
 })
 export class CategoriesViewComponent implements OnInit {
   private readonly categoriesState = toSignal(
-    this._productsService
+    this.productsService
       .getProductCategories()
       .pipe(map((response) => response.data?.category ?? [])),
     { initialValue: undefined },
@@ -25,10 +24,7 @@ export class CategoriesViewComponent implements OnInit {
   public items!: NavigationItem[];
   home!: NavigationItem;
 
-  constructor(
-    private _productsService: ProductsService,
-    private router: Router
-  ) { }
+  constructor(private readonly productsService: ProductsService) { }
 
   get categories(): CatalogCategory[] | undefined {
     return this.categoriesState();
@@ -39,12 +35,6 @@ export class CategoriesViewComponent implements OnInit {
       { label: 'Categories', routerLink: '/categories' },
     ];
     this.home = { icon: 'pi pi-home', routerLink: '/home' };
-  }
-
-  openProductsPage(categoryName: string): void {
-    void this.router.navigate(['/products/search'], {
-      queryParams: { category: categoryName },
-    });
   }
 
 }

@@ -10,9 +10,8 @@
 
 @if (categories) {
   <div class="categories-grid stagger">
-    @for (category of categories; track category) {
-      <app-category (applyCategoryFilter)="openProductsPage($event)"
-      [name]="category.name" [id]="category.id"></app-category>
+    @for (category of categories; track category.id) {
+      <app-category [category]="category"></app-category>
     }
   </div>
 } @else {

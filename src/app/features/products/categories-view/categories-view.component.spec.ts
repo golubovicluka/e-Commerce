@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
-import { Router } from '@angular/router';
+import { provideRouter } from '@angular/router';
 import { of } from 'rxjs';
 
 import { CategoriesViewComponent } from './categories-view.component';
@@ -16,22 +16,17 @@ describe('CategoriesViewComponent', () => {
     let component: CategoriesViewComponent;
     let fixture: ComponentFixture<CategoriesViewComponent>;
     let products: any;
-    let router: any;
 
     beforeEach(async () => {
         products = {
             getProductCategories: jest.fn().mockName("ProductsService.getProductCategories"),
         };
         products.getProductCategories.mockReturnValue(of({ data: { category: mockCategoriesWithSubcategories } }) as any);
-        router = {
-            navigate: jest.fn().mockName("Router.navigate")
-        };
-
         await TestBed.configureTestingModule({
     imports: [CategoriesViewComponent],
     providers: [
         { provide: ProductsService, useValue: products },
-        { provide: Router, useValue: router },
+        provideRouter([]),
     ],
     schemas: [NO_ERRORS_SCHEMA],
 }).compileComponents();
@@ -56,12 +51,5 @@ describe('CategoriesViewComponent', () => {
         await emptyFixture.whenStable();
 
         expect(emptyFixture.componentInstance.categories).toEqual([]);
-    });
-
-    it('opens a category through a shareable query parameter', () => {
-        component.openProductsPage('Electronics');
-        expect(router.navigate).toHaveBeenCalledWith(['/products/search'], {
-            queryParams: { category: 'Electronics' },
-        });
     });
 });

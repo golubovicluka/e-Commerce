@@ -1,47 +1,43 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { NO_ERRORS_SCHEMA } from '@angular/core';
+import { provideRouter } from '@angular/router';
 import { ProductImageService } from 'src/app/shared/product-image.service';
-
+import { mockCategories } from 'src/app/testing/mock-data';
 import { CategoryComponent } from './category.component';
 
 describe('CategoryComponent', () => {
-    let component: CategoryComponent;
-    let fixture: ComponentFixture<CategoryComponent>;
-    let images: any;
+  let component: CategoryComponent;
+  let fixture: ComponentFixture<CategoryComponent>;
+  let images: { getCategoryImage: jest.Mock };
 
-    beforeEach(async () => {
-        images = {
-            getCategoryImage: jest.fn().mockName("ProductImageService.getCategoryImage")
-        };
-        images.getCategoryImage.mockImplementation((name: string) => name === 'Electronics' ? 'https://example.com/electronics.jpg' : 'data:image/svg+xml,fallback');
+  beforeEach(async () => {
+    images = {
+      getCategoryImage: jest.fn((name: string) => `image-for-${name}`),
+    };
 
-        await TestBed.configureTestingModule({
-    imports: [CategoryComponent],
-    providers: [{ provide: ProductImageService, useValue: images }],
-    schemas: [NO_ERRORS_SCHEMA],
-}).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [CategoryComponent],
+      providers: [
+        provideRouter([]),
+        { provide: ProductImageService, useValue: images },
+      ],
+    }).compileComponents();
 
-        fixture = TestBed.createComponent(CategoryComponent);
-        component = fixture.componentInstance;
-    });
+    fixture = TestBed.createComponent(CategoryComponent);
+    component = fixture.componentInstance;
+    fixture.componentRef.setInput('category', mockCategories[0]);
+    fixture.detectChanges();
+  });
 
-    it('should create', () => {
-        expect(component).toBeTruthy();
-    });
+  it('renders a semantic link with a stable category id', () => {
+    const link = fixture.nativeElement.querySelector('a.category-tile') as HTMLAnchorElement;
 
-    it('openProductsPage emits the category name', () => {
-        const emitSpy = jest.spyOn(component.applyCategoryFilter, 'emit').mockReturnValue(undefined);
-        component.openProductsPage('Electronics');
-        expect(emitSpy).toHaveBeenCalledTimes(1);
-        expect(emitSpy).toHaveBeenCalledWith('Electronics');
-    });
+    expect(link.getAttribute('href')).toBe('/products/search?categoryId=1');
+    expect(link.getAttribute('aria-label')).toBe('Browse Electronics products');
+    expect(link.textContent).toContain('Electronics');
+  });
 
-    it('getCategoryImage delegates to ProductImageService', () => {
-        expect(component.getCategoryImage('Electronics')).toContain('http');
-        expect(images.getCategoryImage).toHaveBeenCalledWith('Electronics');
-    });
-
-    it('getCategoryImage returns a fallback for unmapped categories', () => {
-        expect(component.getCategoryImage('Totally Unknown Category')).toMatch(/^data:image\/svg\+xml,/);
-    });
+  it('delegates category imagery to the image service', () => {
+    expect(component.getCategoryImage('Electronics')).toBe('image-for-Electronics');
+    expect(images.getCategoryImage).toHaveBeenCalledWith('Electronics');
+  });
 });

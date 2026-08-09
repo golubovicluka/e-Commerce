@@ -1,8 +1,16 @@
-<div class="category-tile" (click)="openProductsPage(name)" (keyup.enter)="openProductsPage(name)"
-  role="link" tabindex="0"
-  [ngStyle]="{'background-image': 'url(' + getCategoryImage(name) + ')'}">
-  <div class="category-overlay">
-    <span class="category-name">{{name}}</span>
-    <span class="category-cta">Shop now <i class="pi pi-arrow-right"></i></span>
-  </div>
-</div>
+@if (category(); as item) {
+  <a
+    class="category-tile"
+    routerLink="/products/search"
+    [queryParams]="{ categoryId: item.id }"
+    [attr.aria-label]="'Browse ' + item.name + ' products'"
+    [ngStyle]="{ 'background-image': 'url(' + getCategoryImage(item.name) + ')' }"
+  >
+    <span class="category-overlay">
+      <span class="category-name">{{ item.name }}</span>
+      <span class="category-cta">
+        Shop now <i class="pi pi-arrow-right" aria-hidden="true"></i>
+      </span>
+    </span>
+  </a>
+}
