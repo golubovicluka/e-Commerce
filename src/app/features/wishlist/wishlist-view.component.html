@@ -11,32 +11,25 @@
   </div>
 }
 
-@if (wishlistItems) {
+@if (wishlistItems.length > 0) {
   <div class="wishlist-items stagger">
-    @for (product of wishlistItems; track trackByProductId($index, product)) {
-      <div class="wishlist-row" auto-animate>
+    @for (product of wishlistItems; track product.id) {
+      <div class="wishlist-row">
         <button class="remove-btn" type="button" (click)="removeFromWishlist(product)"
           [attr.aria-label]="'Remove ' + product.name + ' from wishlist'">
-          <i class="pi pi-times"></i>
+          <i class="pi pi-times" aria-hidden="true"></i>
         </button>
         <app-product [product]="product" [isListView]="true" [wishlistView]="true"></app-product>
       </div>
     }
   </div>
-  @if (wishlistItems.length === 0) {
-    <div class="empty-state component-enter">
-      <i class="pi pi-heart"></i>
-      <h3>Your wishlist is empty</h3>
-      <p>Save products you love and find them here later.</p>
-      <a class="p-button p-button-outlined" [routerLink]="['/products/search']">
-        Find a product
-      </a>
-    </div>
-  }
 } @else {
-  <div class="wishlist-items">
-    @for (s of [1, 2]; track s) {
-      <div class="skeleton wishlist-skeleton"></div>
-    }
+  <div class="empty-state component-enter">
+    <i class="pi pi-heart" aria-hidden="true"></i>
+    <h1>Your wishlist is empty</h1>
+    <p>Save products you love and find them here later.</p>
+    <a class="p-button p-button-outlined" [routerLink]="['/products/search']">
+      Find a product
+    </a>
   </div>
 }

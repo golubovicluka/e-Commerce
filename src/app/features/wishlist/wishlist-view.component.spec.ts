@@ -36,9 +36,7 @@ describe('WishlistViewComponent', () => {
     component = fixture.componentInstance;
   });
 
-  it('reads saved products and initializes breadcrumbs', () => {
-    component.ngOnInit();
-
+  it('reads saved products and exposes breadcrumbs', () => {
     expect(component.wishlistItems).toEqual([mockProducts[0], mockProducts[1]]);
     expect(component.items.at(-1)?.label).toBe('Wishlist');
     expect(component.home.routerLink).toBe('/home');
@@ -48,9 +46,5 @@ describe('WishlistViewComponent', () => {
     component.removeFromWishlist(mockProducts[1]);
 
     expect(actions.toggleWishlist).toHaveBeenCalledWith(mockProducts[1]);
-  });
-
-  it('tracks rows by product id', () => {
-    expect(component.trackByProductId(0, mockProducts[1])).toBe(mockProducts[1].id);
   });
 });

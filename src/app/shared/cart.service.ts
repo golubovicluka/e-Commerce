@@ -1,5 +1,4 @@
 import { computed, DestroyRef, Injectable, signal } from '@angular/core';
-import { map, Observable, startWith, Subject } from 'rxjs';
 import { Product, isProduct, parseStoredProducts } from '../features/products/Product';
 
 export interface CartLine {
@@ -57,7 +56,6 @@ function isStoredCart(value: unknown): value is StoredCartV1 {
 })
 export class CartService {
   private readonly cartState = signal<StoredCartLine[]>([]);
-  private readonly cartChanges$ = new Subject<void>();
 
   readonly cartItemsSignal = computed(() => this.cartState().map(({ product }) => product));
   readonly cartLinesSignal = computed<CartLine[]>(() =>
@@ -73,8 +71,6 @@ export class CartService {
   readonly numberOfItemsSignal = computed(() =>
     this.cartState().reduce((total, line) => total + line.quantity, 0),
   );
-  /** Observable compatibility facade; signals remain the single source of truth. */
-  readonly cartItems = this.getCartItems();
 
   private readonly handleStorageEvent = (event: StorageEvent): void => {
     if (event.key !== CART_KEY) {
@@ -120,24 +116,6 @@ export class CartService {
     return this.persist(nextState);
   }
 
-  getCartItems(): Observable<Product[]> {
-    return this.cartChanges$.pipe(
-      startWith(undefined),
-      map(() => this.cartItemsSignal()),
-    );
-  }
-
-  getCartLines(): Observable<CartLine[]> {
-    return this.cartChanges$.pipe(
-      startWith(undefined),
-      map(() => this.cartLinesSignal()),
-    );
-  }
-
-  getQuantities(): number[] {
-    return this.cartState().map(({ quantity }) => quantity);
-  }
-
   setQuantity(productId: number, quantity: number): boolean {
     const currentState = this.cartState();
     const index = currentState.findIndex(({ product }) => product.id === productId);
@@ -159,20 +137,6 @@ export class CartService {
       itemIndex === index ? { ...item, quantity: normalizedQuantity } : item,
     );
     return this.persist(nextState);
-  }
-
-  getTotalPrice(): Observable<number> {
-    return this.cartChanges$.pipe(
-      startWith(undefined),
-      map(() => this.totalPriceSignal()),
-    );
-  }
-
-  getNumberOfItems(): Observable<number> {
-    return this.cartChanges$.pipe(
-      startWith(undefined),
-      map(() => this.numberOfItemsSignal()),
-    );
   }
 
   inCart(id: number): boolean {
@@ -275,6 +239,5 @@ export class CartService {
 
   private setCartState(lines: StoredCartLine[]): void {
     this.cartState.set(lines);
-    this.cartChanges$.next();
   }
 }

@@ -48,7 +48,6 @@ describe('CartService', () => {
     expect(service.cartLinesSignal()).toEqual([]);
     expect(service.totalPriceSignal()).toBe(0);
     expect(service.numberOfItemsSignal()).toBe(0);
-    expect(service.getQuantities()).toEqual([]);
   });
 
   it('restores a versioned cart', () => {
@@ -84,7 +83,7 @@ describe('CartService', () => {
 
     const service = createService();
 
-    expect(service.getQuantities()).toEqual([2, 1]);
+    expect(service.cartLinesSignal().map(({ quantity }) => quantity)).toEqual([2, 1]);
     expect(JSON.parse(storage['cart'])).toEqual({
       version: 1,
       lines: [
@@ -103,7 +102,7 @@ describe('CartService', () => {
         storage['cartQuantities'] = quantities;
       }
 
-      expect(createService().getQuantities()).toEqual([1]);
+      expect(createService().cartLinesSignal()[0].quantity).toBe(1);
     },
   );
 
@@ -207,7 +206,7 @@ describe('CartService', () => {
     expect(service.setQuantity(1, 1.5)).toBe(false);
     expect(service.setQuantity(1, Number.NaN)).toBe(false);
     expect(service.setQuantity(1, 99)).toBe(true);
-    expect(service.getQuantities()).toEqual([4, 1]);
+    expect(service.cartLinesSignal().map(({ quantity }) => quantity)).toEqual([4, 1]);
     expect(service.setQuantity(1, 4)).toBe(true);
   });
 
@@ -220,28 +219,7 @@ describe('CartService', () => {
     jest.spyOn(console, 'error').mockImplementation(() => undefined);
 
     expect(service.setQuantity(mockProducts[0].id, 2)).toBe(false);
-    expect(service.getQuantities()).toEqual([1]);
-  });
-
-  it('exposes compatible observable projections', () => {
-    const service = createService();
-    const product = createMockProduct({ price: 25, inStock: 4 });
-    service.addToCart(product);
-    service.setQuantity(product.id, 3);
-
-    const items: unknown[] = [];
-    const lines: unknown[] = [];
-    const totals: number[] = [];
-    const counts: number[] = [];
-    service.cartItems.subscribe((value) => items.push(value));
-    service.getCartLines().subscribe((value) => lines.push(value));
-    service.getTotalPrice().subscribe((value) => totals.push(value));
-    service.getNumberOfItems().subscribe((value) => counts.push(value));
-
-    expect(items.at(-1)).toEqual([product]);
-    expect(lines.at(-1)).toEqual([{ product, quantity: 3, lineTotal: 75 }]);
-    expect(totals.at(-1)).toBe(75);
-    expect(counts.at(-1)).toBe(3);
+    expect(service.cartLinesSignal()[0].quantity).toBe(1);
   });
 
   it('synchronizes versioned cart changes from another tab', () => {

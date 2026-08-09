@@ -101,16 +101,6 @@ describe('WishlistService', () => {
     expect(service.wishListItemsSignal()).toEqual([mockProducts[0]]);
   });
 
-  it('exposes a compatible observable that emits changes', () => {
-    const service = createService();
-    const emissions: unknown[] = [];
-    service.wishListItemsObservable.subscribe((items) => emissions.push(items));
-
-    service.addWishListItem(mockProducts[0]);
-
-    expect(emissions).toEqual([[], [mockProducts[0]]]);
-  });
-
   it('synchronizes changes from another tab', () => {
     const service = createService();
     const product = createMockProduct({ id: 44 });

@@ -1,5 +1,4 @@
 import { DestroyRef, Injectable, signal } from '@angular/core';
-import { map, Observable, startWith, Subject } from 'rxjs';
 import { parseStoredProducts, Product } from '../features/products/Product';
 
 const WISHLIST_KEY = 'wishlist';
@@ -13,10 +12,8 @@ function uniqueProducts(products: Product[]): Product[] {
 })
 export class WishlistService {
   private readonly wishlistState = signal<Product[]>([]);
-  private readonly wishlistChanges$ = new Subject<void>();
 
   readonly wishListItemsSignal = this.wishlistState.asReadonly();
-  readonly wishListItemsObservable = this.getWishListItems();
 
   private readonly handleStorageEvent = (event: StorageEvent): void => {
     if (event.key !== WISHLIST_KEY) {
@@ -30,13 +27,6 @@ export class WishlistService {
     this.wishlistState.set(this.loadWishlist());
     window.addEventListener('storage', this.handleStorageEvent);
     destroyRef.onDestroy(() => window.removeEventListener('storage', this.handleStorageEvent));
-  }
-
-  getWishListItems(): Observable<Product[]> {
-    return this.wishlistChanges$.pipe(
-      startWith(undefined),
-      map(() => this.wishlistState()),
-    );
   }
 
   inWishlist(id: number): boolean {
@@ -82,6 +72,5 @@ export class WishlistService {
 
   private setWishlistItems(items: Product[]): void {
     this.wishlistState.set(items);
-    this.wishlistChanges$.next();
   }
 }
