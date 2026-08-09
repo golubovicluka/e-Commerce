@@ -6,6 +6,9 @@ import { ProductImageService } from 'src/app/shared/product-image.service';
 import { SuggestedProductComponent } from './suggested-product/suggested-product.component';
 import { FormsModule } from '@angular/forms';
 import { NotificationService } from 'src/app/shared/notification.service';
+import { Product } from '../products/Product';
+
+type FeaturedSlot = 'macbook' | 'ipad' | 'iphone';
 
 @Component({
     selector: 'app-home',
@@ -32,8 +35,9 @@ export class HomeComponent implements OnInit {
       description: 'Apple Pencil hover, ProRes capture, Wi‑Fi 6E.',
     },
   });
-  private readonly suggestedProductsState = signal<any[]>([]);
+  private readonly suggestedProductsState = signal<Product[]>([]);
   private readonly suggestedProductsLoadStateSignal = signal<'loading' | 'ready' | 'error'>('loading');
+  private readonly featuredProductsLoadStateSignal = signal<'loading' | 'ready' | 'fallback'>('loading');
 
   iphoneId = 4;
   macbookId = 1;
@@ -58,20 +62,24 @@ export class HomeComponent implements OnInit {
   get ipadImg(): string { return this.featuredProducts().ipad.image; }
   get ipadName(): string { return this.featuredProducts().ipad.name; }
   get ipadSub(): string { return this.featuredProducts().ipad.description; }
-  get suggestedProducts(): any[] { return this.suggestedProductsState(); }
+  get suggestedProducts(): Product[] { return this.suggestedProductsState(); }
   get suggestedProductsLoadState(): 'loading' | 'ready' | 'error' {
     return this.suggestedProductsLoadStateSignal();
   }
+  get featuredProductsLoadState(): 'loading' | 'ready' | 'fallback' {
+    return this.featuredProductsLoadStateSignal();
+  }
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.setFeaturedFallback('macbook');
     this.setFeaturedFallback('ipad');
     this.setFeaturedFallback('iphone');
     this.loadFeaturedProducts();
 
     this._productService.getSuggestedProducts().pipe(take(1)).subscribe({
-      next: (products: any) => {
-        this.suggestedProductsState.set(products.data.product.map((product: any) => ({
+      next: (result) => {
+        const products = result.data?.product ?? [];
+        this.suggestedProductsState.set(products.map((product) => ({
           ...product,
           images: this._productImageService.normalizeImages(product.images, product.name)
         })));
@@ -88,24 +96,30 @@ export class HomeComponent implements OnInit {
     this._productService
       .getProductsByIds(featuredIds)
       .pipe(take(1))
-      .subscribe((result: any) => {
-        const products: any[] = result.data?.product ?? [];
+      .subscribe({
+      next: (result) => {
+        const products = result.data?.product ?? [];
         const byId = new Map(products.map((product) => [product.id, product]));
 
         this.applyFeaturedProduct(byId.get(this.macbookId), 'macbook');
         this.applyFeaturedProduct(byId.get(this.ipadId), 'ipad');
         this.applyFeaturedProduct(byId.get(this.iphoneId), 'iphone');
-      });
+        this.featuredProductsLoadStateSignal.set('ready');
+      },
+      error: () => {
+        this.featuredProductsLoadStateSignal.set('fallback');
+      },
+    });
   }
 
-  private applyFeaturedProduct(product: any | undefined, slot: 'macbook' | 'ipad' | 'iphone'): void {
+  private applyFeaturedProduct(product: Product | undefined, slot: FeaturedSlot): void {
     if (!product) {
       this.setFeaturedFallback(slot);
       return;
     }
 
     const image = this._productImageService.resolvePrimaryImage(product.images, product.name);
-    const description = product.description?.trim();
+    const description = product.description?.trim() ?? '';
 
     if (slot === 'macbook') {
       this.updateFeaturedProduct('macbook', image, product.name, description);
@@ -121,7 +135,7 @@ export class HomeComponent implements OnInit {
   }
 
   private updateFeaturedProduct(
-    slot: 'macbook' | 'ipad' | 'iphone',
+    slot: FeaturedSlot,
     image: string,
     name: string,
     description?: string,
@@ -136,7 +150,7 @@ export class HomeComponent implements OnInit {
     }));
   }
 
-  private setFeaturedFallback(slot: 'macbook' | 'ipad' | 'iphone'): void {
+  private setFeaturedFallback(slot: FeaturedSlot): void {
     if (slot === 'macbook') {
       this.updateFeaturedProduct(
         slot,
@@ -160,7 +174,7 @@ export class HomeComponent implements OnInit {
     );
   }
 
-  submitForm() {
+  submitForm(): void {
     const email = this.newsletterEmail?.trim();
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       this._notificationService.add({
@@ -180,11 +194,11 @@ export class HomeComponent implements OnInit {
     });
   }
 
-  redirect(id: number) {
-    this.router.navigate(['/product', id]);
+  redirect(id: number): void {
+    void this.router.navigate(['/product', id]);
   }
 
-  onHeroImageError(event: Event, productName: string) {
+  onHeroImageError(event: Event, productName: string): void {
     this._productImageService.handleImageError(event, productName);
   }
 

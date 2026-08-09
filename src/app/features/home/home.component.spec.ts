@@ -75,6 +75,7 @@ describe('HomeComponent', () => {
         expect(component.iphoneImg).toBeTruthy();
         expect(component.iphoneSub).toContain('OLED');
         expect(component.ipadImg).toBeTruthy();
+        expect(component.featuredProductsLoadState).toBe('ready');
     });
 
     it('redirect navigates to the product details route', () => {
@@ -104,6 +105,16 @@ describe('HomeComponent', () => {
         errorComponent.ngOnInit();
 
         expect(errorComponent.suggestedProductsLoadState).toBe('error');
+    });
+
+    it('treats a missing suggested-products payload as an empty result', () => {
+        products.getSuggestedProducts.mockReturnValue(of({ data: undefined }));
+        const emptyComponent = TestBed.createComponent(HomeComponent).componentInstance;
+
+        emptyComponent.ngOnInit();
+
+        expect(emptyComponent.suggestedProductsLoadState).toBe('ready');
+        expect(emptyComponent.suggestedProducts).toEqual([]);
     });
 
     it('loads all three featured slots and keeps fallback copy for blank descriptions', () => {
@@ -151,5 +162,15 @@ describe('HomeComponent', () => {
         expect(fallbackComponent.macbookImg).toBeTruthy();
         expect(fallbackComponent.ipadImg).toBeTruthy();
         expect(fallbackComponent.iphoneImg).toBeTruthy();
+    });
+
+    it('keeps featured fallbacks when the featured query fails', () => {
+        products.getProductsByIds.mockReturnValue(throwError(() => new Error('offline')));
+        const fallbackComponent = TestBed.createComponent(HomeComponent).componentInstance;
+
+        fallbackComponent.ngOnInit();
+
+        expect(fallbackComponent.featuredProductsLoadState).toBe('fallback');
+        expect(fallbackComponent.macbookImg).toBeTruthy();
     });
 });
