@@ -1,279 +1,378 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { NO_ERRORS_SCHEMA } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
-import { BehaviorSubject, of, throwError } from 'rxjs';
-
-import { ProductsViewComponent } from './products-view.component';
-import { ProductsService } from './products.service';
+import { convertToParamMap, ParamMap, Params, Router, ActivatedRoute } from '@angular/router';
+import { BehaviorSubject, of, Subject, throwError } from 'rxjs';
 import { ProductActionsService } from 'src/app/shared/product-actions.service';
-import { mockProducts } from 'src/app/testing/mock-data';
+import {
+  mockCategoriesWithSubcategories,
+  mockProducts,
+} from 'src/app/testing/mock-data';
+import { PriceBoundsData, ProductsPageData, ProductsService } from './products.service';
+import { ProductsViewComponent } from './products-view.component';
 
-/**
- * The CLI stub threw `No provider for Apollo!` via ProductsService. This is the
- * most logic-heavy component in the app; ngOnInit fires multiple queries and a
- * large catalog template, so dependencies are replaced with focused doubles.
- */
 describe('ProductsViewComponent', () => {
-    let component: ProductsViewComponent;
-    let fixture: ComponentFixture<ProductsViewComponent>;
-    let router: any;
-    let products: any;
-    let queryParams: BehaviorSubject<Record<string, string>>;
+  let component: ProductsViewComponent;
+  let fixture: ComponentFixture<ProductsViewComponent>;
+  let products: {
+    getProductsPage: jest.Mock;
+    getPriceBounds: jest.Mock;
+    getProductCategories: jest.Mock;
+  };
+  let router: { navigate: jest.Mock };
+  let queryParamMap: BehaviorSubject<ParamMap>;
 
-    beforeEach(async () => {
-        products = {
-            getProducts: jest.fn().mockName("ProductsService.getProducts"),
-            getProductCategories: jest.fn().mockName("ProductsService.getProductCategories"),
-            searchProducts: jest.fn().mockName("ProductsService.searchProducts"),
-            getFilteredProducts: jest.fn().mockName("ProductsService.getFilteredProducts"),
-            getProductsByPrice: jest.fn().mockName("ProductsService.getProductsByPrice"),
-            getProductsPage: jest.fn().mockName("ProductsService.getProductsPage"),
-            getPriceBounds: jest.fn().mockName("ProductsService.getPriceBounds"),
-        };
-        products.getProductsPage.mockReturnValue(of({
-            data: { product: [], product_aggregate: { aggregate: { count: 0 } } },
-        }));
-        products.getPriceBounds.mockReturnValue(of({
-            data: { product_aggregate: { aggregate: { min: { price: 0 }, max: { price: 0 } } } },
-        }));
-        products.getProductCategories.mockReturnValue(of({ data: { category: [] } }));
-        queryParams = new BehaviorSubject<Record<string, string>>({ q: 'phone' });
-        router = {
-            navigate: jest.fn().mockName("Router.navigate"),
-        };
+  const pageData: ProductsPageData = {
+    product: mockProducts.slice(0, 2),
+    product_aggregate: { aggregate: { count: 42 } },
+  };
+  const boundsData: PriceBoundsData = {
+    product_aggregate: {
+      aggregate: { min: { price: 10 }, max: { price: 2_500 } },
+    },
+  };
 
-        await TestBed.configureTestingModule({
-    imports: [ProductsViewComponent],
-    providers: [
+  beforeEach(async () => {
+    products = {
+      getProductsPage: jest.fn(() => of({ data: pageData })),
+      getPriceBounds: jest.fn(() => of({ data: boundsData })),
+      getProductCategories: jest.fn(() =>
+        of({ data: { category: mockCategoriesWithSubcategories } }),
+      ),
+    };
+    router = { navigate: jest.fn() };
+    queryParamMap = new BehaviorSubject<ParamMap>(convertToParamMap({}));
+
+    await TestBed.configureTestingModule({
+      imports: [ProductsViewComponent],
+      providers: [
         { provide: ProductsService, useValue: products },
-        {
-            provide: ProductActionsService,
-            useValue: {
-                inCart: jest.fn(() => false),
-                inWishlist: jest.fn(() => false),
-                toggleCart: jest.fn(),
-                toggleWishlist: jest.fn(),
-            },
-        },
         { provide: Router, useValue: router },
+        { provide: ActivatedRoute, useValue: { queryParamMap } },
         {
-            provide: ActivatedRoute,
-            useValue: { snapshot: { params: {} }, queryParams },
+          provide: ProductActionsService,
+          useValue: {
+            inCart: jest.fn(() => false),
+            inWishlist: jest.fn(() => false),
+            toggleCart: jest.fn(),
+            toggleWishlist: jest.fn(),
+          },
         },
-    ],
-    schemas: [NO_ERRORS_SCHEMA],
-}).compileComponents();
+      ],
+    }).compileComponents();
 
-        fixture = TestBed.createComponent(ProductsViewComponent);
-        component = fixture.componentInstance;
+    fixture = TestBed.createComponent(ProductsViewComponent);
+    component = fixture.componentInstance;
+  });
+
+  function emitQuery(params: Params): void {
+    queryParamMap.next(convertToParamMap(params));
+  }
+
+  function expectNavigation(queryParams: Params, replaceUrl = false): void {
+    expect(router.navigate).toHaveBeenLastCalledWith([], {
+      relativeTo: TestBed.inject(ActivatedRoute),
+      queryParams,
+      queryParamsHandling: 'merge',
+      replaceUrl,
+    });
+  }
+
+  it('loads typed categories, a filtered page, bounds, and URL view state', () => {
+    emitQuery({
+      q: 'phone',
+      categoryId: 1,
+      subcategoryId: ['1', '2'],
+      sort: 'desc',
+      page: '2',
+      pageSize: '20',
+      minPrice: '100',
+      maxPrice: '500',
+      layout: 'list',
     });
 
-    it('should create', () => {
-        expect(component).toBeTruthy();
+    component.ngOnInit();
+
+    expect(products.getProductsPage).toHaveBeenCalledWith({
+      where: {
+        name: { _ilike: '%phone%' },
+        category: { id: { _eq: 1 } },
+        subcategory: { id: { _in: [1, 2] } },
+        price: { _gte: 100, _lte: 500 },
+      },
+      orderBy: [{ price: 'desc' }],
+      limit: 20,
+      offset: 20,
     });
-
-    it('trackByProductId returns the product id', () => {
-        expect(component.trackByProductId(0, mockProducts[2])).toBe(mockProducts[2].id);
+    expect(products.getPriceBounds).toHaveBeenCalledWith({
+      name: { _ilike: '%phone%' },
+      category: { id: { _eq: 1 } },
+      subcategory: { id: { _in: [1, 2] } },
     });
+    expect(component.products).toEqual(pageData.product);
+    expect(component.totalRecords).toBe(42);
+    expect(component.categories).toEqual(mockCategoriesWithSubcategories);
+    expect(component.rangeValues).toEqual([100, 500]);
+    expect(component.currentPage).toBe(2);
+    expect(component.totalPages).toBe(3);
+    expect(component.selectedCategoryName).toBe('Electronics');
+    expect(component.layout).toBe('list');
+    expect(component.isLoading).toBe(false);
+  });
 
-    it('loads a query-param search exactly once during initialization', () => {
-        component.ngOnInit();
+  it('supports legacy category names and their page heading', () => {
+    emitQuery({ category: 'Legacy category' });
+    component.ngOnInit();
 
-        expect(products.getProductsPage).toHaveBeenCalledTimes(1);
-        expect(products.getProductsPage).toHaveBeenLastCalledWith(
-            expect.objectContaining({ where: { name: { _ilike: '%phone%' } } }),
-        );
+    expect(component.selectedCategoryName).toBe('Legacy category');
+    expect(products.getProductsPage).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { category: { name: { _eq: 'Legacy category' } } },
+      }),
+    );
+  });
+
+  it('returns an empty heading when an id is not in the loaded category list', () => {
+    emitQuery({ categoryId: 999 });
+    component.ngOnInit();
+
+    expect(component.selectedCategoryName).toBe('');
+  });
+
+  it('falls back to zero bounds and an empty category response', () => {
+    products.getPriceBounds.mockReturnValue(
+      of({
+        data: {
+          product_aggregate: { aggregate: { min: null, max: null } },
+        },
+      }),
+    );
+    products.getProductCategories.mockReturnValue(of({ data: undefined }));
+
+    component.ngOnInit();
+
+    expect(component.categories).toEqual([]);
+    expect(component.lowestPrice).toBe(0);
+    expect(component.highestPrice).toBe(0);
+    expect(component.rangeValues).toEqual([0, 0]);
+  });
+
+  it('shows a recoverable page error while tolerating a failed bounds request', () => {
+    products.getProductsPage.mockReturnValue(throwError(() => new Error('offline')));
+    products.getPriceBounds.mockReturnValue(throwError(() => new Error('offline')));
+
+    component.ngOnInit();
+
+    expect(component.catalogError).toContain('could not load products');
+    expect(component.products).toEqual([]);
+    expect(component.totalRecords).toBe(0);
+    expect(component.isLoading).toBe(false);
+  });
+
+  it('treats missing Apollo data as a failed catalog response', () => {
+    products.getProductsPage.mockReturnValue(of({ data: undefined }));
+    products.getPriceBounds.mockReturnValue(of({ data: undefined }));
+
+    component.ngOnInit();
+
+    expect(component.catalogError).toContain('could not load products');
+    expect(component.rangeValues).toEqual([0, 0]);
+  });
+
+  it('reports category failures and retries both failed concerns', () => {
+    products.getProductCategories.mockReturnValue(throwError(() => new Error('offline')));
+    component.ngOnInit();
+    products.getProductsPage.mockClear();
+
+    expect(component.filterError).toBe('Categories could not be loaded.');
+    expect(component.categories).toEqual([]);
+
+    component.retryCatalogLoad();
+
+    expect(products.getProductCategories).toHaveBeenCalledTimes(2);
+    expect(products.getProductsPage).toHaveBeenCalledTimes(1);
+  });
+
+  it('retries only the catalog when categories are healthy', () => {
+    component.ngOnInit();
+    products.getProductCategories.mockClear();
+    products.getProductsPage.mockClear();
+
+    component.retryCatalogLoad();
+
+    expect(products.getProductCategories).not.toHaveBeenCalled();
+    expect(products.getProductsPage).toHaveBeenCalledTimes(1);
+  });
+
+  it('cancels stale catalog requests when the URL changes', () => {
+    const pages = [new Subject<{ data: ProductsPageData }>(), new Subject<{ data: ProductsPageData }>()];
+    const bounds = [new Subject<{ data: PriceBoundsData }>(), new Subject<{ data: PriceBoundsData }>()];
+    products.getProductsPage
+      .mockReturnValueOnce(pages[0])
+      .mockReturnValueOnce(pages[1]);
+    products.getPriceBounds
+      .mockReturnValueOnce(bounds[0])
+      .mockReturnValueOnce(bounds[1]);
+
+    component.ngOnInit();
+    emitQuery({ q: 'new' });
+    pages[1].next({ data: { ...pageData, product: [mockProducts[4]] } });
+    pages[1].complete();
+    bounds[1].next({ data: boundsData });
+    bounds[1].complete();
+    pages[0].next({ data: { ...pageData, product: [mockProducts[0]] } });
+    pages[0].complete();
+    bounds[0].next({ data: boundsData });
+    bounds[0].complete();
+
+    expect(component.products).toEqual([mockProducts[4]]);
+  });
+
+  it('navigates within valid pagination boundaries', () => {
+    component.ngOnInit();
+    router.navigate.mockClear();
+
+    component.previousPage();
+    expect(router.navigate).not.toHaveBeenCalled();
+
+    component.nextPage();
+    expectNavigation({ page: 2 });
+
+    emitQuery({ page: 2 });
+    component.previousPage();
+    expectNavigation({ page: 1 });
+
+    component.totalRecords = 20;
+    component.first = 10;
+    component.nextPage();
+    expect(router.navigate).toHaveBeenCalledTimes(2);
+  });
+
+  it('accepts supported page sizes and ignores invalid ones', () => {
+    component.ngOnInit();
+    router.navigate.mockClear();
+
+    component.onRowsChange(20);
+    expectNavigation({ pageSize: 20, page: null });
+
+    component.onRowsChange(25 as never);
+    expect(router.navigate).toHaveBeenCalledTimes(1);
+  });
+
+  it('debounces, trims, truncates, and deduplicates search navigation', () => {
+    jest.useFakeTimers();
+    component.ngOnInit();
+    router.navigate.mockClear();
+
+    component.onChanges(`  ${'x'.repeat(120)}  `);
+    jest.advanceTimersByTime(300);
+    expectNavigation({ q: 'x'.repeat(100), page: null }, true);
+
+    component.onChanges(`  ${'x'.repeat(120)}  `);
+    jest.advanceTimersByTime(300);
+    expect(router.navigate).toHaveBeenCalledTimes(1);
+
+    component.onChanges('   ');
+    jest.advanceTimersByTime(300);
+    expectNavigation({ q: null, page: null }, true);
+
+    component.onChanges(null as never);
+    jest.advanceTimersByTime(300);
+    expect(router.navigate).toHaveBeenCalledTimes(2);
+    jest.useRealTimers();
+  });
+
+  it('writes controlled subcategory, sorting, and layout changes to the URL', () => {
+    component.ngOnInit();
+
+    component.applyFilters([1, 2]);
+    expectNavigation({ subcategoryId: [1, 2], page: null });
+    component.applyFilters([]);
+    expectNavigation({ subcategoryId: null, page: null });
+
+    component.onSortChange('desc');
+    expectNavigation({ sort: 'desc', page: null });
+    component.onSortChange('asc');
+    expectNavigation({ sort: null, page: null });
+    const calls = router.navigate.mock.calls.length;
+    component.onSortChange('invalid' as never);
+    expect(router.navigate).toHaveBeenCalledTimes(calls);
+
+    component.setLayout('list');
+    expectNavigation({ layout: 'list' }, true);
+    component.setLayout('grid');
+    expectNavigation({ layout: null }, true);
+  });
+
+  it('debounces numeric price inputs and clears full-bound filters', () => {
+    jest.useFakeTimers();
+    component.ngOnInit();
+    router.navigate.mockClear();
+
+    component.onPriceInputChange(0, '250');
+    jest.advanceTimersByTime(400);
+    expectNavigation({ minPrice: 250, maxPrice: null, page: null });
+
+    component.onPriceInputChange(1, 'invalid');
+    jest.advanceTimersByTime(400);
+    expectNavigation({ minPrice: 0, maxPrice: 250, page: null });
+
+    component.handlePriceFilter([10, 2_500]);
+    expectNavigation({ minPrice: null, maxPrice: null, page: null });
+    jest.useRealTimers();
+  });
+
+  it('normalizes reversed and negative range-slider values', () => {
+    component.ngOnInit();
+
+    component.handlePriceFilter([500, -100]);
+
+    expect(component.rangeValues).toEqual([0, 500]);
+    expectNavigation({ minPrice: 0, maxPrice: 500, page: null });
+
+    component.handlePriceFilter([Number.NaN, 0]);
+    expect(component.rangeValues).toEqual([0, 0]);
+  });
+
+  it('clears all catalog filters while preserving unrelated preferences', () => {
+    component.ngOnInit();
+
+    component.clearFilters();
+
+    expect(router.navigate).toHaveBeenLastCalledWith([], {
+      relativeTo: TestBed.inject(ActivatedRoute),
+      queryParams: {
+        q: null,
+        categoryId: null,
+        category: null,
+        subcategoryId: null,
+        minPrice: null,
+        maxPrice: null,
+        page: null,
+      },
+      queryParamsHandling: 'merge',
     });
+  });
 
-    it('loads page results, price bounds, categories, and view metadata', () => {
-        products.getProductsPage.mockReturnValue(of({
-            data: {
-                product: mockProducts.slice(0, 2),
-                product_aggregate: { aggregate: { count: 12 } },
-            },
-        }));
-        products.getPriceBounds.mockReturnValue(of({
-            data: { product_aggregate: { aggregate: { min: { price: 25 }, max: { price: 900 } } } },
-        }));
-        products.getProductCategories.mockReturnValue(of({ data: { category: ['Electronics'] } }));
+  it('reports whether any filter is active', () => {
+    expect(component.hasActiveFilters).toBe(false);
 
-        component.ngOnInit();
+    const cases: Array<() => void> = [
+      () => (component.searchInput = 'phone'),
+      () => (component.categoryId = 1),
+      () => (component.categoryName = 'Legacy'),
+      () => (component.subcategoryFilters = [1]),
+      () => (component.priceFrom = 0),
+      () => (component.priceTo = 100),
+    ];
 
-        expect(component.products).toEqual(mockProducts.slice(0, 2));
-        expect(component.totalRecords).toBe(12);
-        expect(component.numberOfProducts).toBe(12);
-        expect(component.rangeValues).toEqual([25, 900]);
-        expect(component.categories).toEqual(['Electronics']);
-        expect(component.items[0].label).toBe('Products');
-        expect(component.sortOptions).toHaveLength(2);
-        expect(component.isLoading).toBe(false);
-    });
-
-    it('shows a recoverable catalog error when page loading fails', () => {
-        products.getProductsPage.mockReturnValue(throwError(() => new Error('offline')));
-
-        component.ngOnInit();
-
-        expect(component.catalogError).toContain('could not load products');
-        expect(component.products).toEqual([]);
-        expect(component.isLoading).toBe(false);
-    });
-
-    it('reacts to category and search query-parameter changes', () => {
-        component.ngOnInit();
-        products.getProductsPage.mockClear();
-
-        queryParams.next({ q: 'tablet', category: 'Electronics' });
-
-        expect(products.getPriceBounds).toHaveBeenLastCalledWith({
-            category: { name: { _eq: 'Electronics' } },
-        });
-        expect(products.getProductsPage).toHaveBeenCalledTimes(1);
-        expect(products.getProductsPage).toHaveBeenLastCalledWith(
-            expect.objectContaining({
-                where: {
-                    name: { _ilike: '%tablet%' },
-                    category: { name: { _eq: 'Electronics' } },
-                },
-            }),
-        );
-    });
-
-    it('combines search, category, subcategory, and price filters', () => {
-        component.ngOnInit();
-        component.searchInput = 'phone';
-        component.categoriesFilter = 'Electronics';
-        component.applyFilters(['Smartphones']);
-        component.handlePriceFilter({ values: [100, 500] });
-
-        expect(products.getProductsPage).toHaveBeenLastCalledWith(
-            expect.objectContaining({
-                where: {
-                    name: { _ilike: '%phone%' },
-                    category: { name: { _eq: 'Electronics' } },
-                    subcategory: { name: { _in: ['Smartphones'] } },
-                    price: { _gte: 100, _lte: 500 },
-                },
-            }),
-        );
-    });
-
-    it('falls back to zero when aggregate price bounds are absent', () => {
-        products.getPriceBounds.mockReturnValue(of({
-            data: { product_aggregate: { aggregate: { min: null, max: undefined } } },
-        }));
-
-        component.ngOnInit();
-
-        expect(component.lowestPrice).toBe(0);
-        expect(component.highestPrice).toBe(0);
-        expect(component.rangeValues).toEqual([0, 0]);
-    });
-
-    it('does not overwrite an active price filter when bounds reload', () => {
-        component.priceFrom = 100;
-        component.priceTo = 200;
-        component.rangeValues = [100, 200];
-
-        component.ngOnInit();
-
-        expect(component.rangeValues).toEqual([100, 200]);
-    });
-
-    it('handles pagination boundaries and page-size changes', () => {
-        component.ngOnInit();
-        products.getProductsPage.mockClear();
-
-        component.loadData({ first: 10, rows: 5 });
-        expect(component.currentPage).toBe(3);
-        component.totalRecords = 21;
-        expect(component.totalPages).toBe(5);
-
-        component.previousPage();
-        expect(component.first).toBe(5);
-        component.totalRecords = 21;
-        component.nextPage();
-        expect(component.first).toBe(10);
-
-        component.first = 0;
-        component.previousPage();
-        expect(component.first).toBe(0);
-
-        component.first = 20;
-        component.nextPage();
-        expect(component.first).toBe(20);
-
-        component.loadData({});
-        expect(component.first).toBe(0);
-        expect(component.rows).toBe(5);
-
-        component.onRowsChange(25);
-        expect(component.rows).toBe(25);
-        expect(component.first).toBe(0);
-    });
-
-    it('applies sort, retry, and nullable subcategory filter changes', () => {
-        component.ngOnInit();
-        component.first = 20;
-
-        component.onSortChange({ value: 'desc' });
-        expect(component.sortKey).toBe('desc');
-        expect(component.first).toBe(0);
-
-        component.applyFilters(null as any);
-        expect(products.getProductsPage).toHaveBeenLastCalledWith(
-            expect.objectContaining({ where: { name: { _ilike: '%phone%' } } }),
-        );
-
-        component.first = 10;
-        component.retryCatalogLoad();
-        expect(component.first).toBe(0);
-    });
-
-    it('debounces and deduplicates search input', () => {
-        jest.useFakeTimers();
-        queryParams.next({});
-        component.ngOnInit();
-        products.getProductsPage.mockClear();
-
-        component.onChanges('  laptop  ');
-        jest.advanceTimersByTime(301);
-        expect(component.searchInput).toBe('laptop');
-        expect(products.getProductsPage).toHaveBeenCalledTimes(1);
-
-        component.onChanges('laptop');
-        jest.advanceTimersByTime(301);
-        expect(products.getProductsPage).toHaveBeenCalledTimes(1);
-
-        component.onChanges(null as any);
-        jest.advanceTimersByTime(301);
-        expect(component.searchInput).toBe('');
-        jest.useRealTimers();
-    });
-
-    it('debounces price input changes', () => {
-        jest.useFakeTimers();
-        component.ngOnInit();
-        component.rangeValues = [50, 250];
-        products.getProductsPage.mockClear();
-
-        component.onPriceChange(null);
-        jest.advanceTimersByTime(401);
-
-        expect(component.priceFrom).toBe(50);
-        expect(component.priceTo).toBe(250);
-        expect(products.getProductsPage).toHaveBeenCalledTimes(1);
-        jest.useRealTimers();
-    });
-
-    it('disposes all subscriptions on destroy', () => {
-        const dispose = jest.spyOn(component.subs, 'dispose');
-        component.ngOnDestroy();
-        expect(dispose).toHaveBeenCalled();
-    });
-
-    it('can be destroyed before subscriptions are assigned', () => {
-        (component as any).subs = undefined;
-        expect(() => component.ngOnDestroy()).not.toThrow();
-    });
+    for (const activate of cases) {
+      component.searchInput = '';
+      component.categoryId = null;
+      component.categoryName = '';
+      component.subcategoryFilters = [];
+      component.priceFrom = null;
+      component.priceTo = null;
+      activate();
+      expect(component.hasActiveFilters).toBe(true);
+    }
+  });
 });

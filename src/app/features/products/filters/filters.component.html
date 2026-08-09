@@ -1,17 +1,19 @@
 <div class="filter-accordion">
-  @for (category of categories; track category.id) {
+  @for (category of visibleCategories(); track category.id) {
     <details open>
       <summary>{{ category.name }}</summary>
       <div class="filter-options">
-      @for (subcategory of category.subcategories; track subcategory) {
+      @for (subcategory of category.subcategories; track subcategory.id) {
         <div class="flex justify-content-start align-items-center my-2">
-          <input class="mr-2" name="filters" type="checkbox" [value]="subcategory.name"
-            [id]="'filter-' + subcategory.id" [checked]="selectedFilters.includes(subcategory.name)"
-            (change)="onFilterToggle(subcategory.name, $any($event.target).checked)">
+          <input class="mr-2" name="filters" type="checkbox" [value]="subcategory.id"
+            [id]="'filter-' + subcategory.id" [checked]="isSelected(subcategory.id)"
+            (change)="onFilterToggle(subcategory.id, $any($event.target).checked)">
           <label [for]="'filter-' + subcategory.id">{{subcategory.name}}</label>
         </div>
       }
       </div>
     </details>
+  } @empty {
+    <p class="filter-empty">No category filters are available.</p>
   }
 </div>

@@ -1,46 +1,64 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { NO_ERRORS_SCHEMA } from '@angular/core';
+import { mockCategoriesWithSubcategories } from 'src/app/testing/mock-data';
 import { FiltersComponent } from './filters.component';
 
-/**
- * FiltersComponent injects ProductsService, which depends on Apollo. The CLI
- * stub provided neither, so it threw `No provider for Apollo!`. ApolloTestingModule
- * satisfies that graph; we additionally cover the filter event emitter.
- */
 describe('FiltersComponent', () => {
-    let component: FiltersComponent;
-    let fixture: ComponentFixture<FiltersComponent>;
+  let component: FiltersComponent;
+  let fixture: ComponentFixture<FiltersComponent>;
 
-    beforeEach(async () => {
-        await TestBed.configureTestingModule({
-    imports: [FiltersComponent],
-    schemas: [NO_ERRORS_SCHEMA],
-}).compileComponents();
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [FiltersComponent],
+    }).compileComponents();
 
-        fixture = TestBed.createComponent(FiltersComponent);
-        component = fixture.componentInstance;
-    });
+    fixture = TestBed.createComponent(FiltersComponent);
+    component = fixture.componentInstance;
+    fixture.componentRef.setInput('categories', mockCategoriesWithSubcategories);
+    fixture.detectChanges();
+  });
 
-    it('should create', () => {
-        expect(component).toBeTruthy();
-    });
+  it('shows every category when no category is selected', () => {
+    expect(component.visibleCategories()).toEqual(mockCategoriesWithSubcategories);
+  });
 
-    it('changeFilter forwards the selected filter object to subscribers', () => {
-        const emitSpy = jest.spyOn(component.filtersObject, 'emit').mockReturnValue(undefined);
-        const payload = ['Smartphones', 'Laptops'];
-        component.changeFilter(payload);
-        expect(emitSpy).toHaveBeenCalledTimes(1);
-        expect(emitSpy).toHaveBeenCalledWith(payload);
-    });
+  it('limits subcategory choices to the selected category', () => {
+    fixture.componentRef.setInput('categoryId', 2);
 
-    it('adds and removes subcategory filters', () => {
-        const emitSpy = jest.spyOn(component.filtersObject, 'emit').mockReturnValue(undefined);
+    expect(component.visibleCategories()).toEqual([mockCategoriesWithSubcategories[1]]);
+  });
 
-        component.onFilterToggle('Phones', true);
-        component.onFilterToggle('Laptops', true);
-        component.onFilterToggle('Phones', false);
+  it('reports whether a subcategory is selected', () => {
+    fixture.componentRef.setInput('selectedSubcategoryIds', [1]);
 
-        expect(component.selectedFilters).toEqual(['Laptops']);
-        expect(emitSpy).toHaveBeenLastCalledWith(['Laptops']);
-    });
+    expect(component.isSelected(1)).toBe(true);
+    expect(component.isSelected(2)).toBe(false);
+  });
+
+  it('adds a new subcategory without mutating the controlled input', () => {
+    fixture.componentRef.setInput('selectedSubcategoryIds', [1]);
+    const emit = jest.spyOn(component.filtersChange, 'emit');
+
+    component.onFilterToggle(2, true);
+
+    expect(emit).toHaveBeenCalledWith([1, 2]);
+    expect(component.selectedSubcategoryIds()).toEqual([1]);
+  });
+
+  it('does not duplicate an already selected subcategory', () => {
+    fixture.componentRef.setInput('selectedSubcategoryIds', [1]);
+    const emit = jest.spyOn(component.filtersChange, 'emit');
+
+    component.onFilterToggle(1, true);
+
+    expect(emit).toHaveBeenCalledWith([1]);
+  });
+
+  it('removes a deselected subcategory', () => {
+    fixture.componentRef.setInput('selectedSubcategoryIds', [1, 2]);
+    const emit = jest.spyOn(component.filtersChange, 'emit');
+
+    component.onFilterToggle(1, false);
+
+    expect(emit).toHaveBeenCalledWith([2]);
+  });
 });

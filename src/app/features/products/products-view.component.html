@@ -3,7 +3,7 @@
 <div class="section-head">
   <div>
     <span class="eyebrow">Catalog</span>
-    <h1 class="page-title">All products</h1>
+    <h1 class="page-title">{{ selectedCategoryName || 'All products' }}</h1>
   </div>
   @if (!isLoading) {
     <span class="results-count font-mono">{{ totalRecords | number }} products</span>
@@ -17,8 +17,8 @@
     (click)="filtersOpen = !filtersOpen"
     [attr.aria-expanded]="filtersOpen"
     aria-controls="catalog-filters"
-    >
-    <i class="pi" [ngClass]="filtersOpen ? 'pi-times' : 'pi-sliders-h'"></i>
+  >
+    <i class="pi" [ngClass]="filtersOpen ? 'pi-times' : 'pi-sliders-h'" aria-hidden="true"></i>
     {{ filtersOpen ? 'Close filters' : 'Filters' }}
   </button>
 
@@ -27,99 +27,172 @@
       id="catalog-filters"
       class="filters-panel"
       [class.filters-panel--open]="filtersOpen"
-      >
-      <h3 class="filters-title">Category</h3>
-      <app-filters (filtersObject)="applyFilters($event)" [categories]="categories"></app-filters>
-      <h3 class="filters-title price-title">Price</h3>
+    >
+      <h2 class="filters-title">Category</h2>
+      @if (filterError) {
+        <p class="filter-error" role="status">{{ filterError }}</p>
+      }
+      <app-filters
+        [categories]="categories"
+        [categoryId]="categoryId"
+        [selectedSubcategoryIds]="subcategoryFilters"
+        (filtersChange)="applyFilters($event)"
+      ></app-filters>
+
+      <h2 class="filters-title price-title">Price</h2>
       <div class="price-filter">
         <div class="price-inputs">
-          <input class="p-inputtext w-full" type="number" aria-label="Minimum price"
-            [(ngModel)]="rangeValues[0]" (ngModelChange)="onPriceChange($event)">
+          <input
+            class="p-inputtext w-full"
+            type="number"
+            min="0"
+            aria-label="Minimum price"
+            [ngModel]="rangeValues[0]"
+            (ngModelChange)="onPriceInputChange(0, $event)"
+          >
           <span class="price-dash" aria-hidden="true">&ndash;</span>
-          <input class="p-inputtext w-full" type="number" aria-label="Maximum price"
-            [(ngModel)]="rangeValues[1]" (ngModelChange)="onPriceChange($event)">
+          <input
+            class="p-inputtext w-full"
+            type="number"
+            min="0"
+            aria-label="Maximum price"
+            [ngModel]="rangeValues[1]"
+            (ngModelChange)="onPriceInputChange(1, $event)"
+          >
         </div>
         <div class="native-range" aria-label="Price range">
-          <input type="range" [min]="lowestPrice" [max]="highestPrice" [(ngModel)]="rangeValues[0]"
-            (change)="handlePriceFilter({ values: rangeValues })" aria-label="Minimum price slider">
-          <input type="range" [min]="lowestPrice" [max]="highestPrice" [(ngModel)]="rangeValues[1]"
-            (change)="handlePriceFilter({ values: rangeValues })" aria-label="Maximum price slider">
+          <input
+            type="range"
+            [min]="lowestPrice"
+            [max]="highestPrice"
+            [ngModel]="rangeValues[0]"
+            (ngModelChange)="rangeValues[0] = $event"
+            (change)="handlePriceFilter(rangeValues)"
+            aria-label="Minimum price slider"
+          >
+          <input
+            type="range"
+            [min]="lowestPrice"
+            [max]="highestPrice"
+            [ngModel]="rangeValues[1]"
+            (ngModelChange)="rangeValues[1] = $event"
+            (change)="handlePriceFilter(rangeValues)"
+            aria-label="Maximum price slider"
+          >
         </div>
         <span class="price-label font-mono">
           {{ (rangeValues[0] | number) + ' – ' + (rangeValues[1] | number) }} RSD
         </span>
+        @if (hasActiveFilters) {
+          <button type="button" class="clear-filters" (click)="clearFilters()">Clear all filters</button>
+        }
       </div>
     </aside>
   } @else {
-    <div class="filters-panel">
+    <div class="filters-panel" aria-hidden="true">
       @for (s of [1, 2, 3, 4, 5, 6]; track s) {
         <div class="skeleton filter-skeleton"></div>
       }
     </div>
   }
 
-  <!-- Products section -->
   <div class="products-results">
     @if (catalogError && !isLoading) {
       <div class="empty-state component-enter catalog-error">
-        <i class="pi pi-exclamation-circle"></i>
-        <h3>Catalog unavailable</h3>
+        <i class="pi pi-exclamation-circle" aria-hidden="true"></i>
+        <h2>Catalog unavailable</h2>
         <p>{{ catalogError }}</p>
         <button class="p-button p-button-outlined" type="button" (click)="retryCatalogLoad()">Try again</button>
       </div>
     }
+
     @if (!catalogError) {
       <div class="catalog-view">
         <div class="results-toolbar">
           <span class="p-input-icon-left search-field">
-            <i class="pi pi-search"></i>
-            <input class="p-inputtext w-full" type="search" (ngModelChange)="onChanges($event)"
-              [(ngModel)]="searchInput" placeholder="Search products" aria-label="Search products">
+            <i class="pi pi-search" aria-hidden="true"></i>
+            <input
+              class="p-inputtext w-full"
+              type="search"
+              [ngModel]="searchInput"
+              (ngModelChange)="onChanges($event)"
+              placeholder="Search products"
+              aria-label="Search products"
+            >
           </span>
           <div class="toolbar-controls">
-            <select class="p-inputtext sort-select" [(ngModel)]="sortKey"
-              (ngModelChange)="onSortChange({ value: $event })" aria-label="Sort products">
+            <select
+              class="p-inputtext sort-select"
+              [ngModel]="sortKey"
+              (ngModelChange)="onSortChange($event)"
+              aria-label="Sort products"
+            >
               @for (option of sortOptions; track option.value) {
                 <option [ngValue]="option.value">{{ option.label }}</option>
               }
             </select>
             <div class="hidden sm:flex" role="group" aria-label="Product layout">
-              <button type="button" class="p-button p-button-text" [class.p-button-outlined]="layout !== 'list'"
-                [attr.aria-pressed]="layout === 'list'" (click)="layout = 'list'" aria-label="List view">
-                <i class="pi pi-bars"></i>
+              <button
+                type="button"
+                class="p-button p-button-text"
+                [class.p-button-outlined]="layout !== 'list'"
+                [attr.aria-pressed]="layout === 'list'"
+                (click)="setLayout('list')"
+                aria-label="List view"
+              >
+                <i class="pi pi-bars" aria-hidden="true"></i>
               </button>
-              <button type="button" class="p-button p-button-text" [class.p-button-outlined]="layout !== 'grid'"
-                [attr.aria-pressed]="layout === 'grid'" (click)="layout = 'grid'" aria-label="Grid view">
-                <i class="pi pi-th-large"></i>
+              <button
+                type="button"
+                class="p-button p-button-text"
+                [class.p-button-outlined]="layout !== 'grid'"
+                [attr.aria-pressed]="layout === 'grid'"
+                (click)="setLayout('grid')"
+                aria-label="Grid view"
+              >
+                <i class="pi pi-th-large" aria-hidden="true"></i>
               </button>
             </div>
           </div>
         </div>
+
         @if (isLoading) {
-          <div class="product-skeleton-grid">
+          <div class="product-skeleton-grid" aria-hidden="true">
             @for (s of [1, 2, 3, 4, 5, 6]; track s) {
               <div class="skeleton product-skeleton"></div>
             }
           </div>
+        } @else if (products.length === 0) {
+          <div class="empty-state catalog-empty">
+            <i class="pi pi-search" aria-hidden="true"></i>
+            <h2>No matching products</h2>
+            <p>Try a broader search or clear one of the active filters.</p>
+            <button class="p-button p-button-outlined" type="button" (click)="clearFilters()">Clear filters</button>
+          </div>
         } @else if (layout === 'list') {
           @for (product of products; track product.id) {
             <div class="w-full list-row">
-            <app-product [product]="product" [isListView]="true"></app-product>
+              <app-product [product]="product" [isListView]="true"></app-product>
             </div>
           }
         } @else {
           <div class="grid">
-          @for (product of products; track product.id) {
-            <div class="w-full sm:w-6 md:w-4 lg:w-4 xl:w-3 p-2">
-            <app-product [product]="product"></app-product>
-            </div>
-          }
+            @for (product of products; track product.id) {
+              <div class="w-full sm:w-6 md:w-4 lg:w-4 xl:w-3 p-2">
+                <app-product [product]="product"></app-product>
+              </div>
+            }
           </div>
         }
+
         @if (!isLoading && totalRecords > 0) {
           <nav class="catalog-pagination" aria-label="Catalog pages">
-            <button type="button" class="p-button p-button-outlined" (click)="previousPage()"
-              [disabled]="first === 0">Previous</button>
+            <button
+              type="button"
+              class="p-button p-button-outlined"
+              (click)="previousPage()"
+              [disabled]="currentPage <= 1"
+            >Previous</button>
             <span>Page {{ currentPage }} of {{ totalPages }}</span>
             <label>
               <span class="sr-only">Products per page</span>
@@ -129,8 +202,12 @@
                 }
               </select>
             </label>
-            <button type="button" class="p-button p-button-outlined" (click)="nextPage()"
-              [disabled]="currentPage >= totalPages">Next</button>
+            <button
+              type="button"
+              class="p-button p-button-outlined"
+              (click)="nextPage()"
+              [disabled]="currentPage >= totalPages"
+            >Next</button>
           </nav>
         }
       </div>

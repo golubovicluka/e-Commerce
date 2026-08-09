@@ -1,255 +1,141 @@
+import { DecimalPipe, NgClass } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
-  OnDestroy,
+  DestroyRef,
+  inject,
   OnInit,
 } from '@angular/core';
-import { Subject } from 'rxjs';
-import { catchError, debounceTime, distinctUntilChanged, map, switchMap, take, tap } from 'rxjs/operators';
-import { of } from 'rxjs';
-import { Product } from './Product';
-import { ProductsService } from './products.service';
-import { SubscriptionContainer } from './SubscriptionContainer';
-import { NavigationItem } from 'src/app/shared/navigation-item';
-import { ActivatedRoute } from '@angular/router';
-import { NgClass, DecimalPipe } from '@angular/common';
-import { FiltersComponent } from './filters/filters.component';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
-import { ProductComponent } from './product/product.component';
+import { ActivatedRoute, Params, Router } from '@angular/router';
+import { forkJoin, Observable, of, Subject } from 'rxjs';
+import {
+  catchError,
+  debounceTime,
+  distinctUntilChanged,
+  map,
+  startWith,
+  switchMap,
+  take,
+  tap,
+} from 'rxjs/operators';
 import { BreadcrumbComponent } from 'src/app/shared/breadcrumb/breadcrumb.component';
+import { NavigationItem } from 'src/app/shared/navigation-item';
+import {
+  buildCatalogWhere,
+  catalogQueriesEqual,
+  CatalogPageSize,
+  CatalogQueryState,
+  DEFAULT_CATALOG_QUERY,
+  parseCatalogQuery,
+} from './catalog-query';
+import { FiltersComponent } from './filters/filters.component';
+import { Product } from './Product';
+import { ProductComponent } from './product/product.component';
+import {
+  CatalogCategory,
+  PriceBoundsData,
+  ProductsPageData,
+  ProductsService,
+  SortDirection,
+} from './products.service';
+
+interface CatalogLoadResult {
+  page: ProductsPageData | null;
+  bounds: PriceBoundsData | null;
+}
+
+interface SortOption {
+  label: string;
+  value: SortDirection;
+}
 
 @Component({
-    selector: 'app-products-view',
-    templateUrl: './products-view.component.html',
-    styleUrls: ['./products-view.component.scss'],
-    changeDetection: ChangeDetectionStrategy.OnPush,
-    imports: [BreadcrumbComponent, NgClass, FiltersComponent, FormsModule, ProductComponent, DecimalPipe]
+  selector: 'app-products-view',
+  templateUrl: './products-view.component.html',
+  styleUrls: ['./products-view.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [
+    BreadcrumbComponent,
+    NgClass,
+    FiltersComponent,
+    FormsModule,
+    ProductComponent,
+    DecimalPipe,
+  ],
 })
-export class ProductsViewComponent implements OnInit, OnDestroy {
-  // Current page of products (server-side paginated — never the whole table).
+export class ProductsViewComponent implements OnInit {
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly searchTerms$ = new Subject<string>();
+  private readonly priceChanges$ = new Subject<[number, number]>();
+  private readonly retryRequests$ = new Subject<void>();
+  private activeQuery: CatalogQueryState = DEFAULT_CATALOG_QUERY;
+
   products: Product[] = [];
+  categories: CatalogCategory[] = [];
   totalRecords = 0;
-  rows = 10;
+  rows: CatalogPageSize = DEFAULT_CATALOG_QUERY.pageSize;
   first = 0;
+  sortKey: SortDirection = DEFAULT_CATALOG_QUERY.sort;
+  readonly sortOptions: readonly SortOption[] = [
+    { label: 'Price: Low to High', value: 'asc' },
+    { label: 'Price: High to Low', value: 'desc' },
+  ];
 
-  subs = new SubscriptionContainer();
-  categories!: any;
-
-  // Sorting
-  sortOptions!: any[];
-  sortKey: 'asc' | 'desc' = 'asc';
-
-  // Price range
   priceFrom: number | null = null;
   priceTo: number | null = null;
-  rangeValues: number[] = [];
+  rangeValues: [number, number] = [0, 0];
   highestPrice = 0;
   lowestPrice = 0;
 
-  numberOfProducts = 0;
   isLoading = true;
   catalogError: string | null = null;
-
+  filterError: string | null = null;
   searchInput = '';
-  categoriesFilter = '';
-  private subcategoryFilters: string[] = [];
+  categoryId: number | null = null;
+  categoryName = '';
+  subcategoryFilters: number[] = [];
 
-  // Streams that drive data loading. Funnelling every interaction through a
-  // single pipeline (below) means at most one query is ever in flight.
-  private searchTerms$ = new Subject<string>();
-  private priceChanges$ = new Subject<void>();
-  private pageRequests$ = new Subject<void>();
-  private initialCatalogRequestComplete = false;
-
-  public items!: NavigationItem[];
-  home!: NavigationItem;
+  readonly items: NavigationItem[] = [
+    { label: 'Products', routerLink: '/products/search' },
+  ];
+  readonly home: NavigationItem = { icon: 'pi pi-home', routerLink: '/home' };
   filtersOpen = false;
-  layout: 'list' | 'grid' = 'grid';
+  layout: 'list' | 'grid' = DEFAULT_CATALOG_QUERY.layout;
 
   constructor(
-    private _productService: ProductsService,
-    private route: ActivatedRoute,
-    private changeDetectorRef: ChangeDetectorRef,
+    private readonly productsService: ProductsService,
+    private readonly router: Router,
+    private readonly route: ActivatedRoute,
+    private readonly changeDetectorRef: ChangeDetectorRef,
   ) {}
 
-  ngOnInit() {
-    // Single product-loading pipeline. `switchMap` cancels any in-flight
-    // request when a new one starts, so only one finite query is ever active.
-    // This replaces the previous pattern of creating a long-lived watched query
-    // on every keystroke/filter/sort interaction.
-    this.subs.add(
-      this.pageRequests$
-        .pipe(
-          tap(() => {
-            this.isLoading = true;
-            this.catalogError = null;
-          }),
-          switchMap(() =>
-            this._productService.getProductsPage({
-              where: this.buildWhere(),
-              orderBy: [{ price: this.sortKey }],
-              limit: this.rows,
-              offset: this.first,
-            }).pipe(
-              catchError(() => {
-                this.catalogError = 'We could not load products right now. Please try again later.';
-                return of({
-                  data: {
-                    product: [],
-                    product_aggregate: { aggregate: { count: 0 } },
-                  },
-                });
-              })
-            )
-          )
-        )
-        .subscribe((result: any) => {
-          if (!this.catalogError) {
-            this.products = result.data.product;
-            this.totalRecords = result.data.product_aggregate.aggregate.count;
-            this.numberOfProducts = this.totalRecords;
-          }
-          this.isLoading = false;
-          this.changeDetectorRef.markForCheck();
-        })
-    );
+  ngOnInit(): void {
+    this.connectSearchInput();
+    this.connectPriceInput();
+    this.loadCategories();
 
-    // Debounced search: one request per pause in typing, not one per keystroke.
-    this.subs.add(
-      this.searchTerms$
-        .pipe(
-          map((term) => (term ?? '').trim()),
-          debounceTime(300),
-          distinctUntilChanged()
-        )
-        .subscribe((term) => {
-          this.searchInput = term;
-          this.resetToFirstPage();
-          this.changeDetectorRef.markForCheck();
-        })
-    );
-
-    // The price number inputs emit on every keystroke; debounce before querying.
-    this.subs.add(
-      this.priceChanges$.pipe(debounceTime(400)).subscribe(() => {
-        this.priceFrom = this.rangeValues[0];
-        this.priceTo = this.rangeValues[1];
-        this.resetToFirstPage();
-        this.changeDetectorRef.markForCheck();
-      })
-    );
-
-    // Price-slider bounds come from a DB aggregate, independent of the page.
-    this.loadPriceBounds();
-
-    // Categories for the filter sidebar.
-    this.subs.add(
-      this._productService.getProductCategories().subscribe((categories: any) => {
-        this.categories = categories.data.category;
-        this.changeDetectorRef.markForCheck();
-      })
-    );
-
-    // Breadcrumbs
-    this.items = [{ label: 'Products', routerLink: '/products/search' }];
-    this.home = { icon: 'pi pi-home', routerLink: '/home' };
-
-    this.sortOptions = [
-      { label: 'Price: Low to High', value: 'asc' },
-      { label: 'Price: High to Low', value: 'desc' },
-    ];
-
-    this.subs.add(
-      this.route.queryParams.subscribe((params) => {
-        const query = (params['q'] ?? '').trim();
-        const category = (params['category'] ?? '').trim();
-        const queryChanged = query !== this.searchInput;
-        const categoryChanged = category !== this.categoriesFilter;
-
-        if (queryChanged) {
-          this.searchInput = query;
-        }
-        if (categoryChanged) {
-          this.categoriesFilter = category;
-        }
-        if (!queryChanged && !categoryChanged) return;
-
-        this.first = 0;
-        if (this.initialCatalogRequestComplete) {
-          if (categoryChanged) this.loadPriceBounds();
-          this.fetchPage();
-        }
-        this.changeDetectorRef.markForCheck();
-      })
-    );
-
-    this.initialCatalogRequestComplete = true;
-    this.fetchPage();
-  }
-
-  /** Builds one Hasura `where` expression from all active filters (AND-combined). */
-  private buildWhere(): any {
-    const where: any = {};
-    if (this.searchInput) {
-      where.name = { _ilike: `%${this.searchInput}%` };
-    }
-    if (this.categoriesFilter) {
-      where.category = { name: { _eq: this.categoriesFilter } };
-    }
-    if (this.subcategoryFilters.length) {
-      where.subcategory = { name: { _in: this.subcategoryFilters } };
-    }
-    if (this.priceFrom != null && this.priceTo != null) {
-      where.price = { _gte: this.priceFrom, _lte: this.priceTo };
-    }
-    return where;
-  }
-
-  private loadPriceBounds(): void {
-    const where: any = this.categoriesFilter
-      ? { category: { name: { _eq: this.categoriesFilter } } }
-      : {};
-    this.subs.add(
-      this._productService.getPriceBounds(where).pipe(take(1)).subscribe((res: any) => {
-        const aggregate = res.data.product_aggregate.aggregate;
-        this.lowestPrice = aggregate.min?.price ?? 0;
-        this.highestPrice = aggregate.max?.price ?? 0;
-        // Only seed the slider range while the user hasn't set a price filter.
-        if (this.priceFrom == null && this.priceTo == null) {
-          this.rangeValues = [this.lowestPrice, this.highestPrice];
-        }
-        this.changeDetectorRef.markForCheck();
-      })
-    );
-  }
-
-  retryCatalogLoad(): void {
-    this.resetToFirstPage();
-  }
-
-  /** Reset to page 1 and reload; the dataView paginator follows `first`. */
-  private resetToFirstPage(): void {
-    this.first = 0;
-    this.fetchPage();
-  }
-
-  private fetchPage(): void {
-    this.pageRequests$.next();
-  }
-
-  trackByProductId(index: number, product: Product): number {
-    return product.id;
-  }
-
-  // --- Template event handlers ---
-
-  // Pagination. Also fires once on init via p-dataView's lazy load, which is
-  // what performs the very first fetch.
-  loadData(event: any) {
-    this.first = event.first ?? 0;
-    this.rows = event.rows ?? this.rows;
-    this.fetchPage();
+    this.route.queryParamMap
+      .pipe(
+        map(parseCatalogQuery),
+        distinctUntilChanged(catalogQueriesEqual),
+        tap((state) => this.applyQueryState(state)),
+        switchMap((state) =>
+          this.retryRequests$.pipe(
+            startWith(undefined),
+            tap(() => {
+              this.isLoading = true;
+              this.catalogError = null;
+              this.changeDetectorRef.markForCheck();
+            }),
+            switchMap(() => this.loadCatalog(state)),
+          ),
+        ),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe((result) => this.applyCatalogResult(result));
   }
 
   get currentPage(): number {
@@ -260,48 +146,210 @@ export class ProductsViewComponent implements OnInit, OnDestroy {
     return Math.max(1, Math.ceil(this.totalRecords / this.rows));
   }
 
+  get selectedCategoryName(): string {
+    if (this.categoryName) return this.categoryName;
+    return this.categories.find((category) => category.id === this.categoryId)?.name ?? '';
+  }
+
+  get hasActiveFilters(): boolean {
+    return Boolean(
+      this.searchInput ||
+        this.categoryId !== null ||
+        this.categoryName ||
+        this.subcategoryFilters.length > 0 ||
+        this.priceFrom !== null ||
+        this.priceTo !== null,
+    );
+  }
+
+  retryCatalogLoad(): void {
+    this.retryRequests$.next();
+    if (this.filterError) this.loadCategories();
+  }
+
   previousPage(): void {
-    if (this.first === 0) return;
-    this.first = Math.max(0, this.first - this.rows);
-    this.fetchPage();
+    if (this.currentPage <= 1) return;
+    this.updateQuery({ page: this.currentPage - 1 });
   }
 
   nextPage(): void {
     if (this.currentPage >= this.totalPages) return;
-    this.first += this.rows;
-    this.fetchPage();
+    this.updateQuery({ page: this.currentPage + 1 });
   }
 
   onRowsChange(rows: number): void {
-    this.rows = Number(rows);
-    this.resetToFirstPage();
+    if (![10, 20, 30].includes(Number(rows))) return;
+    this.updateQuery({ pageSize: Number(rows), page: null });
   }
 
-  onChanges(searchInput: string) {
-    this.searchTerms$.next(searchInput);
+  onChanges(searchInput: string): void {
+    this.searchTerms$.next(searchInput ?? '');
   }
 
-  applyFilters(subcategoryNames: string[]) {
-    this.subcategoryFilters = subcategoryNames ?? [];
-    this.resetToFirstPage();
+  applyFilters(subcategoryIds: number[]): void {
+    this.updateQuery({
+      subcategoryId: subcategoryIds.length > 0 ? subcategoryIds : null,
+      page: null,
+    });
   }
 
-  onSortChange(event: any) {
-    this.sortKey = event.value;
-    this.resetToFirstPage();
+  onSortChange(sort: SortDirection): void {
+    if (sort !== 'asc' && sort !== 'desc') return;
+    this.updateQuery({ sort: sort === 'asc' ? null : sort, page: null });
   }
 
-  handlePriceFilter(event: any) {
-    this.priceFrom = event.values[0];
-    this.priceTo = event.values[1];
-    this.resetToFirstPage();
+  onPriceInputChange(index: 0 | 1, value: number | string): void {
+    const parsed = Number(value);
+    this.rangeValues[index] = Number.isFinite(parsed) ? Math.max(0, parsed) : 0;
+    this.priceChanges$.next([...this.rangeValues]);
   }
 
-  onPriceChange(_event: any) {
-    this.priceChanges$.next();
+  handlePriceFilter(values: [number, number]): void {
+    const normalized: [number, number] = [
+      Math.max(0, Number(values[0]) || 0),
+      Math.max(0, Number(values[1]) || 0),
+    ];
+    this.rangeValues = normalized;
+    this.applyPriceRange(normalized);
   }
 
-  ngOnDestroy() {
-    this.subs?.dispose();
+  setLayout(layout: 'list' | 'grid'): void {
+    this.updateQuery({ layout: layout === 'grid' ? null : layout }, true);
+  }
+
+  clearFilters(): void {
+    void this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: {
+        q: null,
+        categoryId: null,
+        category: null,
+        subcategoryId: null,
+        minPrice: null,
+        maxPrice: null,
+        page: null,
+      },
+      queryParamsHandling: 'merge',
+    });
+  }
+
+  private connectSearchInput(): void {
+    this.searchTerms$
+      .pipe(
+        map((term) => term.trim().slice(0, 100)),
+        debounceTime(300),
+        distinctUntilChanged(),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe((term) => {
+        this.updateQuery({ q: term || null, page: null }, true);
+      });
+  }
+
+  private connectPriceInput(): void {
+    this.priceChanges$
+      .pipe(debounceTime(400), takeUntilDestroyed(this.destroyRef))
+      .subscribe((values) => this.applyPriceRange(values));
+  }
+
+  private applyPriceRange(values: [number, number]): void {
+    const [minimum, maximum] = values[0] <= values[1] ? values : [values[1], values[0]];
+    this.rangeValues = [minimum, maximum];
+    this.updateQuery({
+      minPrice: minimum === this.lowestPrice ? null : minimum,
+      maxPrice: maximum === this.highestPrice ? null : maximum,
+      page: null,
+    });
+  }
+
+  private loadCategories(): void {
+    this.filterError = null;
+    this.productsService
+      .getProductCategories()
+      .pipe(
+        take(1),
+        map((response) => response.data?.category ?? []),
+        catchError(() => {
+          this.filterError = 'Categories could not be loaded.';
+          return of([] as CatalogCategory[]);
+        }),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe((categories) => {
+        this.categories = categories;
+        this.changeDetectorRef.markForCheck();
+      });
+  }
+
+  private loadCatalog(state: CatalogQueryState): Observable<CatalogLoadResult> {
+    const where = buildCatalogWhere(state);
+    const boundsWhere = buildCatalogWhere(state, false);
+
+    return forkJoin({
+      page: this.productsService
+        .getProductsPage({
+          where,
+          orderBy: [{ price: state.sort }],
+          limit: state.pageSize,
+          offset: (state.page - 1) * state.pageSize,
+        })
+        .pipe(
+          take(1),
+          map((response) => response.data ?? null),
+          catchError(() => of(null)),
+        ),
+      bounds: this.productsService.getPriceBounds(boundsWhere).pipe(
+        take(1),
+        map((response) => response.data ?? null),
+        catchError(() => of(null)),
+      ),
+    });
+  }
+
+  private applyQueryState(state: CatalogQueryState): void {
+    this.activeQuery = state;
+    this.searchInput = state.search;
+    this.categoryId = state.categoryId;
+    this.categoryName = state.categoryName;
+    this.subcategoryFilters = state.subcategoryIds;
+    this.sortKey = state.sort;
+    this.rows = state.pageSize;
+    this.first = (state.page - 1) * state.pageSize;
+    this.priceFrom = state.minPrice;
+    this.priceTo = state.maxPrice;
+    this.layout = state.layout;
+  }
+
+  private applyCatalogResult(result: CatalogLoadResult): void {
+    if (result.page) {
+      this.products = result.page.product;
+      this.totalRecords = result.page.product_aggregate.aggregate.count;
+    } else {
+      this.products = [];
+      this.totalRecords = 0;
+      this.catalogError = 'We could not load products right now. Please try again later.';
+    }
+
+    if (result.bounds) {
+      const aggregate = result.bounds.product_aggregate.aggregate;
+      this.lowestPrice = aggregate.min?.price ?? 0;
+      this.highestPrice = aggregate.max?.price ?? 0;
+      this.rangeValues = [
+        this.activeQuery.minPrice ?? this.lowestPrice,
+        this.activeQuery.maxPrice ?? this.highestPrice,
+      ];
+    }
+
+    this.isLoading = false;
+    this.changeDetectorRef.markForCheck();
+  }
+
+  private updateQuery(queryParams: Params, replaceUrl = false): void {
+    void this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams,
+      queryParamsHandling: 'merge',
+      replaceUrl,
+    });
   }
 }
