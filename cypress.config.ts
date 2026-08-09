@@ -1,4 +1,4 @@
-import { defineConfig } from "cypress";
+import { defineConfig } from 'cypress';
 
 export default defineConfig({
   projectId: '4wfd7y',
@@ -11,13 +11,5 @@ export default defineConfig({
     setupNodeEvents(_on, config) {
       return config;
     },
-  },
-
-  component: {
-    devServer: {
-      framework: "angular",
-      bundler: "webpack",
-    },
-    specPattern: "**/*.cy.ts",
   },
 });
