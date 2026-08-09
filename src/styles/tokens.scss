@@ -1,43 +1,45 @@
 /* =============================================================================
    Shoply design tokens
 
-   Direction: a precise enterprise electronics catalogue. Cool technical
-   neutrals, graphite structure and one cobalt action colour replace the former
-   warm editorial palette. Corners stay intentionally tight throughout.
+   Direction: a warm editorial technology catalogue. Paper surfaces, warm ink
+   and one clay action colour create a crafted, honest and unhurried storefront.
    ============================================================================= */
 
 :root {
   /* Surfaces */
-  --color-bg: #edf1f5;
-  --color-surface: #ffffff;
-  --color-surface-elevated: #f7f9fb;
-  --color-surface-muted: #e4eaf0;
-  --color-border: #c9d2dc;
-  --color-border-strong: #9eabb8;
+  --color-bg: oklch(0.94 0.012 82);
+  --color-surface: oklch(0.98 0.008 82);
+  --color-surface-elevated: oklch(0.965 0.01 82);
+  --color-surface-muted: oklch(0.905 0.016 78);
+  --color-surface-glass: oklch(0.98 0.008 82 / 0.96);
+  --color-border: oklch(0.81 0.02 72);
+  --color-border-strong: oklch(0.66 0.025 65);
 
   /* Type */
-  --color-text-primary: #101820;
-  --color-text-secondary: #596777;
+  --color-text-primary: oklch(0.2 0.018 48);
+  --color-text-secondary: oklch(0.44 0.025 54);
 
   /* Graphite panels */
-  --color-ink: #0b1728;
-  --color-ink-soft: #14253c;
-  --color-ink-border: #2b3c52;
-  --color-text-on-ink: #f7f9fb;
-  --color-text-on-ink-muted: #aebaca;
+  --color-ink: oklch(0.17 0.018 48);
+  --color-ink-soft: oklch(0.22 0.022 48);
+  --color-ink-border: oklch(0.34 0.025 50);
+  --color-ink-overlay: oklch(0.17 0.018 48 / 0.9);
+  --color-text-on-ink: oklch(0.965 0.01 82);
+  --color-text-on-ink-muted: oklch(0.76 0.025 72);
+  --color-text-on-ink-subtle: oklch(0.965 0.01 82 / 0.08);
 
-  /* Cobalt action colour */
-  --color-accent: #165dff;
-  --color-accent-strong: #0a3fc2;
-  --color-accent-dim: rgba(22, 93, 255, 0.1);
+  /* Dark clay remains legible with white button copy; strong is for text. */
+  --color-accent: oklch(0.55 0.16 42);
+  --color-accent-strong: oklch(0.43 0.14 40);
+  --color-accent-dim: oklch(0.62 0.17 43 / 0.12);
 
   /* Semantic colours */
-  --color-danger: #b42318;
-  --color-danger-dim: rgba(180, 35, 24, 0.1);
-  --color-success: #147a52;
-  --color-success-dim: rgba(20, 122, 82, 0.1);
-  --color-warning: #a15c00;
-  --color-warning-dim: rgba(161, 92, 0, 0.1);
+  --color-danger: oklch(0.47 0.17 28);
+  --color-danger-dim: oklch(0.47 0.17 28 / 0.1);
+  --color-success: oklch(0.43 0.1 158);
+  --color-success-dim: oklch(0.43 0.1 158 / 0.1);
+  --color-warning: oklch(0.48 0.12 65);
+  --color-warning-dim: oklch(0.48 0.12 65 / 0.1);
 
   /* Barlow Condensed brings a technical catalogue voice to headings; Plex is
      optimised for dense UI copy and product data. */
@@ -67,18 +69,19 @@
   --space-24: 6rem;
   --space-32: 8rem;
 
-  /* Tight industrial geometry. Full is only for true circles and status dots. */
-  --radius-sm: 1px;
-  --radius-md: 2px;
-  --radius-lg: 3px;
-  --radius-xl: 4px;
+  /* Restrained soft geometry; full is only for circles and status dots. */
+  --radius-sm: 2px;
+  --radius-md: 4px;
+  --radius-lg: 8px;
+  --radius-xl: 12px;
   --radius-full: 9999px;
 
   /* Low, controlled elevation */
-  --shadow-sm: 0 1px 2px rgba(11, 23, 40, 0.05);
-  --shadow-md: 0 7px 18px rgba(11, 23, 40, 0.09);
-  --shadow-lg: 0 18px 44px rgba(11, 23, 40, 0.16);
-  --shadow-glow: 0 0 0 1px rgba(22, 93, 255, 0.2), 0 10px 28px rgba(22, 93, 255, 0.16);
+  --shadow-sm: 0 1px 2px oklch(0.17 0.018 48 / 0.06);
+  --shadow-md: 0 7px 18px oklch(0.17 0.018 48 / 0.1);
+  --shadow-lg: 0 18px 44px oklch(0.17 0.018 48 / 0.17);
+  --shadow-glow: 0 0 0 1px oklch(0.55 0.16 42 / 0.24),
+    0 10px 28px oklch(0.55 0.16 42 / 0.18);
 
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-in: cubic-bezier(0.4, 0, 1, 1);
@@ -90,5 +93,5 @@
 
   --layout-max-width: 1280px;
   --layout-catalog-max-width: 1480px;
-  --focus-ring: 0 0 0 3px rgba(22, 93, 255, 0.22);
+  --focus-ring: 0 0 0 3px oklch(0.55 0.16 42 / 0.28);
 }
