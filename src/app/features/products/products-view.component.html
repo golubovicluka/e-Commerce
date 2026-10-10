@@ -23,35 +23,45 @@
     {{ filtersOpen ? 'Close filters' : 'Filters' }}
   </button>
 
-  @if (!isLoading) {
+  @if (categories) {
     <aside
       id="catalog-filters"
       class="filters-panel"
       [class.filters-panel--open]="filtersOpen"
+      aria-label="Catalog filters"
       >
       <h3 class="filters-title">Category</h3>
-      <app-filters (filtersObject)="applyFilters($event)" [categories]="categories"></app-filters>
-      <h3 class="filters-title price-title">Price</h3>
-      <div class="price-filter">
-        <div class="price-inputs">
-          <input class="input w-full min-w-0" type="number" aria-label="Minimum price"
-            [(ngModel)]="rangeValues[0]" (ngModelChange)="onPriceChange($event)">
-          <span class="price-dash" aria-hidden="true">&ndash;</span>
-          <input class="input w-full min-w-0" type="number" aria-label="Maximum price"
-            [(ngModel)]="rangeValues[1]" (ngModelChange)="onPriceChange($event)">
+      <app-filters (filtersObject)="applyFilters($event)" [categories]="categories"
+        [selectedFilters]="subcategoryFilters"></app-filters>
+      <h3 class="filters-title price-title" id="price-filter-title">Price</h3>
+      @if (rangeValues.length === 2) {
+        <div class="price-filter" role="group" aria-labelledby="price-filter-title">
+          <div class="price-inputs">
+            <input #minPriceInput class="input w-full min-w-0" type="number" aria-label="Minimum price"
+              inputmode="numeric" [min]="lowestPrice" [max]="highestPrice" [value]="rangeValues[0]"
+              (change)="onMinPriceInput(minPriceInput)" (keydown.enter)="minPriceInput.blur()">
+            <span class="price-dash" aria-hidden="true">&ndash;</span>
+            <input #maxPriceInput class="input w-full min-w-0" type="number" aria-label="Maximum price"
+              inputmode="numeric" [min]="lowestPrice" [max]="highestPrice" [value]="rangeValues[1]"
+              (change)="onMaxPriceInput(maxPriceInput)" (keydown.enter)="maxPriceInput.blur()">
+          </div>
+          <div class="dual-range" [style.--fill-start.%]="priceFillStart" [style.--fill-end.%]="priceFillEnd">
+            <div class="dual-range-track" aria-hidden="true"></div>
+            <input #minSlider type="range" class="range range-primary range-sm"
+              [class.dual-range-thumb--top]="isPriceMinOnTop"
+              [min]="lowestPrice" [max]="highestPrice" [value]="rangeValues[0]"
+              (input)="onMinSliderInput(minSlider)" (change)="commitPriceRange()"
+              aria-label="Minimum price slider">
+            <input #maxSlider type="range" class="range range-primary range-sm"
+              [min]="lowestPrice" [max]="highestPrice" [value]="rangeValues[1]"
+              (input)="onMaxSliderInput(maxSlider)" (change)="commitPriceRange()"
+              aria-label="Maximum price slider">
+          </div>
+          <span class="price-label font-mono" aria-live="polite">
+            {{ (rangeValues[0] | number) + ' – ' + (rangeValues[1] | number) }} RSD
+          </span>
         </div>
-        <div class="native-range" aria-label="Price range">
-          <input type="range" class="range range-primary range-sm" [min]="lowestPrice" [max]="highestPrice"
-            [(ngModel)]="rangeValues[0]" (change)="handlePriceFilter({ values: rangeValues })"
-            aria-label="Minimum price slider">
-          <input type="range" class="range range-primary range-sm" [min]="lowestPrice" [max]="highestPrice"
-            [(ngModel)]="rangeValues[1]" (change)="handlePriceFilter({ values: rangeValues })"
-            aria-label="Maximum price slider">
-        </div>
-        <span class="price-label font-mono">
-          {{ (rangeValues[0] | number) + ' – ' + (rangeValues[1] | number) }} RSD
-        </span>
-      </div>
+      }
     </aside>
   } @else {
     <div class="filters-panel">

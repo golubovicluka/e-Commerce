@@ -55,12 +55,11 @@ export class ProductsViewComponent implements OnInit, OnDestroy {
 
   searchInput = '';
   categoriesFilter!: string;
-  private subcategoryFilters: string[] = [];
+  subcategoryFilters: string[] = [];
 
   // Streams that drive data loading. Funnelling every interaction through a
   // single pipeline (below) means at most one query is ever in flight.
   private searchTerms$ = new Subject<string>();
-  private priceChanges$ = new Subject<void>();
   private pageRequests$ = new Subject<void>();
   private initialCatalogRequestComplete = false;
 
@@ -94,6 +93,8 @@ export class ProductsViewComponent implements OnInit, OnDestroy {
     this.subs.add(
       this._productService.categoryFilter.subscribe((category) => {
         this.categoriesFilter = category;
+        this.priceFrom = null;
+        this.priceTo = null;
         this.loadPriceBounds();
         this.resetToFirstPage();
         this.changeDetectorRef.markForCheck();
@@ -156,25 +157,17 @@ export class ProductsViewComponent implements OnInit, OnDestroy {
         })
     );
 
-    // The price number inputs emit on every keystroke; debounce before querying.
-    this.subs.add(
-      this.priceChanges$.pipe(debounceTime(400)).subscribe(() => {
-        this.priceFrom = this.rangeValues[0];
-        this.priceTo = this.rangeValues[1];
-        this.resetToFirstPage();
-        this.changeDetectorRef.markForCheck();
-      })
-    );
-
     // Price-slider bounds come from a DB aggregate, independent of the page.
     this.loadPriceBounds();
 
     // Categories for the filter sidebar.
     this.subs.add(
-      this._productService.getProductCategories().subscribe((categories: any) => {
-        this.categories = categories.data.category;
-        this.changeDetectorRef.markForCheck();
-      })
+      this._productService.getProductCategories()
+        .pipe(catchError(() => of({ data: { category: [] } })))
+        .subscribe((categories: any) => {
+          this.categories = categories.data.category;
+          this.changeDetectorRef.markForCheck();
+        })
     );
 
     // Breadcrumbs
@@ -310,14 +303,65 @@ export class ProductsViewComponent implements OnInit, OnDestroy {
     this.resetToFirstPage();
   }
 
-  handlePriceFilter(event: any) {
-    this.priceFrom = event.values[0];
-    this.priceTo = event.values[1];
+  get isPriceMinOnTop(): boolean {
+    return this.rangeValues[0] > (this.lowestPrice + this.highestPrice) / 2;
+  }
+
+  get priceFillStart(): number {
+    return this.priceToPercent(this.rangeValues[0]);
+  }
+
+  get priceFillEnd(): number {
+    return this.priceToPercent(this.rangeValues[1]);
+  }
+
+  onMinSliderInput(input: HTMLInputElement): void {
+    const value = Math.min(Number(input.value), this.rangeValues[1]);
+    input.value = String(value);
+    this.rangeValues = [value, this.rangeValues[1]];
+  }
+
+  onMaxSliderInput(input: HTMLInputElement): void {
+    const value = Math.max(Number(input.value), this.rangeValues[0]);
+    input.value = String(value);
+    this.rangeValues = [this.rangeValues[0], value];
+  }
+
+  onMinPriceInput(input: HTMLInputElement): void {
+    const value = Math.min(this.normalizePrice(input.value, this.lowestPrice), this.rangeValues[1]);
+    input.value = String(value);
+    this.rangeValues = [value, this.rangeValues[1]];
+    this.commitPriceRange();
+  }
+
+  onMaxPriceInput(input: HTMLInputElement): void {
+    const value = Math.max(this.normalizePrice(input.value, this.highestPrice), this.rangeValues[0]);
+    input.value = String(value);
+    this.rangeValues = [this.rangeValues[0], value];
+    this.commitPriceRange();
+  }
+
+  commitPriceRange(): void {
+    const [from, to] = this.rangeValues;
+    const isFullRange = from <= this.lowestPrice && to >= this.highestPrice;
+    const priceFrom = isFullRange ? null : from;
+    const priceTo = isFullRange ? null : to;
+    if (priceFrom === this.priceFrom && priceTo === this.priceTo) return;
+    this.priceFrom = priceFrom;
+    this.priceTo = priceTo;
     this.resetToFirstPage();
   }
 
-  onPriceChange(_event: any) {
-    this.priceChanges$.next();
+  private normalizePrice(raw: string, fallback: number): number {
+    const value = raw.trim() === '' ? NaN : Number(raw);
+    if (!Number.isFinite(value)) return fallback;
+    return Math.min(Math.max(value, this.lowestPrice), this.highestPrice);
+  }
+
+  private priceToPercent(value: number): number {
+    const span = this.highestPrice - this.lowestPrice;
+    if (span <= 0) return 0;
+    return ((value - this.lowestPrice) / span) * 100;
   }
 
   addToWishList(product: Product) {

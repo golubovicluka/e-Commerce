@@ -43,4 +43,21 @@ describe('FiltersComponent', () => {
         expect(component.selectedFilters).toEqual(['Laptops']);
         expect(emitSpy).toHaveBeenLastCalledWith(['Laptops']);
     });
+
+    it('keeps selections from several categories and restores them from the input', () => {
+        const emitSpy = jest.spyOn(component.filtersObject, 'emit').mockReturnValue(undefined);
+        fixture.componentRef.setInput('categories', [
+            { id: 1, name: 'Electronics', subcategories: [{ id: 1, name: 'Phones' }] },
+            { id: 2, name: 'Home', subcategories: [{ id: 2, name: 'Smart devices' }] },
+        ]);
+        fixture.componentRef.setInput('selectedFilters', ['Phones']);
+        fixture.detectChanges();
+
+        const boxes = fixture.nativeElement.querySelectorAll('input[type="checkbox"]');
+        expect(boxes[0].checked).toBe(true);
+        expect(boxes[1].checked).toBe(false);
+
+        boxes[1].click();
+        expect(emitSpy).toHaveBeenLastCalledWith(['Phones', 'Smart devices']);
+    });
 });
