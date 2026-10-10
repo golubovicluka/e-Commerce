@@ -1,15 +1,17 @@
-<nav class="breadcrumb" aria-label="Breadcrumb">
+<nav class="breadcrumbs" aria-label="Breadcrumb">
   <ol>
     @if (home) {
       <li>
         <a [routerLink]="home.routerLink" [attr.aria-label]="home.label ?? 'Home'">
-          <i [class]="home.icon" aria-hidden="true"></i>
+          <span class="size-4" [class]="home.icon" aria-hidden="true"></span>
         </a>
       </li>
     }
     @for (item of items; track item.label) {
+      <li class="breadcrumbs-separator rtl:rotate-180">
+        <span class="icon-[tabler--chevron-right] size-4" aria-hidden="true"></span>
+      </li>
       <li>
-        <i class="pi pi-angle-right" aria-hidden="true"></i>
         <a [routerLink]="item.routerLink">{{ item.label }}</a>
       </li>
     }

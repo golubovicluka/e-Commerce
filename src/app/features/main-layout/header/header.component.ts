@@ -45,27 +45,27 @@ export class HeaderComponent implements OnInit {
     this.items = [
       {
         label: 'Home',
-        icon: 'pi pi-home',
+        icon: 'icon-[tabler--home]',
         routerLink: ['/home']
       },
       {
         label: 'Products',
-        icon: 'pi pi-list',
+        icon: 'icon-[tabler--list]',
         routerLink: ['/products/search']
       },
       {
         label: 'Categories',
-        icon: 'pi pi-th-large',
+        icon: 'icon-[tabler--layout-grid]',
         routerLink: ['/categories']
       },
       {
         label: 'Wishlist',
-        icon: 'pi pi-heart',
+        icon: 'icon-[tabler--heart]',
         routerLink: ['/wishlist']
       },
       {
         label: 'Cart',
-        icon: 'pi pi-shopping-cart',
+        icon: 'icon-[tabler--shopping-cart]',
         routerLink: ['/cart']
       }
     ];

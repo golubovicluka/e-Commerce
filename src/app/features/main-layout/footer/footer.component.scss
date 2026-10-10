@@ -1,4 +1,4 @@
-.footer {
+.site-footer {
   margin-top: 0;
   background: var(--color-ink);
   border-top: 4px solid var(--color-accent);
@@ -111,7 +111,7 @@
     gap: var(--space-2);
   }
 
-  i {
+  .service-icon {
     width: 1rem;
     color: #78a3ff;
     font-size: 0.82rem;
@@ -130,7 +130,7 @@
   cursor: pointer;
   transition: color var(--duration-base) var(--ease-out);
 
-  i {
+  .social-icon {
     width: 1rem;
   }
 

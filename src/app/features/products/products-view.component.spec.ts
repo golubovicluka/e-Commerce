@@ -144,6 +144,7 @@ describe('ProductsViewComponent', () => {
         expect(component.rangeValues).toEqual([25, 900]);
         expect(component.categories).toEqual(['Electronics']);
         expect(component.items[0].label).toBe('Products');
+        expect(component.home).toEqual({ icon: 'icon-[tabler--home]', routerLink: '/home' });
         expect(component.sortOptions).toHaveLength(2);
         expect(component.isLoading).toBe(false);
     });

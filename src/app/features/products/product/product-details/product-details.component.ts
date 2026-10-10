@@ -1,4 +1,12 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  ElementRef,
+  HostListener,
+  OnInit,
+  ViewChild,
+} from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Location, DecimalPipe } from '@angular/common';
 import { ProductsService } from '../../products.service';
@@ -18,14 +26,18 @@ import { FormsModule } from '@angular/forms';
 import { ProductComponent } from '../product.component';
 import { take } from 'rxjs';
 import { BreadcrumbComponent } from 'src/app/shared/breadcrumb/breadcrumb.component';
-import { GalleryModule } from 'primeng/gallery';
+
+const MIN_ZOOM = 1;
+const MAX_ZOOM = 3;
+const ZOOM_STEP = 0.5;
+const DETAIL_ZOOM = 2.5;
 
 @Component({
     selector: 'app-product-details',
     templateUrl: './product-details.component.html',
     styleUrls: ['./product-details.component.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush,
-    imports: [BreadcrumbComponent, FormsModule, ProductComponent, DecimalPipe, GalleryModule]
+    imports: [BreadcrumbComponent, FormsModule, ProductComponent, DecimalPipe]
 })
 export class ProductDetailsComponent implements OnInit {
   images!: string[];
@@ -44,6 +56,11 @@ export class ProductDetailsComponent implements OnInit {
 
   activeIndex: number = 0;
 
+  zoom = MIN_ZOOM;
+  rotation = 0;
+  isFullscreen = false;
+
+  @ViewChild('viewer') viewer?: ElementRef<HTMLElement>;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -93,7 +110,7 @@ export class ProductDetailsComponent implements OnInit {
 
     // Breadcrumbs setup
     this.setBreadcrumbItems();
-    this.home = { icon: 'pi pi-home', routerLink: '/home' };
+    this.home = { icon: 'icon-[tabler--home]', routerLink: '/home' };
   }
 
   /** Kept as part of the component's public API for existing integrations. */
@@ -192,7 +209,56 @@ export class ProductDetailsComponent implements OnInit {
   imageClick(index: number) {
     if (index >= 0 && index < this.images.length) {
       this.activeIndex = index;
+      this.resetView();
     }
+  }
+
+  get imageTransform(): string {
+    return `scale(${this.zoom}) rotate(${this.rotation}deg)`;
+  }
+
+  nextImage(): void {
+    if (this.images.length < 2) {
+      return;
+    }
+    this.imageClick((this.activeIndex + 1) % this.images.length);
+  }
+
+  previousImage(): void {
+    if (this.images.length < 2) {
+      return;
+    }
+    this.imageClick((this.activeIndex - 1 + this.images.length) % this.images.length);
+  }
+
+  zoomIn(): void {
+    this.zoom = Math.min(MAX_ZOOM, this.zoom + ZOOM_STEP);
+  }
+
+  zoomOut(): void {
+    this.zoom = Math.max(MIN_ZOOM, this.zoom - ZOOM_STEP);
+  }
+
+  toggleZoom(): void {
+    this.zoom = this.zoom > MIN_ZOOM ? MIN_ZOOM : DETAIL_ZOOM;
+  }
+
+  rotateLeft(): void {
+    this.rotation -= 90;
+  }
+
+  toggleFullscreen(): void {
+    if (document.fullscreenElement) {
+      document.exitFullscreen?.().catch(() => undefined);
+      return;
+    }
+    this.viewer?.nativeElement.requestFullscreen?.().catch(() => undefined);
+  }
+
+  @HostListener('document:fullscreenchange')
+  onFullscreenChange(): void {
+    this.isFullscreen = !!document.fullscreenElement;
+    this.changeDetectorRef.markForCheck();
   }
 
   onGalleryImageError(event: Event, imageIndex: number): void {
@@ -217,9 +283,15 @@ export class ProductDetailsComponent implements OnInit {
     this.images = this._productImageService.normalizeImages(product.images, product.name);
     this.product.images = this.images;
     this.activeIndex = 0;
+    this.resetView();
     this.inWishlist = this.checkInWishlist(this.id);
     this.setBreadcrumbItems();
     this.changeDetectorRef.markForCheck();
+  }
+
+  private resetView(): void {
+    this.zoom = MIN_ZOOM;
+    this.rotation = 0;
   }
 
   private loadSuggestedProducts(category?: string): void {

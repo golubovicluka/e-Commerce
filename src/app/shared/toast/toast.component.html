@@ -1,20 +1,35 @@
 <div class="toast-region" aria-live="polite" aria-atomic="false">
   @for (notification of notificationService.notifications(); track notification.id) {
-    <div class="toast-message" [class]="'toast-message toast-message--' + notification.severity" role="status">
-      <i
-        class="pi"
-        [class.pi-check-circle]="notification.severity === 'success'"
-        [class.pi-info-circle]="notification.severity === 'info'"
-        [class.pi-exclamation-triangle]="notification.severity === 'warn'"
-        [class.pi-times-circle]="notification.severity === 'error'"
-        aria-hidden="true"
-      ></i>
-      <span>
+    <div
+      class="alert alert-soft toast-message flex items-start gap-3 shadow-lg"
+      [class]="notification.severity === 'success' ? 'alert-success' : notification.severity === 'warn' ? 'alert-warning' : notification.severity === 'error' ? 'alert-error' : 'alert-info'"
+      role="status"
+    >
+      @switch (notification.severity) {
+        @case ('success') {
+          <span class="icon-[tabler--circle-check] mt-0.5 size-5 shrink-0" aria-hidden="true"></span>
+        }
+        @case ('warn') {
+          <span class="icon-[tabler--alert-triangle] mt-0.5 size-5 shrink-0" aria-hidden="true"></span>
+        }
+        @case ('error') {
+          <span class="icon-[tabler--circle-x] mt-0.5 size-5 shrink-0" aria-hidden="true"></span>
+        }
+        @default {
+          <span class="icon-[tabler--info-circle] mt-0.5 size-5 shrink-0" aria-hidden="true"></span>
+        }
+      }
+      <span class="grid min-w-0 flex-1 gap-1">
         <strong>{{ notification.summary }}</strong>
-        <small>{{ notification.detail }}</small>
+        <small class="opacity-80">{{ notification.detail }}</small>
       </span>
-      <button type="button" (click)="notificationService.dismiss(notification.id)" aria-label="Dismiss notification">
-        <i class="pi pi-times" aria-hidden="true"></i>
+      <button
+        type="button"
+        class="btn btn-text btn-square btn-sm"
+        (click)="notificationService.dismiss(notification.id)"
+        aria-label="Dismiss notification"
+      >
+        <span class="icon-[tabler--x] size-4" aria-hidden="true"></span>
       </button>
     </div>
   }
