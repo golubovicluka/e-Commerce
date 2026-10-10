@@ -493,7 +493,8 @@ describe('ProductDetailsComponent', () => {
                 `${mockProducts[0].name} photo 2`,
             );
 
-            component.zoomIn();
+            const zoomIn: HTMLButtonElement = fixture.nativeElement.querySelector('button[aria-label="Zoom in"]');
+            zoomIn.click();
             fixture.detectChanges();
             const stage: HTMLImageElement = fixture.nativeElement.querySelector('.viewer-image');
             expect(stage.style.transform).toBe('scale(1.5) rotate(0deg)');

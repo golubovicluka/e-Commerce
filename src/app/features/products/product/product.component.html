@@ -1,17 +1,18 @@
 <!-- Grid view -->
 @if (!isListView) {
   <article class="product-card">
-    <button class="favorite-btn" type="button" (click)="addRemoveItemWishlist(product)"
+    <button class="favorite-btn btn btn-square btn-sm btn-outline" type="button" (click)="addRemoveItemWishlist(product)"
       [attr.aria-label]="inWishlist ? 'Remove ' + name + ' from wishlist' : 'Add ' + name + ' to wishlist'"
       [class.is-active]="inWishlist">
-      <i [class]="inWishlist ? 'pi pi-heart-fill' : 'pi pi-heart'"></i>
+      <span class="size-5" aria-hidden="true"
+        [ngClass]="inWishlist ? 'icon-[tabler--heart-filled]' : 'icon-[tabler--heart]'"></span>
     </button>
     <div class="card-media" (click)="openProductDetails(id)" (keyup.enter)="openProductDetails(id)"
       role="link" tabindex="0">
       <img [src]="primaryImageSrc" [alt]="name" loading="lazy" decoding="async"
         (error)="onImageError($event)">
     </div>
-    <div class="card-body">
+    <div class="product-body">
       @if (subcategory?.name) {
         <span class="card-kicker">{{ subcategory?.name }}</span>
       }
@@ -23,8 +24,7 @@
       <div class="card-foot">
         <div class="price-stock">
           <span class="card-price font-mono">{{ price | number }} <span class="currency">RSD</span></span>
-          <span class="stock" [class.stock--in]="inStock > 0" [class.stock--out]="inStock === 0">
-            <span class="stock-dot"></span>
+          <span class="badge badge-sm badge-soft" [class.badge-success]="inStock > 0" [class.badge-error]="inStock === 0">
             @if (inStock > 0) {
               {{ inStock }} in stock
             }
@@ -33,10 +33,10 @@
             }
           </span>
         </div>
-        <button type="button" class="p-button p-button-rounded" [class.p-button-outlined]="!inCart"
+        <button type="button" class="btn btn-circle btn-sm btn-primary" [class.btn-outline]="!inCart"
           (click)="addRemoveCartItem(product)" [disabled]="product.inStock === 0"
           [attr.aria-label]="inCart ? 'Remove from cart' : 'Add to cart'">
-          <i class="pi pi-cart-plus" aria-hidden="true"></i>
+          <span class="icon-[tabler--shopping-cart-plus] size-4" aria-hidden="true"></span>
         </button>
       </div>
     </div>
@@ -44,10 +44,11 @@
 } @else {
   <article class="list-card">
     @if (!wishlistView) {
-      <button class="favorite-btn" type="button" (click)="addRemoveItemWishlist(product)"
+      <button class="favorite-btn btn btn-square btn-sm btn-outline" type="button" (click)="addRemoveItemWishlist(product)"
         [attr.aria-label]="inWishlist ? 'Remove ' + name + ' from wishlist' : 'Add ' + name + ' to wishlist'"
         [class.is-active]="inWishlist">
-        <i [class]="inWishlist ? 'pi pi-heart-fill' : 'pi pi-heart'"></i>
+        <span class="size-5" aria-hidden="true"
+          [ngClass]="inWishlist ? 'icon-[tabler--heart-filled]' : 'icon-[tabler--heart]'"></span>
       </button>
     }
     <div class="list-media" (click)="openProductDetails(id)" (keyup.enter)="openProductDetails(id)"
@@ -69,8 +70,7 @@
   <div class="list-buy">
     <span class="card-price card-price--lg font-mono">{{ price | number }} <span class="currency">RSD</span></span>
     <span class="installment">or 12 &times; {{ getInstallmentAmount(price, 12) | number }} RSD&nbsp;/&nbsp;mo</span>
-    <span class="stock" [class.stock--in]="inStock > 0" [class.stock--out]="inStock === 0">
-      <span class="stock-dot"></span>
+    <span class="badge badge-sm badge-soft" [class.badge-success]="inStock > 0" [class.badge-error]="inStock === 0">
       @if (inStock > 1) {
         {{ inStock }} in stock
       }
@@ -81,9 +81,9 @@
         Sold out
       }
     </span>
-    <button type="button" class="p-button" [class.p-button-outlined]="!inCart"
+    <button type="button" class="btn btn-primary mt-2" [class.btn-outline]="!inCart"
       (click)="product.inStock > 0 && addRemoveCartItem(product)" [disabled]="product.inStock === 0">
-      <i class="pi pi-cart-plus" aria-hidden="true"></i>
+      <span class="icon-[tabler--shopping-cart-plus] size-4" aria-hidden="true"></span>
       {{ inCart ? 'In cart' : 'Add to cart' }}
     </button>
   </div>

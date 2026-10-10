@@ -9,24 +9,12 @@
   top: var(--space-3);
   right: var(--space-3);
   z-index: 2;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 2.5rem;
-  height: 2.5rem;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
+  border-color: var(--color-border);
   background: var(--color-surface-elevated);
-  box-shadow: none;
   color: var(--color-text-secondary);
-  cursor: pointer;
   transition: color var(--duration-base) var(--ease-out),
     transform var(--duration-fast) var(--ease-out),
-    box-shadow var(--duration-base) var(--ease-out);
-
-  i {
-    font-size: 1.1rem;
-  }
+    border-color var(--duration-base) var(--ease-out);
 
   &:hover {
     color: var(--color-danger);
@@ -41,7 +29,7 @@
   &.is-active {
     color: var(--color-danger);
 
-    i {
+    > span {
       animation: heart-pop 360ms var(--ease-out);
     }
   }
@@ -94,38 +82,6 @@
   font-size: var(--text-lg);
 }
 
-.stock {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
-  font-size: var(--text-xs);
-  font-weight: 500;
-  white-space: nowrap;
-
-  .stock-dot {
-    width: 0.45rem;
-    height: 0.45rem;
-    border-radius: var(--radius-full);
-    flex-shrink: 0;
-  }
-
-  &--in {
-    color: var(--color-success);
-
-    .stock-dot {
-      background: var(--color-success);
-    }
-  }
-
-  &--out {
-    color: var(--color-danger);
-
-    .stock-dot {
-      background: var(--color-danger);
-    }
-  }
-}
-
 /* --- Grid card ----------------------------------------------------------------- */
 .product-card {
   position: relative;
@@ -175,7 +131,7 @@
   }
 }
 
-.card-body {
+.product-body {
   display: flex;
   flex-direction: column;
   gap: var(--space-1);
@@ -296,9 +252,5 @@
   .installment {
     font-size: var(--text-xs);
     color: var(--color-text-secondary);
-  }
-
-  ::ng-deep .p-button {
-    margin-top: var(--space-2);
   }
 }
