@@ -8,7 +8,7 @@
       <h1 class="page-title">Your cart</h1>
     </div>
     <span class="free-shipping">
-      <i class="pi pi-check-circle"></i> Free shipping on all orders
+      <span class="icon-[tabler--circle-check] size-4" aria-hidden="true"></span> Free shipping on all orders
     </span>
   </div>
 }
@@ -39,30 +39,30 @@
               }
               @if (line.product.inStock === 1) {
                 <span class="item-stock item-stock--low">
-                  <i class="pi pi-info-circle"></i> Only 1 left
+                  <span class="icon-[tabler--info-circle] size-4" aria-hidden="true"></span> Only 1 left
                 </span>
               }
             </div>
             <div class="item-actions">
               <div class="qty-controls" role="group" [attr.aria-label]="'Quantity of ' + line.product.name">
-                <button class="qty-btn" type="button" aria-label="Decrease quantity"
+                <button class="qty-btn btn btn-square btn-sm btn-outline" type="button" aria-label="Decrease quantity"
                   (click)="decrementProductCount(line.product.id, line.quantity)" [disabled]="line.quantity <= 1">
-                  <i class="pi pi-minus"></i>
+                  <span class="icon-[tabler--minus] size-4" aria-hidden="true"></span>
                 </button>
-                <input class="quantity-input" type="number" [min]="1" [max]="line.product.inStock"
+                <input class="quantity-input input input-sm w-14 text-center" type="number" [min]="1" [max]="line.product.inStock"
                   [id]="'qty-' + line.product.id" [ngModel]="line.quantity"
                   (ngModelChange)="onQuantityChange(line.product.id, $event)">
-                <button class="qty-btn" type="button" aria-label="Increase quantity"
+                <button class="qty-btn btn btn-square btn-sm btn-outline" type="button" aria-label="Increase quantity"
                   (click)="incrementProductCount(line.product.id, line.product.inStock, line.quantity)"
                   [disabled]="line.quantity >= line.product.inStock">
-                  <i class="pi pi-plus"></i>
+                  <span class="icon-[tabler--plus] size-4" aria-hidden="true"></span>
                 </button>
               </div>
               <span class="line-total font-mono">{{ line.lineTotal | number }} <span class="currency">RSD</span></span>
             </div>
-            <button class="remove-btn" type="button" (click)="removeFromCart(line.product)"
+            <button class="remove-btn btn btn-text btn-error btn-square btn-sm" type="button" (click)="removeFromCart(line.product)"
               [attr.aria-label]="'Remove ' + line.product.name + ' from cart'">
-              <i class="pi pi-times"></i>
+              <span class="icon-[tabler--x] size-4" aria-hidden="true"></span>
             </button>
           </div>
         }
@@ -107,17 +107,17 @@
             <strong class="font-mono">{{ getInstallmentAmount(total, selectedMonthlyPayment.name) | number }}
               <span class="currency">RSD</span></strong>&nbsp;/&nbsp;mo
             </span>
-            <select class="p-inputtext" aria-label="Number of monthly installments"
+            <select class="select select-sm w-auto" aria-label="Number of monthly installments"
               [(ngModel)]="selectedMonthlyPayment">
               @for (option of monthlyPaymentOptions; track option.name) {
                 <option [ngValue]="option">{{ option.name }}</option>
               }
             </select>
           </div>
-          <button (click)="openShippingView()" class="p-button summary-cta" type="button"
+          <button (click)="openShippingView()" class="btn btn-primary summary-cta" type="button"
           >{{ checkoutCtaLabel }}</button>
           <span class="summary-note">
-            <i class="pi pi-lock"></i> Secure checkout &middot; 14-day returns
+            <span class="icon-[tabler--lock] size-4" aria-hidden="true"></span> Secure checkout &middot; 14-day returns
           </span>
         </aside>
       }
@@ -127,10 +127,10 @@
   <!-- When Cart is Empty -->
   @if (!numberOfItems) {
     <div class="empty-state component-enter">
-      <i class="pi pi-shopping-cart"></i>
+      <span class="icon-[tabler--shopping-cart]" aria-hidden="true"></span>
       <h3>Your cart is empty</h3>
       <p>Looks like you haven't added anything yet.</p>
-      <a class="p-button p-button-outlined" [routerLink]="['/products/search']">
+      <a class="btn btn-outline btn-primary" [routerLink]="['/products/search']">
         Find a product
       </a>
     </div>

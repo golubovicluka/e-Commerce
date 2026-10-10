@@ -201,74 +201,12 @@
   display: flex;
   align-items: center;
   gap: var(--space-1);
-
-  .qty-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 2rem;
-    height: 2rem;
-    border-radius: var(--radius-sm);
-    border: 1px solid var(--color-border);
-    background: var(--color-surface-elevated);
-    color: var(--color-text-primary);
-    cursor: pointer;
-    transition: border-color var(--duration-base) var(--ease-out),
-      color var(--duration-base) var(--ease-out);
-
-    i {
-      font-size: 0.7rem;
-    }
-
-    &:hover:not(:disabled) {
-      border-color: var(--color-accent);
-      color: var(--color-accent);
-    }
-
-    &:disabled {
-      opacity: 0.4;
-      cursor: not-allowed;
-    }
-  }
-}
-
-.quantity-input {
-  width: 3.5rem;
-  min-height: 2rem;
-  border: 1px solid var(--color-border);
-  text-align: center;
-}
-
-::ng-deep #integeronly {
-  width: 3.5rem !important;
-  text-align: center !important;
 }
 
 .remove-btn {
   position: absolute;
   top: var(--space-2);
   right: var(--space-2);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 2rem;
-  height: 2rem;
-  border: none;
-  border-radius: var(--radius-sm);
-  background: transparent;
-  color: var(--color-text-secondary);
-  cursor: pointer;
-  transition: background var(--duration-base) var(--ease-out),
-    color var(--duration-base) var(--ease-out);
-
-  i {
-    font-size: 0.85rem;
-  }
-
-  &:hover {
-    background: var(--color-danger-dim);
-    color: var(--color-danger);
-  }
 }
 
 /* --- Order summary ------------------------------------------------------------------ */
@@ -279,7 +217,6 @@
   background: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-sm);
   padding: var(--space-6);
   box-shadow: inset 0 3px 0 var(--color-ink), var(--shadow-sm);
 
@@ -363,8 +300,4 @@
   gap: var(--space-2);
   font-size: var(--text-xs);
   color: var(--color-text-secondary);
-
-  i {
-    font-size: 0.8rem;
-  }
 }

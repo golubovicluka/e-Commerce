@@ -35,7 +35,7 @@ export class WishlistViewComponent implements OnInit {
       { label: 'Products', routerLink: '/products/search' },
       { label: 'Wishlist', routerLink: '/wishlist' },
     ];
-    this.home = { icon: 'pi pi-home', routerLink: '/home' };
+    this.home = { icon: 'icon-[tabler--home]', routerLink: '/home' };
   }
 
   isInWishlist(id: number): boolean {
