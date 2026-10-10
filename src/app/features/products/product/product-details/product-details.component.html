@@ -6,68 +6,68 @@
   <div class="details-layout component-enter">
     <!-- Gallery -->
     <div class="gallery-pane">
-      <p-gallery class="product-image-viewer" [(activeIndex)]="activeIndex"
-        [attr.aria-label]="product.name + ' image viewer'">
-        <p-gallery-backdrop></p-gallery-backdrop>
-
-        @if (images.length > 1) {
-          <button pGalleryPrev class="viewer-nav" type="button" aria-label="Previous product image">
-            <i class="pi pi-chevron-left" aria-hidden="true"></i>
-          </button>
-          <button pGalleryNext class="viewer-nav" type="button" aria-label="Next product image">
-            <i class="pi pi-chevron-right" aria-hidden="true"></i>
-          </button>
-        }
-
-        <p-gallery-header class="viewer-toolbar">
-          <span class="viewer-counter font-mono" aria-live="polite">
-            {{ activeIndex + 1 }} / {{ images.length }}
-          </span>
-          <span class="viewer-hint">Click the image to zoom</span>
+      <section class="product-image-viewer" role="region" tabindex="0"
+        [attr.aria-label]="product.name + ' image viewer'"
+        (keydown.arrowleft)="previousImage()" (keydown.arrowright)="nextImage()" #viewer>
+        <header class="viewer-toolbar">
+          <span class="viewer-counter font-mono" aria-live="polite">{{ activeIndex + 1 }} / {{ images.length }}</span>
+          <span class="viewer-hint hidden sm:inline">Click the image to zoom</span>
           <span class="viewer-actions">
-            <button pGalleryRotateLeft type="button" aria-label="Rotate image left" title="Rotate left">
-              <i class="pi pi-replay" aria-hidden="true"></i>
+            <button type="button" class="btn btn-text btn-square btn-sm btn-on-ink" aria-label="Rotate image left"
+              title="Rotate image left" (click)="rotateLeft()">
+              <span class="icon-[tabler--rotate] size-4" aria-hidden="true"></span>
             </button>
-            <button pGalleryZoomOut type="button" aria-label="Zoom out" title="Zoom out">
-              <i class="pi pi-search-minus" aria-hidden="true"></i>
+            <button type="button" class="btn btn-text btn-square btn-sm btn-on-ink" aria-label="Zoom out"
+              title="Zoom out" [disabled]="zoom <= 1" (click)="zoomOut()">
+              <span class="icon-[tabler--zoom-out] size-4" aria-hidden="true"></span>
             </button>
-            <button pGalleryZoomIn type="button" aria-label="Zoom in" title="Zoom in">
-              <i class="pi pi-search-plus" aria-hidden="true"></i>
+            <button type="button" class="btn btn-text btn-square btn-sm btn-on-ink" aria-label="Zoom in"
+              title="Zoom in" [disabled]="zoom >= 3" (click)="zoomIn()">
+              <span class="icon-[tabler--zoom-in] size-4" aria-hidden="true"></span>
             </button>
-            <button pGalleryFullScreen type="button" aria-label="Toggle fullscreen image viewer"
-              title="Toggle fullscreen">
-              <i class="pi pi-window-maximize viewer-enter-fullscreen" aria-hidden="true"></i>
-              <i class="pi pi-window-minimize viewer-exit-fullscreen" aria-hidden="true"></i>
+            <button type="button" class="btn btn-text btn-square btn-sm btn-on-ink"
+              aria-label="Toggle fullscreen image viewer" title="Toggle fullscreen image viewer"
+              (click)="toggleFullscreen()">
+              <span aria-hidden="true" class="size-4"
+                [class]="isFullscreen ? 'icon-[tabler--minimize]' : 'icon-[tabler--maximize]'"></span>
             </button>
           </span>
-        </p-gallery-header>
+        </header>
 
-        <p-gallery-content>
-          @for (image of images; track $index; let index = $index) {
-            <p-gallery-item [zoomedScale]="2.5">
-              <img class="viewer-image" [src]="image" decoding="async" [attr.loading]="index === 0 ? 'eager' : 'lazy'"
-                [attr.draggable]="false" (error)="onGalleryImageError($event, index)"
-                [alt]="product.name + ' photo ' + (index + 1)">
-            </p-gallery-item>
+        <div class="viewer-stage">
+          <button type="button" class="viewer-zoom-toggle" [attr.aria-pressed]="zoom > 1"
+            aria-label="Toggle image zoom" (click)="toggleZoom()">
+            <img class="viewer-image" [class.is-zoomed]="zoom > 1" [src]="images[activeIndex]" decoding="async"
+              draggable="false" [alt]="product.name + ' photo ' + (activeIndex + 1)"
+              [style.transform]="imageTransform" (error)="onGalleryImageError($event, activeIndex)">
+          </button>
+
+          @if (images.length > 1) {
+            <button type="button" class="btn btn-circle btn-on-ink viewer-nav viewer-nav-prev"
+              aria-label="Previous product image" (click)="previousImage()">
+              <span class="icon-[tabler--chevron-left] size-5" aria-hidden="true"></span>
+            </button>
+            <button type="button" class="btn btn-circle btn-on-ink viewer-nav viewer-nav-next"
+              aria-label="Next product image" (click)="nextImage()">
+              <span class="icon-[tabler--chevron-right] size-5" aria-hidden="true"></span>
+            </button>
           }
-        </p-gallery-content>
+        </div>
 
         @if (images.length > 1) {
-          <p-gallery-footer>
-            <p-gallery-thumbnail [slidesPerPage]="images.length" [spacing]="12">
-              <p-gallery-thumbnail-content>
-                @for (image of images; track $index; let index = $index) {
-                  <p-gallery-thumbnail-item [index]="index">
-                    <img class="viewer-thumbnail" [src]="image" loading="lazy" decoding="async"
-                      [attr.draggable]="false" (error)="onGalleryImageError($event, index)"
-                      [alt]="'Show ' + product.name + ' photo ' + (index + 1)">
-                  </p-gallery-thumbnail-item>
-                }
-              </p-gallery-thumbnail-content>
-            </p-gallery-thumbnail>
-          </p-gallery-footer>
+          <div class="viewer-thumbnails">
+            @for (image of images; track $index; let index = $index) {
+              <button type="button" class="viewer-thumbnail-button" [class.is-active]="index === activeIndex"
+                [attr.aria-current]="index === activeIndex ? 'true' : null"
+                [attr.aria-label]="'Show ' + product.name + ' photo ' + (index + 1)"
+                (click)="imageClick(index)">
+                <img class="viewer-thumbnail" [src]="image" loading="lazy" decoding="async" alt=""
+                  (error)="onGalleryImageError($event, index)">
+              </button>
+            }
+          </div>
         }
-      </p-gallery>
+      </section>
     </div>
     <!-- Buy panel -->
     <div class="buy-pane">
@@ -79,9 +79,9 @@
     </span>
     <h1 class="detail-name">{{ product?.name }}</h1>
     <div class="meta-row">
-      <span class="stock-pill" [class.stock-pill--in]="product.inStock > 0"
-        [class.stock-pill--out]="product.inStock === 0">
-        <span class="stock-dot"></span>
+      <span class="badge badge-soft gap-2"
+        [class.badge-success]="product.inStock > 0" [class.badge-error]="product.inStock === 0">
+        <span class="size-1.5 shrink-0 rounded-full bg-current" aria-hidden="true"></span>
         @if (product.inStock > 0) {
           In stock &mdash; ships tomorrow
         }
@@ -103,7 +103,7 @@
           <strong class="font-mono">{{ getInstallmentAmount(product.price, selectedMonthlyPayment.name) | number }}
           RSD</strong>&nbsp;/&nbsp;month
         </span>
-        <select class="p-inputtext" aria-label="Number of monthly installments"
+        <select class="select select-sm w-auto" aria-label="Number of monthly installments"
           [(ngModel)]="selectedMonthlyPayment">
           @for (option of monthlyPaymentOptions; track option.name) {
             <option [ngValue]="option">{{ option.name }}</option>
@@ -112,37 +112,38 @@
       </div>
     </div>
     <div class="cta-row">
-      <button (click)="buyProduct(product)" class="p-button buy-btn" type="button"
+      <button (click)="buyProduct(product)" class="btn btn-primary buy-btn" type="button"
         [disabled]="product.inStock === 0">
-        <i class="pi pi-shopping-cart" aria-hidden="true"></i>
+        <span class="icon-[tabler--shopping-cart] size-5" aria-hidden="true"></span>
         <span>Buy now</span>
       </button>
-      <button class="favorite-btn-lg" type="button" (click)="addProductToWishList(product)"
-        [class.is-active]="inWishlist"
+      <button class="btn btn-outline btn-square favorite-btn-lg" type="button" (click)="addProductToWishList(product)"
+        [class.btn-active]="inWishlist" [class.text-error]="inWishlist"
         [attr.aria-label]="inWishlist ? 'Remove from wishlist' : 'Add to wishlist'">
-        <i [class]="inWishlist ? 'pi pi-heart-fill' : 'pi pi-heart'"></i>
+        <span aria-hidden="true" class="size-5"
+          [class]="inWishlist ? 'icon-[tabler--heart-filled]' : 'icon-[tabler--heart]'"></span>
       </button>
     </div>
     @if (product.inStock === 0) {
       <span class="notify-link cursor-pointer">Notify me when it's back</span>
     }
     <ul class="detail-perks">
-      <li><i class="pi pi-truck"></i> Free shipping, 1&ndash;3 business days</li>
-      <li><i class="pi pi-shield"></i> 2-year warranty</li>
-      <li><i class="pi pi-replay"></i> 14-day returns, no questions asked</li>
+      <li><span class="icon-[tabler--truck] size-4 shrink-0 text-primary" aria-hidden="true"></span> Free shipping, 1&ndash;3 business days</li>
+      <li><span class="icon-[tabler--shield-check] size-4 shrink-0 text-primary" aria-hidden="true"></span> 2-year warranty</li>
+      <li><span class="icon-[tabler--arrow-back-up] size-4 shrink-0 text-primary" aria-hidden="true"></span> 14-day returns, no questions asked</li>
     </ul>
   </div>
 </div>
 } @else {
   <div class="details-skeleton">
-    <div class="skeleton skeleton-gallery"></div>
+    <div class="skeleton skeleton-animated skeleton-gallery"></div>
     <div class="skeleton-panel">
-      <div class="skeleton skeleton-line w-40"></div>
-      <div class="skeleton skeleton-title"></div>
-      <div class="skeleton skeleton-line"></div>
-      <div class="skeleton skeleton-line"></div>
-      <div class="skeleton skeleton-line w-60"></div>
-      <div class="skeleton skeleton-cta"></div>
+      <div class="skeleton skeleton-animated skeleton-line skeleton-w-40"></div>
+      <div class="skeleton skeleton-animated skeleton-title"></div>
+      <div class="skeleton skeleton-animated skeleton-line"></div>
+      <div class="skeleton skeleton-animated skeleton-line"></div>
+      <div class="skeleton skeleton-animated skeleton-line skeleton-w-60"></div>
+      <div class="skeleton skeleton-animated skeleton-cta"></div>
     </div>
   </div>
 }

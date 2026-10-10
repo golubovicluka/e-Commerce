@@ -4,8 +4,8 @@
       <summary>{{ category.name }}</summary>
       <div class="filter-options">
       @for (subcategory of category.subcategories; track subcategory) {
-        <div class="flex justify-content-start align-items-center my-2">
-          <input class="mr-2" name="filters" type="checkbox" [value]="subcategory.name"
+        <div class="flex justify-start items-center my-2">
+          <input class="checkbox checkbox-primary checkbox-sm mr-2" name="filters" type="checkbox" [value]="subcategory.name"
             [id]="'filter-' + subcategory.id" [checked]="selectedFilters.includes(subcategory.name)"
             (change)="onFilterToggle(subcategory.name, $any($event.target).checked)">
           <label [for]="'filter-' + subcategory.id">{{subcategory.name}}</label>

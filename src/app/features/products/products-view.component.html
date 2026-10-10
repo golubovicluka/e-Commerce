@@ -13,12 +13,13 @@
 <div class="products-layout">
   <button
     type="button"
-    class="filters-toggle lg:hidden"
+    class="btn btn-outline btn-primary lg:hidden!"
     (click)="filtersOpen = !filtersOpen"
     [attr.aria-expanded]="filtersOpen"
     aria-controls="catalog-filters"
     >
-    <i class="pi" [ngClass]="filtersOpen ? 'pi-times' : 'pi-sliders-h'"></i>
+    <span class="size-4 shrink-0" aria-hidden="true"
+      [ngClass]="filtersOpen ? 'icon-[tabler--x]' : 'icon-[tabler--adjustments-horizontal]'"></span>
     {{ filtersOpen ? 'Close filters' : 'Filters' }}
   </button>
 
@@ -33,17 +34,19 @@
       <h3 class="filters-title price-title">Price</h3>
       <div class="price-filter">
         <div class="price-inputs">
-          <input class="p-inputtext w-full" type="number" aria-label="Minimum price"
+          <input class="input w-full min-w-0" type="number" aria-label="Minimum price"
             [(ngModel)]="rangeValues[0]" (ngModelChange)="onPriceChange($event)">
           <span class="price-dash" aria-hidden="true">&ndash;</span>
-          <input class="p-inputtext w-full" type="number" aria-label="Maximum price"
+          <input class="input w-full min-w-0" type="number" aria-label="Maximum price"
             [(ngModel)]="rangeValues[1]" (ngModelChange)="onPriceChange($event)">
         </div>
         <div class="native-range" aria-label="Price range">
-          <input type="range" [min]="lowestPrice" [max]="highestPrice" [(ngModel)]="rangeValues[0]"
-            (change)="handlePriceFilter({ values: rangeValues })" aria-label="Minimum price slider">
-          <input type="range" [min]="lowestPrice" [max]="highestPrice" [(ngModel)]="rangeValues[1]"
-            (change)="handlePriceFilter({ values: rangeValues })" aria-label="Maximum price slider">
+          <input type="range" class="range range-primary range-sm" [min]="lowestPrice" [max]="highestPrice"
+            [(ngModel)]="rangeValues[0]" (change)="handlePriceFilter({ values: rangeValues })"
+            aria-label="Minimum price slider">
+          <input type="range" class="range range-primary range-sm" [min]="lowestPrice" [max]="highestPrice"
+            [(ngModel)]="rangeValues[1]" (change)="handlePriceFilter({ values: rangeValues })"
+            aria-label="Maximum price slider">
         </div>
         <span class="price-label font-mono">
           {{ (rangeValues[0] | number) + ' – ' + (rangeValues[1] | number) }} RSD
@@ -53,7 +56,7 @@
   } @else {
     <div class="filters-panel">
       @for (s of [1, 2, 3, 4, 5, 6]; track s) {
-        <div class="skeleton filter-skeleton"></div>
+        <div class="skeleton skeleton-animated filter-skeleton"></div>
       }
     </div>
   }
@@ -62,35 +65,37 @@
   <div class="products-results">
     @if (catalogError && !isLoading) {
       <div class="empty-state component-enter catalog-error">
-        <i class="pi pi-exclamation-circle"></i>
+        <span class="icon-[tabler--alert-circle] size-8 text-error" aria-hidden="true"></span>
         <h3>Catalog unavailable</h3>
         <p>{{ catalogError }}</p>
-        <button class="p-button p-button-outlined" type="button" (click)="retryCatalogLoad()">Try again</button>
+        <button class="btn btn-outline btn-primary" type="button" (click)="retryCatalogLoad()">Try again</button>
       </div>
     }
     @if (!catalogError) {
       <div class="catalog-view">
         <div class="results-toolbar">
-          <span class="p-input-icon-left search-field">
-            <i class="pi pi-search"></i>
-            <input class="p-inputtext w-full" type="search" (ngModelChange)="onChanges($event)"
+          <label class="input search-field">
+            <span class="icon-[tabler--search] text-base-content/80 my-auto size-5 shrink-0" aria-hidden="true"></span>
+            <input class="grow" type="search" (ngModelChange)="onChanges($event)"
               [(ngModel)]="searchInput" placeholder="Search products" aria-label="Search products">
-          </span>
+          </label>
           <div class="toolbar-controls">
-            <select class="p-inputtext sort-select" [(ngModel)]="sortKey"
+            <select class="select sort-select" [(ngModel)]="sortKey"
               (ngModelChange)="onSortChange({ value: $event })" aria-label="Sort products">
               @for (option of sortOptions; track option.value) {
                 <option [ngValue]="option.value">{{ option.label }}</option>
               }
             </select>
-            <div class="hidden sm:flex" role="group" aria-label="Product layout">
-              <button type="button" class="p-button p-button-text" [class.p-button-outlined]="layout !== 'list'"
+            <div class="hidden sm:flex gap-1" role="group" aria-label="Product layout">
+              <button type="button" class="btn btn-square btn-outline btn-primary"
+                [class.btn-active]="layout === 'list'"
                 [attr.aria-pressed]="layout === 'list'" (click)="layout = 'list'" aria-label="List view">
-                <i class="pi pi-bars"></i>
+                <span class="icon-[tabler--menu-2] size-5" aria-hidden="true"></span>
               </button>
-              <button type="button" class="p-button p-button-text" [class.p-button-outlined]="layout !== 'grid'"
+              <button type="button" class="btn btn-square btn-outline btn-primary"
+                [class.btn-active]="layout === 'grid'"
                 [attr.aria-pressed]="layout === 'grid'" (click)="layout = 'grid'" aria-label="Grid view">
-                <i class="pi pi-th-large"></i>
+                <span class="icon-[tabler--layout-grid] size-5" aria-hidden="true"></span>
               </button>
             </div>
           </div>
@@ -98,7 +103,7 @@
         @if (isLoading) {
           <div class="product-skeleton-grid">
             @for (s of [1, 2, 3, 4, 5, 6]; track s) {
-              <div class="skeleton product-skeleton"></div>
+              <div class="skeleton skeleton-animated product-skeleton"></div>
             }
           </div>
         } @else if (layout === 'list') {
@@ -113,9 +118,9 @@
             </div>
           }
         } @else {
-          <div class="grid">
+          <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4">
           @for (product of products; track product.id) {
-            <div class="w-full sm:w-6 md:w-4 lg:w-4 xl:w-3 p-2">
+            <div class="product-cell w-full min-w-0">
             <app-product (addedToCart)="addToCart($event)" (addedToWishList)="addToWishList($event)"
               [isListView]="false" [categoryId]="product.categoryId" [subcategoryId]="product.subcategoryId"
               (removedFromWishList)="removedFromWishList($event)" [name]="product.name" [category]="product.category"
@@ -127,18 +132,18 @@
         }
         @if (!isLoading && totalRecords > 0) {
           <nav class="catalog-pagination" aria-label="Catalog pages">
-            <button type="button" class="p-button p-button-outlined" (click)="previousPage()"
+            <button type="button" class="btn btn-outline btn-primary" (click)="previousPage()"
               [disabled]="first === 0">Previous</button>
             <span>Page {{ currentPage }} of {{ totalPages }}</span>
             <label>
               <span class="sr-only">Products per page</span>
-              <select class="p-inputtext" [ngModel]="rows" (ngModelChange)="onRowsChange($event)">
+              <select class="select w-auto!" [ngModel]="rows" (ngModelChange)="onRowsChange($event)">
                 @for (option of [10, 20, 30]; track option) {
                   <option [ngValue]="option">{{ option }} per page</option>
                 }
               </select>
             </label>
-            <button type="button" class="p-button p-button-outlined" (click)="nextPage()"
+            <button type="button" class="btn btn-outline btn-primary" (click)="nextPage()"
               [disabled]="currentPage >= totalPages">Next</button>
           </nav>
         }

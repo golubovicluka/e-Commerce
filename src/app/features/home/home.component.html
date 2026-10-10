@@ -11,10 +11,10 @@
       dependable delivery and support after purchase.
     </p>
     <div class="hero-ctas">
-      <a class="p-button" [routerLink]="['/products/search']">
-        Explore the catalog <i class="pi pi-arrow-right" aria-hidden="true"></i>
+      <a class="btn btn-primary" [routerLink]="['/products/search']">
+        Explore the catalog <span class="icon-[tabler--arrow-right] size-4" aria-hidden="true"></span>
       </a>
-      <a class="link-arrow" [routerLink]="['/categories']">View departments <i class="pi pi-arrow-right"></i></a>
+      <a class="link-arrow" [routerLink]="['/categories']">View departments <span class="icon-[tabler--arrow-right]" aria-hidden="true"></span></a>
     </div>
     <ul class="service-grid" aria-label="Shoply service standards">
       <li>
@@ -48,7 +48,7 @@
         <span class="stage-kicker">Mobile workstation</span>
         <span class="stage-name">{{ macbookName }}</span>
         <span class="stage-sub">{{ macbookSub }}</span>
-        <span class="stage-cta">View product <i class="pi pi-arrow-right"></i></span>
+        <span class="stage-cta">View product <span class="icon-[tabler--arrow-right]" aria-hidden="true"></span></span>
       </span>
       <span class="stage-specs" aria-label="Featured product specifications">
         <span><strong>M1</strong><small>Platform</small></span>
@@ -71,7 +71,7 @@
       <span class="tile-name">{{ ipadName }}</span>
       <span class="tile-sub">{{ ipadSub }}</span>
     </span>
-    <i class="pi pi-arrow-right tile-arrow"></i>
+    <span class="icon-[tabler--arrow-right] tile-arrow" aria-hidden="true"></span>
   </a>
 
   <a class="tile" (click)="redirect(iphoneId)" tabindex="0" role="link" (keyup.enter)="redirect(iphoneId)"
@@ -85,7 +85,7 @@
       <span class="tile-name">{{ iphoneName }}</span>
       <span class="tile-sub">{{ iphoneSub }}</span>
     </span>
-    <i class="pi pi-arrow-right tile-arrow"></i>
+    <span class="icon-[tabler--arrow-right] tile-arrow" aria-hidden="true"></span>
   </a>
 </section>
 
@@ -97,7 +97,7 @@
           <span class="eyebrow">Recently added</span>
           <h2>New to the catalog</h2>
         </div>
-        <a class="link-arrow" [routerLink]="['/products/search']">View all products <i class="pi pi-arrow-right"></i></a>
+        <a class="link-arrow" [routerLink]="['/products/search']">View all products <span class="icon-[tabler--arrow-right]" aria-hidden="true"></span></a>
       </div>
       <div class="carousel-container product-strip">
         @for (product of suggestedProducts; track product.id) {
@@ -113,7 +113,7 @@
     <section class="carousel-section" aria-label="Loading recently added products">
       <div class="carousel-skeletons">
         @for (s of [1, 2, 3, 4]; track s) {
-          <div class="skeleton carousel-skeleton"></div>
+          <div class="skeleton skeleton-animated carousel-skeleton"></div>
         }
       </div>
     </section>
@@ -130,7 +130,7 @@
     </div>
     <div class="carousel-skeletons">
       @for (s of [1, 2, 3, 4]; track s) {
-        <div class="skeleton carousel-skeleton"></div>
+        <div class="skeleton skeleton-animated carousel-skeleton"></div>
       }
     </div>
   </section>
@@ -145,10 +145,10 @@
       </div>
     </div>
     <div class="empty-state component-enter">
-      <i class="pi pi-exclamation-circle"></i>
+      <span class="icon-[tabler--alert-circle]" aria-hidden="true"></span>
       <h3>Could not load latest products</h3>
       <p>The catalog is temporarily unavailable. Please try again later.</p>
-      <a class="p-button p-button-outlined" [routerLink]="['/products/search']">
+      <a class="btn btn-outline btn-primary" [routerLink]="['/products/search']">
         Browse catalog
       </a>
     </div>
@@ -163,9 +163,9 @@
   </div>
   <div class="newsletter-form">
     <div class="newsletter-row">
-      <input name="email" class="p-inputtext" type="email" placeholder="Business or personal email" aria-label="Email address"
+      <input name="email" class="input" type="email" placeholder="Business or personal email" aria-label="Email address"
         [(ngModel)]="newsletterEmail" [disabled]="newsletterSubmitted" />
-      <button type="button" class="p-button btn-on-ink" (click)="submitForm()">Subscribe</button>
+      <button type="button" class="btn btn-on-ink" (click)="submitForm()">Subscribe</button>
     </div>
     <span class="newsletter-note">Weekly only. Unsubscribe at any time.</span>
   </div>

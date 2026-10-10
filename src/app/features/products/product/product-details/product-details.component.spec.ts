@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { NO_ERRORS_SCHEMA } from '@angular/core';
+import { ElementRef, NO_ERRORS_SCHEMA } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Location } from '@angular/common';
 import { NotificationService } from 'src/app/shared/notification.service';
@@ -250,5 +250,254 @@ describe('ProductDetailsComponent', () => {
 
         component.product = null;
         expect(() => component.onGalleryImageError({ target: null } as unknown as Event, 0)).not.toThrow();
+    });
+
+    describe('image viewer', () => {
+        const threeImages = ['first.jpg', 'second.jpg', 'third.jpg'];
+
+        function loadImages(list: string[] = threeImages): void {
+            component.product = mockProducts[0];
+            component.images = [...list];
+            component.activeIndex = 0;
+        }
+
+        function setFullscreenElement(value: Element | null): void {
+            Object.defineProperty(document, 'fullscreenElement', { value, configurable: true });
+        }
+
+        afterEach(() => {
+            delete (document as any).fullscreenElement;
+            delete (document as any).exitFullscreen;
+        });
+
+        it('wraps next from the last image back to the first', () => {
+            loadImages();
+            component.imageClick(2);
+
+            component.nextImage();
+
+            expect(component.activeIndex).toBe(0);
+        });
+
+        it('wraps previous from the first image to the last', () => {
+            loadImages();
+
+            component.previousImage();
+
+            expect(component.activeIndex).toBe(2);
+        });
+
+        it('moves forward and backward inside the range', () => {
+            loadImages();
+
+            component.nextImage();
+            expect(component.activeIndex).toBe(1);
+
+            component.previousImage();
+            expect(component.activeIndex).toBe(0);
+        });
+
+        it('ignores next and previous when there is only one image', () => {
+            loadImages(['only.jpg']);
+            component.zoom = 2;
+
+            component.nextImage();
+            component.previousImage();
+
+            expect(component.activeIndex).toBe(0);
+            expect(component.zoom).toBe(2);
+        });
+
+        it('resets zoom and rotation whenever the image changes', () => {
+            loadImages();
+            component.zoom = 2;
+            component.rotation = 90;
+            component.nextImage();
+            expect(component.zoom).toBe(1);
+            expect(component.rotation).toBe(0);
+
+            component.zoom = 1.5;
+            component.rotation = -90;
+            component.previousImage();
+            expect(component.zoom).toBe(1);
+            expect(component.rotation).toBe(0);
+
+            component.zoom = 3;
+            component.rotation = 180;
+            component.imageClick(1);
+            expect(component.zoom).toBe(1);
+            expect(component.rotation).toBe(0);
+        });
+
+        it('ignores out-of-range image indexes and keeps the current view', () => {
+            loadImages();
+            component.zoom = 2;
+
+            component.imageClick(-1);
+            component.imageClick(3);
+
+            expect(component.activeIndex).toBe(0);
+            expect(component.zoom).toBe(2);
+        });
+
+        it('resets the view when a product is applied', () => {
+            products.getProductById.mockReturnValue(of({ data: { product: [mockProducts[0]] } }));
+            component.zoom = 2.5;
+            component.rotation = 270;
+
+            component.ngOnInit();
+
+            expect(component.zoom).toBe(1);
+            expect(component.rotation).toBe(0);
+            expect(component.activeIndex).toBe(0);
+        });
+
+        it('zooms in by 0.5 steps up to the maximum of 3', () => {
+            component.zoomIn();
+            expect(component.zoom).toBe(1.5);
+
+            component.zoomIn();
+            component.zoomIn();
+            component.zoomIn();
+            expect(component.zoom).toBe(3);
+        });
+
+        it('zooms out by 0.5 steps down to the minimum of 1', () => {
+            component.zoom = 2;
+            component.zoomOut();
+            expect(component.zoom).toBe(1.5);
+
+            component.zoomOut();
+            component.zoomOut();
+            expect(component.zoom).toBe(1);
+        });
+
+        it('toggles between fit and detail zoom', () => {
+            component.toggleZoom();
+            expect(component.zoom).toBe(2.5);
+
+            component.toggleZoom();
+            expect(component.zoom).toBe(1);
+
+            component.zoom = 3;
+            component.toggleZoom();
+            expect(component.zoom).toBe(1);
+        });
+
+        it('rotates left by 90 degrees and builds the transform string', () => {
+            expect(component.imageTransform).toBe('scale(1) rotate(0deg)');
+
+            component.rotateLeft();
+            component.rotateLeft();
+            component.zoom = 2.5;
+
+            expect(component.rotation).toBe(-180);
+            expect(component.imageTransform).toBe('scale(2.5) rotate(-180deg)');
+        });
+
+        it('exits fullscreen when a fullscreen element is active', async () => {
+            const exit = jest.fn().mockResolvedValue(undefined);
+            Object.defineProperty(document, 'exitFullscreen', { value: exit, configurable: true });
+            setFullscreenElement(document.body);
+
+            component.toggleFullscreen();
+
+            expect(exit).toHaveBeenCalledTimes(1);
+        });
+
+        it('handles a rejected exitFullscreen request', async () => {
+            Object.defineProperty(document, 'exitFullscreen', {
+                value: jest.fn().mockRejectedValue(new Error('denied')),
+                configurable: true,
+            });
+            setFullscreenElement(document.body);
+
+            expect(() => component.toggleFullscreen()).not.toThrow();
+            await Promise.resolve();
+            await Promise.resolve();
+        });
+
+        it('does nothing when exitFullscreen is unavailable', () => {
+            setFullscreenElement(document.body);
+
+            expect(() => component.toggleFullscreen()).not.toThrow();
+        });
+
+        it('requests fullscreen for the viewer when no element is fullscreen', () => {
+            const requestFullscreen = jest.fn().mockResolvedValue(undefined);
+            setFullscreenElement(null);
+            component.viewer = { nativeElement: { requestFullscreen } } as unknown as ElementRef<HTMLElement>;
+
+            component.toggleFullscreen();
+
+            expect(requestFullscreen).toHaveBeenCalledTimes(1);
+        });
+
+        it('handles a rejected requestFullscreen request', async () => {
+            setFullscreenElement(null);
+            component.viewer = {
+                nativeElement: { requestFullscreen: jest.fn().mockRejectedValue(new Error('denied')) },
+            } as unknown as ElementRef<HTMLElement>;
+
+            expect(() => component.toggleFullscreen()).not.toThrow();
+            await Promise.resolve();
+            await Promise.resolve();
+        });
+
+        it('does nothing when the viewer element is not rendered', () => {
+            setFullscreenElement(null);
+            component.viewer = undefined;
+
+            expect(() => component.toggleFullscreen()).not.toThrow();
+        });
+
+        it('does nothing when requestFullscreen is unavailable', () => {
+            setFullscreenElement(null);
+            component.viewer = { nativeElement: {} } as unknown as ElementRef<HTMLElement>;
+
+            expect(() => component.toggleFullscreen()).not.toThrow();
+        });
+
+        it('tracks fullscreen state from the document fullscreenchange event', () => {
+            setFullscreenElement(document.body);
+            component.onFullscreenChange();
+            expect(component.isFullscreen).toBe(true);
+
+            setFullscreenElement(null);
+            document.dispatchEvent(new Event('fullscreenchange'));
+            expect(component.isFullscreen).toBe(false);
+        });
+
+        it('renders the viewer and responds to keyboard and button navigation', () => {
+            loadImages();
+            fixture.detectChanges();
+
+            const viewer: HTMLElement = fixture.nativeElement.querySelector('.product-image-viewer');
+            expect(viewer.getAttribute('tabindex')).toBe('0');
+            expect(fixture.nativeElement.querySelector('.viewer-counter').textContent).toContain('1 / 3');
+            expect(fixture.nativeElement.querySelectorAll('.viewer-thumbnail-button').length).toBe(3);
+
+            viewer.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight' }));
+            fixture.detectChanges();
+            expect(component.activeIndex).toBe(1);
+
+            viewer.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowLeft' }));
+            fixture.detectChanges();
+            expect(component.activeIndex).toBe(0);
+
+            const next: HTMLButtonElement = fixture.nativeElement.querySelector('button[aria-label="Next product image"]');
+            next.click();
+            fixture.detectChanges();
+            expect(component.activeIndex).toBe(1);
+            expect(fixture.nativeElement.querySelector('.viewer-image').getAttribute('alt')).toBe(
+                `${mockProducts[0].name} photo 2`,
+            );
+
+            const zoomIn: HTMLButtonElement = fixture.nativeElement.querySelector('button[aria-label="Zoom in"]');
+            zoomIn.click();
+            fixture.detectChanges();
+            const stage: HTMLImageElement = fixture.nativeElement.querySelector('.viewer-image');
+            expect(stage.style.transform).toBe('scale(1.5) rotate(0deg)');
+        });
     });
 });

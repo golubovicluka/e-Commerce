@@ -26,7 +26,7 @@
     box-shadow var(--duration-base) var(--ease-out);
 
   /* The radio stays accessible but the tile carries the visual state. */
-  ::ng-deep .p-radiobutton {
+  > input[type="radio"] {
     position: absolute;
     top: var(--space-3);
     right: var(--space-3);
@@ -111,8 +111,4 @@
   width: 100%;
   font-size: var(--text-xs);
   color: var(--color-text-secondary);
-
-  i {
-    font-size: 0.8rem;
-  }
 }

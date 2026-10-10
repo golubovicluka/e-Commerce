@@ -34,8 +34,7 @@
               "src/_redirects"
             ],
             "styles": [
-              "node_modules/primeflex/primeflex.css",
-              "node_modules/primeicons/primeicons.css",
+              "src/tailwind.css",
               "src/styles.scss"
             ],
             "scripts": [],

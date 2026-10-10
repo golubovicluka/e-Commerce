@@ -15,9 +15,9 @@
   <div class="wishlist-items stagger">
     @for (product of wishlistItems; track trackByProductId($index, product)) {
       <div class="wishlist-row" auto-animate>
-        <button class="remove-btn" type="button" (click)="removeFromWishlist(product)"
+        <button class="remove-btn btn btn-outline btn-error btn-square btn-sm" type="button" (click)="removeFromWishlist(product)"
           [attr.aria-label]="'Remove ' + product.name + ' from wishlist'">
-          <i class="pi pi-times"></i>
+          <span class="icon-[tabler--x] size-4" aria-hidden="true"></span>
         </button>
         <app-product (addedToCart)="addToCart($event)" (removedFromCart)="removeFromCart($event)"
           [isListView]="true" [categoryId]="product.categoryId" [subcategoryId]="product.subcategoryId"
@@ -30,10 +30,10 @@
   </div>
   @if (wishlistItems.length === 0) {
     <div class="empty-state component-enter">
-      <i class="pi pi-heart"></i>
+      <span class="icon-[tabler--heart]" aria-hidden="true"></span>
       <h3>Your wishlist is empty</h3>
       <p>Save products you love and find them here later.</p>
-      <a class="p-button p-button-outlined" [routerLink]="['/products/search']">
+      <a class="btn btn-outline btn-primary" [routerLink]="['/products/search']">
         Find a product
       </a>
     </div>
@@ -41,7 +41,7 @@
 } @else {
   <div class="wishlist-items">
     @for (s of [1, 2]; track s) {
-      <div class="skeleton wishlist-skeleton"></div>
+      <div class="skeleton skeleton-animated wishlist-skeleton"></div>
     }
   </div>
 }

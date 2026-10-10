@@ -77,12 +77,6 @@ textarea {
   font-family: inherit;
 }
 
-/* Keep the whole app on the brand body font, including form controls.
-   `body .p-component` outranks the theme's `.p-component` without !important. */
-body .p-component {
-  font-family: var(--font-body);
-}
-
 /* Utility: monospaced data/figures (prices, SKUs, counts). */
 .font-mono {
   font-family: var(--font-mono);
@@ -142,28 +136,6 @@ body .p-component {
    Loading & entrance primitives
    --------------------------------------------------------------------------- */
 
-/* Skeleton shimmer — shape these to match the real content they stand in for. */
-.skeleton {
-  background: linear-gradient(
-    90deg,
-    var(--color-surface) 25%,
-    var(--color-surface-elevated) 50%,
-    var(--color-surface) 75%
-  );
-  background-size: 200% 100%;
-  animation: shimmer 1.6s ease-in-out infinite;
-  border-radius: var(--radius-sm);
-}
-
-@keyframes shimmer {
-  0% {
-    background-position: 200% 0;
-  }
-  100% {
-    background-position: -200% 0;
-  }
-}
-
 /* Entrance animation — opacity + transform only (GPU-composited). */
 @keyframes enter {
   from {
@@ -194,142 +166,7 @@ body .p-component {
   }
 }
 
-/* =============================================================================
-   Shared native controls
-   ============================================================================= */
-
-:root {
-  --primary-color: var(--color-accent);
-  --primary-color-text: #ffffff;
-  --surface-ground: var(--color-bg);
-  --surface-card: var(--color-surface);
-  --surface-overlay: var(--color-surface-elevated);
-  --surface-border: var(--color-border);
-  --text-color: var(--color-text-primary);
-  --text-color-secondary: var(--color-text-secondary);
-  --border-radius: var(--radius-md);
-  --focus-ring: 0 0 0 3px var(--color-accent-dim);
-  --maskbg: rgba(11, 23, 40, 0.52);
-}
-
-/* --- Buttons ---------------------------------------------------------------- */
-body .p-button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--space-2);
-  background: var(--color-accent);
-  border: 1px solid var(--color-accent);
-  color: #fff;
-  border-radius: var(--radius-sm);
-  font-weight: 600;
-  min-height: 2.75rem;
-  padding: 0.65rem 1.4rem;
-  letter-spacing: 0.015em;
-  font-family: inherit;
-  text-decoration: none;
-  cursor: pointer;
-  transition: background var(--duration-base) var(--ease-out),
-    border-color var(--duration-base) var(--ease-out),
-    box-shadow var(--duration-base) var(--ease-out),
-    transform var(--duration-fast) var(--ease-out);
-}
-
-body .p-button:enabled:hover {
-  background: var(--color-accent-strong);
-  border-color: var(--color-accent-strong);
-  transform: translateY(-1px);
-}
-
-body a.p-button:hover {
-  background: var(--color-accent-strong);
-  border-color: var(--color-accent-strong);
-  color: #fff;
-  transform: translateY(-1px);
-}
-
-body .p-button:enabled:active {
-  transform: translateY(0);
-}
-
-body .p-button:focus {
-  box-shadow: var(--focus-ring);
-}
-
-body .p-button.p-button-outlined {
-  background: transparent;
-  color: var(--color-accent);
-  border-color: var(--color-accent);
-}
-
-body .p-button.p-button-outlined:enabled:hover {
-  background: var(--color-accent-dim);
-  color: var(--color-accent-strong);
-  border-color: var(--color-accent-strong);
-}
-
-body a.p-button.p-button-outlined:hover {
-  background: var(--color-accent-dim);
-  color: var(--color-accent-strong);
-  border-color: var(--color-accent-strong);
-}
-
-body .p-button.p-button-text,
-body .p-button.p-button-link {
-  background: transparent;
-  border-color: transparent;
-  color: var(--color-accent);
-}
-
-body .p-button.p-button-text:enabled:hover,
-body .p-button.p-button-link:enabled:hover {
-  background: var(--color-accent-dim);
-  color: var(--color-accent-strong);
-  transform: none;
-}
-
-body .p-button.p-button-danger {
-  background: var(--color-danger);
-  border-color: var(--color-danger);
-}
-
-body .p-button.p-button-danger.p-button-text {
-  background: transparent;
-  border-color: transparent;
-  color: var(--color-danger);
-}
-
-body .p-button.p-button-danger.p-button-text:enabled:hover {
-  background: var(--color-danger-dim);
-  color: var(--color-danger);
-}
-
-body .p-button.p-button-icon-only {
-  width: 2.75rem;
-  height: 2.75rem;
-  padding: 0;
-  justify-content: center;
-}
-
-/* Shoply deliberately keeps action controls square even when the rounded
-   modifier is used for icon buttons. */
-body .p-button.p-button-rounded {
-  border-radius: var(--radius-sm);
-}
-
-/* --- Inputs ------------------------------------------------------------------ */
-body .p-inputtext {
-  background: var(--color-surface-elevated);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  color: var(--color-text-primary);
-  min-height: 2.75rem;
-  font: inherit;
-  padding: 0.7rem 0.85rem;
-  transition: border-color var(--duration-base) var(--ease-out),
-    box-shadow var(--duration-base) var(--ease-out);
-}
-
+/* Horizontal scroll rail for product suggestions. */
 .product-strip {
   display: grid;
   grid-auto-flow: column;
@@ -343,183 +180,6 @@ body .p-inputtext {
 
 .product-strip > * {
   scroll-snap-align: start;
-}
-
-body .p-inputtext:enabled:hover {
-  border-color: var(--color-accent);
-}
-
-body .p-inputtext:enabled:focus {
-  border-color: var(--color-accent);
-  box-shadow: var(--focus-ring);
-}
-
-body .p-dropdown {
-  background: var(--color-surface-elevated);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-}
-
-body .p-dropdown:not(.p-disabled):hover {
-  border-color: var(--color-accent);
-}
-
-body .p-dropdown:not(.p-disabled).p-focus {
-  border-color: var(--color-accent);
-  box-shadow: var(--focus-ring);
-}
-
-body .p-dropdown-panel {
-  background: var(--color-surface-elevated);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-lg);
-}
-
-body .p-dropdown-panel .p-dropdown-items .p-dropdown-item.p-highlight {
-  background: var(--color-accent-dim);
-  color: var(--color-accent-strong);
-}
-
-body .p-checkbox .p-checkbox-box.p-highlight,
-body .p-radiobutton .p-radiobutton-box.p-highlight {
-  background: var(--color-accent);
-  border-color: var(--color-accent);
-}
-
-body .p-radiobutton .p-radiobutton-box.p-highlight .p-radiobutton-icon {
-  background-color: #fff;
-}
-
-body .p-slider .p-slider-range {
-  background: var(--color-accent);
-}
-
-body .p-slider .p-slider-handle {
-  border-color: var(--color-accent);
-}
-
-/* --- Containers / nav --------------------------------------------------------- */
-body .p-card {
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-sm);
-  color: var(--color-text-primary);
-}
-
-body .p-breadcrumb {
-  background: transparent;
-  border: none;
-  padding: var(--space-4) 0;
-}
-
-body .p-breadcrumb .p-menuitem-link .p-menuitem-text,
-body .p-breadcrumb .p-menuitem-link .p-menuitem-icon {
-  color: var(--color-text-secondary);
-}
-
-body .p-breadcrumb .p-menuitem-link:hover .p-menuitem-text,
-body .p-breadcrumb .p-menuitem-link:hover .p-menuitem-icon {
-  color: var(--color-accent);
-}
-
-body .p-accordion .p-accordion-header .p-accordion-header-link {
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  color: var(--color-text-primary);
-  border-radius: var(--radius-md);
-  font-weight: 600;
-  padding: var(--space-4);
-  transition: background var(--duration-base) var(--ease-out);
-}
-
-body .p-accordion .p-accordion-header:not(.p-disabled).p-highlight .p-accordion-header-link,
-body .p-accordion .p-accordion-header:not(.p-disabled) .p-accordion-header-link:hover {
-  background: var(--color-accent-dim);
-  border-color: var(--color-accent);
-  color: var(--color-accent-strong);
-}
-
-body .p-accordion .p-accordion-content {
-  background: transparent;
-  border: none;
-  color: var(--color-text-primary);
-  padding: var(--space-3) var(--space-2);
-}
-
-body .p-accordion .p-accordion-tab {
-  margin-bottom: var(--space-2);
-}
-
-body .p-dataview .p-dataview-header,
-body .p-dataview .p-dataview-content,
-body .p-paginator {
-  background: transparent;
-  border: none;
-  color: var(--color-text-primary);
-}
-
-body .p-dataview .p-dataview-header {
-  padding: 0 0 var(--space-4) 0;
-}
-
-body .p-paginator {
-  padding: var(--space-4) 0;
-}
-
-body .p-paginator .p-paginator-pages .p-paginator-page.p-highlight {
-  background: var(--color-accent);
-  border-color: var(--color-accent);
-  color: #fff;
-  border-radius: var(--radius-sm);
-}
-
-body .p-paginator .p-paginator-pages .p-paginator-page,
-body .p-paginator .p-paginator-first,
-body .p-paginator .p-paginator-prev,
-body .p-paginator .p-paginator-next,
-body .p-paginator .p-paginator-last {
-  border-radius: var(--radius-sm);
-}
-
-body .p-carousel .p-carousel-indicators .p-carousel-indicator.p-highlight button {
-  background: var(--color-accent);
-}
-
-body .p-steps .p-steps-item.p-highlight .p-steps-number {
-  background: var(--color-accent);
-  color: #fff;
-}
-
-body .p-steps .p-steps-item .p-menuitem-link {
-  background: transparent;
-}
-
-body .p-toast .p-toast-message {
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-lg);
-}
-
-body .p-tag {
-  border-radius: var(--radius-sm);
-  font-weight: 600;
-}
-
-body .p-skeleton {
-  background: var(--color-border);
-  border-radius: var(--radius-md);
-}
-
-body .p-divider.p-divider-horizontal:before {
-  border-top-color: var(--color-border);
-}
-
-body .p-slidemenu {
-  background: var(--color-surface-elevated);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-lg);
 }
 
 /* --- Shared layout helpers ----------------------------------------------------- */
@@ -564,7 +224,7 @@ body .p-slidemenu {
   padding: var(--space-24) var(--space-4);
 }
 
-.empty-state i {
+.empty-state [class*="icon-["] {
   font-size: 2.5rem;
   color: var(--color-text-secondary);
 }
@@ -693,7 +353,7 @@ body .p-slidemenu {
     border-color var(--duration-base) var(--ease-out);
 }
 
-.link-arrow i {
+.link-arrow [class*="icon-["] {
   font-size: 0.75em;
   transition: transform var(--duration-base) var(--ease-out);
 }
@@ -703,7 +363,7 @@ body .p-slidemenu {
   border-color: var(--color-accent-strong);
 }
 
-.link-arrow:hover i {
+.link-arrow:hover [class*="icon-["] {
   transform: translateX(3px);
 }
 
@@ -737,52 +397,12 @@ body .p-slidemenu {
   animation: heart-pop 360ms var(--ease-out);
 }
 
-/* Counter badges on header icons. */
-body .p-badge {
-  background: var(--color-accent);
-  color: #fff;
-  font-family: var(--font-mono);
-  font-size: 0.66rem;
-  font-weight: 500;
-  min-width: 1.1rem;
-  height: 1.1rem;
-  line-height: 1.1rem;
-  border-radius: var(--radius-full);
+/* On-ink button variant: paper-filled FlyonUI button for inverted panels. */
+.btn.btn-on-ink {
+  --btn-color: var(--color-text-on-ink);
+  --btn-fg: var(--color-ink);
 }
 
-/* Toasts — controlled surface elevation, with semantic icons. */
-body .p-toast .p-toast-message {
-  background: var(--color-surface-elevated);
-  border: 1px solid var(--color-border);
-  color: var(--color-text-primary);
-}
-
-body .p-toast .p-toast-message .p-toast-message-content {
-  align-items: center;
-}
-
-body .p-toast .p-toast-message.p-toast-message-success .p-toast-message-icon {
-  color: var(--color-success);
-}
-
-body .p-toast .p-toast-message.p-toast-message-info .p-toast-message-icon {
-  color: var(--color-accent);
-}
-
-body .p-toast .p-toast-message.p-toast-message-error .p-toast-message-icon,
-body .p-toast .p-toast-message.p-toast-message-warn .p-toast-message-icon {
-  color: var(--color-danger);
-}
-
-/* On-ink button variant — paper-filled CTA for inverted panels. */
-body .p-button.btn-on-ink {
-  background: var(--color-text-on-ink);
-  border-color: var(--color-text-on-ink);
-  color: var(--color-ink);
-}
-
-body .p-button.btn-on-ink:enabled:hover {
-  background: var(--color-surface-elevated);
-  border-color: var(--color-surface-elevated);
-  color: var(--color-ink);
+.btn.btn-on-ink:hover {
+  --btn-color: var(--color-surface-elevated);
 }

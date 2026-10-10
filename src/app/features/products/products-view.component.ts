@@ -179,7 +179,7 @@ export class ProductsViewComponent implements OnInit, OnDestroy {
 
     // Breadcrumbs
     this.items = [{ label: 'Products', routerLink: '/products/search' }];
-    this.home = { icon: 'pi pi-home', routerLink: '/home' };
+    this.home = { icon: 'icon-[tabler--home]', routerLink: '/home' };
 
     this.sortOptions = [
       { label: 'Price: Low to High', value: 'asc' },
@@ -247,7 +247,7 @@ export class ProductsViewComponent implements OnInit, OnDestroy {
     this.resetToFirstPage();
   }
 
-  /** Reset to page 1 and reload; the dataView paginator follows `first`. */
+  /** Reset to page 1 and reload; the pagination controls follow `first`. */
   private resetToFirstPage(): void {
     this.first = 0;
     this.fetchPage();
@@ -263,8 +263,8 @@ export class ProductsViewComponent implements OnInit, OnDestroy {
 
   // --- Template event handlers ---
 
-  // Pagination. Also fires once on init via p-dataView's lazy load, which is
-  // what performs the very first fetch.
+  // Pagination event handler (page offset and page size). The first fetch is
+  // performed by ngOnInit, not by this handler.
   loadData(event: any) {
     this.first = event.first ?? 0;
     this.rows = event.rows ?? this.rows;

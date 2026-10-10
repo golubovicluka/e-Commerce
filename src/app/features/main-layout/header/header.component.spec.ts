@@ -10,9 +10,9 @@ import { Subject } from 'rxjs';
 import { mockProducts } from 'src/app/testing/mock-data';
 
 /**
- * The CLI stub failed at `detectChanges()` (NG0304: `p-slideMenu` unknown) and
- * would also have failed DI on Router. We provide doubles for all three
- * dependencies and cover the counter wiring plus the active-route check.
+ * The CLI stub failed at `detectChanges()` (NG0304: unknown element in the
+ * template) and would also have failed DI on Router. We provide doubles for all
+ * three dependencies and cover the counter wiring plus the active-route check.
  */
 describe('HeaderComponent', () => {
     let component: HeaderComponent;

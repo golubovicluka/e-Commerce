@@ -1,14 +1,14 @@
 <header class="header">
   <div class="announce-bar">
     <div class="announce-inner">
-      <span><i class="pi pi-truck"></i> Free delivery across Serbia on every order</span>
+      <span><span class="icon-[tabler--truck] announce-icon" aria-hidden="true"></span> Free delivery across Serbia on every order</span>
       <span class="announce-meta">Secure checkout <b aria-hidden="true">/</b> 14-day returns</span>
     </div>
   </div>
   <div class="header-inner">
-    <button class="p-link menu-toggle lg:hidden" type="button" (click)="toggleMobileMenu()"
+    <button class="btn btn-text btn-square lg:hidden!" type="button" (click)="toggleMobileMenu()"
       [attr.aria-expanded]="mobileMenuOpen" aria-controls="mobile-navigation" aria-label="Open menu">
-      <i class="pi pi-bars"></i>
+      <span class="icon-[tabler--menu-2] size-5" aria-hidden="true"></span>
     </button>
 
     <a [routerLink]="['/home']" class="brand">
@@ -19,57 +19,56 @@
       </span>
     </a>
 
-    <nav class="hidden lg:flex nav-links">
+    <nav class="nav-links hidden! lg:flex!">
       <a [routerLink]="['/home']" routerLinkActive="active">Home</a>
       <a [routerLink]="['/products/search']" routerLinkActive="active">Products</a>
       <a [routerLink]="['/categories']" routerLinkActive="active">Categories</a>
     </nav>
 
     <form class="header-search hidden md:flex" (ngSubmit)="onSearch()" role="search">
-      <span class="p-input-icon-left search-wrap">
-        <i class="pi pi-search" aria-hidden="true"></i>
+      <label class="input w-full">
+        <span class="icon-[tabler--search] text-base-content/80 my-auto size-5 shrink-0" aria-hidden="true"></span>
         <input
           type="search"
+          class="grow"
           [(ngModel)]="searchQuery"
           name="search"
           placeholder="Search products…"
           aria-label="Search products"
           autocomplete="off"
           />
-      </span>
+      </label>
     </form>
 
     <div class="header-actions">
       <button
         type="button"
-        class="icon-link md:hidden search-toggle"
+        class="btn btn-text btn-square md:hidden!"
         (click)="toggleMobileSearch()"
         [attr.aria-expanded]="mobileSearchOpen"
         aria-label="Toggle search"
         >
-        <i class="pi pi-search"></i>
+        <span class="icon-[tabler--search] size-5" aria-hidden="true"></span>
       </button>
       <a [routerLink]="['/wishlist']" routerLinkActive="active" class="icon-link" aria-label="Wishlist">
         @if (wishListItems !== '0') {
-          <span class="icon-with-count">
-            <i class="pi pi-heart"></i>
-            <span class="icon-count" aria-hidden="true">{{ wishListItems }}</span>
+          <span class="indicator">
+            <span class="icon-[tabler--heart] size-5" aria-hidden="true"></span>
+            <span class="icon-count badge badge-primary badge-xs indicator-item font-mono" aria-hidden="true">{{ wishListItems }}</span>
           </span>
-        }
-        @if (wishListItems === '0') {
-          <i class="pi pi-heart"></i>
+        } @else {
+          <span class="icon-[tabler--heart] size-5" aria-hidden="true"></span>
         }
         <span class="hidden sm:inline">Wishlist</span>
       </a>
       <a [routerLink]="['/cart']" routerLinkActive="active" class="icon-link" aria-label="Cart">
         @if (cartItems !== '0') {
-          <span class="icon-with-count">
-            <i class="pi pi-shopping-cart"></i>
-            <span class="icon-count" aria-hidden="true">{{ cartItems }}</span>
+          <span class="indicator">
+            <span class="icon-[tabler--shopping-cart] size-5" aria-hidden="true"></span>
+            <span class="icon-count badge badge-primary badge-xs indicator-item font-mono" aria-hidden="true">{{ cartItems }}</span>
           </span>
-        }
-        @if (cartItems === '0') {
-          <i class="pi pi-shopping-cart"></i>
+        } @else {
+          <span class="icon-[tabler--shopping-cart] size-5" aria-hidden="true"></span>
         }
         <span class="hidden sm:inline">Cart</span>
       </a>
@@ -78,14 +77,15 @@
 
   @if (mobileSearchOpen) {
     <form
-      class="mobile-search-bar md:hidden"
+      class="mobile-search-bar md:hidden!"
       (ngSubmit)="onSearch()"
       role="search"
       >
-      <span class="p-input-icon-left search-wrap">
-        <i class="pi pi-search" aria-hidden="true"></i>
+      <label class="input flex-1">
+        <span class="icon-[tabler--search] text-base-content/80 my-auto size-5 shrink-0" aria-hidden="true"></span>
         <input
           type="search"
+          class="grow"
           [(ngModel)]="searchQuery"
           name="mobileSearch"
           placeholder="Search products…"
@@ -93,18 +93,18 @@
           autocomplete="off"
           #mobileSearchInput
           />
-      </span>
-      <button type="submit" class="search-submit" aria-label="Submit search">
-        <i class="pi pi-arrow-right"></i>
+      </label>
+      <button type="submit" class="btn btn-primary btn-square" aria-label="Submit search">
+        <span class="icon-[tabler--arrow-right] size-4" aria-hidden="true"></span>
       </button>
     </form>
   }
 
   @if (mobileMenuOpen) {
-    <nav id="mobile-navigation" class="mobile-navigation lg:hidden" aria-label="Mobile navigation">
+    <nav id="mobile-navigation" class="mobile-navigation lg:hidden!" aria-label="Mobile navigation">
       @for (item of items; track item.label) {
         <a [routerLink]="item.routerLink" routerLinkActive="active" (click)="mobileMenuOpen = false">
-          <i [class]="item.icon" aria-hidden="true"></i>
+          <span [class]="item.icon" aria-hidden="true"></span>
           {{ item.label }}
         </a>
       }

@@ -85,7 +85,7 @@ export class CartViewComponent implements OnInit, OnDestroy {
       { label: 'Products', routerLink: '/products/search' },
       { label: 'Cart', routerLink: '/cart' },
     ];
-    this.home = { icon: 'pi pi-home', routerLink: '/home' };
+    this.home = { icon: 'icon-[tabler--home]', routerLink: '/home' };
   }
 
   get checkoutCtaLabel(): 'Proceed with shipping' | 'Back to cart view' {
