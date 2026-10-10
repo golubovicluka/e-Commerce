@@ -109,7 +109,7 @@
     transform: translateY(-4px);
   }
 
-  &:hover .stage-cta i {
+  &:hover .stage-cta [class*="icon-["] {
     transform: translateX(4px);
   }
 }
@@ -218,7 +218,7 @@
   font-size: var(--text-sm);
   font-weight: 600;
 
-  i {
+  [class*="icon-["] {
     font-size: 0.7em;
     transition: transform var(--duration-base) var(--ease-out);
   }

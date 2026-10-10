@@ -1,6 +1,6 @@
 <article (click)="openDetails(id)" class="suggested-card" tabindex="0" role="link"
   (keyup.enter)="openDetails(id)" [attr.aria-label]="name + ' — view product'">
-  <span class="badge-new">New</span>
+  <span class="badge badge-primary badge-sm absolute top-3 left-3 z-10 font-mono tracking-[0.1em] uppercase">New</span>
 
   <div class="img-wrap">
     <img [src]="resolvedImage" loading="lazy" decoding="async" (error)="onImageError($event)" [alt]="name">

@@ -38,7 +38,7 @@ export class CategoriesViewComponent implements OnInit {
     this.items = [
       { label: 'Categories', routerLink: '/categories' },
     ];
-    this.home = { icon: 'pi pi-home', routerLink: '/home' };
+    this.home = { icon: 'icon-[tabler--home]', routerLink: '/home' };
   }
 
   openProductsPage(categoryName: string) {

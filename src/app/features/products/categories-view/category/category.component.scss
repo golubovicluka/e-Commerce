@@ -59,7 +59,7 @@
   transition: opacity var(--duration-base) var(--ease-out),
     transform var(--duration-base) var(--ease-out);
 
-  i {
+  [class*="icon-["] {
     font-size: 0.8rem;
   }
 }

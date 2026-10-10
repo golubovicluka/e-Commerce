@@ -50,6 +50,11 @@ describe('CategoriesViewComponent', () => {
         expect(component.categories).toEqual(mockCategoriesWithSubcategories);
     });
 
+    it('ngOnInit sets the Tabler home icon for the breadcrumb', () => {
+        component.ngOnInit();
+        expect(component.home).toEqual({ icon: 'icon-[tabler--home]', routerLink: '/home' });
+    });
+
     it('openProductsPage sets the category filter and navigates with state', () => {
         component.openProductsPage('Electronics');
         expect(products.setCategoryFilter).toHaveBeenCalledTimes(1);
