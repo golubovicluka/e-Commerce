@@ -13,7 +13,7 @@
 <div class="products-layout">
   <button
     type="button"
-    class="btn btn-outline btn-primary min-[992px]:hidden!"
+    class="btn btn-outline btn-primary lg:hidden!"
     (click)="filtersOpen = !filtersOpen"
     [attr.aria-expanded]="filtersOpen"
     aria-controls="catalog-filters"
@@ -86,7 +86,7 @@
                 <option [ngValue]="option.value">{{ option.label }}</option>
               }
             </select>
-            <div class="hidden min-[576px]:flex gap-1" role="group" aria-label="Product layout">
+            <div class="hidden sm:flex gap-1" role="group" aria-label="Product layout">
               <button type="button" class="btn btn-square btn-outline btn-primary"
                 [class.btn-active]="layout === 'list'"
                 [attr.aria-pressed]="layout === 'list'" (click)="layout = 'list'" aria-label="List view">
@@ -118,7 +118,7 @@
             </div>
           }
         } @else {
-          <div class="grid grid-cols-1 min-[576px]:grid-cols-2 md:grid-cols-3 min-[1200px]:grid-cols-4 gap-4">
+          <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4">
           @for (product of products; track product.id) {
             <div class="product-cell w-full min-w-0">
             <app-product (addedToCart)="addToCart($event)" (addedToWishList)="addToWishList($event)"

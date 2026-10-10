@@ -253,3 +253,7 @@
 .mobile-navigation a.active {
   color: var(--color-accent-strong);
 }
+
+.icon-link .indicator {
+  margin-inline-end: var(--space-2);
+}

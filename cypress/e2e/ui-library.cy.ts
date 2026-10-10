@@ -132,9 +132,11 @@ describe('UI library migration', () => {
 
     visitWithCatalog('/products/search', '@gqlGetProductsPage');
     cy.get('.product-card').should('have.length', 10);
-    columnsAt(1440, 4);
-    columnsAt(1100, 3);
+    columnsAt(1440, 5);
+    columnsAt(1250, 4);
+    columnsAt(1000, 3);
     columnsAt(700, 2);
+    columnsAt(500, 1);
   });
 
   it('toggles the mobile filters panel with matching icons', () => {

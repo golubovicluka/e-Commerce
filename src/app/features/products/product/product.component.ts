@@ -6,7 +6,7 @@ import { WishlistService } from 'src/app/shared/wishlist.service';
 import { CartService } from 'src/app/shared/cart.service';
 import { ProductImageService } from 'src/app/shared/product-image.service';
 import { getInstallmentAmount } from 'src/app/shared/pricing';
-import { DecimalPipe } from '@angular/common';
+import { DecimalPipe, NgClass } from '@angular/common';
 
 
 @Component({
@@ -14,7 +14,7 @@ import { DecimalPipe } from '@angular/common';
     templateUrl: './product.component.html',
     styleUrls: ['./product.component.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush,
-    imports: [DecimalPipe]
+    imports: [DecimalPipe, NgClass]
 })
 export class ProductComponent implements OnInit {
   @Input() name!: string;

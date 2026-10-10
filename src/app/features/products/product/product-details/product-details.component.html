@@ -35,17 +35,19 @@
         </header>
 
         <div class="viewer-stage">
-          <img class="viewer-image" [class.is-zoomed]="zoom > 1" [src]="images[activeIndex]" decoding="async"
-            draggable="false" [alt]="product.name + ' photo ' + (activeIndex + 1)"
-            [style.transform]="imageTransform" (click)="toggleZoom()"
-            (error)="onGalleryImageError($event, activeIndex)">
+          <button type="button" class="viewer-zoom-toggle" [attr.aria-pressed]="zoom > 1"
+            aria-label="Toggle image zoom" (click)="toggleZoom()">
+            <img class="viewer-image" [class.is-zoomed]="zoom > 1" [src]="images[activeIndex]" decoding="async"
+              draggable="false" [alt]="product.name + ' photo ' + (activeIndex + 1)"
+              [style.transform]="imageTransform" (error)="onGalleryImageError($event, activeIndex)">
+          </button>
 
           @if (images.length > 1) {
-            <button type="button" class="btn btn-circle btn-soft btn-on-ink viewer-nav viewer-nav-prev"
+            <button type="button" class="btn btn-circle btn-on-ink viewer-nav viewer-nav-prev"
               aria-label="Previous product image" (click)="previousImage()">
               <span class="icon-[tabler--chevron-left] size-5" aria-hidden="true"></span>
             </button>
-            <button type="button" class="btn btn-circle btn-soft btn-on-ink viewer-nav viewer-nav-next"
+            <button type="button" class="btn btn-circle btn-on-ink viewer-nav viewer-nav-next"
               aria-label="Next product image" (click)="nextImage()">
               <span class="icon-[tabler--chevron-right] size-5" aria-hidden="true"></span>
             </button>
