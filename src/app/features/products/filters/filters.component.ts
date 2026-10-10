@@ -10,8 +10,7 @@ import { Component, Input, Output, EventEmitter, ChangeDetectionStrategy } from 
 export class FiltersComponent {
   @Input() categories: any[] = [];
 
-  // TODO: event emmiter with selected filters
-  selectedFilters: any[] = [];
+  @Input() selectedFilters: string[] = [];
   @Output() filtersObject = new EventEmitter()
 
   changeFilter(filterObject: any) {

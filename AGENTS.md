@@ -28,7 +28,7 @@ See `README.md` for clone/install/serve steps. Quick reference:
 
 - **Node:** Use Node 24.15.0 from `.nvmrc`; Angular 22 requires Node `^22.22.3`, `^24.15.0`, or `>=26`.
 - **Hasura auth:** The browser sends **no** authorization header. Catalog queries rely on a read-only Hasura `anonymous` role configured on the backend. Until that role is enabled, direct `curl` and the live app receive `access-denied` — see `SECURITY.md` for the required Hasura Cloud setup (not a client bug).
-- **Unit tests:** `npm run test:ci` runs 283 specs in Jest and enforces 100% statement, branch, function, and line coverage for executable `src/app` code.
+- **Unit tests:** `npm run test:ci` runs 289 specs in Jest and enforces 100% statement, branch, function, and line coverage for executable `src/app` code.
 - **Cypress:** Browser flows use semantic selectors and deterministic GraphQL intercepts. Run the Angular app on `http://localhost:4200` before `npm run e2e:ci`.
 - **UI library:** Tailwind CSS 4 + FlyonUI 2 (MIT, CSS only). PostCSS is configured in `.postcssrc.json`; `src/tailwind.css` loads Tailwind, FlyonUI, the `shoply` theme, and the Iconify plugin, and is listed before `src/styles.scss` in `angular.json`. PrimeNG, PrimeFlex, and PrimeIcons are fully removed; do not reintroduce them or any other component library.
 - **UI rules:** Use FlyonUI semantic classes (`btn btn-primary`, `input`, `select`, `badge`, `alert`, `skeleton`, `breadcrumbs`, `indicator`) instead of hand-rolled primitives. FlyonUI JavaScript plugins are not loaded, so `data-accordion`/`data-overlay` style attributes do nothing; keep interactivity in Angular. FlyonUI has no `btn-ghost`; use `btn-text`.

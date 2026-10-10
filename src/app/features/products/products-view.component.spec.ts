@@ -218,7 +218,10 @@ describe('ProductsViewComponent', () => {
         component.searchInput = 'phone';
         component.categoriesFilter = 'Electronics';
         component.applyFilters(['Smartphones']);
-        component.handlePriceFilter({ values: [100, 500] });
+        component.lowestPrice = 0;
+        component.highestPrice = 1000;
+        component.rangeValues = [100, 500];
+        component.commitPriceRange();
 
         expect(products.getProductsPage).toHaveBeenLastCalledWith(
             expect.objectContaining({
@@ -325,19 +328,115 @@ describe('ProductsViewComponent', () => {
         jest.useRealTimers();
     });
 
-    it('debounces price input changes', () => {
-        jest.useFakeTimers();
+    describe('price range', () => {
+        const input = (value: string) => ({ value } as HTMLInputElement);
+
+        beforeEach(() => {
+            products.getPriceBounds.mockReturnValue(of({
+                data: { product_aggregate: { aggregate: { min: { price: 100 }, max: { price: 900 } } } },
+            }));
+            component.ngOnInit();
+            products.getProductsPage.mockClear();
+        });
+
+        it('keeps the slider thumbs from crossing and only queries on commit', () => {
+            const min = input('950');
+            component.onMinSliderInput(min);
+            expect(min.value).toBe('900');
+            expect(component.rangeValues).toEqual([900, 900]);
+            expect(component.isPriceMinOnTop).toBe(true);
+
+            const max = input('50');
+            component.onMaxSliderInput(max);
+            expect(max.value).toBe('900');
+
+            component.onMinSliderInput(input('300'));
+            component.onMaxSliderInput(input('700'));
+            expect(component.rangeValues).toEqual([300, 700]);
+            expect(component.isPriceMinOnTop).toBe(false);
+            expect(component.priceFillStart).toBe(25);
+            expect(component.priceFillEnd).toBe(75);
+            expect(products.getProductsPage).not.toHaveBeenCalled();
+
+            component.commitPriceRange();
+            expect(products.getProductsPage).toHaveBeenCalledTimes(1);
+            expect(products.getProductsPage).toHaveBeenLastCalledWith(
+                expect.objectContaining({
+                    where: expect.objectContaining({ price: { _gte: 300, _lte: 700 } }),
+                    offset: 0,
+                }),
+            );
+
+            component.commitPriceRange();
+            expect(products.getProductsPage).toHaveBeenCalledTimes(1);
+        });
+
+        it('drops the price condition when the full range is selected again', () => {
+            component.rangeValues = [200, 800];
+            component.commitPriceRange();
+            component.rangeValues = [100, 900];
+            component.commitPriceRange();
+
+            expect(component.priceFrom).toBeNull();
+            expect(component.priceTo).toBeNull();
+            expect(products.getProductsPage).toHaveBeenLastCalledWith(
+                expect.objectContaining({ where: { name: { _ilike: '%phone%' } } }),
+            );
+        });
+
+        it('normalizes typed prices to the bounds and the opposite value', () => {
+            const min = input('50');
+            component.onMinPriceInput(min);
+            expect(min.value).toBe('100');
+
+            const max = input('650');
+            component.onMaxPriceInput(max);
+            expect(component.rangeValues).toEqual([100, 650]);
+            expect(component.priceTo).toBe(650);
+
+            const crossingMin = input('700');
+            component.onMinPriceInput(crossingMin);
+            expect(crossingMin.value).toBe('650');
+
+            const crossingMax = input('500');
+            component.onMaxPriceInput(crossingMax);
+            expect(crossingMax.value).toBe('650');
+
+            const clearedMin = input('  ');
+            component.onMinPriceInput(clearedMin);
+            expect(clearedMin.value).toBe('100');
+
+            const invalidMax = input('abc');
+            component.onMaxPriceInput(invalidMax);
+            expect(invalidMax.value).toBe('900');
+            expect(component.priceFrom).toBeNull();
+            expect(component.priceTo).toBeNull();
+        });
+
+        it('reports a zero-width fill when the bounds collapse', () => {
+            component.lowestPrice = 500;
+            component.highestPrice = 500;
+            component.rangeValues = [500, 500];
+            expect(component.priceFillStart).toBe(0);
+            expect(component.priceFillEnd).toBe(0);
+        });
+
+        it('resets the price filter when the category changes', () => {
+            component.rangeValues = [200, 300];
+            component.commitPriceRange();
+
+            products.categoryFilter.next('Electronics');
+
+            expect(component.priceFrom).toBeNull();
+            expect(component.priceTo).toBeNull();
+            expect(component.rangeValues).toEqual([100, 900]);
+        });
+    });
+
+    it('falls back to an empty category list when categories fail to load', () => {
+        products.getProductCategories.mockReturnValue(throwError(() => new Error('offline')));
         component.ngOnInit();
-        component.rangeValues = [50, 250];
-        products.getProductsPage.mockClear();
-
-        component.onPriceChange(null);
-        jest.advanceTimersByTime(401);
-
-        expect(component.priceFrom).toBe(50);
-        expect(component.priceTo).toBe(250);
-        expect(products.getProductsPage).toHaveBeenCalledTimes(1);
-        jest.useRealTimers();
+        expect(component.categories).toEqual([]);
     });
 
     it('disposes all subscriptions on destroy', () => {

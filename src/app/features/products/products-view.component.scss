@@ -145,9 +145,56 @@
   padding: var(--space-2) 0;
 }
 
-.native-range {
-  display: grid;
-  gap: var(--space-2);
+.dual-range {
+  --thumb-size: 1rem;
+  position: relative;
+  height: var(--thumb-size);
+
+  .dual-range-track {
+    position: absolute;
+    inset-inline: 0;
+    top: 50%;
+    height: 0.375rem;
+    transform: translateY(-50%);
+    border-radius: 999px;
+    background: linear-gradient(
+      to right,
+      var(--color-border) var(--fill-start),
+      var(--color-primary) var(--fill-start),
+      var(--color-primary) var(--fill-end),
+      var(--color-border) var(--fill-end)
+    );
+  }
+
+  input[type="range"] {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    background: transparent;
+    pointer-events: none;
+
+    &::-webkit-slider-runnable-track {
+      background: transparent;
+    }
+
+    &::-moz-range-track {
+      background: transparent;
+    }
+
+    &::-webkit-slider-thumb {
+      pointer-events: auto;
+    }
+
+    &::-moz-range-thumb {
+      pointer-events: auto;
+    }
+  }
+
+  .dual-range-thumb--top {
+    z-index: 1;
+  }
 }
 
 .filter-skeleton {
