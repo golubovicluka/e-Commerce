@@ -20,13 +20,13 @@
 
 ## Tech Stack
 
-- **Client:** Angular 22 standalone components, signals, PrimeNG 22 Gallery, PrimeFlex, Apollo Client 4
+- **Client:** Angular 22 standalone components, signals, Tailwind CSS 4, FlyonUI 2, Tabler icons (Iconify), Apollo Client 4
 - **Server:** Hasura GraphQL
 - **Tests:** Jest and Cypress
 
 All page routes are lazy loaded. Catalog-only Apollo providers are also loaded on demand, keeping GraphQL code out of the initial application shell.
 
-The product-details page uses the PrimeNG 22 Gallery image viewer. PrimeNG 22 requires a valid per-developer PrimeUI Community or Commercial license key before deployment. PrimeIcons remains on the MIT-licensed v7 CSS release because the Gallery integration does not require a v8 upgrade.
+UI components use FlyonUI semantic classes (CSS only, no FlyonUI JavaScript) on Tailwind CSS 4, themed through the `shoply` theme in `src/tailwind.css`. Icons are Tabler icons rendered through `@iconify/tailwind4` (`icon-[tabler--home]`). The product-details image viewer is a native Angular component with zoom, rotation, thumbnails, keyboard navigation, and fullscreen. Every UI dependency is MIT licensed; no license key is required.
 
 ## Running End-to-End Tests
 

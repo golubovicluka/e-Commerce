@@ -30,7 +30,10 @@ See `README.md` for clone/install/serve steps. Quick reference:
 - **Hasura auth:** The browser sends **no** authorization header. Catalog queries rely on a read-only Hasura `anonymous` role configured on the backend. Until that role is enabled, direct `curl` and the live app receive `access-denied` — see `SECURITY.md` for the required Hasura Cloud setup (not a client bug).
 - **Unit tests:** `npm run test:ci` runs 262 specs in Jest and enforces 100% statement, branch, function, and line coverage for executable `src/app` code.
 - **Cypress:** Browser flows use semantic selectors and deterministic GraphQL intercepts. Run the Angular app on `http://localhost:4200` before `npm run e2e:ci`.
-- **UI licensing:** Native standalone controls replaced PrimeNG. PrimeIcons stays on the MIT-licensed v7 major; v8 and PrimeNG 22 require a PrimeUI developer license key.
+- **UI library:** Tailwind CSS 4 + FlyonUI 2 (MIT, CSS only). PostCSS is configured in `.postcssrc.json`; `src/tailwind.css` loads Tailwind, FlyonUI, the `shoply` theme, and the Iconify plugin, and is listed before `src/styles.scss` in `angular.json`. PrimeNG, PrimeFlex, and PrimeIcons are fully removed; do not reintroduce them or any other component library.
+- **UI rules:** Use FlyonUI semantic classes (`btn btn-primary`, `input`, `select`, `badge`, `alert`, `skeleton`, `breadcrumbs`, `indicator`) instead of hand-rolled primitives. FlyonUI JavaScript plugins are not loaded, so `data-accordion`/`data-overlay` style attributes do nothing; keep interactivity in Angular. FlyonUI has no `btn-ghost`; use `btn-text`.
+- **Icons:** Tabler via Iconify only: `<span class="icon-[tabler--home] size-4" aria-hidden="true"></span>`. Write full literal class names (also in `.ts`), never concatenate them, because Tailwind detects classes from source text.
+- **CSS layering:** Tailwind and FlyonUI classes live in CSS layers, so unlayered component SCSS wins over them. When a responsive visibility utility sits on an element whose SCSS sets `display`, use the important suffix (`hidden! md:flex!`).
 - **No git hooks:** No Husky/pre-commit; nothing extra to run before commits.
 
 ### Cloud Agent workflow
