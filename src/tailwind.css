@@ -1,0 +1,47 @@
+@import "tailwindcss" source("./");
+
+@plugin "flyonui" {
+  themes: false;
+  logs: false;
+}
+
+@plugin "flyonui/theme" {
+  name: "shoply";
+  default: true;
+  color-scheme: light;
+  --color-base-100: #ffffff;
+  --color-base-200: #edf1f5;
+  --color-base-300: #596777;
+  --color-base-content: #101820;
+  --color-primary: #165dff;
+  --color-primary-content: #ffffff;
+  --color-secondary: #14253c;
+  --color-secondary-content: #f7f9fb;
+  --color-accent: #165dff;
+  --color-accent-content: #ffffff;
+  --color-neutral: #0b1728;
+  --color-neutral-content: #f7f9fb;
+  --color-info: #165dff;
+  --color-info-content: #ffffff;
+  --color-success: #147a52;
+  --color-success-content: #ffffff;
+  --color-warning: #a15c00;
+  --color-warning-content: #ffffff;
+  --color-error: #b42318;
+  --color-error-content: #ffffff;
+  --radius-selector: 2px;
+  --radius-field: 2px;
+  --radius-box: 3px;
+  --size-selector: 0.25rem;
+  --size-field: 0.25rem;
+  --border: 1px;
+  --depth: 0;
+  --noise: 0;
+}
+
+@plugin "@iconify/tailwind4";
+
+@theme {
+  --font-sans: "IBM Plex Sans", "Segoe UI", sans-serif;
+  --font-mono: "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
+}
