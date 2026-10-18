@@ -1,4 +1,4 @@
-import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClient, withFetch } from '@angular/common/http';
 import {
   ApplicationConfig,
   provideZonelessChangeDetection,
@@ -14,6 +14,6 @@ export const appConfig: ApplicationConfig = {
       routes,
       withInMemoryScrolling({ scrollPositionRestoration: 'enabled' }),
     ),
-    provideHttpClient(),
+    provideHttpClient(withFetch()),
   ],
 };

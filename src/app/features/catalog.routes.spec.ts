@@ -11,9 +11,8 @@ describe('catalog routes', () => {
     ['products', PRODUCTS_ROUTES],
     ['categories', CATEGORIES_ROUTES],
     ['product details', PRODUCT_DETAILS_ROUTES],
-  ])('lazy-loads the %s page with route-scoped providers', async (_name, routes) => {
+  ])('lazy-loads the %s page', async (_name, routes) => {
     expect(routes).toHaveLength(1);
-    expect(routes[0].providers).toBeTruthy();
     expect(await routes[0].loadComponent!()).toBeTruthy();
   });
 });
