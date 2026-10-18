@@ -3,6 +3,7 @@
 @plugin "flyonui" {
   themes: false;
   logs: false;
+  include: custombase, rootcolor, scrollbar, alert, badge, breadcrumbs, button, checkbox, indicator, input, radio, select, skeleton, textarea;
 }
 
 @plugin "flyonui/theme" {
