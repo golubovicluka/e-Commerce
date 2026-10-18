@@ -86,10 +86,6 @@ export class CartViewComponent implements OnInit, OnDestroy {
     this.home = { icon: 'icon-[tabler--home]', routerLink: '/home' };
   }
 
-  get checkoutCtaLabel(): 'Proceed with shipping' | 'Back to cart view' {
-    return this.checkoutActive ? 'Back to cart view' : 'Proceed with shipping';
-  }
-
   onActiveIndexChange(index: number) {
     this.activeIndex = index;
   }
@@ -116,18 +112,21 @@ export class CartViewComponent implements OnInit, OnDestroy {
     }
   }
 
-  onQuantityChange(productId: number, quantity: number): void {
+  onQuantityChange(
+    productId: number,
+    quantity: number,
+    itemsInStock: number,
+    input: HTMLInputElement,
+  ): void {
     const index = this._cartService.getProductIndex(productId);
     if (index >= 0) {
-      this._cartService.setQuantityAtIndex(index, quantity);
+      const clamped = Math.min(Math.max(1, Number(quantity) || 1), itemsInStock);
+      input.value = String(clamped);
+      this._cartService.setQuantityAtIndex(index, clamped);
     }
   }
 
   openShippingView() {
-    if (this.checkoutActive) {
-      this.router.navigate(['/cart']);
-      return;
-    }
     this.router.navigate(['/cart/shipping']);
   }
 

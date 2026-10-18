@@ -66,23 +66,9 @@ describe('CartViewComponent', () => {
         expect(component).toBeTruthy();
     });
 
-    it('openShippingView navigates to shipping when checkout is inactive', () => {
-        component.checkoutActive = false;
+    it('openShippingView navigates to shipping', () => {
         component.openShippingView();
         expect(router.navigate).toHaveBeenCalledWith(['/cart/shipping']);
-    });
-
-    it('openShippingView navigates back to cart when checkout is active', () => {
-        component.checkoutActive = true;
-        component.openShippingView();
-        expect(router.navigate).toHaveBeenCalledWith(['/cart']);
-    });
-
-    it('checkoutCtaLabel reflects checkout state', () => {
-        component.checkoutActive = false;
-        expect(component.checkoutCtaLabel).toBe('Proceed with shipping');
-        component.checkoutActive = true;
-        expect(component.checkoutCtaLabel).toBe('Back to cart view');
     });
 
     it('exposes the cart item count and updates the active step', () => {
@@ -119,19 +105,36 @@ describe('CartViewComponent', () => {
         expect(cart.setQuantityAtIndex).not.toHaveBeenCalled();
     });
 
-    it('accepts a direct quantity change only for an existing row', () => {
-        component.onQuantityChange(7, 4);
+    it('clamps typed quantity to [1, inStock], reflects it in the input, and ignores missing rows', () => {
+        const input = { value: '4' } as HTMLInputElement;
+        component.onQuantityChange(7, 4, 5, input);
         expect(cart.setQuantityAtIndex).toHaveBeenCalledWith(0, 4);
+        expect(input.value).toBe('4');
+
+        input.value = '99';
+        component.onQuantityChange(7, 99, 5, input);
+        expect(cart.setQuantityAtIndex).toHaveBeenLastCalledWith(0, 5);
+        expect(input.value).toBe('5');
+
+        input.value = '0';
+        component.onQuantityChange(7, 0, 5, input);
+        expect(cart.setQuantityAtIndex).toHaveBeenLastCalledWith(0, 1);
+        expect(input.value).toBe('1');
+
+        input.value = '-3';
+        component.onQuantityChange(7, -3, 5, input);
+        expect(cart.setQuantityAtIndex).toHaveBeenLastCalledWith(0, 1);
+        expect(input.value).toBe('1');
 
         cart.setQuantityAtIndex.mockClear();
         cart.getProductIndex.mockReturnValue(-1);
-        component.onQuantityChange(7, 4);
+        component.onQuantityChange(7, 4, 5, input);
         expect(cart.setQuantityAtIndex).not.toHaveBeenCalled();
     });
 
-    it('updates checkout state from child-route navigation', () => {
+    it('updates checkout state on direct load of a child route and from child-route navigation', () => {
         route.firstChild = { snapshot: { url: [{ path: 'overview' }] } };
-        router.events.next(new NavigationEnd(1, '/cart/overview', '/cart/overview'));
+        component.ngOnInit();
         expect(component.checkoutActive).toBe(true);
         expect(component.activeIndex).toBe(1);
 

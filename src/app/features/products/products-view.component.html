@@ -30,10 +30,10 @@
       [class.filters-panel--open]="filtersOpen"
       aria-label="Catalog filters"
       >
-      <h3 class="filters-title">Category</h3>
+      <h2 class="filters-title">Category</h2>
       <app-filters (filtersObject)="applyFilters($event)" [categories]="categories"
         [selectedFilters]="subcategoryFilters"></app-filters>
-      <h3 class="filters-title price-title" id="price-filter-title">Price</h3>
+      <h2 class="filters-title price-title" id="price-filter-title">Price</h2>
       @if (rangeValues.length === 2) {
         <div class="price-filter" role="group" aria-labelledby="price-filter-title">
           <div class="price-inputs">
@@ -131,7 +131,8 @@
           <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4">
           @for (product of products; track product.id; let i = $index) {
             <div class="product-cell w-full min-w-0">
-            <app-product (addedToCart)="addToCart($event)" (addedToWishList)="addToWishList($event)"
+            <app-product (addedToCart)="addToCart($event)" (removedFromCart)="removeFromCart($event)"
+              (addedToWishList)="addToWishList($event)"
               [isListView]="false" [priority]="i < 5" [categoryId]="product.categoryId" [subcategoryId]="product.subcategoryId"
               (removedFromWishList)="removedFromWishList($event)" [name]="product.name" [category]="product.category"
               [subcategory]="product.subcategory" [id]="product.id" [images]="product.images" [inStock]="product.inStock"

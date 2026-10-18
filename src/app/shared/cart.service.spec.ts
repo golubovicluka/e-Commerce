@@ -282,6 +282,26 @@ describe('CartService', () => {
         });
     });
 
+    describe('clearCart', () => {
+        beforeEach(() => {
+            service = TestBed.inject(CartService);
+        });
+
+        it('clears all cart items and quantities and persists empty state', () => {
+            service.addToCart(mockProducts[0]);
+            service.addToCart(mockProducts[1]);
+
+            service.clearCart();
+
+            expect(service.cartItemsSignal()).toEqual([]);
+            expect(service.getQuantities()).toEqual([]);
+            expect(service.totalPriceSignal()).toBe(0);
+            expect(service.numberOfItemsSignal()).toBe(0);
+            expect(localStorageSpy.setItem).toHaveBeenCalledWith('cart', JSON.stringify([]));
+            expect(localStorageSpy.setItem).toHaveBeenCalledWith('cartQuantities', JSON.stringify([]));
+        });
+    });
+
     describe('cartItemsSignal', () => {
         beforeEach(() => {
             service = TestBed.inject(CartService);

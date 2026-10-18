@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output, ChangeDetectionStrategy } from '@angular/core';
+import { Component, EventEmitter, Input, Output, ChangeDetectionStrategy } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { NotificationService } from 'src/app/shared/notification.service';
 import { Product, Subcategory, Category } from '../Product';
@@ -16,7 +16,7 @@ import { DecimalPipe, NgClass } from '@angular/common';
     changeDetection: ChangeDetectionStrategy.OnPush,
     imports: [DecimalPipe, NgClass, RouterLink]
 })
-export class ProductComponent implements OnInit {
+export class ProductComponent {
   @Input() name!: string;
   @Input() description!: string;
   @Input() subcategory!: Subcategory | undefined;
@@ -32,78 +32,59 @@ export class ProductComponent implements OnInit {
   @Input() wishlistView?: boolean;
   @Input() priority = false;
 
-
   @Output() addedToWishList = new EventEmitter();
   @Output() removedFromWishList = new EventEmitter();
   @Output() addedToCart = new EventEmitter();
   @Output() removedFromCart = new EventEmitter();
-
-  inWishlist!: boolean;
-  inCart!: boolean;
-  public product!: Product;
-
-
 
   constructor(
     private _messageService: NotificationService,
     private _wishlistService: WishlistService,
     private _cartService: CartService,
     private _productImageService: ProductImageService
-  ) {
-    this.inWishlist = this.checkInWishlist(this.id);
-    this.inCart = this.checkInCart(this.id);
+  ) {}
+
+  get inWishlist(): boolean {
+    return this._wishlistService.inWishlist(this.id);
   }
 
-  ngOnInit() {
-    this.images = this._productImageService.normalizeImages(this.images, this.name);
+  get inCart(): boolean {
+    return this._cartService.inCart(this.id);
+  }
 
-    this.product = {
+  get product(): Product {
+    return {
       name: this.name,
       description: this.description,
       category: this.category,
       subcategory: this.subcategory,
       categoryId: this.categoryId,
       subcategoryId: this.subcategoryId,
-      images: this.images,
+      images: this._productImageService.normalizeImages(this.images, this.name),
       EAN: this.EAN,
       id: this.id,
       inStock: this.inStock,
-      price: this.price
-    }
-    this.inWishlist = this.checkInWishlist(this.id);
-    this.inCart = this.checkInCart(this.id);
+      price: this.price,
+    };
   }
 
   addRemoveItemWishlist(product: Product) {
-    this.inWishlist = !this.inWishlist;
-
     if (this.inWishlist) {
-      this.addedToWishList.emit(product);
-      this._messageService.add({ severity: 'success', summary: 'Added', detail: 'Added to wishlist' })
-    } else {
       this.removedFromWishList.emit(product);
-      this._messageService.add({ severity: 'info', summary: 'Removed', detail: 'Removed from wishlist' })
+      this._messageService.add({ severity: 'info', summary: 'Removed', detail: 'Removed from wishlist' });
+    } else {
+      this.addedToWishList.emit(product);
+      this._messageService.add({ severity: 'success', summary: 'Added', detail: 'Added to wishlist' });
     }
   }
 
-  // Check to see if item is in wishlist
-  checkInWishlist(id: number) {
-    return this._wishlistService.inWishlist(id)
-  }
-
-  checkInCart(id: number) {
-    return this._cartService.inCart(id);
-  }
-
   addRemoveCartItem(product: Product) {
-    this.inCart = !this.inCart;
-
     if (this.inCart) {
-      this.addedToCart.emit(product);
-      this._messageService.add({ severity: 'success', summary: 'Added', detail: 'Added to cart' })
-    } else {
       this.removedFromCart.emit(product);
-      this._messageService.add({ severity: 'info', summary: 'Removed', detail: 'Removed from cart' })
+      this._messageService.add({ severity: 'info', summary: 'Removed', detail: 'Removed from cart' });
+    } else {
+      this.addedToCart.emit(product);
+      this._messageService.add({ severity: 'success', summary: 'Added', detail: 'Added to cart' });
     }
   }
 

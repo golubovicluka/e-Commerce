@@ -53,13 +53,7 @@ export class CartService {
       currentQuantities.push(1);
     }
 
-    try {
-      localStorage.setItem(CART_KEY, JSON.stringify(currentItems));
-      localStorage.setItem(QUANTITIES_KEY, JSON.stringify(currentQuantities));
-      this.setCartState(currentItems, currentQuantities);
-    } catch (error) {
-      console.error('Failed to save cart items to localStorage:', error);
-    }
+    this.setCartState(currentItems, currentQuantities);
   }
 
   removeFromCart(item: Product): void {
@@ -75,13 +69,11 @@ export class CartService {
       }
     }
 
-    try {
-      localStorage.setItem(CART_KEY, JSON.stringify(newItems));
-      localStorage.setItem(QUANTITIES_KEY, JSON.stringify(newQuantities));
-      this.setCartState(newItems, newQuantities);
-    } catch (error) {
-      console.error('Failed to save cart items to localStorage:', error);
-    }
+    this.setCartState(newItems, newQuantities);
+  }
+
+  clearCart(): void {
+    this.setCartState([], []);
   }
 
   getQuantities(): number[] {
@@ -138,7 +130,13 @@ export class CartService {
   }
 
   private setCartState(items: Product[], quantities: number[]): void {
-    this.cartItemsState.set(items);
-    this.quantitiesState.set(quantities);
+    try {
+      localStorage.setItem(CART_KEY, JSON.stringify(items));
+      localStorage.setItem(QUANTITIES_KEY, JSON.stringify(quantities));
+      this.cartItemsState.set(items);
+      this.quantitiesState.set(quantities);
+    } catch (error) {
+      console.error('Failed to save cart items to localStorage:', error);
+    }
   }
 }

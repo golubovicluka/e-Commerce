@@ -78,51 +78,66 @@ describe('ProductComponent', () => {
         expect(component).toBeTruthy();
     });
 
-    describe('ngOnInit', () => {
-        it('normalizes images and assembles the product from @Input fields', () => {
+    describe('reactive state and product payload', () => {
+        it('builds the product payload from current @Input fields and normalizes images', () => {
             component.description = 'Desc';
             component.images = ['raw.jpg'];
 
-            component.ngOnInit();
-
+            expect(component.product).toEqual(
+                expect.objectContaining({
+                    id: 1,
+                    name: 'iPhone 13 Pro',
+                    price: 1200,
+                    description: 'Desc',
+                    images: ['primary.jpg', 'secondary.jpg'],
+                }),
+            );
             expect(images.normalizeImages).toHaveBeenCalledWith(['raw.jpg'], 'iPhone 13 Pro');
-            expect(component.images).toEqual(['primary.jpg', 'secondary.jpg']);
-            expect(component.product).toEqual(expect.objectContaining({ id: 1, name: 'iPhone 13 Pro', price: 1200 }));
+
+            component.id = 2;
+            component.name = 'MacBook Pro';
+            component.price = 2400;
+            expect(component.product).toEqual(
+                expect.objectContaining({ id: 2, name: 'MacBook Pro', price: 2400 }),
+            );
         });
 
-        it('reflects the services current wishlist/cart membership', () => {
-            wishlist.inWishlist.mockReturnValue(true);
-            cart.inCart.mockReturnValue(true);
+        it('derives wishlist and cart membership from current service state and id input', () => {
+            expect(component.inWishlist).toBe(false);
+            expect(component.inCart).toBe(false);
 
-            component.ngOnInit();
+            wishlist.inWishlist.mockImplementation((id: number) => id === 2);
+            cart.inCart.mockImplementation((id: number) => id === 2);
 
+            expect(component.inWishlist).toBe(false);
+            expect(component.inCart).toBe(false);
+
+            component.id = 2;
             expect(component.inWishlist).toBe(true);
             expect(component.inCart).toBe(true);
         });
     });
 
     describe('addRemoveItemWishlist', () => {
-        it('adds: flips state on, emits addedToWishList and shows a success toast', () => {
+        it('adds when not in wishlist: emits addedToWishList and shows a success toast', () => {
             const product = createMockProduct({ id: 1 });
-            component.inWishlist = false;
+            wishlist.inWishlist.mockReturnValue(false);
             const addedSpy = jest.spyOn(component.addedToWishList, 'emit').mockReturnValue(undefined);
 
             component.addRemoveItemWishlist(product);
 
-            expect(component.inWishlist).toBe(true);
             expect(addedSpy).toHaveBeenCalledTimes(1);
             expect(addedSpy).toHaveBeenCalledWith(product);
             expect(messages.add).toHaveBeenCalledWith(expect.objectContaining({ severity: 'success', detail: 'Added to wishlist' }));
         });
 
-        it('removes: flips state off, emits removedFromWishList and shows an info toast', () => {
+        it('removes when in wishlist: emits removedFromWishList and shows an info toast', () => {
             const product = createMockProduct({ id: 1 });
-            component.inWishlist = true;
+            wishlist.inWishlist.mockReturnValue(true);
             const removedSpy = jest.spyOn(component.removedFromWishList, 'emit').mockReturnValue(undefined);
 
             component.addRemoveItemWishlist(product);
 
-            expect(component.inWishlist).toBe(false);
             expect(removedSpy).toHaveBeenCalledTimes(1);
             expect(removedSpy).toHaveBeenCalledWith(product);
             expect(messages.add).toHaveBeenCalledWith(expect.objectContaining({ severity: 'info', detail: 'Removed from wishlist' }));
@@ -130,29 +145,28 @@ describe('ProductComponent', () => {
     });
 
     describe('addRemoveCartItem', () => {
-        it('adds to cart: flips state on, emits addedToCart and shows a success toast', () => {
+        it('adds to cart when not in cart: emits addedToCart and shows a success toast', () => {
             const product = createMockProduct({ id: 1 });
-            component.inCart = false;
+            cart.inCart.mockReturnValue(false);
             const addedSpy = jest.spyOn(component.addedToCart, 'emit').mockReturnValue(undefined);
 
             component.addRemoveCartItem(product);
 
-            expect(component.inCart).toBe(true);
             expect(addedSpy).toHaveBeenCalledTimes(1);
             expect(addedSpy).toHaveBeenCalledWith(product);
             expect(messages.add).toHaveBeenCalledWith(expect.objectContaining({ severity: 'success', detail: 'Added to cart' }));
         });
 
-        it('removes from cart: flips state off and emits removedFromCart', () => {
+        it('removes from cart when in cart: emits removedFromCart and shows an info toast', () => {
             const product = createMockProduct({ id: 1 });
-            component.inCart = true;
+            cart.inCart.mockReturnValue(true);
             const removedSpy = jest.spyOn(component.removedFromCart, 'emit').mockReturnValue(undefined);
 
             component.addRemoveCartItem(product);
 
-            expect(component.inCart).toBe(false);
             expect(removedSpy).toHaveBeenCalledTimes(1);
             expect(removedSpy).toHaveBeenCalledWith(product);
+            expect(messages.add).toHaveBeenCalledWith(expect.objectContaining({ severity: 'info', detail: 'Removed from cart' }));
         });
     });
 

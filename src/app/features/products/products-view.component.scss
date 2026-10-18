@@ -160,14 +160,14 @@
     background: linear-gradient(
       to right,
       var(--color-border) var(--fill-start),
-      var(--color-primary) var(--fill-start),
-      var(--color-primary) var(--fill-end),
+      var(--color-accent) var(--fill-start),
+      var(--color-accent) var(--fill-end),
       var(--color-border) var(--fill-end)
     );
   }
 
   input[type="range"] {
-    --range-color: var(--color-primary);
+    --range-color: var(--color-accent);
     --range-thumb-border-width: 2.5px;
     --range-track-height: 6px;
     --range-thumb-size: 12px;

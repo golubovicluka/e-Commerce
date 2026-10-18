@@ -47,9 +47,9 @@
                   (click)="decrementProductCount(line.product.id, line.quantity)" [disabled]="line.quantity <= 1">
                   <span class="icon-[tabler--minus] size-4" aria-hidden="true"></span>
                 </button>
-                <input class="quantity-input input input-sm w-14 text-center" type="number" [min]="1" [max]="line.product.inStock"
+                <input #qtyInput class="quantity-input input input-sm w-14 text-center" type="number" [min]="1" [max]="line.product.inStock"
                   [id]="'qty-' + line.product.id" [ngModel]="line.quantity"
-                  (ngModelChange)="onQuantityChange(line.product.id, $event)">
+                  (ngModelChange)="onQuantityChange(line.product.id, $event, line.product.inStock, qtyInput)">
                 <button class="qty-btn btn btn-square btn-sm btn-outline" type="button" aria-label="Increase quantity"
                   (click)="incrementProductCount(line.product.id, line.product.inStock, line.quantity)"
                   [disabled]="line.quantity >= line.product.inStock">
@@ -82,7 +82,7 @@
       </div>
     }
     <!-- Order Summary -->
-    @if (totalPrice(); as total) {
+    @if (!checkoutActive && totalPrice(); as total) {
       <aside class="order-summary-panel">
         <h3 class="summary-title">Order summary</h3>
         <div class="summary-rows">
@@ -112,8 +112,9 @@
               }
             </select>
           </div>
-          <button (click)="openShippingView()" class="btn btn-primary summary-cta" type="button"
-          >{{ checkoutCtaLabel }}</button>
+          <button (click)="openShippingView()" class="btn btn-primary summary-cta" type="button">
+            Proceed with shipping
+          </button>
           <span class="summary-note">
             <span class="icon-[tabler--lock] size-4" aria-hidden="true"></span> Secure checkout &middot; 14-day returns
           </span>

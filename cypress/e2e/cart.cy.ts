@@ -54,12 +54,15 @@ describe('Cart and checkout', () => {
     cy.get('#pay-card-number').should('not.exist');
     cy.get('#bankTransfer').check({ force: true });
     cy.contains('button', 'Pay 10,000 RSD').should('be.visible').click();
+    cy.contains('[role="status"]', 'Order placed').should('be.visible');
+    cy.location('pathname').should('eq', '/home');
+    cy.get('a[aria-label="Cart"] .icon-count').should('not.exist');
   });
 
   it('opens a cart product and returns from checkout to the cart view', () => {
     addFirstProductToCart();
     cy.contains('button', 'Proceed with shipping').click();
-    cy.contains('button', 'Back to cart view').click();
+    cy.get('nav[aria-label="Breadcrumb"]').contains('a', 'Cart').click();
     cy.location('pathname').should('eq', '/cart');
 
     cy.contains('.item-name', 'MacBook Pro M1').click();
