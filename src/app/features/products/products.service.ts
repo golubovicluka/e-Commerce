@@ -102,95 +102,6 @@ export class ProductsService {
     });
   }
 
-  // Get all products (including sortBy and category)
-  getProducts(sortBy?: string, category?: string) {
-    if (category && sortBy) {
-      return this.apollo.query({
-        query: gql`
-          query GetProducts($category: String!, $sortBy: order_by!) {
-            product(where: {category: {name: {_eq: $category}}}, order_by: {price: $sortBy}) {
-              ...ProductFields
-            }
-          }
-          ${PRODUCT_FIELDS}
-        `,
-        variables: { category, sortBy }
-      });
-    } else if (category) {
-      return this.apollo.query({
-        query: gql`
-          query GetProductsByCategory($category: String!) {
-            product(where: {category: {name: {_eq: $category}}}) {
-              ...ProductFields
-            }
-          }
-          ${PRODUCT_FIELDS}
-        `,
-        variables: { category }
-      });
-    } else if (sortBy) {
-      return this.apollo.query({
-        query: gql`
-          query GetProductsSorted($sortBy: order_by!) {
-            product(order_by: {price: $sortBy}) {
-              ...ProductFields
-            }
-          }
-          ${PRODUCT_FIELDS}
-        `,
-        variables: { sortBy }
-      });
-    } else {
-      return this.getProductsDefault();
-    }
-  }
-
-  getProductsDefault() {
-    return this.apollo.query({
-      query: gql`
-        query GetProductsDefault {
-          product {
-            ...ProductFields
-          }
-        }
-        ${PRODUCT_FIELDS}
-      `
-    });
-  }
-
-  getProductsByPrice(priceFrom: number, priceTo: number) {
-    return this.apollo.query({
-      query: gql`
-        query GetProductsByPrice($priceFrom: numeric!, $priceTo: numeric!) {
-          product(where: {price: {_gte: $priceFrom, _lte: $priceTo}}) {
-            ...ProductFields
-          }
-        }
-        ${PRODUCT_FIELDS}
-      `,
-      variables: {
-        priceFrom,
-        priceTo
-      }
-    });
-  }
-
-  searchProducts(searchInput: string) {
-    return this.apollo.query({
-      query: gql`
-        query SearchProducts($searchInput: String!) {
-          product(where: { name: { _ilike: $searchInput } }) {
-            ...ProductFields
-          }
-        }
-        ${PRODUCT_FIELDS}
-      `,
-      variables: {
-        searchInput: `%${searchInput}%`
-      }
-    });
-  }
-
   getProductsByIds(ids: number[]) {
     return this.apollo.query({
       query: gql`
@@ -237,26 +148,6 @@ export class ProductsService {
     });
   }
 
-  getFilteredProducts(filter: string[]) {
-    if (filter.length === 0) {
-      return this.getProductsDefault();
-    }
-
-    return this.apollo.query({
-      query: gql`
-        query GetFilteredProducts($filter: [String!]!) {
-          product(where: {subcategory: {name: {_in: $filter}}}) {
-            ...ProductFields
-          }
-        }
-        ${PRODUCT_FIELDS}
-      `,
-      variables: {
-        filter
-      }
-    });
-  }
-
   // Get categories and subcategories for filter component
   getProductCategories() {
     return this.apollo.query({
@@ -287,14 +178,5 @@ export class ProductsService {
         ${PRODUCT_FIELDS}
       `
     });
-  }
-
-  // Legacy methods for backward compatibility
-  getProductBySubcategory(category: string) {
-    return this.getProductsByCategory(category);
-  }
-
-  getProductsFromSubcategories(categories: string[]) {
-    return this.getFilteredProducts(categories);
   }
 }

@@ -28,11 +28,7 @@ describe('ProductsViewComponent', () => {
 
     beforeEach(async () => {
         products = {
-            getProducts: jest.fn().mockName("ProductsService.getProducts"),
             getProductCategories: jest.fn().mockName("ProductsService.getProductCategories"),
-            searchProducts: jest.fn().mockName("ProductsService.searchProducts"),
-            getFilteredProducts: jest.fn().mockName("ProductsService.getFilteredProducts"),
-            getProductsByPrice: jest.fn().mockName("ProductsService.getProductsByPrice"),
             getProductsPage: jest.fn().mockName("ProductsService.getProductsPage"),
             getPriceBounds: jest.fn().mockName("ProductsService.getPriceBounds"),
             categoryFilter: new Subject<string>(),

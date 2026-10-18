@@ -1,7 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { NO_ERRORS_SCHEMA, signal } from '@angular/core';
 import { NotificationService } from 'src/app/shared/notification.service';
-import { of } from 'rxjs';
 
 import { WishlistViewComponent } from './wishlist-view.component';
 import { WishlistService } from 'src/app/shared/wishlist.service';
@@ -16,7 +15,6 @@ describe('WishlistViewComponent', () => {
 
     beforeEach(async () => {
         wishlist = {
-            getWishListItems: jest.fn().mockName("WishlistService.getWishListItems"),
             removeWishListItem: jest.fn().mockName("WishlistService.removeWishListItem"),
             inWishlist: jest.fn().mockName("WishlistService.inWishlist"),
             wishListItemsSignal: signal([mockProducts[0], mockProducts[1]]),
@@ -25,7 +23,6 @@ describe('WishlistViewComponent', () => {
             addToCart: jest.fn().mockName("CartService.addToCart"),
             removeFromCart: jest.fn().mockName("CartService.removeFromCart")
         };
-        wishlist.getWishListItems.mockReturnValue(of([mockProducts[0], mockProducts[1]]));
         wishlist.inWishlist.mockReturnValue(true);
 
         await TestBed.configureTestingModule({

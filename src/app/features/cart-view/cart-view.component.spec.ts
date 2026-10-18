@@ -6,7 +6,6 @@ import { Subject } from 'rxjs';
 import { CartViewComponent } from './cart-view.component';
 import { CartService } from 'src/app/shared/cart.service';
 import { ProductImageService } from 'src/app/shared/product-image.service';
-import { of } from 'rxjs';
 
 describe('CartViewComponent', () => {
     let component: CartViewComponent;
@@ -26,9 +25,6 @@ describe('CartViewComponent', () => {
 
     beforeEach(async () => {
         cart = {
-            getCartItems: jest.fn().mockName("CartService.getCartItems"),
-            getCartLines: jest.fn().mockName("CartService.getCartLines"),
-            getTotalPrice: jest.fn().mockName("CartService.getTotalPrice"),
             getProductIndex: jest.fn().mockName("CartService.getProductIndex"),
             setQuantityAtIndex: jest.fn().mockName("CartService.setQuantityAtIndex"),
             removeFromCart: jest.fn().mockName("CartService.removeFromCart"),
@@ -36,9 +32,6 @@ describe('CartViewComponent', () => {
             totalPriceSignal: signal(0),
             numberOfItemsSignal: signal(0),
         };
-        cart.getCartItems.mockReturnValue(of([]));
-        cart.getCartLines.mockReturnValue(of([]));
-        cart.getTotalPrice.mockReturnValue(of(0));
         cart.getProductIndex.mockReturnValue(0);
         router = {
             navigate: jest.fn().mockName("Router.navigate"),

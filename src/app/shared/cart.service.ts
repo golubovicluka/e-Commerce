@@ -1,5 +1,4 @@
 import { computed, Injectable, signal } from '@angular/core';
-import { map, Observable, startWith, Subject } from 'rxjs';
 import { Product, parseStoredProducts } from '../features/products/Product';
 
 export interface CartLine {
@@ -17,7 +16,6 @@ const QUANTITIES_KEY = 'cartQuantities';
 export class CartService {
   private readonly cartItemsState = signal<Product[]>([]);
   private readonly quantitiesState = signal<number[]>([]);
-  private readonly cartChanges$ = new Subject<void>();
 
   readonly cartItemsSignal = this.cartItemsState.asReadonly();
   readonly cartLinesSignal = computed(() =>
@@ -30,8 +28,6 @@ export class CartService {
     this.cartLinesSignal().reduce((total, line) => total + line.lineTotal, 0),
   );
   readonly numberOfItemsSignal = computed(() => this.cartItemsState().length);
-  /** Observable compatibility facade; signals remain the single source of truth. */
-  readonly cartItems = this.getCartItems();
 
   constructor() {
     try {
@@ -88,20 +84,6 @@ export class CartService {
     }
   }
 
-  getCartItems(): Observable<Product[]> {
-    return this.cartChanges$.pipe(
-      startWith(undefined),
-      map(() => this.cartItemsState()),
-    );
-  }
-
-  getCartLines(): Observable<CartLine[]> {
-    return this.cartChanges$.pipe(
-      startWith(undefined),
-      map(() => this.cartLinesSignal()),
-    );
-  }
-
   getQuantities(): number[] {
     return [...this.quantitiesState()];
   }
@@ -113,20 +95,6 @@ export class CartService {
     }
     quantities[index] = Math.max(1, quantity);
     this.persistQuantities(quantities);
-  }
-
-  getTotalPrice(): Observable<number> {
-    return this.cartChanges$.pipe(
-      startWith(undefined),
-      map(() => this.totalPriceSignal()),
-    );
-  }
-
-  getNumberOfItems(): Observable<number> {
-    return this.cartChanges$.pipe(
-      startWith(undefined),
-      map(() => this.numberOfItemsSignal()),
-    );
   }
 
   inCart(id: number): boolean {
@@ -164,7 +132,6 @@ export class CartService {
     try {
       localStorage.setItem(QUANTITIES_KEY, JSON.stringify(quantities));
       this.quantitiesState.set(quantities);
-      this.cartChanges$.next();
     } catch (error) {
       console.error('Failed to save cart quantities to localStorage:', error);
     }
@@ -173,6 +140,5 @@ export class CartService {
   private setCartState(items: Product[], quantities: number[]): void {
     this.cartItemsState.set(items);
     this.quantitiesState.set(quantities);
-    this.cartChanges$.next();
   }
 }

@@ -5,7 +5,6 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { HeaderComponent } from './header.component';
 import { WishlistService } from 'src/app/shared/wishlist.service';
 import { CartService } from 'src/app/shared/cart.service';
-import { of } from 'rxjs';
 import { Subject } from 'rxjs';
 import { mockProducts } from 'src/app/testing/mock-data';
 
@@ -23,15 +22,11 @@ describe('HeaderComponent', () => {
 
     beforeEach(async () => {
         wishlist = {
-            getWishListItems: jest.fn().mockName("WishlistService.getWishListItems"),
             wishListItemsSignal: signal([mockProducts[0]]),
         };
         cart = {
-            getCartItems: jest.fn().mockName("CartService.getCartItems"),
             numberOfItemsSignal: signal(2),
         };
-        wishlist.getWishListItems.mockReturnValue(of([mockProducts[0]]));
-        cart.getCartItems.mockReturnValue(of([mockProducts[0], mockProducts[1]]));
         router = {
             url: '/home',
             events: new Subject(),

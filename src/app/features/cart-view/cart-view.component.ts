@@ -2,7 +2,7 @@ import { Component, OnDestroy, OnInit, ChangeDetectionStrategy, signal } from '@
 import { ActivatedRoute, NavigationEnd, Router, RouterOutlet, RouterLink } from '@angular/router';
 
 import { NavigationItem } from 'src/app/shared/navigation-item';
-import { filter, Observable, Subscription } from 'rxjs';
+import { filter, Subscription } from 'rxjs';
 import { CartLine, CartService } from 'src/app/shared/cart.service';
 import {
   DEFAULT_MONTHLY_PAYMENT,
@@ -25,16 +25,14 @@ import { BreadcrumbComponent } from 'src/app/shared/breadcrumb/breadcrumb.compon
     imports: [BreadcrumbComponent, FormsModule, RouterOutlet, RouterLink, DecimalPipe]
 })
 export class CartViewComponent implements OnInit, OnDestroy {
-  readonly cartLines$: Observable<CartLine[]> = this._cartService.getCartLines();
-  readonly totalPrice$: Observable<number> = this._cartService.getTotalPrice();
   readonly cartLines = this._cartService.cartLinesSignal;
   readonly totalPrice = this._cartService.totalPriceSignal;
 
   private readonly checkoutActiveState = signal(false);
   private readonly activeIndexState = signal(0);
 
-  selectedMonthlyPayment: MonthlyPaymentOption = DEFAULT_MONTHLY_PAYMENT;
   monthlyPaymentOptions = MONTHLY_PAYMENT_OPTIONS;
+  selectedMonthlyPayment: MonthlyPaymentOption = DEFAULT_MONTHLY_PAYMENT;
 
   stepperItems!: NavigationItem[];
 

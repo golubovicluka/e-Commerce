@@ -1,6 +1,5 @@
 import { Component, ChangeDetectionStrategy } from '@angular/core';
 
-import { Observable } from 'rxjs';
 import { CartService } from 'src/app/shared/cart.service';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
@@ -16,7 +15,6 @@ import { DecimalPipe } from '@angular/common';
 export class PaymentComponent {
 
   selectedPaymentMethod: string = 'creditCard';
-  total$: Observable<number>;
   readonly total = this._cartService.totalPriceSignal;
 
   cardNumber: string = '';
@@ -24,9 +22,7 @@ export class PaymentComponent {
   expiryDate: string = '';
   cvv: string = '';
 
-  constructor(private _cartService: CartService) {
-    this.total$ = this._cartService.getTotalPrice();
-  }
+  constructor(private _cartService: CartService) {}
 
   completePayment(): void {
     // Raw card details (PAN, CVV, expiry) must never be logged or handled in the

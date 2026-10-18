@@ -49,26 +49,20 @@ describe('CartService', () => {
             expect(service).toBeTruthy();
         });
 
-        it('should initialize with empty cart when localStorage is empty', async () => {
+        it('should initialize with empty cart when localStorage is empty', () => {
             service = TestBed.inject(CartService);
 
-            service.getCartItems().subscribe(items => {
-                expect(items).toEqual([]);
-                ;
-            });
+            expect(service.cartItemsSignal()).toEqual([]);
         });
 
-        it('should load cart items from localStorage on initialization', async () => {
+        it('should load cart items from localStorage on initialization', () => {
             const savedProducts = [mockProducts[0], mockProducts[1]];
             localStorageSpy.getItem.mockReturnValue(JSON.stringify(savedProducts));
 
             service = TestBed.inject(CartService);
 
-            service.getCartItems().subscribe(items => {
-                expect(items).toEqual(savedProducts);
-                expect(localStorageSpy.getItem).toHaveBeenCalledWith('cart');
-                ;
-            });
+            expect(service.cartItemsSignal()).toEqual(savedProducts);
+            expect(localStorageSpy.getItem).toHaveBeenCalledWith('cart');
         });
 
         it('loads valid quantities, normalizes invalid values, and trims extras', () => {
@@ -126,20 +120,17 @@ describe('CartService', () => {
             expect(console.error).toHaveBeenCalled();
         });
 
-        it('should handle corrupted localStorage data gracefully', async () => {
+        it('should handle corrupted localStorage data gracefully', () => {
             localStorageSpy.getItem.mockReturnValue('invalid json{');
             jest.spyOn(console, 'error').mockReturnValue(undefined);
 
             service = TestBed.inject(CartService);
 
-            service.getCartItems().subscribe(items => {
-                expect(items).toEqual([]);
-                expect(console.error).toHaveBeenCalled();
-                ;
-            });
+            expect(service.cartItemsSignal()).toEqual([]);
+            expect(console.error).toHaveBeenCalled();
         });
 
-        it('should handle localStorage errors gracefully', async () => {
+        it('should handle localStorage errors gracefully', () => {
             localStorageSpy.getItem.mockImplementation(() => {
                 throw new Error('Storage error');
             });
@@ -147,11 +138,8 @@ describe('CartService', () => {
 
             service = TestBed.inject(CartService);
 
-            service.getCartItems().subscribe(items => {
-                expect(items).toEqual([]);
-                expect(console.error).toHaveBeenCalled();
-                ;
-            });
+            expect(service.cartItemsSignal()).toEqual([]);
+            expect(console.error).toHaveBeenCalled();
         });
     });
 
@@ -160,28 +148,24 @@ describe('CartService', () => {
             service = TestBed.inject(CartService);
         });
 
-        it('should add a product to cart', async () => {
+        it('should add a product to cart', () => {
             const product = mockProducts[0];
 
             service.addToCart(product);
 
-            service.getCartItems().subscribe(items => {
-                expect(items.length).toBe(1);
-                expect(items[0]).toEqual(product);
-                ;
-            });
+            const items = service.cartItemsSignal();
+            expect(items.length).toBe(1);
+            expect(items[0]).toEqual(product);
         });
 
-        it('should add multiple products to cart', async () => {
+        it('should add multiple products to cart', () => {
             service.addToCart(mockProducts[0]);
             service.addToCart(mockProducts[1]);
 
-            service.getCartItems().subscribe(items => {
-                expect(items.length).toBe(2);
-                expect(items).toContainEqual(mockProducts[0]);
-                expect(items).toContainEqual(mockProducts[1]);
-                ;
-            });
+            const items = service.cartItemsSignal();
+            expect(items.length).toBe(2);
+            expect(items).toContainEqual(mockProducts[0]);
+            expect(items).toContainEqual(mockProducts[1]);
         });
 
         it('should save cart to localStorage when adding item', () => {
@@ -192,7 +176,7 @@ describe('CartService', () => {
             expect(localStorageSpy.setItem).toHaveBeenCalledWith('cart', JSON.stringify([product]));
         });
 
-        it('should handle localStorage save errors gracefully', async () => {
+        it('should handle localStorage save errors gracefully', () => {
             localStorageSpy.setItem.mockImplementation(() => {
                 throw new Error('Storage full');
             });
@@ -202,39 +186,31 @@ describe('CartService', () => {
             service.addToCart(product);
 
             expect(console.error).toHaveBeenCalled();
-            service.getCartItems().subscribe(items => {
-                // Item should not be added if save fails
-                expect(items.length).toBe(0);
-                ;
-            });
+            expect(service.cartItemsSignal().length).toBe(0);
         });
 
-        it('should increment quantity when adding the same product again', async () => {
+        it('should increment quantity when adding the same product again', () => {
             const product = mockProducts[0];
 
             service.addToCart(product);
             service.addToCart(product);
 
-            service.getCartItems().subscribe(items => {
-                expect(items.length).toBe(1);
-                expect(items[0]).toEqual(product);
-                ;
-            });
+            const items = service.cartItemsSignal();
+            expect(items.length).toBe(1);
+            expect(items[0]).toEqual(product);
         });
 
-        it('should increment persisted quantity for duplicate adds', async () => {
+        it('should increment persisted quantity for duplicate adds', () => {
             const product = createMockProduct({ price: 25.00 });
 
             service.addToCart(product);
             service.addToCart(product);
             service.addToCart(product);
 
-            service.getCartLines().subscribe(lines => {
-                expect(lines.length).toBe(1);
-                expect(lines[0].quantity).toBe(3);
-                expect(lines[0].lineTotal).toBe(75.00);
-                ;
-            });
+            const lines = service.cartLinesSignal();
+            expect(lines.length).toBe(1);
+            expect(lines[0].quantity).toBe(3);
+            expect(lines[0].lineTotal).toBe(75.00);
         });
     });
 
@@ -243,29 +219,24 @@ describe('CartService', () => {
             service = TestBed.inject(CartService);
         });
 
-        it('should remove a product from cart', async () => {
+        it('should remove a product from cart', () => {
             const product = mockProducts[0];
             service.addToCart(product);
 
             service.removeFromCart(product);
 
-            service.getCartItems().subscribe(items => {
-                expect(items.length).toBe(0);
-                ;
-            });
+            expect(service.cartItemsSignal().length).toBe(0);
         });
 
-        it('should remove only the specified product', async () => {
+        it('should remove only the specified product', () => {
             service.addToCart(mockProducts[0]);
             service.addToCart(mockProducts[1]);
 
             service.removeFromCart(mockProducts[0]);
 
-            service.getCartItems().subscribe(items => {
-                expect(items.length).toBe(1);
-                expect(items[0]).toEqual(mockProducts[1]);
-                ;
-            });
+            const items = service.cartItemsSignal();
+            expect(items.length).toBe(1);
+            expect(items[0]).toEqual(mockProducts[1]);
         });
 
         it('should save updated cart to localStorage when removing item', () => {
@@ -277,7 +248,7 @@ describe('CartService', () => {
             expect(localStorageSpy.setItem).toHaveBeenCalledWith('cart', JSON.stringify([mockProducts[1]]));
         });
 
-        it('should handle localStorage save errors when removing', async () => {
+        it('should handle localStorage save errors when removing', () => {
             service.addToCart(mockProducts[0]);
             localStorageSpy.setItem.mockImplementation(() => {
                 throw new Error('Storage error');
@@ -287,95 +258,61 @@ describe('CartService', () => {
             service.removeFromCart(mockProducts[0]);
 
             expect(console.error).toHaveBeenCalled();
-            service.getCartItems().subscribe(items => {
-                // Item should not be removed if save fails
-                expect(items.length).toBe(1);
-                ;
-            });
+            expect(service.cartItemsSignal().length).toBe(1);
         });
 
-        it('should do nothing when removing non-existent product', async () => {
+        it('should do nothing when removing non-existent product', () => {
             service.addToCart(mockProducts[0]);
 
             service.removeFromCart(mockProducts[1]);
 
-            service.getCartItems().subscribe(items => {
-                expect(items.length).toBe(1);
-                expect(items[0]).toEqual(mockProducts[0]);
-                ;
-            });
+            const items = service.cartItemsSignal();
+            expect(items.length).toBe(1);
+            expect(items[0]).toEqual(mockProducts[0]);
         });
 
-        // Edge case: removeFromCart filters by id, so a single remove drops the row
-        // even when quantity was incremented by duplicate adds.
-        it('removes the product row when removeFromCart is called once', async () => {
+        it('removes the product row when removeFromCart is called once', () => {
             service.addToCart(mockProducts[0]);
             service.addToCart(mockProducts[0]);
 
             service.removeFromCart(mockProducts[0]);
 
-            service.getCartItems().subscribe(items => {
-                expect(items.length).toBe(0);
-                expect(service.inCart(mockProducts[0].id)).toBe(false);
-                ;
-            });
+            expect(service.cartItemsSignal().length).toBe(0);
+            expect(service.inCart(mockProducts[0].id)).toBe(false);
         });
     });
 
-    describe('getCartItems', () => {
+    describe('cartItemsSignal', () => {
         beforeEach(() => {
             service = TestBed.inject(CartService);
         });
 
-        it('should return an observable of cart items', async () => {
-            service.getCartItems().subscribe(items => {
-                expect(items).toEqual([]);
-                ;
-            });
-        });
-
-        it('should emit updated cart items when cart changes', async () => {
+        it('should return cart items and update when cart changes', () => {
             const product = mockProducts[0];
-            let emissionCount = 0;
-
-            service.getCartItems().subscribe(items => {
-                emissionCount++;
-                if (emissionCount === 1) {
-                    expect(items).toEqual([]);
-                }
-                else if (emissionCount === 2) {
-                    expect(items).toEqual([product]);
-                    ;
-                }
-            });
+            expect(service.cartItemsSignal()).toEqual([]);
 
             service.addToCart(product);
+            expect(service.cartItemsSignal()).toEqual([product]);
         });
     });
 
-    describe('getTotalPrice', () => {
+    describe('totalPriceSignal', () => {
         beforeEach(() => {
             service = TestBed.inject(CartService);
         });
 
-        it('should return 0 for empty cart', async () => {
-            service.getTotalPrice().subscribe(total => {
-                expect(total).toBe(0);
-                ;
-            });
+        it('should return 0 for empty cart', () => {
+            expect(service.totalPriceSignal()).toBe(0);
         });
 
-        it('should calculate total price for single product', async () => {
+        it('should calculate total price for single product', () => {
             const product = createMockProduct({ price: 99.99 });
             service.addToCart(product);
 
-            service.getTotalPrice().subscribe(total => {
-                expect(total).toBe(99.99);
-                ;
-            });
+            expect(service.totalPriceSignal()).toBe(99.99);
         });
 
-        it('should calculate total price for multiple products', async () => {
+        it('should calculate total price for multiple products', () => {
             const product1 = createMockProduct({ id: 1, price: 50.00 });
             const product2 = createMockProduct({ id: 2, price: 30.00 });
             const product3 = createMockProduct({ id: 3, price: 20.00 });
@@ -384,26 +321,20 @@ describe('CartService', () => {
             service.addToCart(product2);
             service.addToCart(product3);
 
-            service.getTotalPrice().subscribe(total => {
-                expect(total).toBe(100.00);
-                ;
-            });
+            expect(service.totalPriceSignal()).toBe(100.00);
         });
 
-        it('should count duplicate products in total price', async () => {
+        it('should count duplicate products in total price', () => {
             const product = createMockProduct({ price: 25.00 });
 
             service.addToCart(product);
             service.addToCart(product);
             service.addToCart(product);
 
-            service.getTotalPrice().subscribe(total => {
-                expect(total).toBe(75.00);
-                ;
-            });
+            expect(service.totalPriceSignal()).toBe(75.00);
         });
 
-        it('should update total price when items are removed', async () => {
+        it('should update total price when items are removed', () => {
             const product1 = createMockProduct({ id: 1, price: 50.00 });
             const product2 = createMockProduct({ id: 2, price: 30.00 });
 
@@ -411,40 +342,32 @@ describe('CartService', () => {
             service.addToCart(product2);
             service.removeFromCart(product1);
 
-            service.getTotalPrice().subscribe(total => {
-                expect(total).toBe(30.00);
-                ;
-            });
+            expect(service.totalPriceSignal()).toBe(30.00);
         });
 
-        it('should multiply line totals by persisted quantities', async () => {
+        it('should multiply line totals by persisted quantities', () => {
             const product = createMockProduct({ price: 100.00 });
             service.addToCart(product);
             service.setQuantityAtIndex(0, 3);
 
-            service.getTotalPrice().subscribe(total => {
-                expect(total).toBe(300.00);
-                ;
-            });
+            expect(service.totalPriceSignal()).toBe(300.00);
         });
     });
 
-    describe('getCartLines', () => {
+    describe('cartLinesSignal', () => {
         beforeEach(() => {
             service = TestBed.inject(CartService);
         });
 
-        it('should expose quantity and line totals for each cart row', async () => {
+        it('should expose quantity and line totals for each cart row', () => {
             const product = createMockProduct({ price: 50.00 });
             service.addToCart(product);
             service.setQuantityAtIndex(0, 2);
 
-            service.getCartLines().subscribe(lines => {
-                expect(lines.length).toBe(1);
-                expect(lines[0].quantity).toBe(2);
-                expect(lines[0].lineTotal).toBe(100.00);
-                ;
-            });
+            const lines = service.cartLinesSignal();
+            expect(lines.length).toBe(1);
+            expect(lines[0].quantity).toBe(2);
+            expect(lines[0].lineTotal).toBe(100.00);
         });
     });
 
@@ -532,57 +455,42 @@ describe('CartService', () => {
         });
     });
 
-    describe('getNumberOfItems', () => {
+    describe('numberOfItemsSignal', () => {
         beforeEach(() => {
             service = TestBed.inject(CartService);
         });
 
-        it('should return 0 for empty cart', async () => {
-            service.getNumberOfItems().subscribe(count => {
-                expect(count).toBe(0);
-                ;
-            });
+        it('should return 0 for empty cart', () => {
+            expect(service.numberOfItemsSignal()).toBe(0);
         });
 
-        it('should return correct count for single item', async () => {
+        it('should return correct count for single item', () => {
             service.addToCart(mockProducts[0]);
 
-            service.getNumberOfItems().subscribe(count => {
-                expect(count).toBe(1);
-                ;
-            });
+            expect(service.numberOfItemsSignal()).toBe(1);
         });
 
-        it('should return correct count for multiple items', async () => {
+        it('should return correct count for multiple items', () => {
             service.addToCart(mockProducts[0]);
             service.addToCart(mockProducts[1]);
             service.addToCart(mockProducts[2]);
 
-            service.getNumberOfItems().subscribe(count => {
-                expect(count).toBe(3);
-                ;
-            });
+            expect(service.numberOfItemsSignal()).toBe(3);
         });
 
-        it('should keep a single row when the same product is added twice', async () => {
+        it('should keep a single row when the same product is added twice', () => {
             service.addToCart(mockProducts[0]);
             service.addToCart(mockProducts[0]);
 
-            service.getNumberOfItems().subscribe(count => {
-                expect(count).toBe(1);
-                ;
-            });
+            expect(service.numberOfItemsSignal()).toBe(1);
         });
 
-        it('should update count when items are removed', async () => {
+        it('should update count when items are removed', () => {
             service.addToCart(mockProducts[0]);
             service.addToCart(mockProducts[1]);
             service.removeFromCart(mockProducts[0]);
 
-            service.getNumberOfItems().subscribe(count => {
-                expect(count).toBe(1);
-                ;
-            });
+            expect(service.numberOfItemsSignal()).toBe(1);
         });
     });
 
@@ -627,41 +535,32 @@ describe('CartService', () => {
             service = TestBed.inject(CartService);
         });
 
-        it('should handle complex cart operations', async () => {
-            // Add multiple items
+        it('should handle complex cart operations', () => {
             service.addToCart(mockProducts[0]);
             service.addToCart(mockProducts[1]);
-            service.addToCart(mockProducts[0]); // Duplicate
+            service.addToCart(mockProducts[0]);
 
-            // Check state
             expect(service.inCart(mockProducts[0].id)).toBe(true);
             expect(service.inCart(mockProducts[1].id)).toBe(true);
 
-            // Remove one item
             service.removeFromCart(mockProducts[1]);
 
-            service.getCartItems().subscribe(items => {
-                expect(items.length).toBe(1);
-                expect(items[0].id).toBe(mockProducts[0].id);
-                expect(service.inCart(mockProducts[1].id)).toBe(false);
-                ;
-            });
+            const items = service.cartItemsSignal();
+            expect(items.length).toBe(1);
+            expect(items[0].id).toBe(mockProducts[0].id);
+            expect(service.inCart(mockProducts[1].id)).toBe(false);
         });
 
-        it('should persist and restore cart state', async () => {
-            // Add items
+        it('should persist and restore cart state', () => {
             service.addToCart(mockProducts[0]);
             service.addToCart(mockProducts[1]);
 
-            // Simulate page reload by creating new service instance
             const newService = new CartService();
 
-            newService.getCartItems().subscribe(items => {
-                expect(items.length).toBe(2);
-                expect(items).toContainEqual(mockProducts[0]);
-                expect(items).toContainEqual(mockProducts[1]);
-                ;
-            });
+            const items = newService.cartItemsSignal();
+            expect(items.length).toBe(2);
+            expect(items).toContainEqual(mockProducts[0]);
+            expect(items).toContainEqual(mockProducts[1]);
         });
     });
 });
