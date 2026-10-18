@@ -2,11 +2,13 @@ import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
+  DestroyRef,
   ElementRef,
   HostListener,
   OnInit,
   ViewChild,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Location, DecimalPipe } from '@angular/common';
 import { ProductsService } from '../../products.service';
@@ -24,7 +26,7 @@ import {
 } from 'src/app/shared/pricing';
 import { FormsModule } from '@angular/forms';
 import { ProductComponent } from '../product.component';
-import { take } from 'rxjs';
+import { distinctUntilChanged, map, take } from 'rxjs';
 import { BreadcrumbComponent } from 'src/app/shared/breadcrumb/breadcrumb.component';
 
 const MIN_ZOOM = 1;
@@ -72,53 +74,55 @@ export class ProductDetailsComponent implements OnInit {
     private _messageService: NotificationService,
     private _productImageService: ProductImageService,
     private changeDetectorRef: ChangeDetectorRef,
-  ) {
-    const navigation = this.router.getCurrentNavigation();
-    const state = navigation?.extras.state as { product: any };
-    if (state?.product) {
-      this.applyProduct(state.product);
-      this.loadSuggestedProducts(state.product.category?.name);
-    }
-  }
+    private destroyRef: DestroyRef,
+  ) {}
 
   ngOnInit() {
-    this.id = Number(this.activatedRoute.snapshot.params['id']);
-
-    // If user navigated manually to the route
-    if (!this.product) {
-      this._productService.getProductById(this.id).pipe(take(1)).subscribe({
-        next: (response: any) => {
-          const product = response.data.product[0];
-          if (!product) {
-            this.router.navigate(['/404']);
-            return;
-          }
-          this.applyProduct(product);
-          this.loadSuggestedProducts(product.category?.name);
-        },
-        error: () => {
-          this._messageService.add({
-            severity: 'error',
-            summary: 'Product unavailable',
-            detail: 'We could not load this product. Please try again later.',
-          });
-          this.changeDetectorRef.markForCheck();
-        },
-      });
-      this.inWishlist = this.checkInWishlist(this.id);
-    }
-
-    // Breadcrumbs setup
-    this.setBreadcrumbItems();
     this.home = { icon: 'icon-[tabler--home]', routerLink: '/home' };
-  }
 
-  /** Kept as part of the component's public API for existing integrations. */
-  getNumVisible(): number {
-    const width = window.innerWidth;
-    if (width <= 560) return 1;
-    if (width <= 768) return 2;
-    return 3;
+    this.activatedRoute.paramMap
+      .pipe(
+        map((paramMap) => Number(paramMap.get('id'))),
+        distinctUntilChanged(),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe((id) => {
+        if (this.id !== undefined) {
+          this.scrollToTop();
+        }
+        this.id = id;
+
+        const stateProduct = this.getNavigationProduct(id);
+        if (stateProduct) {
+          this.applyProduct(stateProduct);
+          this.loadSuggestedProducts(stateProduct.category?.name);
+          return;
+        }
+
+        this.product = null;
+        this.inWishlist = this.checkInWishlist(this.id);
+        this.setBreadcrumbItems();
+
+        this._productService.getProductById(this.id).pipe(take(1)).subscribe({
+          next: (response: any) => {
+            const product = response.data.product[0];
+            if (!product) {
+              this.router.navigate(['/404']);
+              return;
+            }
+            this.applyProduct(product);
+            this.loadSuggestedProducts(product.category?.name);
+          },
+          error: () => {
+            this._messageService.add({
+              severity: 'error',
+              summary: 'Product unavailable',
+              detail: 'We could not load this product. Please try again later.',
+            });
+            this.changeDetectorRef.markForCheck();
+          },
+        });
+      });
   }
 
   navigateBack() {
@@ -170,10 +174,6 @@ export class ProductDetailsComponent implements OnInit {
     return this._wishlistService.inWishlist(product.id);
   }
 
-  openProductDetails(id: number) {
-    this.router.navigate(['/product', id]);
-  }
-
   getInstallmentAmount = getInstallmentAmount;
 
   setBreadcrumbItems() {
@@ -188,17 +188,6 @@ export class ProductDetailsComponent implements OnInit {
 
   scrollToTop(): void {
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  }
-
-  replaceProduct(id: number) {
-    const newProduct = this.suggestedProducts.find((p) => p.id === id);
-    if (!newProduct) {
-      return;
-    }
-
-    this.applyProduct(newProduct);
-    this.router.navigate(['/product', newProduct.id]);
-    this.scrollToTop();
   }
 
   buyProduct(product: Product) {
@@ -275,7 +264,13 @@ export class ProductDetailsComponent implements OnInit {
     }
   }
 
-  protected readonly scrollY = scrollY;
+  private getNavigationProduct(id: number): Product | null {
+    const state = (this.router.getCurrentNavigation()?.extras.state ?? history.state) as
+      | { product?: Product }
+      | null
+      | undefined;
+    return state?.product?.id === id ? state.product : null;
+  }
 
   private applyProduct(product: Product): void {
     this.id = product.id;

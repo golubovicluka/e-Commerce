@@ -144,16 +144,14 @@ describe('CartViewComponent', () => {
         expect(component.checkoutActive).toBe(false);
     });
 
-    it('delegates cart, product navigation, and image behavior', () => {
+    it('delegates cart and image behavior', () => {
         const product = { id: 7, name: 'Phone', images: ['phone.jpg'] } as any;
         images.resolvePrimaryImage.mockReturnValue('resolved.jpg');
         const event = { target: {} } as Event;
 
         component.removeFromCart(product);
-        component.openProductDetails(7);
 
         expect(cart.removeFromCart).toHaveBeenCalledWith(product);
-        expect(router.navigate).toHaveBeenCalledWith(['/product', 7]);
         expect(component.getProductImage(product)).toBe('resolved.jpg');
         component.onProductImageError(event, 'Phone');
         expect(images.handleImageError).toHaveBeenCalledWith(event, 'Phone');

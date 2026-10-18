@@ -4,6 +4,7 @@
 }
 
 .category-tile {
+  display: block;
   position: relative;
   height: 16rem;
   border-radius: var(--radius-lg);
@@ -11,6 +12,8 @@
   background-position: center;
   background-repeat: no-repeat;
   overflow: hidden;
+  color: inherit;
+  text-decoration: none;
   cursor: pointer;
   box-shadow: var(--shadow-sm);
   transition: box-shadow var(--duration-base) var(--ease-out),

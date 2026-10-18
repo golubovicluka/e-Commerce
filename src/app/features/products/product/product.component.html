@@ -7,17 +7,15 @@
       <span class="size-5" aria-hidden="true"
         [ngClass]="inWishlist ? 'icon-[tabler--heart-filled]' : 'icon-[tabler--heart]'"></span>
     </button>
-    <div class="card-media" (click)="openProductDetails(id)" (keyup.enter)="openProductDetails(id)"
-      role="link" tabindex="0">
-      <img [src]="primaryImageSrc" [alt]="name" width="176" height="144" loading="lazy" decoding="async"
+    <a class="card-media" [routerLink]="['/product', id]" [state]="{ product: product }">
+      <img [src]="primaryImageSrc" [alt]="name" width="176" height="144" [attr.loading]="priority ? null : 'lazy'" decoding="async"
         (error)="onImageError($event)">
-    </div>
+    </a>
     <div class="product-body">
       @if (subcategory?.name) {
         <span class="card-kicker">{{ subcategory?.name }}</span>
       }
-      <h3 class="card-name" (click)="openProductDetails(id)" (keyup.enter)="openProductDetails(id)"
-        role="link" tabindex="0">{{ name }}</h3>
+      <a class="card-name" [routerLink]="['/product', id]" [state]="{ product: product }">{{ name }}</a>
       <p class="card-desc" [attr.title]="description.length > 80 ? description : null">
         {{ description }}
       </p>
@@ -51,19 +49,17 @@
           [ngClass]="inWishlist ? 'icon-[tabler--heart-filled]' : 'icon-[tabler--heart]'"></span>
       </button>
     }
-    <div class="list-media" (click)="openProductDetails(id)" (keyup.enter)="openProductDetails(id)"
-      role="link" tabindex="0">
-      <img [src]="primaryImageSrc" [alt]="name" width="152" height="152" loading="lazy" decoding="async"
+    <a class="list-media" [routerLink]="['/product', id]" [state]="{ product: product }">
+      <img [src]="primaryImageSrc" [alt]="name" width="152" height="152" [attr.loading]="priority ? null : 'lazy'" decoding="async"
         (error)="onImageError($event)">
-    </div>
+    </a>
     <div class="list-info">
       <span class="card-kicker">
         {{ category?.name }}@if (subcategory?.name) {
         &rsaquo; {{ subcategory?.name }}
       }
     </span>
-    <h3 class="card-name" (click)="openProductDetails(id)" (keyup.enter)="openProductDetails(id)"
-      role="link" tabindex="0">{{ name }}</h3>
+    <a class="card-name" [routerLink]="['/product', id]" [state]="{ product: product }">{{ name }}</a>
     <p class="card-desc card-desc--list">{{ description }}</p>
     <span class="list-ean font-mono">EAN {{ EAN }}</span>
   </div>

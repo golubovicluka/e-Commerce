@@ -41,10 +41,4 @@ describe('FooterComponent', () => {
         component.toHome();
         expect(router.navigate).toHaveBeenCalledWith(['/home']);
     });
-
-    it('openLink opens the given URL in a new window without opener access', () => {
-        const openSpy = jest.spyOn(window, 'open').mockReturnValue(null);
-        component.openLink('https://github.com/golubovicluka');
-        expect(openSpy).toHaveBeenCalledWith('https://github.com/golubovicluka', '_blank', 'noopener,noreferrer');
-    });
 });

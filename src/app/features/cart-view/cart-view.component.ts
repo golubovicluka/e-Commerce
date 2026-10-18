@@ -137,10 +137,6 @@ export class CartViewComponent implements OnInit, OnDestroy {
     this._cartService.removeFromCart(product);
   }
 
-  openProductDetails(id: number) {
-    this.router.navigate(['/product', id]);
-  }
-
   getProductImage(product: Product): string {
     return this._productImageService.resolvePrimaryImage(product.images, product.name);
   }

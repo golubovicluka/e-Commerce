@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, OnInit, Output, ChangeDetectionStrategy } from '@angular/core';
-import { Router, NavigationExtras } from '@angular/router';
+import { RouterLink } from '@angular/router';
 import { NotificationService } from 'src/app/shared/notification.service';
 import { Product, Subcategory, Category } from '../Product';
 import { WishlistService } from 'src/app/shared/wishlist.service';
@@ -14,7 +14,7 @@ import { DecimalPipe, NgClass } from '@angular/common';
     templateUrl: './product.component.html',
     styleUrls: ['./product.component.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush,
-    imports: [DecimalPipe, NgClass]
+    imports: [DecimalPipe, NgClass, RouterLink]
 })
 export class ProductComponent implements OnInit {
   @Input() name!: string;
@@ -30,14 +30,13 @@ export class ProductComponent implements OnInit {
   @Input() price!: number;
   @Input() isListView!: boolean;
   @Input() wishlistView?: boolean;
-  @Input() replaceProductOnClick = false;
+  @Input() priority = false;
 
 
   @Output() addedToWishList = new EventEmitter();
   @Output() removedFromWishList = new EventEmitter();
   @Output() addedToCart = new EventEmitter();
   @Output() removedFromCart = new EventEmitter();
-  @Output() replaceCurrentProduct = new EventEmitter<number>();
 
   inWishlist!: boolean;
   inCart!: boolean;
@@ -47,7 +46,6 @@ export class ProductComponent implements OnInit {
 
   constructor(
     private _messageService: NotificationService,
-    private router: Router,
     private _wishlistService: WishlistService,
     private _cartService: CartService,
     private _productImageService: ProductImageService
@@ -107,21 +105,6 @@ export class ProductComponent implements OnInit {
       this.removedFromCart.emit(product);
       this._messageService.add({ severity: 'info', summary: 'Removed', detail: 'Removed from cart' })
     }
-  }
-
-  openProductDetails(id: number) {
-    if (this.replaceProductOnClick) {
-      this.replaceCurrentProduct.emit(id);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-      return;
-    }
-
-    const navigationExtras: NavigationExtras = {
-      state: {
-        product: this.product
-      }
-    };
-    this.router.navigate(['/product', id], navigationExtras);
   }
 
   getInstallmentAmount = getInstallmentAmount;

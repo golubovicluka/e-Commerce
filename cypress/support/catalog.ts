@@ -42,6 +42,7 @@ catalogProducts[0] = {
   ...catalogProducts[0],
   name: 'MacBook Pro M1',
   description: 'Apple silicon workstation with all-day battery.',
+  images: ['/assets/images/product-placeholder.png', '/assets/images/product-placeholder.png'],
 };
 catalogProducts[3] = {
   ...catalogProducts[3],

@@ -69,42 +69,43 @@ describe('ProductImageService', () => {
   });
 
   describe('normalizeImages', () => {
-    it('returns the first two images untouched when two or more are valid', () => {
+    it('returns valid images untouched when two or more are valid', () => {
       expect(service.normalizeImages(['a.jpg', 'b.jpg', 'c.jpg'], 'Phone')).toEqual([
         'a.jpg',
         'b.jpg',
+        'c.jpg',
       ]);
     });
 
-    it('pads a single valid image with a name-based placeholder', () => {
-      expect(service.normalizeImages(['only.jpg'], 'Chair')).toEqual([
-        'only.jpg',
-        service.getFallbackImageByName('Chair'),
-      ]);
+    it('keeps a single valid image without padding', () => {
+      expect(service.normalizeImages(['only.jpg'], 'Chair')).toEqual(['only.jpg']);
     });
 
-    it('returns [name placeholder, asset placeholder] when there are no valid images', () => {
+    it('returns a single name placeholder when there are no valid images', () => {
       expect(service.normalizeImages([], 'Chair')).toEqual([
         service.getFallbackImageByName('Chair'),
-        ASSET_FALLBACK,
       ]);
     });
 
     it('treats null/undefined image arrays as empty (no crash on bad API data)', () => {
-      const expected = [service.getFallbackImageByName('Chair'), ASSET_FALLBACK];
+      const expected = [service.getFallbackImageByName('Chair')];
       expect(service.normalizeImages(null, 'Chair')).toEqual(expected);
       expect(service.normalizeImages(undefined, 'Chair')).toEqual(expected);
     });
 
-    it('trims entries and drops whitespace-only / falsy entries before counting', () => {
+    it('trims entries and drops whitespace-only, falsy, and dead entries', () => {
       expect(
-        service.normalizeImages(['   ', '', null as any, '  real.jpg  '], 'Chair')
-      ).toEqual(['real.jpg', service.getFallbackImageByName('Chair')]);
-    });
-
-    it('caps the result at two images even when many valid images are supplied', () => {
-      const many = ['1.jpg', '2.jpg', '3.jpg', '4.jpg', '5.jpg'];
-      expect(service.normalizeImages(many, 'X').length).toBe(2);
+        service.normalizeImages(
+          [
+            '   ',
+            '',
+            null as any,
+            'https://www.ineedamobile.com/wp-content/uploads/2019/04/iPad-Pro-2.png',
+            '  real.jpg  ',
+          ],
+          'Chair',
+        ),
+      ).toEqual(['real.jpg']);
     });
   });
 

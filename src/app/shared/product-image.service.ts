@@ -5,7 +5,9 @@ import { Injectable } from '@angular/core';
 })
 export class ProductImageService {
   private readonly fallbackAssetPath = 'assets/images/product-placeholder.png';
-  private readonly maxProductImages = 2;
+  private readonly brokenImageUrls = new Set([
+    'https://www.ineedamobile.com/wp-content/uploads/2019/04/iPad-Pro-2.png',
+  ]);
 
   private readonly categoryImages: Record<string, string> = {
     Home: 'https://cdn.pixabay.com/photo/2016/11/18/17/20/living-room-1835923__480.jpg',
@@ -35,20 +37,13 @@ export class ProductImageService {
   normalizeImages(images: string[] | null | undefined, productName?: string | null): string[] {
     const validImages = (images ?? [])
       .map((image) => image?.trim())
-      .filter((image): image is string => Boolean(image));
+      .filter((image): image is string => Boolean(image) && !this.brokenImageUrls.has(image));
 
-    const limitedImages = validImages.slice(0, this.maxProductImages);
-
-    if (limitedImages.length >= this.maxProductImages) {
-      return limitedImages;
+    if (validImages.length > 0) {
+      return validImages;
     }
 
-    if (limitedImages.length === 1) {
-      return [limitedImages[0], this.getFallbackImageByName(productName)];
-    }
-
-    const fallback = this.getFallbackImageByName(productName);
-    return [fallback, this.getFallbackAssetPath()];
+    return [this.getFallbackImageByName(productName)];
   }
 
   resolvePrimaryImage(images: string[] | null | undefined, productName?: string | null): string {

@@ -32,8 +32,7 @@
     </ul>
   </div>
 
-  <a class="hero-stage" (click)="redirect(macbookId)" tabindex="0" role="link"
-    (keyup.enter)="redirect(macbookId)" [attr.aria-label]="macbookName + ' — view product'">
+  <a class="hero-stage" [routerLink]="['/product', macbookId]">
     <span class="stage-watermark" aria-hidden="true">PRO</span>
     <span class="stage-topline">
       <span>Featured system</span>
@@ -60,8 +59,7 @@
 </section>
 
 <section class="hero-tiles stagger" aria-label="Featured departments">
-  <a class="tile" (click)="redirect(ipadId)" tabindex="0" role="link" (keyup.enter)="redirect(ipadId)"
-    [attr.aria-label]="ipadName + ' — view product'">
+  <a class="tile" [routerLink]="['/product', ipadId]">
     <span class="tile-media">
       <img class="tile-img" [alt]="ipadName" [src]="ipadImg || null" width="108" height="108" loading="lazy" decoding="async"
         (error)="onHeroImageError($event, ipadName)" />
@@ -74,8 +72,7 @@
     <span class="icon-[tabler--arrow-right] tile-arrow" aria-hidden="true"></span>
   </a>
 
-  <a class="tile" (click)="redirect(iphoneId)" tabindex="0" role="link" (keyup.enter)="redirect(iphoneId)"
-    [attr.aria-label]="iphoneName + ' — view product'">
+  <a class="tile" [routerLink]="['/product', iphoneId]">
     <span class="tile-media">
       <img class="tile-img" [alt]="iphoneName" [src]="iphoneImg || null" width="108" height="108"
         loading="lazy" decoding="async" (error)="onHeroImageError($event, iphoneName)" />
@@ -102,7 +99,7 @@
       <div class="carousel-container product-strip">
         @for (product of suggestedProducts; track product.id) {
           <div class="carousel-item">
-            <app-suggested-product (openProductDetails)="redirect($event)" [inStock]="product.inStock" [id]="product.id"
+            <app-suggested-product [inStock]="product.inStock" [id]="product.id"
               [name]="product.name" [description]="product.description" [price]="product.price"
             [image]="product.images[0]"></app-suggested-product>
           </div>

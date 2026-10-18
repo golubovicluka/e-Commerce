@@ -39,14 +39,10 @@ describe('Home storefront', () => {
   });
 
   it('navigates through the footer and opens external links safely', () => {
-    cy.window().then((window) => cy.stub(window, 'open').as('windowOpen'));
-    cy.get('button[aria-label="GitHub"]').click();
-    cy.get('@windowOpen').should(
-      'have.been.calledWith',
-      'https://github.com/golubovicluka',
-      '_blank',
-      'noopener,noreferrer',
-    );
+    cy.get('a[aria-label="GitHub"]')
+      .should('have.attr', 'href', 'https://github.com/golubovicluka')
+      .and('have.attr', 'target', '_blank')
+      .and('have.attr', 'rel', 'noopener noreferrer');
 
     cy.get('nav[aria-label="Footer navigation"]').contains('Departments').click();
     cy.wait('@gqlGetProductCategories');

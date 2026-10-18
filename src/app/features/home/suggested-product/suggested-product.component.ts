@@ -1,4 +1,5 @@
-import { Component, EventEmitter, Input, Output, ChangeDetectionStrategy } from '@angular/core';
+import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { ProductImageService } from 'src/app/shared/product-image.service';
 import { DecimalPipe } from '@angular/common';
 
@@ -7,24 +8,17 @@ import { DecimalPipe } from '@angular/common';
     templateUrl: './suggested-product.component.html',
     styleUrls: ['./suggested-product.component.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush,
-    imports: [DecimalPipe]
+    imports: [DecimalPipe, RouterLink]
 })
 export class SuggestedProductComponent {
-  Math = Math;
-
   @Input() name!: string;
   @Input() description!: string;
   @Input() price!: number;
   @Input() inStock!: number;
   @Input() id!: number;
   @Input() image!: string;
-  @Output() openProductDetails = new EventEmitter();
 
   constructor(private _productImageService: ProductImageService) {
-  }
-
-  openDetails(id: number) {
-    this.openProductDetails.emit(id);
   }
 
   get resolvedImage(): string {

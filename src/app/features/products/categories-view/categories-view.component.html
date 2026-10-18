@@ -11,8 +11,7 @@
 @if (categories) {
   <div class="categories-grid stagger">
     @for (category of categories; track category) {
-      <app-category (applyCategoryFilter)="openProductsPage($event)"
-      [name]="category.name" [id]="category.id"></app-category>
+      <app-category [name]="category.name" [id]="category.id"></app-category>
     }
   </div>
 } @else {

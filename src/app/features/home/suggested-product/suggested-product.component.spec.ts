@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 
 import { SuggestedProductComponent } from './suggested-product.component';
 import { ProductImageService } from 'src/app/shared/product-image.service';
@@ -18,7 +19,10 @@ describe('SuggestedProductComponent', () => {
 
         await TestBed.configureTestingModule({
     imports: [SuggestedProductComponent],
-    providers: [{ provide: ProductImageService, useValue: images }],
+    providers: [
+        { provide: ProductImageService, useValue: images },
+        { provide: ActivatedRoute, useValue: {} },
+    ],
     schemas: [NO_ERRORS_SCHEMA],
 }).compileComponents();
 
@@ -31,13 +35,6 @@ describe('SuggestedProductComponent', () => {
 
     it('should create', () => {
         expect(component).toBeTruthy();
-    });
-
-    it('openDetails emits the product id', () => {
-        const emitSpy = jest.spyOn(component.openProductDetails, 'emit').mockReturnValue(undefined);
-        component.openDetails(3);
-        expect(emitSpy).toHaveBeenCalledTimes(1);
-        expect(emitSpy).toHaveBeenCalledWith(3);
     });
 
     it('resolvedImage resolves the single image through ProductImageService', () => {

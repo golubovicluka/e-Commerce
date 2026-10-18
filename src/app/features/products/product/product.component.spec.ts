@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
-import { Router, ActivatedRoute } from '@angular/router';
+import { provideRouter } from '@angular/router';
 import { NotificationService } from 'src/app/shared/notification.service';
 
 import { ProductComponent } from './product.component';
@@ -17,8 +17,7 @@ import { createMockProduct } from 'src/app/testing/mock-data';
  *
  * This rewrite provides test doubles for every dependency and covers the actual
  * behaviour: the wishlist/cart toggles (state flip + correct @Output + the
- * right notification), the installment maths, the route-dependent branch in
- * `openProductDetails`, and the image getter. Logic is driven by calling methods
+ * right notification), the installment maths, and the image getter. Logic is driven by calling methods
  * directly rather than asserting on presentation markup, so the tests don't
  * break when markup/classes change.
  */
@@ -30,12 +29,6 @@ describe('ProductComponent', () => {
     let cart: any;
     let images: any;
     let messages: any;
-    let router: any;
-    let route: {
-        snapshot: {
-            url: string[];
-        };
-    };
 
     beforeEach(async () => {
         wishlist = {
@@ -56,10 +49,6 @@ describe('ProductComponent', () => {
         messages = {
             add: jest.fn().mockName("MessageService.add")
         };
-        router = {
-            navigate: jest.fn().mockName("Router.navigate")
-        };
-        route = { snapshot: { url: ['products', 'search'] } };
 
         wishlist.inWishlist.mockReturnValue(false);
         cart.inCart.mockReturnValue(false);
@@ -69,12 +58,11 @@ describe('ProductComponent', () => {
         await TestBed.configureTestingModule({
     imports: [ProductComponent],
     providers: [
+        provideRouter([]),
         { provide: WishlistService, useValue: wishlist },
         { provide: CartService, useValue: cart },
         { provide: ProductImageService, useValue: images },
         { provide: NotificationService, useValue: messages },
-        { provide: Router, useValue: router },
-        { provide: ActivatedRoute, useValue: route },
     ],
     schemas: [NO_ERRORS_SCHEMA],
 }).compileComponents();
@@ -173,31 +161,6 @@ describe('ProductComponent', () => {
             expect(component.getInstallmentAmount(1200, 12)).toBe(100);
             expect(component.getInstallmentAmount(1250, 12)).toBe(104); // 104.16 -> 104
             expect(component.getInstallmentAmount(0, 12)).toBe(0);
-        });
-    });
-
-    describe('openProductDetails', () => {
-        it('navigates with product state from a lazy route with an empty local URL', () => {
-            component.ngOnInit(); // builds component.product
-            route.snapshot.url = [];
-
-            component.openProductDetails(42);
-
-            expect(router.navigate).toHaveBeenCalledWith(['/product', 42], expect.objectContaining({ state: { product: component.product } }));
-        });
-
-        it('emits replaceCurrentProduct and scrolls up when rendered as a detail-page suggestion', () => {
-            const replaceSpy = jest.spyOn(component.replaceCurrentProduct, 'emit').mockReturnValue(undefined);
-            const scrollSpy = jest.spyOn(window, 'scrollTo').mockReturnValue(undefined);
-            component.replaceProductOnClick = true;
-
-            component.openProductDetails(7);
-
-            expect(replaceSpy).toHaveBeenCalledTimes(1);
-
-            expect(replaceSpy).toHaveBeenCalledWith(7);
-            expect(scrollSpy).toHaveBeenCalled();
-            expect(router.navigate).not.toHaveBeenCalled();
         });
     });
 

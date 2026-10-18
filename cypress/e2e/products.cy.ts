@@ -104,6 +104,10 @@ describe('Catalog recovery and direct product routes', () => {
     cy.wait('@gqlGetProductById');
     cy.contains('h1', 'iPhone 14 Pro Max').should('be.visible');
 
+    cy.contains('.suggested-section .card-name', 'MacBook Pro M1').click();
+    cy.location('pathname').should('eq', '/product/1');
+    cy.contains('h1', 'MacBook Pro M1').should('be.visible');
+
     cy.visit('/product/999');
     cy.wait('@gqlGetProductById');
     cy.location('pathname').should('eq', '/404');

@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { NotificationService } from 'src/app/shared/notification.service';
 import { of, throwError } from 'rxjs';
 
@@ -14,7 +14,6 @@ describe('HomeComponent', () => {
     let fixture: ComponentFixture<HomeComponent>;
     let products: any;
     let images: any;
-    let router: any;
     let messages: any;
 
     beforeEach(async () => {
@@ -33,9 +32,6 @@ describe('HomeComponent', () => {
         images.normalizeImages.mockReturnValue(['normalized.jpg', 'fallback.jpg']);
         images.resolvePrimaryImage.mockReturnValue('featured.jpg');
         images.getFallbackImageByName.mockReturnValue('data:image/svg+xml,fallback');
-        router = {
-            navigate: jest.fn().mockName("Router.navigate")
-        };
         messages = {
             add: jest.fn().mockName("MessageService.add")
         };
@@ -45,7 +41,6 @@ describe('HomeComponent', () => {
     providers: [
         { provide: ProductsService, useValue: products },
         { provide: ProductImageService, useValue: images },
-        { provide: Router, useValue: router },
         { provide: ActivatedRoute, useValue: {} },
         { provide: NotificationService, useValue: messages },
     ],
@@ -75,11 +70,6 @@ describe('HomeComponent', () => {
         expect(component.iphoneImg).toBeTruthy();
         expect(component.iphoneSub).toContain('OLED');
         expect(component.ipadImg).toBeTruthy();
-    });
-
-    it('redirect navigates to the product details route', () => {
-        component.redirect(4);
-        expect(router.navigate).toHaveBeenCalledWith(['/product', 4]);
     });
 
     it('submitForm rejects invalid email addresses', () => {

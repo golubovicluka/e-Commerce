@@ -1,5 +1,4 @@
-<article (click)="openDetails(id)" class="suggested-card" tabindex="0" role="link"
-  (keyup.enter)="openDetails(id)" [attr.aria-label]="name + ' — view product'">
+<a [routerLink]="['/product', id]" class="suggested-card">
   <span class="badge badge-primary badge-sm absolute top-3 left-3 z-10 font-mono tracking-[0.1em] uppercase">New</span>
 
   <div class="img-wrap">
@@ -21,4 +20,4 @@
       </span>
     }
   </div>
-</article>
+</a>

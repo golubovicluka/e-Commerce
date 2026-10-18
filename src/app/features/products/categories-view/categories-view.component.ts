@@ -3,7 +3,6 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { map } from 'rxjs';
 import { ProductsService } from '../products.service';
 import { NavigationItem } from 'src/app/shared/navigation-item';
-import { NavigationExtras, Router } from '@angular/router';
 import { CategoryComponent } from './category/category.component';
 import { BreadcrumbComponent } from 'src/app/shared/breadcrumb/breadcrumb.component';
 
@@ -25,10 +24,7 @@ export class CategoriesViewComponent implements OnInit {
   public items!: NavigationItem[];
   home!: NavigationItem;
 
-  constructor(
-    private _productsService: ProductsService,
-    private router: Router
-  ) { }
+  constructor(private _productsService: ProductsService) { }
 
   get categories(): any[] | undefined {
     return this.categoriesState();
@@ -39,17 +35,6 @@ export class CategoriesViewComponent implements OnInit {
       { label: 'Categories', routerLink: '/categories' },
     ];
     this.home = { icon: 'icon-[tabler--home]', routerLink: '/home' };
-  }
-
-  openProductsPage(categoryName: string) {
-    this._productsService.setCategoryFilter(categoryName);
-    const navigationExtras: NavigationExtras = {
-      state: {
-        filters: categoryName
-      }
-    }
-
-    this.router.navigate(['/products/search'], navigationExtras);
   }
 
 }

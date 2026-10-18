@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ElementRef, NO_ERRORS_SCHEMA } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, convertToParamMap, ParamMap, Router } from '@angular/router';
 import { Location } from '@angular/common';
 import { NotificationService } from 'src/app/shared/notification.service';
 
@@ -10,14 +10,13 @@ import { WishlistService } from 'src/app/shared/wishlist.service';
 import { CartService } from 'src/app/shared/cart.service';
 import { ProductImageService } from 'src/app/shared/product-image.service';
 import { mockProducts } from 'src/app/testing/mock-data';
-import { of, throwError } from 'rxjs';
+import { BehaviorSubject, of, throwError } from 'rxjs';
 
 /**
  * The CLI stub threw `No provider for Apollo!` via ProductsService and also
- * needed Router/ActivatedRoute/Location/MessageService. The constructor reads
- * `router.getCurrentNavigation()`, so that spy returns null (the "navigated
- * directly / reloaded" path). Covered: construction, the installment helper, the
- * cart handoffs, and back-navigation.
+ * needed Router/ActivatedRoute/Location/MessageService. `ngOnInit` subscribes
+ * to `activatedRoute.paramMap` and reads `router.getCurrentNavigation()`, so
+ * that spy returns null by default (the "navigated directly / reloaded" path).
  */
 describe('ProductDetailsComponent', () => {
     let component: ProductDetailsComponent;
@@ -29,8 +28,10 @@ describe('ProductDetailsComponent', () => {
     let wishlist: any;
     let images: any;
     let messages: any;
+    let paramMap$: BehaviorSubject<ParamMap>;
 
     beforeEach(async () => {
+        paramMap$ = new BehaviorSubject(convertToParamMap({ id: '1' }));
         products = {
             getProductById: jest.fn().mockName("ProductsService.getProductById"),
             getProductsByCategory: jest.fn().mockName("ProductsService.getProductsByCategory")
@@ -41,6 +42,7 @@ describe('ProductDetailsComponent', () => {
             removeWishListItem: jest.fn().mockName("WishlistService.removeWishListItem")
         };
         cart = {
+            inCart: jest.fn().mockName("CartService.inCart").mockReturnValue(false),
             addToCart: jest.fn().mockName("CartService.addToCart"),
             removeFromCart: jest.fn().mockName("CartService.removeFromCart")
         };
@@ -64,7 +66,10 @@ describe('ProductDetailsComponent', () => {
         };
         router = {
             navigate: jest.fn().mockName("Router.navigate"),
-            getCurrentNavigation: jest.fn().mockName("Router.getCurrentNavigation")
+            getCurrentNavigation: jest.fn().mockName("Router.getCurrentNavigation"),
+            createUrlTree: jest.fn().mockReturnValue({}),
+            serializeUrl: jest.fn().mockReturnValue('/product/1'),
+            events: of()
         };
         router.getCurrentNavigation.mockReturnValue(null);
 
@@ -77,7 +82,7 @@ describe('ProductDetailsComponent', () => {
         { provide: ProductImageService, useValue: images },
         { provide: Location, useValue: location },
         { provide: Router, useValue: router },
-        { provide: ActivatedRoute, useValue: { snapshot: { params: { id: 1 } } } },
+        { provide: ActivatedRoute, useValue: { paramMap: paramMap$.asObservable(), snapshot: { params: { id: 1 } } } },
         { provide: NotificationService, useValue: messages },
     ],
     schemas: [NO_ERRORS_SCHEMA],
@@ -111,12 +116,9 @@ describe('ProductDetailsComponent', () => {
         expect(cart.removeFromCart).toHaveBeenCalledWith(mockProducts[0]);
     });
 
-    it('keeps the existing public navigation API', () => {
-        component.openProductDetails(42);
-        expect(router.navigate).toHaveBeenCalledWith(['/product', 42]);
-    });
-
     it('loads a directly visited product and related suggestions', () => {
+        const scroll = jest.spyOn(window, 'scrollTo').mockReturnValue(undefined);
+
         component.ngOnInit();
 
         expect(products.getProductById).toHaveBeenCalledWith(1);
@@ -124,6 +126,7 @@ describe('ProductDetailsComponent', () => {
         expect(component.suggestedProducts.every((product: any) => product.id !== component.id)).toBe(true);
         expect(component.items[1].label).toBe(component.product.name);
         expect(component.home.routerLink).toBe('/home');
+        expect(scroll).not.toHaveBeenCalled();
     });
 
     it('redirects to 404 when a directly requested product does not exist', () => {
@@ -160,6 +163,7 @@ describe('ProductDetailsComponent', () => {
         router.getCurrentNavigation.mockReturnValue({ extras: { state: { product } } });
 
         const stateComponent = TestBed.createComponent(ProductDetailsComponent).componentInstance;
+        stateComponent.ngOnInit();
 
         expect(stateComponent.suggestedProducts).toEqual([]);
     });
@@ -180,17 +184,9 @@ describe('ProductDetailsComponent', () => {
         router.getCurrentNavigation.mockReturnValue({ extras: { state: { product: mockProducts[0] } } });
 
         const stateComponent = TestBed.createComponent(ProductDetailsComponent).componentInstance;
+        stateComponent.ngOnInit();
 
         expect(stateComponent.suggestedProducts).toEqual([]);
-    });
-
-    it('selects a responsive visible-item count', () => {
-        Object.defineProperty(window, 'innerWidth', { value: 500, configurable: true });
-        expect(component.getNumVisible()).toBe(1);
-        Object.defineProperty(window, 'innerWidth', { value: 700, configurable: true });
-        expect(component.getNumVisible()).toBe(2);
-        Object.defineProperty(window, 'innerWidth', { value: 1200, configurable: true });
-        expect(component.getNumVisible()).toBe(3);
     });
 
     it('adds and removes a product from the wishlist with feedback', () => {
@@ -216,18 +212,51 @@ describe('ProductDetailsComponent', () => {
         expect(component.checkInWishlist(mockProducts[0].id)).toBe(false);
     });
 
-    it('replaces a product from suggestions and ignores unknown ids', () => {
-        component.suggestedProducts = [mockProducts[1]];
+    it('updates the displayed product, gallery, breadcrumbs, and scrolls to top when route id changes with navigation state', () => {
         const scroll = jest.spyOn(window, 'scrollTo').mockReturnValue(undefined);
+        fixture.detectChanges();
+        expect(fixture.nativeElement.querySelector('.detail-name').textContent).toContain(mockProducts[0].name);
+        expect(scroll).not.toHaveBeenCalled();
 
-        component.replaceProduct(mockProducts[1].id);
+        component.activeIndex = 1;
+        component.zoom = 2.5;
+        component.rotation = -90;
+        products.getProductById.mockClear();
+        products.getProductsByCategory.mockClear();
+        wishlist.inWishlist.mockReturnValue(true);
+        router.getCurrentNavigation.mockReturnValue({ extras: { state: { product: mockProducts[1] } } });
+
+        paramMap$.next(convertToParamMap({ id: String(mockProducts[1].id) }));
+        fixture.detectChanges();
+
+        expect(products.getProductById).not.toHaveBeenCalled();
+        expect(products.getProductsByCategory).toHaveBeenCalledWith(mockProducts[1].category?.name);
         expect(component.product.id).toBe(mockProducts[1].id);
-        expect(router.navigate).toHaveBeenCalledWith(['/product', mockProducts[1].id]);
-        expect(scroll).toHaveBeenCalled();
+        expect(fixture.nativeElement.querySelector('.detail-name').textContent).toContain(mockProducts[1].name);
+        expect(component.activeIndex).toBe(0);
+        expect(component.zoom).toBe(1);
+        expect(component.rotation).toBe(0);
+        expect(component.inWishlist).toBe(true);
+        expect(component.items[1]).toEqual({
+            label: mockProducts[1].name,
+            routerLink: `/product/${mockProducts[1].id}`,
+        });
+        expect(component.suggestedProducts.every((product: any) => product.id !== mockProducts[1].id)).toBe(true);
+        expect(scroll).toHaveBeenCalledWith({ top: 0, behavior: 'smooth' });
+    });
 
-        router.navigate.mockClear();
-        component.replaceProduct(9999);
-        expect(router.navigate).not.toHaveBeenCalled();
+    it('fetches the new product by id when route id changes without matching navigation state', () => {
+        const scroll = jest.spyOn(window, 'scrollTo').mockReturnValue(undefined);
+        router.getCurrentNavigation.mockReturnValue({ extras: { state: { product: mockProducts[0] } } });
+        component.ngOnInit();
+
+        products.getProductById.mockReturnValue(of({ data: { product: [mockProducts[2]] } }));
+        paramMap$.next(convertToParamMap({ id: String(mockProducts[2].id) }));
+
+        expect(products.getProductById).toHaveBeenCalledWith(mockProducts[2].id);
+        expect(component.product.id).toBe(mockProducts[2].id);
+        expect(component.items[1].label).toBe(mockProducts[2].name);
+        expect(scroll).toHaveBeenCalledWith({ top: 0, behavior: 'smooth' });
     });
 
     it('buys a product and moves to the cart', () => {
@@ -256,7 +285,9 @@ describe('ProductDetailsComponent', () => {
         const threeImages = ['first.jpg', 'second.jpg', 'third.jpg'];
 
         function loadImages(list: string[] = threeImages): void {
-            component.product = mockProducts[0];
+            const product = { ...mockProducts[0], images: [...list] };
+            products.getProductById.mockReturnValue(of({ data: { product: [product] } }));
+            component.product = product;
             component.images = [...list];
             component.activeIndex = 0;
         }

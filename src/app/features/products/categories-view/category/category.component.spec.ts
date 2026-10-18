@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { ProductImageService } from 'src/app/shared/product-image.service';
 
 import { CategoryComponent } from './category.component';
@@ -17,7 +18,10 @@ describe('CategoryComponent', () => {
 
         await TestBed.configureTestingModule({
     imports: [CategoryComponent],
-    providers: [{ provide: ProductImageService, useValue: images }],
+    providers: [
+        { provide: ProductImageService, useValue: images },
+        { provide: ActivatedRoute, useValue: {} },
+    ],
     schemas: [NO_ERRORS_SCHEMA],
 }).compileComponents();
 
@@ -27,13 +31,6 @@ describe('CategoryComponent', () => {
 
     it('should create', () => {
         expect(component).toBeTruthy();
-    });
-
-    it('openProductsPage emits the category name', () => {
-        const emitSpy = jest.spyOn(component.applyCategoryFilter, 'emit').mockReturnValue(undefined);
-        component.openProductsPage('Electronics');
-        expect(emitSpy).toHaveBeenCalledTimes(1);
-        expect(emitSpy).toHaveBeenCalledWith('Electronics');
     });
 
     it('getCategoryImage delegates to ProductImageService', () => {
