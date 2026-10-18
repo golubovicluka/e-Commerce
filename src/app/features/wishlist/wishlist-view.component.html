@@ -14,7 +14,7 @@
 @if (wishlistItems) {
   <div class="wishlist-items stagger">
     @for (product of wishlistItems; track trackByProductId($index, product)) {
-      <div class="wishlist-row" auto-animate>
+      <div class="wishlist-row">
         <button class="remove-btn btn btn-outline btn-error btn-square btn-sm" type="button" (click)="removeFromWishlist(product)"
           [attr.aria-label]="'Remove ' + product.name + ' from wishlist'">
           <span class="icon-[tabler--x] size-4" aria-hidden="true"></span>
