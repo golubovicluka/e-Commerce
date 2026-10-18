@@ -37,7 +37,7 @@
         <div class="viewer-stage">
           <button type="button" class="viewer-zoom-toggle" [attr.aria-pressed]="zoom > 1"
             aria-label="Toggle image zoom" (click)="toggleZoom()">
-            <img class="viewer-image" [class.is-zoomed]="zoom > 1" [src]="images[activeIndex]" decoding="async"
+            <img class="viewer-image" [class.is-zoomed]="zoom > 1" [src]="images[activeIndex]" width="480" height="480" decoding="async"
               draggable="false" [alt]="product.name + ' photo ' + (activeIndex + 1)"
               [style.transform]="imageTransform" (error)="onGalleryImageError($event, activeIndex)">
           </button>
@@ -61,7 +61,7 @@
                 [attr.aria-current]="index === activeIndex ? 'true' : null"
                 [attr.aria-label]="'Show ' + product.name + ' photo ' + (index + 1)"
                 (click)="imageClick(index)">
-                <img class="viewer-thumbnail" [src]="image" loading="lazy" decoding="async" alt=""
+                <img class="viewer-thumbnail" [src]="image" width="64" height="64" loading="lazy" decoding="async" alt=""
                   (error)="onGalleryImageError($event, index)">
               </button>
             }

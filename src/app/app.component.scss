@@ -3,7 +3,8 @@
   max-width: var(--layout-max-width);
   margin: 0 auto;
   padding: var(--space-4) var(--space-4) var(--space-12);
-  min-height: calc(100vh - 320px);
+  min-height: calc(100vh - 6.5rem);
+  min-height: calc(100dvh - 6.5rem);
 }
 
 @media (min-width: 768px) {

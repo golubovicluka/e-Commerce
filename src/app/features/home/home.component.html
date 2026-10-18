@@ -40,7 +40,7 @@
       <span>Catalog / 2026</span>
     </span>
     <span class="stage-plinth">
-      <img class="stage-img" [alt]="macbookName" [src]="macbookImg || null"
+      <img class="stage-img" [alt]="macbookName" [src]="macbookImg || null" width="240" height="200"
         fetchpriority="high" decoding="async" (error)="onHeroImageError($event, macbookName)" />
     </span>
     <span class="stage-caption">
@@ -63,7 +63,7 @@
   <a class="tile" (click)="redirect(ipadId)" tabindex="0" role="link" (keyup.enter)="redirect(ipadId)"
     [attr.aria-label]="ipadName + ' — view product'">
     <span class="tile-media">
-      <img class="tile-img" [alt]="ipadName" [src]="ipadImg || null" loading="lazy" decoding="async"
+      <img class="tile-img" [alt]="ipadName" [src]="ipadImg || null" width="108" height="108" loading="lazy" decoding="async"
         (error)="onHeroImageError($event, ipadName)" />
     </span>
     <span class="tile-body">
@@ -77,7 +77,7 @@
   <a class="tile" (click)="redirect(iphoneId)" tabindex="0" role="link" (keyup.enter)="redirect(iphoneId)"
     [attr.aria-label]="iphoneName + ' — view product'">
     <span class="tile-media">
-      <img class="tile-img" [alt]="iphoneName" [src]="iphoneImg || null"
+      <img class="tile-img" [alt]="iphoneName" [src]="iphoneImg || null" width="108" height="108"
         loading="lazy" decoding="async" (error)="onHeroImageError($event, iphoneName)" />
     </span>
     <span class="tile-body">

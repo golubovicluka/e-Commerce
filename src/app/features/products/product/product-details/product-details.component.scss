@@ -357,7 +357,8 @@ $sm: 576px;
 }
 
 .skeleton-gallery {
-  height: 28rem;
+  aspect-ratio: 1 / 1;
+  min-height: 32rem;
   border-radius: var(--radius-xl);
 }
 

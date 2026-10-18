@@ -9,7 +9,7 @@
     </button>
     <div class="card-media" (click)="openProductDetails(id)" (keyup.enter)="openProductDetails(id)"
       role="link" tabindex="0">
-      <img [src]="primaryImageSrc" [alt]="name" loading="lazy" decoding="async"
+      <img [src]="primaryImageSrc" [alt]="name" width="176" height="144" loading="lazy" decoding="async"
         (error)="onImageError($event)">
     </div>
     <div class="product-body">
@@ -53,7 +53,7 @@
     }
     <div class="list-media" (click)="openProductDetails(id)" (keyup.enter)="openProductDetails(id)"
       role="link" tabindex="0">
-      <img [src]="primaryImageSrc" [alt]="name" loading="lazy" decoding="async"
+      <img [src]="primaryImageSrc" [alt]="name" width="152" height="152" loading="lazy" decoding="async"
         (error)="onImageError($event)">
     </div>
     <div class="list-info">

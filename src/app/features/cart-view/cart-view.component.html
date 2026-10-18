@@ -24,7 +24,7 @@
             <div class="item-media" (click)="openProductDetails(line.product.id)"
               (keyup.enter)="openProductDetails(line.product.id)" role="link" tabindex="0">
               <img [src]="getProductImage(line.product)" (error)="onProductImageError($event, line.product.name)"
-                [alt]="line.product.name" loading="lazy" decoding="async">
+                [alt]="line.product.name" width="88" height="88" loading="lazy" decoding="async">
             </div>
             <div class="item-info">
               <h3 class="item-name" (click)="openProductDetails(line.product.id)"

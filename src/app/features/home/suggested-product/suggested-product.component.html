@@ -3,7 +3,7 @@
   <span class="badge badge-primary badge-sm absolute top-3 left-3 z-10 font-mono tracking-[0.1em] uppercase">New</span>
 
   <div class="img-wrap">
-    <img [src]="resolvedImage" loading="lazy" decoding="async" (error)="onImageError($event)" [alt]="name">
+    <img [src]="resolvedImage" width="200" height="160" loading="lazy" decoding="async" (error)="onImageError($event)" [alt]="name">
   </div>
 
   <h3 class="product-name">{{ name }}</h3>
