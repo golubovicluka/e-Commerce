@@ -25,13 +25,14 @@
       <a [routerLink]="['/categories']" routerLinkActive="active">Categories</a>
     </nav>
 
-    <form class="header-search hidden md:flex" (ngSubmit)="onSearch()" role="search">
+    <form class="header-search hidden md:flex" (submit)="$event.preventDefault(); onSearch()" role="search">
       <label class="input w-full">
         <span class="icon-[tabler--search] text-base-content/80 my-auto size-5 shrink-0" aria-hidden="true"></span>
         <input
           type="search"
           class="grow"
-          [(ngModel)]="searchQuery"
+          [value]="searchQuery"
+          (input)="searchQuery = $any($event.target).value"
           name="search"
           placeholder="Search products…"
           aria-label="Search products"
@@ -78,7 +79,7 @@
   @if (mobileSearchOpen) {
     <form
       class="mobile-search-bar md:hidden!"
-      (ngSubmit)="onSearch()"
+      (submit)="$event.preventDefault(); onSearch()"
       role="search"
       >
       <label class="input flex-1">
@@ -86,7 +87,8 @@
         <input
           type="search"
           class="grow"
-          [(ngModel)]="searchQuery"
+          [value]="searchQuery"
+          (input)="searchQuery = $any($event.target).value"
           name="mobileSearch"
           placeholder="Search products…"
           aria-label="Search products"

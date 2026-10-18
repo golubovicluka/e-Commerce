@@ -2,7 +2,6 @@ import { computed, Component, ElementRef, OnInit, ViewChild, ChangeDetectionStra
 import { WishlistService } from '../../../shared/wishlist.service';
 import { CartService } from 'src/app/shared/cart.service';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
-import { FormsModule } from '@angular/forms';
 import { NavigationItem } from 'src/app/shared/navigation-item';
 
 @Component({
@@ -10,7 +9,7 @@ import { NavigationItem } from 'src/app/shared/navigation-item';
     templateUrl: './header.component.html',
     styleUrls: ['./header.component.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush,
-    imports: [RouterLink, RouterLinkActive, FormsModule]
+    imports: [RouterLink, RouterLinkActive]
 })
 export class HeaderComponent implements OnInit {
   items: NavigationItem[] = [];
