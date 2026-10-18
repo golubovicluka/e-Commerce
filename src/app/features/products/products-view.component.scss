@@ -67,6 +67,9 @@
     flex-shrink: 0;
     position: sticky;
     top: 5.5rem;
+    max-height: calc(100vh - 6.5rem);
+    max-height: calc(100dvh - 6.5rem);
+    overflow-y: auto;
   }
 
   .filters-title {
@@ -157,6 +160,7 @@
     height: 0.375rem;
     transform: translateY(-50%);
     border-radius: 999px;
+    pointer-events: none;
     background: linear-gradient(
       to right,
       var(--color-border) var(--fill-start),

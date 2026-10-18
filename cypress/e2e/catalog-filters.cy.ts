@@ -4,7 +4,16 @@ const minInput = 'input[aria-label="Minimum price"]';
 const maxInput = 'input[aria-label="Maximum price"]';
 
 function slide(selector: string, value: number) {
-  cy.get(selector).invoke('val', value).trigger('input').trigger('change');
+  // Dual-range inputs set pointer-events: none on the <input> track and
+  // pointer-events: auto on ::-webkit-slider-thumb / ::-moz-range-thumb so
+  // the stacked tracks do not block each other's thumbs.
+  cy.get(selector)
+    .scrollIntoView()
+    .should('be.visible')
+    .and('be.enabled')
+    .invoke('val', value)
+    .trigger('input', { force: true })
+    .trigger('change', { force: true });
 }
 
 describe('Catalog filters', () => {
@@ -79,7 +88,7 @@ describe('Catalog filters', () => {
   it('filters by the price slider without letting the thumbs cross', () => {
     cy.get(minSlider).should('have.value', '10000');
     cy.get(maxSlider).should('have.value', '130000');
-    cy.contains('.price-label', '10,000 – 130,000 RSD').should('be.visible');
+    cy.contains('.price-label', '10,000 – 130,000 RSD').scrollIntoView().should('be.visible');
 
     slide(minSlider, 30000);
     cy.wait('@gqlGetProductsPage')
