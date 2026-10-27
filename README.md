@@ -67,6 +67,12 @@ Use `npm run e2e` instead to open the interactive Cypress runner. The E2E suite 
 
    The application will be available at `http://localhost:4200`.
 
+## Product images
+
+Catalog image fields from Hasura are **filenames** (for example `iphone13pro.jpg`). At runtime, `ProductImageService` resolves them to bundled paths under `src/assets/images/products/`. Category tiles use `src/assets/images/categories/`. Remote stock-photo URLs are no longer referenced in application code.
+
+See [`src/assets/images/README.md`](src/assets/images/README.md) for the folder layout and [`src/assets/images/image-manifest.json`](src/assets/images/image-manifest.json) for the checklist of files to add. Optional maintainer script: `npm run images:sync` (downloads only entries that define a `sourceUrl` in the manifest).
+
 ## Quality Checks
 
 Use Node 24.15.0 (the version in `.nvmrc`), then run:

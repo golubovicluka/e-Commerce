@@ -14,7 +14,11 @@ describe('CategoryComponent', () => {
         images = {
             getCategoryImage: jest.fn().mockName("ProductImageService.getCategoryImage")
         };
-        images.getCategoryImage.mockImplementation((name: string) => name === 'Electronics' ? 'https://example.com/electronics.jpg' : 'data:image/svg+xml,fallback');
+        images.getCategoryImage.mockImplementation((name: string) =>
+          name === 'Electronics'
+            ? 'assets/images/categories/electronics.jpg'
+            : 'assets/images/categories/unknown.jpg',
+        );
 
         await TestBed.configureTestingModule({
     imports: [CategoryComponent],
@@ -34,11 +38,11 @@ describe('CategoryComponent', () => {
     });
 
     it('getCategoryImage delegates to ProductImageService', () => {
-        expect(component.getCategoryImage('Electronics')).toContain('http');
+        expect(component.getCategoryImage('Electronics')).toContain('assets/images/categories/');
         expect(images.getCategoryImage).toHaveBeenCalledWith('Electronics');
     });
 
     it('getCategoryImage returns a fallback for unmapped categories', () => {
-        expect(component.getCategoryImage('Totally Unknown Category')).toMatch(/^data:image\/svg\+xml,/);
+        expect(component.getCategoryImage('Totally Unknown Category')).toContain('assets/images/categories/');
     });
 });
