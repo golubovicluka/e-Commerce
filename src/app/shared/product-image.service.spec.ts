@@ -58,27 +58,35 @@ describe('ProductImageService', () => {
   });
 
   describe('getCategoryImage', () => {
-    it('returns a mapped image for known categories', () => {
-      expect(service.getCategoryImage('Electronics')).toContain('http');
-      expect(service.getCategoryImage('Kitchen')).toContain('http');
+    it('returns bundled asset paths for known categories', () => {
+      expect(service.getCategoryImage('Electronics')).toBe('assets/images/categories/electronics.jpg');
+      expect(service.getCategoryImage('Kitchen')).toBe('assets/images/categories/kitchen.jpg');
     });
 
-    it('returns an SVG fallback for unmapped categories', () => {
-      expect(service.getCategoryImage('Totally Unknown Category')).toMatch(/^data:image\/svg\+xml,/);
+    it('returns a slugged bundled path for unmapped categories', () => {
+      expect(service.getCategoryImage('Totally Unknown Category')).toBe(
+        'assets/images/categories/totally-unknown-category.jpg',
+      );
+    });
+
+    it('returns an SVG fallback for empty category names', () => {
+      expect(service.getCategoryImage('   ')).toMatch(/^data:image\/svg\+xml,/);
     });
   });
 
   describe('normalizeImages', () => {
-    it('returns valid images untouched when two or more are valid', () => {
+    it('resolves catalog filenames into bundled product asset paths', () => {
       expect(service.normalizeImages(['a.jpg', 'b.jpg', 'c.jpg'], 'Phone')).toEqual([
-        'a.jpg',
-        'b.jpg',
-        'c.jpg',
+        'assets/images/products/a.jpg',
+        'assets/images/products/b.jpg',
+        'assets/images/products/c.jpg',
       ]);
     });
 
     it('keeps a single valid image without padding', () => {
-      expect(service.normalizeImages(['only.jpg'], 'Chair')).toEqual(['only.jpg']);
+      expect(service.normalizeImages(['only.jpg'], 'Chair')).toEqual([
+        'assets/images/products/only.jpg',
+      ]);
     });
 
     it('returns a single name placeholder when there are no valid images', () => {
@@ -93,7 +101,7 @@ describe('ProductImageService', () => {
       expect(service.normalizeImages(undefined, 'Chair')).toEqual(expected);
     });
 
-    it('trims entries and drops whitespace-only, falsy, and dead entries', () => {
+    it('trims entries and drops whitespace-only, falsy, legacy remote, and unrecoverable URLs', () => {
       expect(
         service.normalizeImages(
           [
@@ -102,21 +110,30 @@ describe('ProductImageService', () => {
             null as any,
             'https://www.ineedamobile.com/wp-content/uploads/2019/04/iPad-Pro-2.png',
             '  real.jpg  ',
+            'https://cdn.example.com/no-extension',
           ],
           'Chair',
         ),
-      ).toEqual(['real.jpg']);
+      ).toEqual(['assets/images/products/ipad-pro.png', 'assets/images/products/real.jpg']);
+    });
+
+    it('deduplicates identical resolved paths', () => {
+      expect(
+        service.normalizeImages(['chair.jpg', '/assets/images/products/chair.jpg'], 'Chair'),
+      ).toEqual(['assets/images/products/chair.jpg']);
     });
   });
 
   describe('resolvePrimaryImage', () => {
     it('returns the first valid image', () => {
-      expect(service.resolvePrimaryImage(['a.jpg', 'b.jpg'], 'X')).toBe('a.jpg');
+      expect(service.resolvePrimaryImage(['a.jpg', 'b.jpg'], 'X')).toBe(
+        'assets/images/products/a.jpg',
+      );
     });
 
     it('returns the name placeholder when no valid images exist', () => {
       expect(service.resolvePrimaryImage([], 'Office Chair')).toBe(
-        service.getFallbackImageByName('Office Chair')
+        service.getFallbackImageByName('Office Chair'),
       );
     });
   });
@@ -128,12 +145,12 @@ describe('ProductImageService', () => {
 
     it('does nothing when the event has no target', () => {
       expect(() =>
-        service.handleImageError({ target: null } as unknown as Event, 'X')
+        service.handleImageError({ target: null } as unknown as Event, 'X'),
       ).not.toThrow();
     });
 
-    it('step 1: a failing real image swaps to the SVG placeholder', () => {
-      const img = imgStub('https://cdn.example.com/real.jpg');
+    it('step 1: a failing bundled image swaps to the SVG placeholder', () => {
+      const img = imgStub('assets/images/products/missing.jpg');
       service.handleImageError({ target: img } as unknown as Event, 'iPhone');
       expect(img.src).toBe(service.getFallbackImageByName('iPhone'));
     });

@@ -10,7 +10,8 @@
     "test:ci": "jest --runInBand --coverage",
     "e2e": "cypress open",
     "e2e:ci": "cypress run",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "images:sync": "node scripts/sync-product-images.mjs"
   },
   "private": true,
   "engines": {

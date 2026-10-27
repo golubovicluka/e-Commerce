@@ -1,21 +1,14 @@
 import { Injectable } from '@angular/core';
+import {
+  IMAGE_ASSETS,
+  categoryAssetPath,
+  resolveImageReference,
+} from './product-image-paths';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ProductImageService {
-  private readonly fallbackAssetPath = 'assets/images/product-placeholder.png';
-  private readonly brokenImageUrls = new Set([
-    'https://www.ineedamobile.com/wp-content/uploads/2019/04/iPad-Pro-2.png',
-  ]);
-
-  private readonly categoryImages: Record<string, string> = {
-    Home: 'https://cdn.pixabay.com/photo/2016/11/18/17/20/living-room-1835923__480.jpg',
-    Electronics: 'https://images.pexels.com/photos/1229861/pexels-photo-1229861.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500',
-    'Sports & Outdoors': 'https://images.pexels.com/photos/1461883/pexels-photo-1461883.jpeg?auto=compress&cs=tinysrgb&w=500',
-    Kitchen: 'https://images.pexels.com/photos/2724749/pexels-photo-2724749.jpeg?auto=compress&cs=tinysrgb&w=500',
-  };
-
   getFallbackImageByName(productName?: string | null): string {
     const trimmedName = productName?.trim();
     const text = trimmedName && trimmedName.length > 0 ? trimmedName : 'Product';
@@ -23,24 +16,26 @@ export class ProductImageService {
   }
 
   getCategoryImage(categoryName: string): string {
-    const mapped = this.categoryImages[categoryName];
-    if (mapped) {
-      return mapped;
+    const trimmed = categoryName.trim();
+    if (!trimmed) {
+      return this.getFallbackImageByName('Category');
     }
-    return this.buildSvgPlaceholder(categoryName, 'Category');
+    return categoryAssetPath(trimmed);
   }
 
   getFallbackAssetPath(): string {
-    return this.fallbackAssetPath;
+    return IMAGE_ASSETS.productPlaceholder;
   }
 
   normalizeImages(images: string[] | null | undefined, productName?: string | null): string[] {
-    const validImages = (images ?? [])
-      .map((image) => image?.trim())
-      .filter((image): image is string => Boolean(image) && !this.brokenImageUrls.has(image));
+    const resolved = (images ?? [])
+      .map((image) => resolveImageReference(image ?? ''))
+      .filter((image): image is string => Boolean(image));
 
-    if (validImages.length > 0) {
-      return validImages;
+    const unique = [...new Set(resolved)];
+
+    if (unique.length > 0) {
+      return unique;
     }
 
     return [this.getFallbackImageByName(productName)];
@@ -60,7 +55,7 @@ export class ProductImageService {
     const fallbackAsset = this.getFallbackAssetPath();
     const currentImageUrl = imageElement.currentSrc || imageElement.src || '';
     const isSvgFallback = currentImageUrl.startsWith('data:image/svg+xml');
-    const isAssetFallback = currentImageUrl.includes(this.fallbackAssetPath);
+    const isAssetFallback = currentImageUrl.includes(fallbackAsset);
 
     if (!isSvgFallback && !isAssetFallback) {
       imageElement.src = nameBasedFallback;

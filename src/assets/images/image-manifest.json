@@ -1,0 +1,36 @@
+{
+  "products": [
+    {
+      "file": "iphone13pro.jpg",
+      "notes": "Hasura catalog filename; add a matching photo under src/assets/images/products/."
+    },
+    {
+      "file": "macbookpro.jpg",
+      "notes": "Hasura catalog filename."
+    },
+    {
+      "file": "tshirt.jpg",
+      "notes": "Hasura catalog filename."
+    },
+    {
+      "file": "jeans.jpg",
+      "notes": "Hasura catalog filename."
+    },
+    {
+      "file": "chair.jpg",
+      "notes": "Hasura catalog filename."
+    },
+    {
+      "file": "ipad-pro.png",
+      "notes": "Replacement for the retired iPad Pro remote URL (see LEGACY_REMOTE_IMAGE_MAP)."
+    }
+  ],
+  "categories": [
+    { "file": "electronics.jpg", "category": "Electronics" },
+    { "file": "home.jpg", "category": "Home" },
+    { "file": "kitchen.jpg", "category": "Kitchen" },
+    { "file": "sports-and-outdoors.jpg", "category": "Sports & Outdoors" },
+    { "file": "clothing.jpg", "category": "Clothing" },
+    { "file": "home-and-garden.jpg", "category": "Home & Garden" }
+  ]
+}
